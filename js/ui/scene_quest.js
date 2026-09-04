@@ -78,7 +78,12 @@ class QuestScene extends Phaser.Scene {
       x += 130;
     }
 
-    // verbs (§8): every route the player owns is offered at every encounter
+    // verbs (§8): every route the player owns is offered at every encounter.
+    // A hireling does not call the rival intercept — the lead does.
+    if (enc.rival && ADV.Game.careerStage(game) === 'hireling') {
+      this.showHirelingRivalWait(enc);
+      return;
+    }
     if (enc.verbs.length > 1) {
       const line = ADV.Game.prompt(game, 'firstNonCombat');
       if (line) ADV.Notices.toast(this, line);
@@ -111,6 +116,28 @@ class QuestScene extends Phaser.Scene {
       game.quest.failed = true; game.quest.fled = true; game.quest.over = true;
       this.completeFlow();
     }, { size: 12, color: T().css.inkFaint });
+  }
+
+  showHirelingRivalWait(enc) {
+    const game = this.game_;
+    const q = game.quest;
+    const W = T().W;
+    const party = ADV.Party.of(game.world, ADV.Game.player(game));
+    const leader = party ? ADV.Party.leader(game.world, party) : null;
+    const name = (leader && leader.name) || 'The lead';
+    T().text(this, W / 2, 400, name + ' is choosing whether to fight or abandon the contract.', {
+      size: 16, display: true, ox: 0.5, wrap: W - 160, align: 'center', color: T().css.gold,
+    });
+    T().text(this, W / 2, 444, 'You wait.', { size: 13, ox: 0.5, italic: true, color: T().css.inkDim });
+    if (q.leaderRivalDeciding) return;
+    q.leaderRivalDeciding = true;
+    this.time.delayedCall(5000, () => {
+      if (!game.quest || game.quest.over || game.quest.playerDead) return;
+      const r = ADV.Game.resolveHirelingRival(game);
+      if (r.choice === 'abandon') { this.completeFlow(); return; }
+      ADV.Game.startCombat(game, false);
+      this.scene.start('Combat', { mode: 'quest' });
+    });
   }
 
   chooseVerb(v) {

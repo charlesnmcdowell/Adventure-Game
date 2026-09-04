@@ -2,6 +2,7 @@
 node_modules/
 test/
 tools/
+ads/
 *.md
 _to_delete_vo.zip
 package.json

@@ -279,6 +279,26 @@ Game.rivalAIChoice = function (leader) {
   if (g >= 55) return 'surrender';
   return a > c ? 'fight' : 'flee';
 };
+// Hireling view of a rival intercept: the NPC lead picks steel or walks.
+Game.leadRivalChoice = function (leader) {
+  return Game.rivalAIChoice(leader) === 'fight' ? 'fight' : 'abandon';
+};
+Game.resolveHirelingRival = function (game) {
+  const q = game && game.quest;
+  if (!q || q.over || q.playerDead) return { choice: 'none' };
+  const world = game.world;
+  const party = ADV.Party.of(world, Game.player(game));
+  const leader = party ? ADV.Party.leader(world, party) : null;
+  const choice = Game.leadRivalChoice(leader);
+  const name = (leader && leader.name) || 'The lead';
+  if (choice === 'abandon') {
+    q.failed = true; q.fled = true; q.over = true;
+    ADV.World.feed(world, name + ' turned the company from the other party and left the contract.', leader ? [leader.id] : []);
+    return { choice: 'abandon', leader };
+  }
+  ADV.World.feed(world, name + ' chose steel.', leader ? [leader.id] : []);
+  return { choice: 'fight', leader };
+};
 Game.applyRivalDecision = function (game, playerChoice) {
   const q = game.quest;
   const rival = q && q.rival;
@@ -367,7 +387,7 @@ Game.currentEncounter = function (game) {
       const rParty = q.rival && (world.parties || []).find(p => p.id === q.rival.partyId);
       const roster = rParty ? ADV.Party.roster(world, rParty) : [];
       q.enemies = roster.filter(c => c && c.alive && !c.isPlayer);
-      q.verbs = [{ verb: 'fight' }];
+      q.verbs = [{ verb: 'fight', ok: true }];
     }
     return {
       encIdx: q.quest.encounters.length, total: q.quest.encounters.length + 1,

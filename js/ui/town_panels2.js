@@ -268,16 +268,17 @@ Panels.wageDialog = function (scene, party, cand) {
   let wage = C().GOLD.typicalWage;
   ADV.Notices.custom(scene, (keep, D, close) => {
     const W = T().W;
-    keep(T().text(scene, W / 2, 240, `Offer ${cand.name} a wage`, { size: 20, display: true, ox: 0.5, color: T().css.gold }).setDepth(D));
-    if (bond) keep(T().text(scene, W / 2, 268, bond.label, { size: 14, ox: 0.5, color: bond.color }).setDepth(D));
-    const rowY = bond ? 312 : 296;
-    const amount = keep(T().text(scene, W / 2, rowY, '', { size: 28, display: true, ox: 0.5 }).setDepth(D));
+    keep(T().text(scene, W / 2, 220, `Offer ${cand.name} a wage`, { size: 20, display: true, ox: 0.5, color: T().css.gold }).setDepth(D));
+    if (bond) keep(T().text(scene, W / 2, 248, bond.label, { size: 14, ox: 0.5, color: bond.color }).setDepth(D));
+    const amtY = bond ? 286 : 274;
+    const amount = keep(T().text(scene, W / 2, amtY, '', { size: 28, display: true, ox: 0.5 }).setDepth(D));
     const render = () => amount.setText(wage + 'g / quest');
     render();
-    for (const [dx, lbl, d] of [[-180, '−5', -5], [-100, '−1', -1], [60, '+1', 1], [140, '+5', 5]]) {
+    const rowY = amtY + 40;
+    for (const [dx, lbl, d] of [[-200, '−5', -5], [-120, '−1', -1], [64, '+1', 1], [144, '+5', 5]]) {
       ADV.UI.modalBtn(keep, D, T().button(scene, W / 2 + dx, rowY, 56, 30, lbl, () => { wage = ADV.Party.clampWage(wage + d); render(); }, { size: 13 }));
     }
-    const go = T().button(scene, W / 2 - 190, rowY + 52, 180, 40, 'Make the offer', () => {
+    const go = T().button(scene, W / 2 - 190, rowY + 48, 180, 40, 'Make the offer', () => {
       close();
       const r = ADV.Party.offerWage(game.world, game.rng, party, cand, wage);
       scene.speak(cand, r.ok ? ADV.DialogueBox.bandFor(game, cand) : 'general', {}, () => {
@@ -289,9 +290,9 @@ Panels.wageDialog = function (scene, party, cand) {
         scene.refreshAll(); scene.openPanel('create');
       });
     }, { size: 14, bold: true });
-    const no = T().button(scene, W / 2 + 10, rowY + 52, 180, 40, 'Never mind', close, { size: 14 });
+    const no = T().button(scene, W / 2 + 10, rowY + 48, 180, 40, 'Never mind', close, { size: 14 });
     for (const b of [go, no]) ADV.UI.modalBtn(keep, D, b);
-  });
+  }, { w: 680, h: 300, y: 200 });
 };
 
 // ============================================================== GUILD ROSTER + FEED
@@ -845,14 +846,18 @@ Notices._paintToast = function (scene, text) {
   });
 };
 
-Notices.custom = function (scene, build) {
+Notices.custom = function (scene, build, box) {
   const W = T().W, H = T().H;
+  box = box || {};
+  const bw = box.w || 640, bh = box.h || 240;
+  const bx = box.x != null ? box.x : (W / 2 - bw / 2);
+  const by = box.y != null ? box.y : 220;
   const objs = [];
   const keep = o => { objs.push(o); return o; };
   const D = 930;
   Notices.block(scene);
   keep(scene.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.75).setDepth(D - 2).setInteractive());
-  keep(T().panel(scene, W / 2 - 320, 220, 640, 240)).setDepth(D - 1);
+  keep(T().panel(scene, bx, by, bw, bh)).setDepth(D - 1);
   let closed = false;
   const close = () => {
     if (closed) return;
