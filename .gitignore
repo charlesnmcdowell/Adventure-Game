@@ -1,0 +1,9 @@
+# dev-only — not shipped to the live game
+node_modules/
+test/
+tools/
+*.md
+_to_delete_vo.zip
+package.json
+package-lock.json
+.eslintrc.json

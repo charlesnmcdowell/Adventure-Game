@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adventurer</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0b0a08; height: 100%; }
+  #game { display: flex; justify-content: center; align-items: center; height: 100%; }
+  canvas { image-rendering: auto; }
+</style>
+</head>
+<body>
+<div id="game"></div>
+
+<script src="lib/phaser.min.js"></script>
+
+<!-- data (generated + authored) -->
+<script src="js/data/constants.js"></script>
+<script src="js/data/skills.js"></script>
+<script src="js/data/campaign_skills.js"></script>
+<script src="js/data/campaign_data.js"></script>
+<script src="js/data/campaign_dialogue.js"></script>
+<script src="js/data/campaign2_skills.js"></script>
+<script src="js/data/campaign2_data.js"></script>
+<script src="js/data/campaign2_dialogue.js"></script>
+<script src="js/data/enemies.js"></script>
+<script src="js/data/names.js"></script>
+<script src="js/data/tutorial.js"></script>
+<script src="js/data/registry.js"></script>
+<script src="js/data/dialogue.js"></script>
+<script src="js/data/dialogue_hiro.js"></script>
+<script src="js/data/dialogue2.js"></script>
+
+<!-- core (pure logic — also runs headless under Node for tests) -->
+<script src="js/core/rng.js"></script>
+<script src="js/core/util.js"></script>
+<script src="js/core/skillsys.js"></script>
+<script src="js/core/character.js"></script>
+<script src="js/core/housing.js"></script>
+<script src="js/core/survival.js"></script>
+<script src="js/core/combat.js"></script>
+<script src="js/core/combat_ai.js"></script>
+<script src="js/core/combat_effects.js"></script>
+<script src="js/core/relationships.js"></script>
+<script src="js/core/courtship.js"></script>
+<script src="js/core/hiro.js"></script>
+<script src="js/core/vault.js"></script>
+<script src="js/core/quests.js"></script>
+<script src="js/core/party.js"></script>
+<script src="js/core/divine.js"></script>
+<script src="js/core/death.js"></script>
+<script src="js/core/world.js"></script>
+<script src="js/core/save.js"></script>
+<script src="js/core/prefs.js"></script>
+<script src="js/core/campaign.js"></script>
+<script src="js/core/campaign2.js"></script>
+<script src="js/core/game.js"></script>
+
+<!-- ui -->
+<script src="js/ui/theme.js"></script>
+<script src="js/ui/uikit.js"></script>
+<script src="js/ui/home_art.js"></script>
+<script src="js/ui/music.js"></script>
+<script src="js/ui/tooltip.js"></script>
+<script src="js/ui/portraits.js"></script>
+<script src="js/ui/vfx.js"></script>
+<script src="js/ui/spell_fx.js"></script>
+<script src="js/ui/cutscenes.js"></script>
+<script src="js/ui/battle_art.js"></script>
+<script src="js/ui/dialoguebox.js"></script>
+<script src="js/ui/scene_boot.js"></script>
+<script src="js/ui/scene_creation.js"></script>
+<script src="js/ui/scene_town.js"></script>
+<script src="js/ui/town_panels.js"></script>
+<script src="js/ui/town_panels2.js"></script>
+<script src="js/ui/campaign_ui.js"></script>
+<script src="js/ui/campaign2_ui.js"></script>
+<script src="js/ui/tutor.js"></script>
+<script src="js/ui/scene_quest.js"></script>
+<script src="js/ui/scene_combat.js"></script>
+<script src="js/ui/scene_death.js"></script>
+
+<script>
+window.__game = new Phaser.Game({
+  type: Phaser.AUTO,
+  parent: 'game',
+  width: ADV.T.W,
+  height: ADV.T.H,
+  backgroundColor: '#171512',
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  scene: [ADV.TitleScene, ADV.CreationScene, ADV.TownScene, ADV.QuestScene, ADV.CombatScene, ADV.DeathScene],
+});
+</script>
+</body>
+</html>

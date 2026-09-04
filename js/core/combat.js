@@ -1,0 +1,1656 @@
+// Three-lane turn-based tactical combat (§4, §15a).
+// Pure logic: emits an event list the UI animates. No Phaser here.
+(function () {
+'use strict';
+const C = () => ADV.DATA.CONST;
+const SK = () => ADV.DATA.SKILLS;
+const Sys = () => ADV.SkillSys;
+const Ch = () => ADV.Character;
+
+const Combat = {};
+
+// Status taxonomy — one authority for "what counts as negative" (Demigod
+// immunity, Cleanse) vs "what ticks as damage over time".
+const NEG_STATUSES = ['reactionLock', 'rooted', 'burn', 'bleed', 'poison', 'healcut', 'frozen', 'shocked', 'sealed',
+  'withering', 'exposed', 'shock', 'suppressed', 'marked', 'contractMark', 'shadowDot'];
+const DOT_STATUSES = ['burn', 'bleed', 'poison', 'shadowDot'];
+// Buffs and wards — what Dispel/Ward Thief can strip (perks are never statuses, §13d-2)
+const POS_STATUSES = ['guard', 'ward', 'atkBuff', 'thorns', 'aura', 'hot', 'iceArmor', 'purified',
+  'cloak', 'bloodPrice', 'serpent', 'storm', 'bond', 'spellblade', 'warhound', 'fireBarrier',
+  'absorb', 'anchor', 'advance', 'lifesteal', 'holdRoad', 'countersign', 'runic',
+  'elemGuard', 'volley', 'closed', 'laneGuard', 'immovable', 'charmWard', 'railGuard',
+  'venomTouch', 'openingTouch'];
+Combat.NEG_STATUSES = NEG_STATUSES; Combat.POS_STATUSES = POS_STATUSES;
+
+// ---------------------------------------------------------------- unit wrap
+function makeUnit(ch, side, idx) {
+  const maxHp = Ch().maxHp(ch);
+  return {
+    uid: side + idx, ch, side,
+    lane: null, slot: 0,
+    chp: ch.combatHp != null ? ch.combatHp : maxHp,
+    maxHp, tempHp: 0,
+    downed: false, fled: false, reserved: false,
+    statuses: [],           // {kind, rounds, power, stacks, srcUid, scope...}
+    marksBy: [],            // taunt marks: uids this unit MUST attack
+    momentumTarget: null, momentumStacks: 0, consecutiveCount: 0,
+    guard: null,            // {scope, srcUid} shield wall
+    evade: 0, untargetable: 0, counter: 0,
+    usedOncePerBattle: {},
+    planned: null,          // intent {skillId, targetUid, label}
+    witnessedHere: [],      // [{skillId, tier}] skills seen this battle
+    turnsPerRound: Math.max(perkVal(ch, 'lone_wolf', 'turnsPerRound') || 1,
+                            perkVal(ch, 'lightning_king', 'turnsPerRound') || 1),
+    delayed: 0,             // frost/snare turn-order penalty (acts later)
+    loseNextAction: false,
+    survivedLethal: false,  // wild form advanced once/battle
+    // campaign primitives
+    stealth: false, stealthRounds: 0, actedThisEncounter: false, reflectImmuneNext: false,
+    killStreak: 0, idleRounds: 0, castsThisBattle: 0, laneStreak: { lane: null, n: 0 },
+    preventedStored: 0, attackedThisRoundBy: [], lastElementTaken: null,
+    // ninja/pirate primitives (add-on §3)
+    reloadLock: {},            // skillId -> true while it needs reloading
+    laneFocus: { lane: null, n: 0 },  // Ranging Cannon: consecutive rounds on a lane
+    damageTaken: 0,            // Clan Blood heals from this
+    grantedTurns: 0,
+  };
+}
+
+function perkVal(ch, perkId, key) {
+  const p = ch.perks.find(e => e.skillId === perkId);
+  if (!p) return null;
+  const sk = SK()[perkId];
+  const data = Object.assign({}, sk, sk.tiers.advanced); // perks are advanced-only (§13d-2)
+  return key ? data[key] : data;
+}
+
+
+// ---- lane geometry & positional casting rules -------------------------------
+const LANE_IDX = { front: 0, mid: 1, back: 2 };
+// Restorative healing on OTHERS requires standing exactly one lane behind the
+// target (self-healing works anywhere).
+// Healing reaches any ally in any lane (request: allies must be healable).
+function canHealOther(caster, tgt) { return true; }
+// Protective (tank-style) support requires being on the target's lane or a
+// lane ahead of them — you shield what stands behind you.
+function canWard(caster, tgt) {
+  if (tgt === caster) return true;
+  return LANE_IDX[caster.lane] <= LANE_IDX[tgt.lane];
+}
+
+// -------------------------------------------------------------- lane layout
+function layoutSide(units) {
+  // Prefer: tanks/fighters front, healers/mages/rangers back, rest mid.
+  const backish = ['mage', 'ranger'];
+  const midish = ['healer'];      // healing reaches exactly one lane ahead
+  const frontish = ['tank', 'fighter', 'druid'];
+  const lanes = { front: [], mid: [], back: [] };
+  const solo = units.length === 1;
+  for (const u of units) {
+    if (u.reserved) continue;
+    let lane = 'mid';
+    const inc = (u.ch.archetypeInclination && u.ch.archetypeInclination[0]) ||
+                mainArchetype(u.ch);
+    if (solo) lane = 'front';                       // a solo character occupies the front lane (§15a)
+    else if (frontish.includes(inc)) lane = 'front';
+    else if (midish.includes(inc)) lane = 'mid';
+    else if (backish.includes(inc)) lane = 'back';
+    // overflow to adjacent lanes
+    const order = lane === 'front' ? ['front', 'mid', 'back'] :
+                  lane === 'back' ? ['back', 'mid', 'front'] : ['mid', 'front', 'back'];
+    for (const L of order) {
+      if (lanes[L].length < C().LANE_CAP) { lanes[L].push(u); u.lane = L; u.slot = lanes[L].length - 1; break; }
+    }
+    if (!u.lane) { u.reserved = true; }              // field cap: 9 per side (§15a)
+  }
+  // guarantee front occupancy: if front empty but others occupied, pull forward
+  if (!lanes.front.length) {
+    const src = lanes.mid.length ? 'mid' : 'back';
+    const u = lanes[src].shift();
+    if (u) { lanes.front.push(u); u.lane = 'front'; u.slot = 0; }
+  }
+  return lanes;
+}
+
+function mainArchetype(ch) {
+  const counts = {};
+  for (const e of ch.actives.concat(ch.perks)) {
+    const sk = SK()[e.skillId];
+    if (sk && sk.archetype) counts[sk.archetype] = (counts[sk.archetype] || 0) + 1;
+  }
+  let best = null, n = 0;
+  for (const [k, v] of Object.entries(counts)) if (v > n) { best = k; n = v; }
+  return best || 'fighter';
+}
+
+// ---------------------------------------------------------------- creation
+// sideA/sideB: arrays of characters. opts: {ambushBy: characterId, rng}
+Combat.create = function (charsA, charsB, opts) {
+  opts = opts || {};
+  const rng = opts.rng || new ADV.RNG(12345);
+  const st = {
+    rng, round: 0, events: [], over: false, winner: null,
+    units: [], reservesA: [], reservesB: [],
+    ambushUid: null, turnQueue: [], turnIdx: 0,
+    context: opts.context || 'quest',
+    hazards: [],                              // lane hazards: {side, lane, kind, power, rounds, srcUid, srcAtk}
+    questTier: opts.questTier || 1,           // Paid Shot scaling
+    encounterIndex: opts.encounterIndex || 0, // Veteran's Cut scaling
+    leaderId: opts.leaderId || null,
+    leaderFell: false,
+    leaderFled: false,
+  };
+  let i = 0;
+  for (const ch of charsA) st.units.push(makeUnit(ch, 'a', i++));
+  i = 0;
+  for (const ch of charsB) st.units.push(makeUnit(ch, 'b', i++));
+  // field cap
+  for (const side of ['a', 'b']) {
+    const mine = st.units.filter(u => u.side === side);
+    mine.slice(C().FIELD_CAP).forEach(u => { u.reserved = true; });
+    layoutSide(mine);
+  }
+  if (opts.ambushBy) {
+    const u = st.units.find(x => x.ch.id === opts.ambushBy);
+    if (u) st.ambushUid = u.uid;
+  }
+  ev(st, { t: 'start', ambush: !!st.ambushUid });
+  startRound(st);
+  return st;
+};
+
+function ev(st, e) { st.events.push(e); return e; }
+
+function livingUnits(st, side) {
+  return st.units.filter(u => u.side === side && !u.downed && !u.fled && !u.reserved);
+}
+Combat.living = livingUnits;
+
+// ---- lane movement (add-on §3) --------------------------------------------
+// Pulls, hooks and shoves all come through here. Sea Legs, Bear Stance, Close
+// Order and Stone Stance make a unit immovable; Chain-and-Weight roots it.
+function isImmovable(u) {
+  if (u.statuses.some(x => x.kind === 'immovable')) return true;
+  for (const e of u.ch.perks) { const sk = SK()[e.skillId]; if (sk && sk.immovable) return true; }
+  return false;
+}
+function laneClosed(st, u) {
+  return livingUnits(st, u.side).some(x => x.lane === u.lane && x.statuses.some(y => y.kind === 'closed'));
+}
+Combat.moveLane = function (st, u, toLane) {
+  if (!toLane || toLane === u.lane) return false;
+  if (isImmovable(u) || laneClosed(st, u) || u.statuses.some(x => x.kind === 'rooted')) {
+    ev(st, { t: 'heldFast', uid: u.uid }); return false;
+  }
+  const occupants = laneUnits(st, u.side, toLane).length;
+  if (occupants >= C().LANE_CAP) return false;
+  u.lane = toLane; u.slot = occupants;
+  ev(st, { t: 'moved', uid: u.uid, lane: toLane });
+  return true;
+};
+// Drag a unit `n` lanes toward the front of its own side.
+Combat.pullForward = function (st, u, n) {
+  const order = ['back', 'mid', 'front'];
+  let idx = order.indexOf(u.lane);
+  let moved = false;
+  for (let i = 0; i < (n || 1) && idx < order.length - 1; i++) {
+    if (!Combat.moveLane(st, u, order[idx + 1])) break;
+    idx++; moved = true;
+  }
+  return moved;
+};
+
+function laneUnits(st, side, lane) {
+  return livingUnits(st, side).filter(u => u.lane === lane);
+}
+
+// -------------------------------------------------------- turn order (§15)
+function buildTurnQueue(st) {
+  const q = [];
+  for (const u of st.units) {
+    if (u.downed || u.fled || u.reserved) continue;
+    let spd = Ch().effStat(u.ch, 'spd') - (u.delayed || 0);
+    // Naval Discipline: nothing puts this lane at the back of the round
+    const noDelay = livingUnits(st, u.side).some(x => x.lane === u.lane &&
+      x.ch.perks.some(e => { const sk = SK()[e.skillId]; return sk && sk.laneNoDelay; }));
+    if (u.statuses.some(x => x.kind === 'shock') && !noDelay) spd -= 100;   // Shock: acts last
+    if (perkVal(u.ch, 'green_discipline', 'firstInRoundOne') && st.round === 1) spd += 1000;
+    const laneRank = { front: 0, mid: 1, back: 2 }[u.lane] || 0;
+    const n = u.turnsPerRound;
+    const consecutive = !!perkVal(u.ch, 'lightning_king', 'consecutive');
+    for (let k = 0; k < n; k++) {
+      // Lone Wolf distributed: spread extra turns through the round via phantom
+      // speeds; Lightning King's extra turn comes straight after the first
+      q.push({ uid: u.uid, spd: spd - k * (consecutive ? 0.01 : 6), laneRank, ord: u.uid, extra: k > 0 });
+    }
+  }
+  q.sort((x, y) => y.spd - x.spd || x.laneRank - y.laneRank || (x.ord < y.ord ? -1 : 1));
+  // Lightning King: the extra turn follows the first immediately, whatever ties say
+  for (let i = q.length - 1; i >= 0; i--) {
+    const e = q[i];
+    if (!e.extra) continue;
+    const u = st.units.find(x => x.uid === e.uid);
+    if (!u || !perkVal(u.ch, 'lightning_king', 'consecutive')) continue;
+    q.splice(i, 1);
+    const first = q.findIndex(x => x.uid === e.uid);
+    q.splice(first + 1, 0, e);
+  }
+  // Ambush: sneaking character gets 2 consecutive turns at the very top of round 1 (§15a)
+  if (st.round === 1 && st.ambushUid) {
+    const rest = q.filter(e => e.uid !== st.ambushUid);
+    const own = q.filter(e => e.uid === st.ambushUid);
+    q.length = 0;
+    q.push({ uid: st.ambushUid, spd: 999, laneRank: 0, ord: '!' });
+    q.push({ uid: st.ambushUid, spd: 998, laneRank: 0, ord: '!' });
+    q.push(...rest, ...own.slice(0)); // ambusher keeps normal turns too? No — replace:
+    // GDD: "two consecutive turns at the top of round one", normal order otherwise excluded
+    st.turnQueue = q.filter(e => {
+      if (e.uid !== st.ambushUid) return true;
+      if (e.spd >= 998) return true;
+      return false;
+    });
+    return;
+  }
+  st.turnQueue = q;
+}
+
+// Signal Flags / Fleet Order: splice an ally in right after the current turn.
+Combat.grantTurn = function (st, u, ally, n) {
+  const at = st.turnIdx + 1;
+  for (let i = 0; i < (n || 1); i++) {
+    st.turnQueue.splice(at + i, 0, { uid: ally.uid, spd: 0, laneRank: 0, ord: '>' + i, granted: true });
+  }
+  ally.grantedTurns = (ally.grantedTurns || 0) + (n || 1);
+  ev(st, { t: 'grantTurn', uid: ally.uid, by: u.uid });
+};
+
+function startRound(st) {
+  st.round++;
+  for (const u of st.units) { u.delayed = 0; u.attackedThisRoundBy = []; } // per-round trackers
+  // scripted reinforcements (The Quiet raises the Risen mid-fight, §6a)
+  if (st.spawnQueue) {
+    for (const spec of st.spawnQueue.filter(x => x.round === st.round)) Combat.spawnReinforcement(st, spec.ch, spec.side || 'b');
+  }
+  buildTurnQueue(st);
+  st.turnIdx = 0;
+  // plan intents for everyone (telegraphed ally intent, §4)
+  for (const u of st.units) {
+    if (u.downed || u.fled || u.reserved) continue;
+    if (!u.ch.isPlayer) u.planned = Combat.planFor(st, u);
+  }
+  ev(st, { t: 'round', n: st.round, order: st.turnQueue.map(e => e.uid) });
+}
+
+// Whose turn is it? Returns {unit, isPlayer} or advances rounds; null if over.
+Combat.currentTurn = function (st) {
+  if (st.over) return null;
+  while (true) {
+    if (st.turnIdx >= st.turnQueue.length) {
+      endRoundTicks(st);
+      if (st.over) return null;
+      startRound(st);
+    }
+    const entry = st.turnQueue[st.turnIdx];
+    const u = st.units.find(x => x.uid === entry.uid);
+    if (!u || u.downed || u.fled || u.reserved) { st.turnIdx++; continue; }
+    if (entry.extra && !entry.extraShown) { entry.extraShown = true; ev(st, { t: 'extraTurn', uid: u.uid }); }
+    if (u.loseNextAction) {
+      u.loseNextAction = false;
+      ev(st, { t: 'skip', uid: u.uid, reason: 'bound' });
+      st.turnIdx++; continue;
+    }
+    const fz = u.statuses.find(x => x.kind === 'frozen');
+    if (fz) {
+      fz.skips = (fz.skips || 1) - 1;
+      ev(st, { t: 'skip', uid: u.uid, reason: 'frozen' });
+      if (fz.skips <= 0) {
+        removeStatus(u, fz);
+        // thaw immunity: no re-freeze stunlock (3 rounds)
+        u.statuses.push({ kind: 'freezeImmune', rounds: 3 });
+      }
+      st.turnIdx++; continue;
+    }
+    return { unit: u, isPlayer: !!u.ch.isPlayer };
+  }
+};
+
+Combat.advance = function (st) { st.turnIdx++; checkEnd(st); };
+
+// -------------------------------------------------------------- targeting
+function canMelee(st, attacker, target) {
+  // Cover: a lane cannot be melee-targeted while a lane in front of it is occupied (§4)
+  const enemySide = target.side;
+  const laneOrder = ['front', 'mid', 'back'];
+  const ti = laneOrder.indexOf(target.lane);
+  for (let i = 0; i < ti; i++) {
+    if (laneUnits(st, enemySide, laneOrder[i]).length > 0) {
+      const mk = perkVal(attacker.ch, 'marksman', null);
+      if (mk && mk.ignoreCover) return true;
+      return false;
+    }
+  }
+  return true;
+}
+
+Combat.validTargets = function (st, u, skillId, offensiveMode) {
+  const m = manifestFor(u, skillId);
+  if (!m) return [];
+  const d = m.data;
+  const foeSide = u.side === 'a' ? 'b' : 'a';
+  const seeInvis = !!perkVal(u.ch, 'see_invisibility', null);
+  const foes = livingUnits(st, foeSide).filter(x => !x.untargetable && (!x.stealth || seeInvis));
+  const allies = livingUnits(st, u.side);
+  let target = d.target;
+  if (offensiveMode && d.offensive) target = d.offensive.target || 'enemy';
+  const isHeal = d.heal && !offensiveMode;
+  if (target === 'self') return [u];
+  if (target === 'party') return isHeal || d.auraAtk ? allies : foes;
+  if (isHeal || target === 'ally' || target === 'allyLane') {
+    if (d.revive) {
+      const downed = st.units.filter(x => x.side === u.side && x.downed && !x.fled && !x.reserved);
+      if (downed.length) return downed;
+      if (!d.power) return [];
+    }
+    let pool2 = allies;
+    if (d.healBehind) pool2 = allies.filter(x => canHealOther(u, x));
+    else if (d.wardAhead) pool2 = allies.filter(x => canWard(u, x));
+    // Cleanse also reaches conscripts and the undead on EITHER side (§ request 7)
+    if (skillId === 'cleanse') {
+      const mercies = st.units.filter(x => !x.downed && !x.fled && !x.reserved &&
+        x !== u && (x.ch.isConscript || x.ch.isUndead) && !pool2.includes(x));
+      pool2 = pool2.concat(mercies);
+    }
+    return pool2;
+  }
+  let pool = foes;
+  if (d.openerOnly && u.actedThisEncounter) return [];
+  if (d.openerOrStealth) {
+    // Backstab rework (campaign §0d): any lane, but ONLY as the opening action
+    // of an encounter or from stealth. Otherwise greyed out.
+    pool = (u.stealth || !u.actedThisEncounter) ? foes : [];
+  } else if (d.reach === 'back') {
+    // Rearmost occupied non-front lane (a solo front-liner is never reachable)
+    const backs = foes.filter(x => x.lane === 'back');
+    const mids = foes.filter(x => x.lane === 'mid');
+    pool = backs.length ? backs : mids;
+  } else if (d.reach === 'front') {
+    pool = foes.filter(x => canMelee(st, u, x));
+  }
+  // Hold the Road: a held lane cannot be flanked/bypassed — back-reach skills
+  // can't single it out (front-reach and any-lane skills still can)
+  if (d.reach === 'back') pool = pool.filter(x => !x.statuses.some(s => s.kind === 'holdRoad'));
+  // Taunt marks force targeting (§3a)
+  if (u.marksBy.length) {
+    const forced = pool.filter(x => u.marksBy.includes(x.uid));
+    if (forced.length && !isHeal && target !== 'self') return forced;
+  }
+  return pool;
+};
+
+// Lowest current health in a target pool (temp HP counts). Ties keep the
+// first unit so auto-target is deterministic.
+Combat.lowestHealth = function (pool) {
+  if (!pool || !pool.length) return null;
+  let best = pool[0];
+  let bestHp = best.chp + (best.tempHp || 0);
+  for (let i = 1; i < pool.length; i++) {
+    const u = pool[i];
+    const hp = u.chp + (u.tempHp || 0);
+    if (hp < bestHp) { best = u; bestHp = hp; }
+  }
+  return best;
+};
+
+Combat.skillNeedsAuto = function (ch, skillId, offensiveMode) {
+  if (skillId === 'basic_attack') return true;
+  const sk = SK()[skillId];
+  if (!sk || sk.target === 'postVictory') return false;
+  let tgt = sk.target;
+  const entry = ch && Sys().entryFor(ch, skillId);
+  const data = entry ? Sys().manifest(ch, entry).data : sk;
+  tgt = data.target;
+  if (offensiveMode && data.offensive) tgt = data.offensive.target || 'enemy';
+  return tgt !== 'self';
+};
+
+Combat.clearAutoFlags = function (ch) {
+  if (!ch) return;
+  ch.autoAttack = false;
+  ch.autoRepeat = null;
+  ch.autoOrder = [];
+  ch.autoIdx = 0;
+  for (const e of (ch.actives || []).concat(ch.perks || [])) {
+    if (e.auto || e.autoOff) {
+      e.auto = false;
+      e.autoOff = false;
+      Sys().storeProgress(ch, e);
+    }
+  }
+};
+
+function sameAuto(a, skillId, off) {
+  return a && a.skillId === skillId && !!a.off === !!off;
+}
+
+// Queue of auto skills, oldest first. Older saves only have a single
+// autoRepeat / per-skill flag — fold those in so combat still fires.
+Combat.autoList = function (ch) {
+  if (!ch) return [];
+  let stored = (ch.autoOrder || []).filter(x => x && x.skillId);
+  if (!stored.length) {
+    if (ch.autoRepeat && ch.autoRepeat.skillId) stored.push({ skillId: ch.autoRepeat.skillId, off: !!ch.autoRepeat.off });
+    if (ch.autoAttack && !stored.some(x => sameAuto(x, 'basic_attack', false))) stored.push({ skillId: 'basic_attack', off: false });
+    for (const e of ch.actives || []) {
+      if (e.autoOff && !stored.some(x => sameAuto(x, e.skillId, true))) stored.push({ skillId: e.skillId, off: true });
+      else if (e.auto && !stored.some(x => sameAuto(x, e.skillId, false))) stored.push({ skillId: e.skillId, off: false });
+    }
+    ch.autoOrder = stored;
+  }
+  const list = stored.filter(x => x.skillId === 'basic_attack' || Sys().entryFor(ch, x.skillId));
+  ch.autoAttack = list.some(x => sameAuto(x, 'basic_attack', false));
+  ch.autoRepeat = list[0] || null;
+  return list;
+};
+
+Combat.ensureAutoRepeat = function (ch) {
+  const list = Combat.autoList(ch);
+  return list[0] || null;
+};
+
+Combat.skillAutoOn = function (ch, skillId, offensiveMode) {
+  return Combat.autoList(ch).some(x => sameAuto(x, skillId, offensiveMode));
+};
+
+Combat.setSkillAuto = function (ch, skillId, on, offensiveMode) {
+  Combat.autoList(ch);
+  const list = ch.autoOrder || (ch.autoOrder = []);
+  const off = !!offensiveMode;
+  const i = list.findIndex(x => sameAuto(x, skillId, off));
+  if (on && i < 0) list.push({ skillId, off });
+  if (!on && i >= 0) list.splice(i, 1);
+  const live = Combat.autoList(ch);
+  ch.autoIdx = live.length ? ((ch.autoIdx || 0) % live.length) : 0;
+  if (skillId === 'basic_attack') return;
+  const e = Sys().entryFor(ch, skillId);
+  if (!e) return;
+  e.auto = list.some(x => sameAuto(x, skillId, false));
+  e.autoOff = list.some(x => sameAuto(x, skillId, true));
+  Sys().storeProgress(ch, e);
+};
+
+function autoUsable(st, u, r) {
+  if (!r) return null;
+  if (r.skillId !== 'basic_attack' && !Sys().entryFor(u.ch, r.skillId)) return null;
+  const seal = u.statuses.find(x => x.kind === 'sealed');
+  if (seal && r.skillId !== 'basic_attack') {
+    const m = manifestFor(u, r.skillId);
+    if (m && (seal.tiers || []).includes(m.tier)) return null;
+  }
+  const pool = Combat.validTargets(st, u, r.skillId, r.off);
+  if (!pool.length) return null;
+  const tgt = Combat.lowestHealth(pool);
+  if (!tgt) return null;
+  return {
+    action: { skillId: r.skillId, off: !!r.off, isAttack: r.skillId === 'basic_attack', pool },
+    tgt,
+  };
+}
+
+// Ready-to-fire player auto: the next skill in the rotation that has a target.
+Combat.autoReadyAction = function (st, u) {
+  const list = Combat.autoList(u.ch);
+  if (!list.length) return null;
+  const n = list.length;
+  const start = ((u.ch.autoIdx || 0) % n + n) % n;
+  for (let k = 0; k < n; k++) {
+    const ready = autoUsable(st, u, list[(start + k) % n]);
+    if (!ready) continue;
+    u.ch.autoIdx = (start + k + 1) % n;
+    return ready;
+  }
+  return null;
+};
+
+// True if the unit can spend the turn on a skill or a basic attack. Smoke and
+// cover can empty every pool; the UI must still let the turn pass.
+Combat.hasLegalCombatAction = function (st, u) {
+  const seal = u.statuses.find(x => x.kind === 'sealed');
+  for (const e of u.ch.actives || []) {
+    const sk = SK()[e.skillId];
+    if (!sk || sk.target === 'postVictory') continue;
+    const m = manifestFor(u, e.skillId);
+    if (!m) continue;
+    if (seal && (seal.tiers || []).includes(m.tier)) continue;
+    if (Combat.validTargets(st, u, e.skillId, false).length) return true;
+    if (m.data.offensive && Combat.validTargets(st, u, e.skillId, true).length) return true;
+  }
+  return Combat.validTargets(st, u, 'basic_attack', false).length > 0;
+};
+
+function manifestFor(u, skillId) {
+  if (skillId === 'basic_attack') {
+    const sk = SK().basic_attack;
+    return { skill: sk, tier: 'basic', level: 1, data: Object.assign({}, sk, sk.tiers.basic) };
+  }
+  const entry = u.ch.actives.find(a => a.skillId === skillId) || u.ch.perks.find(p => p.skillId === skillId);
+  if (!entry) return null;
+  return Sys().manifest(u.ch, entry);
+}
+Combat.manifestFor = manifestFor;
+
+// ------------------------------------------------------------- damage core
+function computeDamage(st, atkUnit, defUnit, m, opts) {
+  opts = opts || {};
+  const ch = atkUnit.ch;
+  const atk = Ch().effStat(ch, 'atk');
+  let power = opts.power != null ? opts.power : (m.data.power || 0);
+  if (power <= 0) return 0;
+  const tierMult = m.data.noTierGrowth ? 1.0 : C().TIER_MULT[m.tier];
+  const lvl = m.level;
+  let dmg = atk * power * tierMult * (1 + lvl * C().LEVEL_DAMAGE_SCALAR);
+
+  // Perk modifiers
+  const af = perkVal(ch, 'arcane_focus', null);
+  if (af && m.data.elemental) dmg *= af.eleDmgMult;
+  const wf = perkVal(ch, 'wild_form', null);
+  if (wf) dmg *= wf.dmgMult;
+  const opp = perkVal(ch, 'opportunist', null);
+  if (opp && defUnit && (defUnit.chp / defUnit.maxHp) < opp.executeThreshold) dmg *= opp.bonusMult;
+  const mk = perkVal(ch, 'marksman', null);
+  if (mk && atkUnit.lane === 'back') dmg *= mk.backLaneBonus;
+  // Fifty Names: the clan writes down every kill, and the tally never resets
+  const fn = perkVal(ch, 'fifty_names', 'lifeKillScale');
+  if (fn) dmg *= 1 + (ch.lifeKills || 0) * fn;
+  // Rising Cut / Before the Breath: doubled on anyone who has not moved yet
+  if (m.data.unactedDouble && defUnit && !defUnit.attackedThisRound && !defUnit.actedThisRound) dmg *= 2;
+  // Ranging Cannon: every consecutive round on the same lane finds the range
+  if (m.data.laneFocusScale && defUnit) {
+    if (atkUnit.laneFocus.lane === defUnit.lane) atkUnit.laneFocus.n++;
+    else atkUnit.laneFocus = { lane: defUnit.lane, n: 0 };
+    dmg *= 1 + atkUnit.laneFocus.n * m.data.laneFocusScale;
+  }
+  const ac = perkVal(ch, 'arena_champion', null);
+  if (ac && atkUnit.arenaStacks) dmg *= 1 + atkUnit.arenaStacks * ac.stackPct;
+  const mo = perkVal(ch, 'momentum', null);
+  if (mo && defUnit) {
+    if (atkUnit.momentumTarget === defUnit.uid) {
+      atkUnit.momentumStacks = Math.min(mo.maxStacks, atkUnit.momentumStacks + 1);
+    } else { atkUnit.momentumTarget = defUnit.uid; atkUnit.momentumStacks = 0; }
+    dmg *= (1 + atkUnit.momentumStacks * mo.stackMult);
+  }
+  // Beast shape / auras / campaign self-buffs
+  for (const s of atkUnit.statuses) {
+    if (s.kind === 'atkBuff') dmg *= s.mult;
+    if (s.kind === 'aura') dmg *= s.atk;
+    if (s.kind === 'suppressed') dmg *= s.mult;        // Suppressing Volley
+    if (s.kind === 'advance') dmg *= s.mult;           // Line Advance
+    if (s.kind === 'bond') dmg *= s.mult;              // Elemental Bond
+    if (s.kind === 'warhound') dmg *= s.mult;          // Warhound Form
+    if (s.kind === 'spellblade') dmg *= (1 + m.level * 0.02); // Spellblade: scales with skill level
+  }
+  // ---- campaign scalers (§13) ----
+  const D = m.data;
+  if (D.killStreakScale) dmg *= 1 + atkUnit.killStreak * D.killStreakScale;         // Executioner's Rhythm
+  if (D.idleScale) dmg *= 1 + atkUnit.idleRounds * D.idleScale;                     // Spider's Patience
+  if (D.encounterScale) dmg *= 1 + (st.encounterIndex || 0) * D.encounterScale;    // Veteran's Cut
+  if (D.castScale) dmg *= 1 + atkUnit.castsThisBattle * D.castScale;               // Arcane Cascade
+  if (D.tierScale) dmg *= 1 + ((st.questTier === 'boss' ? 4 : (st.questTier || 1)) - 1) * D.tierScale; // Paid Shot
+  if (D.alliesBetweenScale && defUnit) {                                            // Killing Angle
+    const a = LANE_IDX[atkUnit.lane];
+    const between = livingUnits(st, atkUnit.side).filter(x => x !== atkUnit && LANE_IDX[x.lane] < a).length;
+    dmg *= 1 + between * D.alliesBetweenScale;
+  }
+  if (D.buffCountScale && defUnit) {                                                // Focal Shot
+    const n = defUnit.statuses.filter(x => POS_STATUSES.includes(x.kind)).length;
+    dmg *= 1 + n * D.buffCountScale;
+  }
+  if (D.flankScale && defUnit) {                                                    // Flanking Pay
+    if (defUnit.attackedThisRoundBy.some(uid => uid !== atkUnit.uid)) dmg *= 1 + D.flankScale;
+  }
+  if (D.laneStreakScale && defUnit) {                                               // Ranged Discipline
+    dmg *= 1 + (atkUnit.laneStreak.lane === defUnit.lane ? atkUnit.laneStreak.n : 0) * D.laneStreakScale;
+  }
+  if (D.distanceScale && defUnit) {                                                 // Shadow Lance
+    const dist = LANE_IDX[defUnit.lane] + LANE_IDX[atkUnit.lane];
+    dmg *= 1 + dist * D.distanceScale;
+  }
+  // Contract Mark: every ally deals bonus damage to the marked target
+  if (defUnit && defUnit.statuses.some(x => x.kind === 'contractMark' && x.side === atkUnit.side)) dmg *= 1.25;
+  dmg = Math.round(dmg);
+  let def = defUnit ? Ch().effStat(defUnit.ch, 'def') + (defUnit.armorBonus || 0) - (defUnit.defStripped || 0) : 0;
+  if (defUnit) {
+    // Marked for the Knife: the marker ignores 50% of the target's Defence
+    if (defUnit.statuses.some(x => x.kind === 'marked' && x.srcUid === atkUnit.uid)) def = Math.round(def * 0.5);
+    // Saber Thrust: through the guard — ignores a set fraction of Defence
+    if (m.data.defIgnorePct) def = Math.round(def * (1 - m.data.defIgnorePct));
+    // Burning: reduces Defence while active (campaign §13e)
+    if (defUnit.statuses.some(x => x.kind === 'burn')) def -= 4;
+    // Beast Handler: followers gain their handler's Defence bonus
+    if ((defUnit.ch.isConscript || defUnit.ch.isUndead) &&
+        livingUnits(st, defUnit.side).some(x => x !== defUnit && perkVal(x.ch, 'beast_handler', null))) def += 4;
+  }
+  return Math.max(C().MIN_DAMAGE, dmg - Math.max(0, def));
+}
+
+// Apply damage with all defensive triggers. Returns actual damage dealt to hp.
+function dealDamage(st, src, tgt, amount, tag, opts) {
+  opts = opts || {};
+  if (tgt.downed || tgt.fled) return 0;
+  if (src && tag !== 'dot' && tag !== 'reflect' && tag !== 'retaliation') {
+    if (!tgt.attackedThisRoundBy.includes(src.uid)) tgt.attackedThisRoundBy.push(src.uid);
+  }
+  // Reflect immunity: Ghoststep's next attack, and Marksman firing from the
+  // back lane, take no reflect damage from ANY source (campaign §0c/§13a)
+  const mkA = src ? perkVal(src.ch, 'marksman', null) : null;
+  const noReflect = !!(opts.noReflect || (src && (src.reflectImmuneNext || (mkA && mkA.noReflect && src.lane === 'back'))));
+  const bounce = (owner, victim, dmgBack, kind) => { if (!noReflect) applyRawDamage(st, owner, victim, dmgBack, kind || 'reflect'); };
+  // Shocked (lightning): the target takes more damage from EVERY source
+  const sh = tgt.statuses.find(x => x.kind === 'shocked');
+  if (sh && tag !== 'dot') amount = Math.round(amount * (1 + sh.pct));
+  // Constructs / undead: no blood to spoil, but steel, ice, and lightning bite
+  if (tag !== 'dot' && !Ch().isOrganic(tgt.ch)) {
+    const el = opts.element;
+    if (!el || el === 'physical' || el === 'lightning' || el === 'ice') {
+      amount = Math.round(amount * (C().NON_ORGANIC_WEAK || 1.35));
+    }
+  }
+  // Exposed (campaign §13e): melee hits consume every stack for +20% each
+  if (opts.melee && tag === 'attack') {
+    const ex = tgt.statuses.find(x => x.kind === 'exposed');
+    if (ex && ex.stacks > 0) { amount = Math.round(amount * (1 + 0.2 * ex.stacks)); removeStatus(tgt, ex); ev(st, { t: 'exposedBurst', uid: tgt.uid, stacks: ex.stacks }); }
+  }
+  // Evade / counter
+  if (tgt.evade > 0 && src && !opts.cannotMiss && tag !== 'dot' && tag !== 'reflect' && tag !== 'retaliation') {
+    tgt.evade--;
+    ev(st, { t: 'evade', uid: tgt.uid, by: src.uid });
+    return 0;
+  }
+  const locked = tgt.statuses.some(x => x.kind === 'reactionLock');   // Bell-Silence
+  if (tgt.counter > 0 && src && tag === 'attack' && !locked) {
+    tgt.counter--;
+    ev(st, { t: 'counter', uid: tgt.uid, by: src.uid, dmg: amount });
+    bounce(tgt, src, amount);
+    return 0;
+  }
+  let dmg = amount;
+  const prismatic = opts.element === 'prismatic';   // Prismatic Bolt: no resistance applies
+  // Fire Barrier: party fire resistance + Burning on attackers
+  const fb = tgt.statuses.find(x => x.kind === 'fireBarrier');
+  if (fb) {
+    if (opts.element === 'fire' && !prismatic) dmg = Math.round(dmg * (1 - fb.resist));
+    if (src && tag === 'attack') addStatus(st, src, { kind: 'burn', power: 0.8, rounds: 3, srcAtk: Ch().effStat(tgt.ch, 'atk'), srcLevel: 1 });
+  }
+  // Ash Ward / Cinder Screen: the company takes less from every element
+  const eg = tgt.statuses.find(x => x.kind === 'elemGuard');
+  if (eg && opts.element && !prismatic) dmg = Math.round(dmg * eg.mult);
+  // The Clan Watches / Hold Fast: an ally in the lane shelters the rest
+  if (src) {
+    for (const a of livingUnits(st, tgt.side)) {
+      if (a === tgt || a.lane !== tgt.lane) continue;
+      let g = perkVal(a.ch, 'the_clan_watches', 'laneAllyGuard');
+      if (!g) { const cl = a.statuses.find(x => x.kind === 'laneGuard'); if (cl) g = cl.mult; }
+      if (g) { dmg = Math.round(dmg * g); break; }
+    }
+  }
+  // Absorption Field: elemental damage reduced for the party, the caster healed by it
+  const ab = tgt.statuses.find(x => x.kind === 'absorb');
+  if (ab && opts.element && !prismatic) {
+    const cut = Math.round(dmg * ab.pct); dmg -= cut;
+    const owner = st.units.find(x => x.uid === ab.srcUid);
+    if (owner && !owner.downed && cut > 0) healUnit(st, null, owner, cut);
+  }
+  // Cloak of Shadows: reduction + reflect using Backstab's calculation
+  const ck = tgt.statuses.find(x => x.kind === 'cloak');
+  if (ck && tag === 'attack') {
+    dmg = Math.round(dmg * (1 - ck.reduce));
+    if (src) {
+      const back = Math.max(1, Math.round(Ch().effStat(tgt.ch, 'atk') * 6.0 * C().TIER_MULT[ck.tier || 'basic'] * 0.5) - Math.max(0, Ch().effStat(src.ch, 'def')));
+      bounce(tgt, src, back);
+    }
+  }
+  // Pyromaniac: fire resistance on the defender (request 4)
+  if (opts.element === 'fire' && !prismatic) {
+    const py = perkVal(tgt.ch, 'pyromaniac', null);
+    if (py && py.fireResist) dmg = Math.round(dmg * (1 - py.fireResist));
+  }
+  // Ice Queen frost armor: stacking all-source damage reduction on the defender
+  const ia = tgt.statuses.find(x => x.kind === 'iceArmor');
+  if (ia && !prismatic) dmg = Math.round(dmg * (1 - ia.pct));
+  // Bulwark: damage reduction + reflect (§3a)
+  const bw = perkVal(tgt.ch, 'bulwark', null);
+  let reflectPct = 0;
+  if (bw && tag !== 'dot') { dmg = Math.round(dmg * bw.dmgTakenMult); reflectPct += bw.reflectPct; }
+  const wf = perkVal(tgt.ch, 'wild_form', null);
+  if (wf) dmg = Math.round(dmg * wf.dmgTakenMult);
+  // Aura defense
+  for (const s of tgt.statuses) if (s.kind === 'aura') dmg = Math.round(dmg / s.def);
+  // Guard (Shield Wall): halves incoming, prevented damage dealt to attacker (§15a)
+  let prevented = 0;
+  const guarded = opts.ignoreGuards ? null : findGuard(st, tgt);
+  if (guarded && tag === 'attack') {
+    prevented = Math.ceil(dmg / 2);
+    dmg -= prevented;
+    guarded.owner.preventedStored += prevented;               // Paid in Full ledger
+    if (src) bounce(guarded.owner, src, prevented);
+    // Unseen Guard: the interceptor is unseen and the attacker bleeds
+    if (guarded.unseen && src) addStatus(st, src, { kind: 'bleed', power: 0.6, rounds: 3, stacks: true, srcAtk: Ch().effStat(guarded.owner.ch, 'atk') });
+  }
+  // Ward shields (Guardian Ward)
+  const ward = tgt.statuses.find(s => s.kind === 'ward' && (s.hits > 0 || s.rounds > 0));
+  if (ward && (tag === 'attack' || (ward.all && tag === 'spell'))) {
+    if (ward.hits > 0) ward.hits--;
+    tgt.preventedStored += dmg;
+    ev(st, { t: 'ward', uid: tgt.uid, blocked: dmg });
+    if (ward.reflect && src) bounce(tgt, src, dmg);
+    // Warding Stance: when the ward breaks it discharges into the attacker's lane
+    if (ward.discharge && ward.hits <= 0 && src) {
+      for (const x of laneUnits(st, src.side, src.lane)) bounce(tgt, x, Math.round(ward.discharge));
+      removeStatus(tgt, ward);
+    }
+    return 0;
+  }
+  // Thorns
+  const thorn = tgt.statuses.some(x => x.kind === 'reactionLock') ? null : tgt.statuses.find(s => s.kind === 'thorns');
+  if (thorn && src && tag === 'attack') bounce(tgt, src, Math.round(dmg * thorn.pct));
+  if (reflectPct > 0 && src && (tag === 'attack' || tag === 'spell')) bounce(tgt, src, Math.round(dmg * reflectPct));
+  // Blood Price: one-shot 200% reflect, stacks additively on top of everything
+  const bp = tgt.statuses.find(s => s.kind === 'bloodPrice');
+  if (bp && src && tag === 'attack') { removeStatus(tgt, bp); bounce(tgt, src, Math.round(dmg * bp.pct)); }
+  // Taunt retaliation: marked attacker strikes the marker (§3a)
+  if (src && (tag === 'attack' || tag === 'spell') && src.marksBy.length) {
+    for (const markerUid of src.marksBy) {
+      if (markerUid === tgt.uid) {
+        const marker = st.units.find(x => x.uid === markerUid);
+        if (marker && !marker.downed && !marker.fled) {
+          const tm = manifestFor(marker, 'taunt');
+          const rp = (tm ? tm.data.retaliationPower : 1.5) || 1.5;
+          // Fixed retaliation — no DEF subtraction (§15a worked check: ATK 9 -> 14)
+          const rdmg = Math.max(1, Math.round(Ch().effStat(marker.ch, 'atk') * rp *
+            C().TIER_MULT[tm ? tm.tier : 'basic']));
+          applyRawDamage(st, marker, src, rdmg, 'retaliation');
+          addExposed(st, src, 1);                                // retaliation is melee (§0d)
+        }
+      }
+    }
+  }
+  // Bulwark Formation / Contract Bound: damage shared equally across the group
+  const share = tgt.statuses.find(s => s.kind === 'share');
+  let dealt;
+  if (share && tag !== 'dot') {
+    const group = livingUnits(st, tgt.side).filter(x => x.statuses.some(s => s.kind === 'share' && s.group === share.group));
+    if (group.length > 1) {
+      const each = Math.max(1, Math.round(dmg / group.length));
+      dealt = 0;
+      for (const g of group) dealt += applyRawDamage(st, src, g, each, tag);
+    } else dealt = applyRawDamage(st, src, tgt, dmg, tag);
+  } else dealt = applyRawDamage(st, src, tgt, dmg, tag);
+  if (opts.element) tgt.lastElementTaken = opts.element;
+  if (src && src.reflectImmuneNext && tag !== 'dot') src.reflectImmuneNext = false;
+  if (src && dealt > 0 && opts.element === 'fire') {
+    const py = perkVal(src.ch, 'pyromaniac', null);
+    if (py && py.fireLeech) healUnit(st, null, src, Math.max(1, Math.round(dealt * py.fireLeech)));
+  }
+  if (src && dealt > 0 && opts.element === 'ice') {
+    const iq = perkVal(src.ch, 'ice_queen', null);
+    if (iq && iq.iceArmorPerHit) {
+      let armor = src.statuses.find(x => x.kind === 'iceArmor');
+      if (!armor) { armor = { kind: 'iceArmor', pct: 0 }; src.statuses.push(armor); }
+      armor.pct = Math.min(0.5, Math.round((armor.pct + iq.iceArmorPerHit) * 100) / 100);
+      ev(st, { t: 'status', uid: src.uid, kind: 'iceArmor' });
+    }
+  }
+  return dealt;
+}
+
+// Exposed stacks (campaign §13e): applied by every melee hit, consumed by the next one.
+function addExposed(st, tgt, n) {
+  if (!tgt || tgt.downed || tgt.fled) return;
+  if (tgt.statuses.some(x => x.kind === 'purified')) return;
+  const ex = tgt.statuses.find(x => x.kind === 'exposed');
+  if (ex) ex.stacks += n; else tgt.statuses.push({ kind: 'exposed', stacks: n });
+  ev(st, { t: 'status', uid: tgt.uid, kind: 'exposed' });
+}
+Combat.addExposed = addExposed;
+
+function applyRawDamage(st, src, tgt, dmg, tag) {
+  // Hollow Discipline: being hit does not break stealth. Only attacking does.
+  if (tgt.stealth && !perkVal(tgt.ch, 'hollow_discipline', 'stealthKeepsOnHit')) { /* base rules elsewhere */ }
+  if (!tgt || tgt.downed || tgt.fled || dmg <= 0) return 0;
+  // Temp HP consumed first — still counts as damage taken for reflect/retaliation (§15a),
+  // which is honored because those triggers fire in dealDamage before this point.
+  let remaining = dmg;
+  if (tgt.tempHp > 0) {
+    const absorbed = Math.min(tgt.tempHp, remaining);
+    tgt.tempHp -= absorbed; remaining -= absorbed;
+  }
+  tgt.chp -= remaining;
+  tgt.damageTaken = (tgt.damageTaken || 0) + remaining;
+  // Paper Charm / Sealed: whoever strikes the warded ally is poisoned for it
+  const pc = tgt.statuses.find(x => x.kind === 'charmWard');
+  if (pc && src && tag !== 'dot' && tag !== 'reflect') {
+    addStatus(st, src, { kind: 'poison', power: pc.power, rounds: pc.rounds, stacks: true, srcAtk: Ch().effStat(tgt.ch, 'atk'), srcUid: tgt.uid });
+  }
+  // Come Aboard: the next one to swing at you comes over the rail
+  const bp = tgt.statuses.find(x => x.kind === 'railGuard');
+  if (bp && src && tag === 'attack') { removeStatus(tgt, bp); Combat.moveLane(st, src, tgt.lane); }
+  ev(st, { t: 'damage', uid: tgt.uid, by: src ? src.uid : null, dmg, tag });
+  if (tgt.chp <= 0) {
+    // Vital Anchor: cannot drop below 1 HP
+    // Vital Anchor: holds at 1 HP — but an anchor is spent by the blow it
+    // catches, and each unit can be anchored only once per battle (no 45-round
+    // stalemates against a re-casting healer)
+    const anc = tgt.statuses.find(x => x.kind === 'anchor');
+    if (anc) { removeStatus(tgt, anc); tgt.anchorSpent = true; tgt.chp = 1; ev(st, { t: 'anchored', uid: tgt.uid }); return dmg; }
+    // Wild Form advanced: survive one lethal blow per battle at 1 HP
+    const wf = perkVal(tgt.ch, 'wild_form', null);
+    if (wf && wf.surviveLethal && !tgt.survivedLethal) {
+      tgt.survivedLethal = true; tgt.chp = 1;
+      ev(st, { t: 'surviveLethal', uid: tgt.uid });
+    } else if (tgt.ch.campaignExit && !tgt.ch.__scriptedDeath) {
+      // Campaign rivals/bosses cannot die in combat (§5a): they exit the
+      // encounter with their signature line and return next encounter.
+      tgt.chp = 0; tgt.fled = true; tgt.exited = true;
+      ev(st, { t: 'campaignExit', uid: tgt.uid, name: tgt.ch.name });
+      checkEnd(st);
+      return dmg;
+    } else {
+      tgt.chp = 0; tgt.downed = true;
+      ev(st, { t: 'down', uid: tgt.uid, by: src ? src.uid : null });
+      onUnitDown(st, tgt);
+      if (src) {
+        src.killStreak++;                                        // Executioner's Rhythm
+        src.ch.lifeKills = (src.ch.lifeKills || 0) + 1;          // Fifty Names' tally
+        if (src.stealthOnKillPending) { src.stealth = true; src.stealthRounds = 2; src.stealthOnKillPending = false; ev(st, { t: 'stealth', uid: src.uid }); }
+        // Opportunist advanced: kills refund your action
+        const opp = perkVal(src.ch, 'opportunist', null);
+        if (opp && opp.killRefundsAction && (tag === 'attack' || tag === 'spell')) src.refundAction = true;
+        // Arena Champion: every kill heals half, stacks damage, and taunts the field
+        const ac = perkVal(src.ch, 'arena_champion', null);
+        if (ac) {
+          healUnit(st, null, src, Math.max(1, Math.round(src.maxHp * ac.killHealPct)));
+          src.arenaStacks = (src.arenaStacks || 0) + 1;
+          for (const f of livingUnits(st, tgt.side)) {
+            if (!f.marksBy.includes(src.uid)) f.marksBy.push(src.uid);
+            const existing = f.statuses.find(x => x.kind === 'taunted' && x.srcUid === src.uid);
+            if (existing) existing.rounds = ac.tauntRounds; else addStatus(st, f, { kind: 'taunted', srcUid: src.uid, rounds: ac.tauntRounds });
+          }
+          ev(st, { t: 'arenaChampion', uid: src.uid, stacks: src.arenaStacks });
+        }
+      }
+    }
+  }
+  checkEnd(st);
+  return dmg;
+}
+
+Combat.spawnReinforcement = function (st, ch, side) {
+  const idx = st.units.filter(x => x.side === side).length;
+  ch.combatHp = null;
+  const u = makeUnit(ch, side, idx);
+  st.units.push(u);
+  const lanes = { front: laneUnits(st, side, 'front'), mid: laneUnits(st, side, 'mid'), back: laneUnits(st, side, 'back') };
+  for (const L of ['front', 'mid', 'back']) {
+    if (lanes[L].length < C().LANE_CAP) { u.lane = L; u.slot = lanes[L].length; break; }
+  }
+  if (!u.lane) u.reserved = true;
+  ev(st, { t: 'reinforce', uid: u.uid, lane: u.lane, name: ch.name });
+  return u;
+};
+
+function noteLeaderOut(st, u, died) {
+  if (!st.leaderId || !u.ch || u.ch.id !== st.leaderId || u.ch.isPlayer) return;
+  if (died) st.leaderFell = true;
+  else st.leaderFled = true;
+  if (st.over) return;
+  st.over = true;
+  st.winner = u.side === 'a' ? 'b' : 'a';
+  Combat.applySurvivalGrowth(st);
+  ev(st, { t: 'end', winner: st.winner, reason: died ? 'leaderFell' : 'leaderFled' });
+}
+
+function onUnitDown(st, u) {
+  noteLeaderOut(st, u, true);
+  // step a reserve into the field on the following turn (§15a)
+  const side = u.side;
+  const res = st.units.find(x => x.side === side && x.reserved && !x.downed && !x.fled);
+  if (res) {
+    res.reserved = false;
+    const lanes = { front: laneUnits(st, side, 'front'), mid: laneUnits(st, side, 'mid'), back: laneUnits(st, side, 'back') };
+    for (const L of ['front', 'mid', 'back']) {
+      if (lanes[L].length < C().LANE_CAP) { res.lane = L; res.slot = lanes[L].length; break; }
+    }
+    ev(st, { t: 'reserveIn', uid: res.uid, lane: res.lane });
+  }
+}
+
+function findGuard(st, tgt) {
+  for (const u of livingUnits(st, tgt.side)) {
+    const g = u.statuses.find(s => s.kind === 'guard' || s.kind === 'warhound');
+    if (!g) continue;
+    if (u === tgt && g.kind === 'guard') return { owner: u };
+    if (g.kind === 'warhound') { if (u !== tgt && u.lane === tgt.lane) return { owner: u }; continue; }
+    // Unseen Guard: guards one named ally; the interceptor is not seen
+    if (g.scope === 'ally') { if (g.targetUid === tgt.uid) return { owner: u, unseen: true }; continue; }
+    // a guard covers only those on the tank's lane or behind it (request 3)
+    if (g.scope === 'party' && canWard(u, tgt)) return { owner: u };
+    if (g.scope === 'lane' && u.lane === tgt.lane) return { owner: u };
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------- healing
+function healUnit(st, src, tgt, amount) {
+  if (tgt.statuses.some(x => x.kind === 'withering')) { ev(st, { t: 'withered', uid: tgt.uid }); return 0; }
+  const hc = tgt.statuses.find(x => x.kind === 'healcut');
+  if (hc) amount = Math.round(amount * (1 - (hc.pct || 0.5)));
+  const dm = perkVal(tgt.ch, 'demigod', null);
+  if (dm) amount *= dm.healReceivedMult;
+  const dev = src ? perkVal(src.ch, 'devoted', null) : null;
+  if (dev) amount = Math.round(amount * dev.healMult);
+  amount = Math.round(amount);
+  const missing = tgt.maxHp - tgt.chp;
+  const applied = Math.min(missing, amount);
+  tgt.chp += applied;
+  let over = amount - applied;
+  if (over > 0) {
+    // Overheal -> temp HP, cap 50% of max (universal, §15a); Demigod uncapped; Devoted+ doubles
+    if (dev && dev.tempHpDouble) over *= 2;
+    let cap = Math.round(tgt.maxHp * ((dev && dev.tempHpCap) || C().OVERHEAL_CAP_PCT));
+    if (dm && SK().demigod.overhealUncapped) cap = Infinity;
+    tgt.tempHp = Math.min(cap, tgt.tempHp + over);
+  }
+  ev(st, { t: 'heal', uid: tgt.uid, by: src ? src.uid : null, amount, temp: tgt.tempHp });
+  // Devoted advanced: healing also damages the nearest enemy
+  if (dev && dev.healSplashPct && src) {
+    const foes = livingUnits(st, src.side === 'a' ? 'b' : 'a');
+    if (foes.length) {
+      const near = foes.sort((x, y) => ({ front: 0, mid: 1, back: 2 }[x.lane]) - ({ front: 0, mid: 1, back: 2 }[y.lane]))[0];
+      dealDamage(st, src, near, Math.max(1, Math.round(amount * dev.healSplashPct) - Ch().effStat(near.ch, 'def')), 'spell');
+    }
+  }
+  return amount;
+}
+
+// --------------------------------------------------------------- statuses
+function addStatus(st, tgt, status) {
+  if (status.kind === 'anchor' && (tgt.anchorSpent || tgt.statuses.some(x => x.kind === 'anchor'))) return;
+  if (status.rounds != null) status.fresh = true; // survives the round it was cast
+  const dm = perkVal(tgt.ch, 'demigod', null);
+  const negative = NEG_STATUSES.includes(status.kind);
+  if (dm && dm.statusImmune && negative) {
+    ev(st, { t: 'immune', uid: tgt.uid, kind: status.kind });
+    return;
+  }
+  // Purify/Absolution: blanket immunity to everything negative (request 7)
+  if (negative && tgt.statuses.some(x => x.kind === 'purified')) {
+    ev(st, { t: 'immune', uid: tgt.uid, kind: status.kind });
+    return;
+  }
+  // thawed targets cannot be re-frozen for 2 rounds (request 4)
+  if (status.kind === 'frozen' && tgt.statuses.some(x => x.kind === 'freezeImmune' || x.kind === 'frozen')) {
+    ev(st, { t: 'immune', uid: tgt.uid, kind: 'frozen' });
+    return;
+  }
+  if (tgt.ch.statusImmunities && tgt.ch.statusImmunities.includes(status.kind)) {
+    ev(st, { t: 'immune', uid: tgt.uid, kind: status.kind });
+    return;
+  }
+  if ((status.kind === 'bleed' || status.kind === 'poison') && status.stacks) {
+    st.events.push({ t: 'status', uid: tgt.uid, kind: status.kind });
+    tgt.statuses.push(status); // stacking: each application its own instance
+    return;
+  }
+  const existing = tgt.statuses.find(s => s.kind === status.kind);
+  if (existing) Object.assign(existing, status);
+  else tgt.statuses.push(status);
+  ev(st, { t: 'status', uid: tgt.uid, kind: status.kind });
+}
+
+function endRoundTicks(st) {
+  // lane hazards: Ashfall / Ranging Ward damage, Growth Field heals
+  for (const h of st.hazards.slice()) {
+    if (h.delay > 0) { h.delay--; continue; }              // Powder Keg: one round to burn down
+    for (const u of laneUnits(st, h.side, h.lane)) {
+      if (h.heal) healUnit(st, null, u, Math.max(1, Math.round(h.srcAtk * h.power)));
+      else applyRawDamage(st, null, u, Math.max(1, Math.round(h.srcAtk * h.power * 0.5)), 'dot');
+    }
+    if (h.fresh) h.fresh = false; else { h.rounds--; if (h.rounds <= 0) st.hazards.splice(st.hazards.indexOf(h), 1); }
+  }
+  for (const u of st.units) {
+    if (u.downed || u.fled || u.reserved) continue;
+    // Last Breath: the borrowed round ends
+    const lb = u.statuses.find(x => x.kind === 'lastBreath');
+    if (lb && !lb.fresh) { removeStatus(u, lb); u.chp = 0; u.downed = true; ev(st, { t: 'down', uid: u.uid, by: null }); onUnitDown(st, u); continue; }
+    if (u.stealthRounds > 0) { u.stealthRounds--; if (u.stealthRounds <= 0 && u.untargetable <= 0) u.stealth = false; }
+    u.reloadLock = {};                       // a round is long enough to reload
+    if (u.grantedTurns) u.grantedTurns = 0;
+    if (!u.attackedThisRound) u.idleRounds++; else u.idleRounds = 0;
+    u.attackedThisRound = false;
+    if (u.statuses.some(x => x.kind === 'serpent')) u.evade = Math.max(u.evade, 1);
+    for (const s of u.statuses.slice()) {
+      if (DOT_STATUSES.includes(s.kind)) {
+        let dot = Math.max(1, Math.round((s.srcAtk || 8) * s.power * 0.5 * (1 + (s.srcLevel || 1) * 0.015)));
+        const srcU = s.srcUid ? st.units.find(x => x.uid === s.srcUid) : null;
+        const septic = srcU && (s.kind === 'bleed' || s.kind === 'poison') ? perkVal(srcU.ch, 'septic_sanguine', null) : null;
+        if (septic) dot = Math.round(dot * septic.dotMult);                     // Septic Sanguine
+        const dealt = applyRawDamage(st, null, u, dot, 'dot');
+        if (septic && dealt > 0 && !srcU.downed) healUnit(st, null, srcU, Math.max(1, Math.round(dealt * septic.dotLeech)));
+        if (srcU && s.kind === 'burn' && dealt > 0 && !srcU.downed) {
+          const py = perkVal(srcU.ch, 'pyromaniac', null);                     // burns feed the Pyromaniac too
+          if (py && py.fireLeech) healUnit(st, null, srcU, Math.max(1, Math.round(dealt * py.fireLeech)));
+        }
+      }
+      if (s.kind === 'hot') healUnit(st, null, u, Math.max(1, Math.round((s.srcAtk || 8) * s.power)));
+      if (s.rounds != null) {
+        if (s.fresh) { s.fresh = false; }        // first end-of-round: still active next round
+        else { s.rounds--; if (s.rounds <= 0) removeStatus(u, s); }
+      }
+    }
+    if (u.untargetable > 0) { u.untargetable--; if (u.untargetable <= 0 && u.stealthRounds <= 0) u.stealth = false; }
+  }
+  checkEnd(st);
+}
+
+function removeStatus(u, s) {
+  const i = u.statuses.indexOf(s);
+  if (i >= 0) u.statuses.splice(i, 1);
+  if (s.kind === 'taunted' && s.srcUid) {
+    const j = u.marksBy.indexOf(s.srcUid);
+    if (j >= 0 && !u.statuses.some(x => x.kind === 'taunted' && x.srcUid === s.srcUid)) u.marksBy.splice(j, 1);
+  }
+}
+
+// ---------------------------------------------------------------- actions
+// action: {kind:'skill', skillId, targetUid, offensiveMode} | {kind:'flee'} | {kind:'attack', targetUid} | {kind:'hold'}
+Combat.act = function (st, u, action) {
+  u.planned = null;
+  if (action.kind === 'hold') { ev(st, { t: 'hold', uid: u.uid }); return { ok: true }; }
+  if (action.kind === 'flee') return doFlee(st, u);
+  if (action.kind === 'bribe') return doBribe(st, u, action);
+  const skillId = action.kind === 'attack' ? 'basic_attack' : action.skillId;
+  const m = manifestFor(u, skillId);
+  if (!m) return { ok: false, error: 'unknown skill' };
+  // Bind/Root Field seal: skills of the sealed tiers are unusable; the
+  // universal Basic Attack never seals (no unit may be left without a move)
+  if (skillId !== 'basic_attack') {
+    const seal = u.statuses.find(x => x.kind === 'sealed');
+    if (seal && (seal.tiers || []).includes(m.tier)) {
+      ev(st, { t: 'sealedBlock', uid: u.uid, skillId });
+      return { ok: false, error: 'sealed' };
+    }
+  }
+  const d = Object.assign({}, m.data);
+  const off = action.offensiveMode && d.offensive;
+  const tgt = st.units.find(x => x.uid === action.targetUid) || u;
+  // Shock: cannot use interrupt skills
+  if (d.interrupt && u.statuses.some(x => x.kind === 'shock')) return { ok: false, error: 'shocked' };
+  // Flintlock Shot: you are holding an empty gun (Powder Discipline cancels it)
+  if (d.reload && u.reloadLock[skillId] && !perkVal(u.ch, 'powder_discipline', 'noReload')) {
+    return { ok: false, error: 'needs reloading' };
+  }
+  // Iai Draw: one motion, sheath to sheath — the opening action only
+  if (d.openerOnly && u.actedThisEncounter) return { ok: false, error: 'opening action only' };
+
+  // witness: everyone on the field sees this use (registered for survivors at end)
+  recordSighting(st, u, skillId, m.tier);
+
+  ev(st, { t: 'use', uid: u.uid, skillId, tier: m.tier, name: off ? d.offensive.name : d.name, target: tgt.uid, offensive: !!off });
+  // flush any first-sighting the player just got, so the beat lands after the blow
+  if (st.__witnessPending && st.__witnessPending.length) {
+    for (const w of st.__witnessPending) ev(st, { t: 'witness', skillId: w.skillId, tier: w.tier, from: w.from, uid: w.uid });
+    st.__witnessPending = null;
+  }
+
+  // Countersign: a lane holding an interrupt negates the next enemy skill aimed at it
+  if (skillId !== 'basic_attack' && tgt.side !== u.side) {
+    const holder = laneUnits(st, tgt.side, tgt.lane).find(x => x.statuses.some(y => y.kind === 'countersign'));
+    if (holder) {
+      removeStatus(holder, holder.statuses.find(y => y.kind === 'countersign'));
+      ev(st, { t: 'interrupted', uid: u.uid, by: holder.uid, skillId });
+      return finishAction(st, u, skillId);
+    }
+  }
+  // stealth bookkeeping: any non-silent hostile act breaks stealth
+  if (tgt.side !== u.side && !d.silent && u.stealth) { u.stealth = false; u.stealthRounds = 0; }
+  if (d.stealthOnUse) { u.stealth = true; u.stealthRounds = d.stealthRounds || 2; ev(st, { t: 'stealth', uid: u.uid }); }
+  if (d.stealthOnKill) u.stealthOnKillPending = true;
+  if (d.reflectImmuneNext) u.reflectImmuneNext = true;
+
+  // ----- bespoke campaign effects (js/core/combat_effects.js) -----
+  if (d.effect && Combat.EFFECTS && Combat.EFFECTS[d.effect]) {
+    const r = Combat.EFFECTS[d.effect](Combat._internals, st, u, tgt, d, m);
+    if (r !== undefined) return r;
+    return finishAction(st, u, skillId);
+  }
+  // ----- generic status placements -----
+  if (d.selfStatus) { addStatus(st, u, Object.assign({ tier: m.tier, srcUid: u.uid }, d.selfStatus)); if (!d.power) return finishAction(st, u, skillId); }
+  if (d.partyStatus) { for (const x of livingUnits(st, u.side)) addStatus(st, x, Object.assign({ srcUid: u.uid }, d.partyStatus)); return finishAction(st, u, skillId); }
+  if (d.allyStatus) { addStatus(st, tgt.side === u.side ? tgt : u, Object.assign({ srcUid: u.uid }, d.allyStatus)); return finishAction(st, u, skillId); }
+  if (d.laneStatus) { for (const x of laneUnits(st, u.side, u.lane)) addStatus(st, x, Object.assign({ srcUid: u.uid }, d.laneStatus)); return finishAction(st, u, skillId); }
+  if (d.hazard) {
+    const h = d.hazard;
+    const side = h.on === 'allyLane' ? u.side : tgt.side;
+    const lane = h.on === 'allyLane' ? (tgt.side === u.side ? tgt.lane : u.lane) : tgt.lane;
+    st.hazards = st.hazards.filter(x => !(x.side === side && x.lane === lane && x.kind === h.kind));
+    st.hazards.push({ side, lane, kind: h.kind, power: h.power * C().TIER_MULT[m.tier], heal: !!h.heal, rounds: h.rounds || 3, fresh: true, srcUid: u.uid, srcAtk: Ch().effStat(u.ch, 'atk') });
+    ev(st, { t: 'hazard', side, lane, kind: h.kind });
+    return finishAction(st, u, skillId);
+  }
+
+  if (skillId === 'true_rest') {
+    // Jiro is undead but no longer animated by the working that raised him
+    // (add-on §2a): True Rest has nothing to switch off.
+    if (tgt.ch.trueRestImmune) { ev(st, { t: 'immune', uid: tgt.uid, kind: 'trueRest' }); return finishAction(st, u, skillId); }
+    if (tgt.ch.isUndead) {
+      tgt.chp = 0; tgt.downed = true;
+      ev(st, { t: 'trueRest', uid: tgt.uid });
+      onUnitDown(st, tgt); checkEnd(st);
+    }
+    return finishAction(st, u, skillId);
+  }
+
+  // ----- Cleanse family (request 7): cure-all / free conscripts / smite or
+  // restore the undead / grant negative-status immunity -----
+  if (skillId === 'cleanse' && !off) {
+    if (tgt.ch.isUndead) {
+      if (d.unraise && tgt.ch.trueRestImmune) { ev(st, { t: 'immune', uid: tgt.uid, kind: 'unraise' }); }
+      else if (d.unraise) {
+        // Absolution: turn the walking dead back to the living — undoing the
+        // true death of necromancy. Never a resurrection of the ordinary dead.
+        tgt.ch.__unraised = true;
+        ev(st, { t: 'unraise', uid: tgt.uid, by: u.uid });
+        if (tgt.side !== u.side) { tgt.fled = true; ev(st, { t: 'flee', uid: tgt.uid, success: true, chance: 1 }); }
+        else { try { removeStatus(tgt, tgt.statuses.find(x => x.kind === 'frozen') || {}); } catch (e) {} }
+        checkEnd(st);
+      } else {
+        const atk = Ch().effStat(u.ch, 'atk');
+        const dmg = Math.max(1, Math.round(atk * (d.undeadPower || 1.8) * C().TIER_MULT[m.tier] *
+          (1 + m.level * C().LEVEL_DAMAGE_SCALAR)) - Math.max(0, Ch().effStat(tgt.ch, 'def')));
+        dealDamage(st, u, tgt, dmg, 'spell', { element: 'holy' });
+      }
+      return finishAction(st, u, skillId);
+    }
+    if (tgt.ch.isConscript) {
+      tgt.ch.__freedByCleanse = true;
+      tgt.fled = true;
+      ev(st, { t: 'freed', uid: tgt.uid, by: u.uid });
+      checkEnd(st);
+      return finishAction(st, u, skillId);
+    }
+    let cured = 0;
+    for (const x of tgt.statuses.slice()) {
+      if (NEG_STATUSES.includes(x.kind)) { removeStatus(tgt, x); cured++; }
+    }
+    if (d.purifyRounds) addStatus(st, tgt, { kind: 'purified', rounds: d.purifyRounds });
+    ev(st, { t: 'cleansed', uid: tgt.uid, cured, purified: !!d.purifyRounds });
+    return finishAction(st, u, skillId);
+  }
+
+  // ----- healing family -----
+  if (d.heal && !off) {
+    const power = d.power || 0;
+    const atk = Ch().effStat(u.ch, 'atk');
+    const tierMult = C().TIER_MULT[m.tier];
+    let amount = Math.round(atk * power * tierMult * (1 + m.level * C().LEVEL_DAMAGE_SCALAR) * (C().HEAL_MULT || 1));
+    let targets = d.target === 'party' ? livingUnits(st, u.side)
+      : d.target === 'allyLane' ? laneUnits(st, u.side, tgt.lane)
+      : [tgt];
+    // Breath of the Bell: only those who have not moved yet this round
+    if (d.unactedOnly) targets = targets.filter(x => !x.attackedThisRound);
+    // Clan Blood: the heal is a share of what you have already absorbed
+    if (d.healFromTaken) amount = Math.max(1, Math.round((u.damageTaken || 0) * d.healFromTaken));
+    if (d.healBehind) targets = targets.filter(x => canHealOther(u, x));
+    else if (d.wardAhead) targets = targets.filter(x => canWard(u, x));
+    if (d.revive && tgt.downed) {
+      if (u.usedOncePerBattle[skillId]) return { ok: false, error: 'once per battle' };
+      u.usedOncePerBattle[skillId] = true;
+      tgt.downed = false; tgt.chp = Math.max(1, Math.round(tgt.maxHp * 0.4));
+      ev(st, { t: 'revive', uid: tgt.uid, by: u.uid });
+      return finishAction(st, u, skillId);
+    }
+    for (const t of targets) {
+      if (t.downed) continue;
+      let amt = amount;
+      if (d.doubleBelow && (t.chp / t.maxHp) < d.doubleBelow) amt *= 2;
+      if (d.fullHealBelow && (t.chp / t.maxHp) < d.fullHealBelow) amt = t.maxHp;
+      if (d.shieldHits) { addStatus(st, t, { kind: 'ward', hits: d.shieldHits, reflect: !!d.wardReflect }); continue; }
+      if (d.shieldRounds) { addStatus(st, t, { kind: 'ward', rounds: d.shieldRounds, hits: 999, reflect: !!d.wardReflect, all: !!d.wardAll }); continue; }
+      if (d.purifyRounds && !d.power) { addStatus(st, t, { kind: 'purified', rounds: d.purifyRounds }); continue; }
+      if (d.grantEvade) t.evade += d.grantEvade;
+      // Field Suture: closed up and put somewhere nobody is looking
+      if (d.allyStealth) { t.stealth = true; t.stealthRounds = d.allyStealth; ev(st, { t: 'stealth', uid: t.uid }); }
+      // Paper Charm: the ward answers with poison
+      if (d.wardPoison) addStatus(st, t, { kind: 'charmWard', power: d.wardPoison.power, rounds: d.wardPoison.rounds });
+      // Signal Flags: this ally moves the moment you are done
+      if (d.grantTurn && t !== u && !t.grantedTurns) Combat.grantTurn(st, u, t, d.grantTurn);
+      // Surgeon's Saw: it works, and they will bleed for a while
+      if (d.selfBleedOnTarget) addStatus(st, t, { kind: 'bleed', power: d.selfBleedOnTarget.power, rounds: d.selfBleedOnTarget.rounds, srcAtk: atk, srcUid: u.uid });
+      if (d.hotRounds) { addStatus(st, t, { kind: 'hot', rounds: d.hotRounds, power: d.power, srcAtk: atk }); continue; }
+      if (d.cureCount) {
+        let cured = 0;
+        for (const s of t.statuses.slice()) {
+          if (NEG_STATUSES.includes(s.kind) && cured < d.cureCount) { removeStatus(t, s); cured++; }
+        }
+        if (!cured && amt <= 0) continue;
+      }
+      if (d.cures) for (const kind of d.cures) { const s = t.statuses.find(x => x.kind === kind); if (s) removeStatus(t, s); }
+      if (amt > 0) healUnit(st, u, t, amt);
+    }
+    return finishAction(st, u, skillId);
+  }
+
+  // ----- offensive modes of healing skills -----
+  if (off) {
+    const o = d.offensive;
+    const atk = Ch().effStat(u.ch, 'atk');
+    const tierMult = C().TIER_MULT[m.tier];
+    if (o.statusTransfer) {
+      const mine = u.statuses.find(s => DOT_STATUSES.includes(s.kind));
+      if (mine) { removeStatus(u, mine); addStatus(st, tgt, Object.assign({}, mine)); }
+      else dealDamage(st, u, tgt, Math.max(1, Math.round(atk * 1.0 * tierMult) - Ch().effStat(tgt.ch, 'def')), 'spell');
+      return finishAction(st, u, skillId);
+    }
+    if (o.dotRounds) {
+      addStatus(st, tgt, { kind: 'poison', rounds: o.dotRounds, power: o.power, srcAtk: atk, srcUid: u.uid });
+      return finishAction(st, u, skillId);
+    }
+    if (o.wardReflect) {
+      addStatus(st, tgt, { kind: 'ward', hits: 1, reflect: true });
+      return finishAction(st, u, skillId);
+    }
+    if (o.healReduction) {
+      addStatus(st, tgt, { kind: 'healcut', rounds: 3, pct: o.healReduction });
+    }
+    if (o.power) {
+      const dmg = computeDamage(st, u, tgt, m, { power: o.power });
+      const dealt = dealDamage(st, u, tgt, dmg, 'spell');
+      if (o.lifeSteal) healUnit(st, null, u, Math.round(dealt * o.lifeSteal));
+    }
+    return finishAction(st, u, skillId);
+  }
+
+  // ----- blood pact: damage + heal same amount (§3a) -----
+  if (d.dualHeal) {
+    const targets = d.target === 'enemyLane' ? laneUnits(st, tgt.side, tgt.lane) : [tgt];
+    let total = 0;
+    for (const t of targets) {
+      const dmg = computeDamage(st, u, t, m);
+      total += dealDamage(st, u, t, dmg, 'spell');
+    }
+    const allies = livingUnits(st, u.side).sort((x, y) => (x.chp / x.maxHp) - (y.chp / y.maxHp));
+    const healTargets = d.healTargets === 'party' ? allies : allies.slice(0, d.healTargets || 1);
+    for (const a of healTargets) healUnit(st, u, a, Math.round(total / Math.max(1, healTargets.length)));
+    return finishAction(st, u, skillId);
+  }
+
+  // ----- self buffs / guards -----
+  if (d.guardScope) { addStatus(st, u, { kind: 'guard', scope: d.guardScope, rounds: d.guardRounds || 3 }); return finishAction(st, u, skillId); }
+  if (d.thornPct) {
+    const targets = d.thornScope === 'party' ? livingUnits(st, u.side)
+      : d.thornScope === 'lane' ? laneUnits(st, u.side, u.lane) : [u];
+    for (const t of targets) addStatus(st, t, { kind: 'thorns', pct: d.thornPct, rounds: d.rounds || 3 });
+    return finishAction(st, u, skillId);
+  }
+  if (d.atkMult) {
+    addStatus(st, u, { kind: 'atkBuff', mult: d.atkMult, rounds: d.rounds || 3 });
+    if (d.lifeSteal) addStatus(st, u, { kind: 'lifesteal', pct: d.lifeSteal, rounds: d.rounds || 3 });
+    return finishAction(st, u, skillId);
+  }
+  if (d.auraAtk) {
+    for (const t of livingUnits(st, u.side)) addStatus(st, t, { kind: 'aura', atk: d.auraAtk, def: d.auraDef, evadePct: d.auraEvade, rounds: d.rounds || 3 });
+    return finishAction(st, u, skillId);
+  }
+  if (d.evadeNext) { addStatus(st, u, { kind: 'evadeS' }); u.evade += d.evadeNext; return finishAction(st, u, skillId); }
+  if (d.untargetableRounds) {
+    u.untargetable += d.untargetableRounds;
+    if (d.freeStrike && tgt && tgt.side !== u.side) {
+      const dmg = computeDamage(st, u, tgt, m, { power: 2.0 });
+      dealDamage(st, u, tgt, dmg, 'attack');
+    }
+    return finishAction(st, u, skillId);
+  }
+  if (d.counterNext) {
+    u.counter += d.counterNext;
+    if (d.thornPct) addStatus(st, u, { kind: 'thorns', pct: d.thornPct, rounds: d.rounds || 1 });
+    return finishAction(st, u, skillId);
+  }
+  // ---- ninja/pirate party and lane states (add-on §3) ----
+  if (d.partyStatus && !d.heal) {
+    for (const t of livingUnits(st, u.side)) {
+      if (d.partyStatus.elemGuard) addStatus(st, t, { kind: 'elemGuard', mult: d.partyStatus.elemGuard.mult, rounds: d.partyStatus.elemGuard.rounds });
+      if (d.partyStatus.volley) addStatus(st, t, { kind: 'volley', extra: d.partyStatus.volley.extra, rounds: d.partyStatus.volley.rounds });
+    }
+    ev(st, { t: 'status', uid: u.uid, kind: 'party' });
+    return finishAction(st, u, skillId);
+  }
+  if (d.laneStatus && d.laneStatus.closed) {
+    const R = d.laneStatus.closed.rounds;
+    for (const t of laneUnits(st, u.side, u.lane)) {
+      addStatus(st, t, { kind: 'closed', rounds: R });
+      if (d.laneAllyGuard && t !== u) addStatus(st, t, { kind: 'laneGuard', mult: d.laneAllyGuard, rounds: R });
+    }
+    if (d.immovable) addStatus(st, u, { kind: 'immovable', rounds: R });
+    ev(st, { t: 'status', uid: u.uid, kind: 'closed' });
+    return finishAction(st, u, skillId);
+  }
+  if (d.pullAttacker) {
+    addStatus(st, u, { kind: 'guard', scope: d.guardScope || 'self', rounds: d.rounds || 2 });
+    addStatus(st, u, { kind: 'railGuard', rounds: d.rounds || 2 });
+    if (d.thornPct) addStatus(st, u, { kind: 'thorns', pct: d.thornPct, rounds: d.rounds || 2 });
+    return finishAction(st, u, skillId);
+  }
+
+  // ----- taunt -----
+  if (d.marks != null) {
+    const foes = d.marks === 'lane' ? laneUnits(st, tgt.side, tgt.lane)
+      : livingUnits(st, tgt.side).slice(0, d.marks === 1 ? 1 : d.marks);
+    const list = d.marks === 'lane' ? foes : (tgt ? [tgt].concat(foes.filter(f => f !== tgt)).slice(0, d.marks) : foes);
+    for (const f of list) {
+      if (!f.marksBy.includes(u.uid)) f.marksBy.push(u.uid);
+      // timed mark: expires via the status clock, then unhooks from marksBy
+      const existing = f.statuses.find(x => x.kind === 'taunted' && x.srcUid === u.uid);
+      if (existing) existing.rounds = d.markRounds || 3;
+      else f.statuses.push({ kind: 'taunted', srcUid: u.uid, rounds: d.markRounds || 3 });
+      ev(st, { t: 'taunted', uid: f.uid, by: u.uid });
+    }
+    return finishAction(st, u, skillId);
+  }
+
+  // ----- damaging actives & basic attack -----
+  let targets = [tgt];
+  if (d.spreadLanes) {
+    const li = LANE_IDX[tgt.lane];
+    targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) <= 1);
+  } else if (d.target === 'enemyLane') targets = laneUnits(st, tgt.side, tgt.lane);
+  else if (d.target === 'allEnemies') targets = livingUnits(st, tgt.side);
+  else if (d.multiTarget) {
+    const foes = livingUnits(st, tgt.side).filter(x => x !== tgt);
+    targets = [tgt].concat(foes.slice(0, d.multiTarget - 1));
+  } else if (d.adjacent) {
+    const laneMates = laneUnits(st, tgt.side, tgt.lane).filter(x => x !== tgt);
+    targets = [tgt].concat(laneMates.slice(0, d.adjacent));
+  }
+  if (d.pierceBehind) {
+    const laneOrder = ['front', 'mid', 'back'];
+    const behindLane = laneOrder[laneOrder.indexOf(tgt.lane) + 1];
+    if (behindLane) {
+      const behind = laneUnits(st, tgt.side, behindLane)[0];
+      if (behind) targets.push(behind);
+    }
+  }
+  const af = perkVal(u.ch, 'arcane_focus', null);
+  if (af && af.splashAdjacent && d.elemental && targets.length === 1) {
+    const extra = laneUnits(st, tgt.side, tgt.lane).find(x => x !== tgt);
+    if (extra) targets.push(extra);
+  }
+  // Chain Lightning (campaign): jumps to every enemy, losing power each jump
+  if (d.chainDecay) targets = [tgt].concat(livingUnits(st, tgt.side).filter(x => x !== tgt));
+  // Storm Shape: attacks also hit one enemy in an adjacent lane
+  if (u.statuses.some(x => x.kind === 'storm') && targets.length === 1) {
+    const li = LANE_IDX[tgt.lane];
+    const extra = livingUnits(st, tgt.side).find(x => x !== tgt && Math.abs(LANE_IDX[x.lane] - li) === 1);
+    if (extra) targets.push(extra);
+  }
+  // spells: elemental, or ranged non-katana. attacks: melee & katana (these
+  // trigger guards/thorns/counters; both feed Taunt retaliation).
+  const isSpell = d.elemental || (d.reach === 'any' && !d.katana && !d.melee);
+  const tag = isSpell ? 'spell' : 'attack';
+  const isMelee = !isSpell;                      // §0d: every melee skill applies Exposed
+  u.attackedThisRound = true;
+  if (isSpell) u.castsThisBattle++;
+  if (d.laneStreakScale) { if (u.laneStreak.lane === tgt.lane) u.laneStreak.n++; else u.laneStreak = { lane: tgt.lane, n: 0 }; }
+  if (d.randomElemental) {
+    const pick = st.rng.pick(['burn', 'frozen', 'shocked']);
+    d.status = Object.assign({}, d.status, pick === 'burn' ? { burn: { power: 0.8, rounds: 2 } } : {});
+    if (pick === 'frozen') d.freeze = 1;
+    if (pick === 'shocked') { d.shock = 0.1; d.shockRounds = 2; }
+  }
+  const hits = d.hits || 1;
+  if (d.reload) u.reloadLock[skillId] = true;             // Flintlock Shot is now empty
+  // Volley Fire / Broadside Doctrine: one more body in the same lane
+  const vol = u.statuses.find(x => x.kind === 'volley');
+  const bsd = perkVal(u.ch, 'broadside_doctrine', 'rangedExtraTarget');
+  const extraTargets = (vol ? vol.extra : 0) + ((bsd && isSpell) ? bsd : 0);
+  if (extraTargets > 0 && targets.length) {
+    const li = LANE_IDX[targets[0].lane];
+    const more = livingUnits(st, targets[0].side)
+      .filter(x => !targets.includes(x) && LANE_IDX[x.lane] === li)
+      .slice(0, extraTargets);
+    if (more.length) targets = targets.concat(more);
+    if (vol) removeStatus(u, vol);
+  }
+  for (let hi = 0; hi < hits; hi++) for (const t of targets) {
+    if (t.downed) continue;
+    if (d.chainDecay && targets.indexOf(t) > 0) { /* decayed power handled below */ }
+    // Executes
+    if (d.executeBelow && (t.chp + t.tempHp) / t.maxHp < d.executeBelow && !t.ch.boss) {
+      t.chp = 0; t.tempHp = 0; t.downed = true;
+      ev(st, { t: 'execute', uid: t.uid, by: u.uid, skillId });
+      onUnitDown(st, t); checkEnd(st);
+      if (d.healOnKillPct) healUnit(st, null, u, Math.round(u.maxHp * d.healOnKillPct));
+      if (d.permStatGain) {
+        for (const k of ['hp', 'atk', 'def', 'spd']) u.ch.bonusStats[k] = (u.ch.bonusStats[k] || 0) + d.permStatGain;
+        u.maxHp = Ch().maxHp(u.ch);
+        ev(st, { t: 'permGain', uid: u.uid });
+      }
+      continue;
+    }
+    const powerOverride = d.chainDecay ? (d.power || 2.0) * Math.pow(d.chainDecay, targets.indexOf(t)) : undefined;
+    const dmg = computeDamage(st, u, t, m, powerOverride != null ? { power: powerOverride } : undefined);
+    const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
+      cannotMiss: !!d.cannotMiss, ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
+    if (isMelee && !t.downed) addExposed(st, t, 1);
+    // ---- ninja/pirate on-hit riders (add-on §3) ----
+    if (dealt > 0 && !t.downed) {
+      if (d.reactionLock) addStatus(st, t, { kind: 'reactionLock', rounds: d.reactionLock });
+      if (d.pull) Combat.pullForward(st, t, d.pull);
+      if (d.rootRounds) addStatus(st, t, { kind: 'rooted', rounds: d.rootRounds });
+      if (d.exposedOnSecond && hi === 1) addExposed(st, t, d.exposedOnSecond);
+      const vt = u.statuses.find(x => x.kind === 'venomTouch');          // Fox Form
+      if (vt) addStatus(st, t, { kind: 'poison', power: vt.power, rounds: vt.dot.rounds, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid });
+      const ot = u.statuses.find(x => x.kind === 'openingTouch');        // Marine Form
+      if (ot) addExposed(st, t, ot.stacks);
+    }
+    if (dealt > 0 && !t.downed && d.stripGuards) {
+      for (const x of t.statuses.slice()) if (x.kind === 'guard' || x.kind === 'ward' || x.kind === 'warhound') removeStatus(t, x);
+      t.armorBonus = 0; ev(st, { t: 'sundered', uid: t.uid });
+    }
+    if (dealt > 0 && !t.downed && d.stealBuff) {
+      const b = t.statuses.find(x => POS_STATUSES.includes(x.kind));
+      if (b) { removeStatus(t, b); addStatus(st, u, Object.assign({}, b)); ev(st, { t: 'stolen', uid: t.uid, by: u.uid, kind: b.kind }); }
+    }
+    if (dealt > 0 && !t.downed && d.silence) addStatus(st, t, { kind: 'sealed', tiers: ['basic', 'intermediate', 'advanced'], rounds: d.silence });
+    if (dealt > 0 && !t.downed && d.withering) addStatus(st, t, { kind: 'withering', rounds: d.withering });
+    if (dealt > 0 && !t.downed && d.healcutRounds) addStatus(st, t, { kind: 'healcut', rounds: d.healcutRounds, pct: 0.5 });
+    if (dealt > 0 && !t.downed && d.runic) { t.evade = 0; addStatus(st, t, { kind: 'runic', rounds: 2, srcUid: u.uid }); }
+    if (dealt > 0 && u.statuses.some(x => x.kind === 'serpent') && !t.downed) addStatus(st, t, { kind: 'poison', power: 0.6, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid });
+    if (dealt > 0 && u.statuses.some(x => x.kind === 'storm') && !t.downed) addStatus(st, t, { kind: 'shock', rounds: 1 });
+    if (d.selfWardPct && dealt > 0) addStatus(st, u, { kind: 'ward', hits: 1, pool: Math.round(dealt * d.selfWardPct) });
+    if (d.laneBuff) for (const x of laneUnits(st, u.side, u.lane)) addStatus(st, x, Object.assign({}, d.laneBuff));
+    if (d.reveal) st.revealNext = true;
+    if (d.immovable) addStatus(st, u, { kind: 'immovable', rounds: (d.selfStatus && d.selfStatus.rounds) || d.rounds || 4 });
+    if (d.selfRoot) addStatus(st, u, { kind: 'rooted', rounds: d.rounds || 2 });
+    if (d.onHitPoison) addStatus(st, u, { kind: 'venomTouch', power: d.onHitPoison.power, rounds: d.onHitPoison.rounds + 2, dot: d.onHitPoison });
+    if (d.onHitExposed) addStatus(st, u, { kind: 'openingTouch', stacks: d.onHitExposed, rounds: 4 });
+    if (d.revealIntents) st.revealIntents = Math.max(st.revealIntents || 0, d.revealIntents);
+    if (d.revealGold) st.revealGold = true;
+    // Momentum advanced: every third consecutive attack strikes twice
+    const mo = perkVal(u.ch, 'momentum', null);
+    if (mo && mo.thirdHitTwice) {
+      u.consecutiveCount = (u.consecutiveCount || 0) + 1;
+      if (u.consecutiveCount % 3 === 0 && !t.downed) dealDamage(st, u, t, computeDamage(st, u, t, m), tag);
+    }
+    // riders
+    if (d.status && dealt > 0 && !t.downed) {
+      for (const [kind, sdef] of Object.entries(d.status)) {
+        addStatus(st, t, Object.assign({ kind, srcAtk: Ch().effStat(u.ch, 'atk'), srcLevel: m.level, srcUid: u.uid }, sdef));
+      }
+    }
+    if (d.freeze && !t.downed) addStatus(st, t, { kind: 'frozen', skips: d.freeze });
+    if (d.shock && !t.downed) addStatus(st, t, { kind: 'shocked', pct: d.shock, rounds: d.shockRounds || 3 });
+    if (d.seal && !t.downed) addStatus(st, t, { kind: 'sealed', tiers: d.seal.slice(), rounds: d.sealRounds || 2 });
+    if (d.defStrip && !t.downed) { t.defStripped = Math.max(t.defStripped || 0, d.defStrip); ev(st, { t: 'sundered', uid: t.uid }); }
+    if (d.defStripAll && !t.downed) { t.defStripped = 999; ev(st, { t: 'sundered', uid: t.uid }); }
+    if (d.delayTarget && !t.downed) { t.delayed += 4; ev(st, { t: 'delayed', uid: t.uid }); }
+    if (d.loseAction && !t.downed) { t.loseNextAction = true; ev(st, { t: 'bound', uid: t.uid }); }
+    const ls = u.statuses.find(s => s.kind === 'lifesteal');
+    if (ls && dealt > 0) healUnit(st, null, u, Math.round(dealt * ls.pct));
+    // Finisher-like heal riders on damage
+    if (d.lifeSteal && dealt > 0) healUnit(st, null, u, Math.round(dealt * d.lifeSteal));
+  }
+  return finishAction(st, u, skillId);
+}
+
+function finishAction(st, u, skillId) {
+  u.actedThisEncounter = true;
+  const lv = Sys().recordUse(u.ch, skillId);
+  if (lv) ev(st, { t: 'levelUp', uid: u.uid, skillId, level: lv.level, tier: lv.tier });
+  if (u.refundAction) { u.refundAction = false; ev(st, { t: 'refund', uid: u.uid }); return { ok: true, refund: true }; }
+  return { ok: true };
+}
+
+// Charm's battlefield bribe (request 6): pay a hostile named enemy to walk.
+// The fee is spent whether they take it or not; heroes, conscripts and the
+// undead cannot be bought. Fee/chance are computed by Game.bribeOffer.
+function doBribe(st, u, action) {
+  const tgt = st.units.find(x => x.uid === action.targetUid);
+  if (!tgt || tgt.downed || tgt.fled) return { ok: false, error: 'no target' };
+  const fee = action.fee || 0;
+  if ((u.ch.inventory.gold || 0) < fee) return { ok: false, error: 'cannot afford the bribe' };
+  u.ch.inventory.gold -= fee;
+  tgt.ch.inventory.gold = (tgt.ch.inventory.gold || 0) + fee;
+  const success = st.rng.chance(action.chance || 0.5);
+  ev(st, { t: 'bribe', uid: u.uid, target: tgt.uid, fee, success });
+  if (success) { tgt.fled = true; checkEnd(st); }
+  return { ok: true, success, fee };
+}
+
+function doFlee(st, u) {
+  const foes = livingUnits(st, u.side === 'a' ? 'b' : 'a');
+  const fastest = Math.max(...foes.map(f => Ch().effStat(f.ch, 'spd')), 0);
+  let p = C().FLEE_BASE + (Ch().effStat(u.ch, 'spd') - fastest) * C().FLEE_PER_SPD;
+  // rogues' instincts: Opportunist and Sneak make getting out drastically likelier
+  for (const id of ['opportunist', 'sneak']) { const pv = perkVal(u.ch, id, null); if (pv && pv.fleeBonus) p += pv.fleeBonus; }
+  p = Math.max(C().FLEE_MIN, Math.min(C().FLEE_MAX, p));
+  // conscripts/undead/heroes cannot flee (§15a)
+  if (u.ch.isConscript || u.ch.isUndead || (u.ch.status === 'hero' && u.ch.grantsHeld)) {
+    ev(st, { t: 'fleeBlocked', uid: u.uid });
+    return { ok: true, fled: false };
+  }
+  let success = st.rng.chance(p);
+  if (!success && perkVal(u.ch, 'fallback_point', null) && !u.ch.__fallbackUsed) { success = true; u.ch.__fallbackUsed = true; }
+  ev(st, { t: 'flee', uid: u.uid, success, chance: p });
+  if (success) { u.fled = true; noteLeaderOut(st, u, false); checkEnd(st); }
+  return { ok: true, fled: success };
+}
+
+// -------------------------------------------------------- sighting/witness
+function recordSighting(st, user, skillId, tier) {
+  const sk = SK()[skillId];
+  if (!sk || sk.universal || sk.unique) return;
+  const teacher = (user && user.ch && user.ch.name) || '';
+  for (const u of st.units) {
+    if (u === user || u.reserved) continue;
+    if (!u.witnessedHere.some(w => w.skillId === skillId && w.tier === tier)) {
+      u.witnessedHere.push({ skillId, tier, from: teacher });
+      // The player learns by being shown. That moment is the whole hook, so it
+      // gets announced live instead of being banked silently until the fight
+      // ends — the UI drains this right after the 'use' beat.
+      if (u.ch && u.ch.isPlayer && !ADV.SkillSys.isWitnessed(u.ch, skillId)) {
+        st.__witnessShown = st.__witnessShown || 0;
+        if (st.__witnessShown < 2) {
+          st.__witnessPending = st.__witnessPending || [];
+          if (!st.__witnessPending.some(w => w.skillId === skillId)) {
+            st.__witnessShown++;
+            st.__witnessPending.push({ skillId, tier, from: teacher, uid: user.uid });
+          }
+        }
+      }
+    }
+  }
+}
+
+// Called by the quest layer when the encounter resolves: survivors register sightings.
+// Survival, not consciousness: downed-but-alive still witnessed everything (§3).
+Combat.registerWitnesses = function (st) {
+  const out = [];
+  for (const u of st.units) {
+    if (u.fled && u.witnessedHere.length === 0) continue;
+    if (u.ch.isMonster && u.downed) continue;              // dead monsters learn nothing
+    if (u.downed && !u.survivor) { /* downed units survive if their side didn't wipe — handled by caller flag */ }
+    for (const w of u.witnessedHere) {
+      const before = ADV.SkillSys.isWitnessed(u.ch, w.skillId);
+      ADV.SkillSys.witness(u.ch, w.skillId, w.tier, w.from);
+      if (!before && u.ch.isPlayer) out.push(w);
+    }
+  }
+  return out;
+};
+
+// ---------------------------------------------------------------- end check
+function checkEnd(st) {
+  if (st.over) return;
+  const a = livingUnits(st, 'a').length + st.units.filter(u => u.side === 'a' && u.reserved && !u.downed && !u.fled).length;
+  const b = livingUnits(st, 'b').length + st.units.filter(u => u.side === 'b' && u.reserved && !u.downed && !u.fled).length;
+  // Combat ends only when one side is entirely dead or fled (§15a)
+  if (a === 0 || b === 0) {
+    st.over = true;
+    st.winner = a > 0 ? 'a' : (b > 0 ? 'b' : null);
+    Combat.applySurvivalGrowth(st);
+    ev(st, { t: 'end', winner: st.winner });
+  }
+}
+
+// Post-victory recovery (§15a): winners restore 50% max HP between encounters.
+Combat.applyPostVictoryRecovery = function (chars) {
+  for (const ch of chars) {
+    if (ch.combatHp == null) continue;
+    const max = Ch().maxHp(ch);
+    ch.combatHp = Math.min(max, ch.combatHp + Math.round(max * C().POST_VICTORY_RECOVERY_PCT));
+  }
+};
+
+// Export end-of-encounter HP back onto characters for attrition across the quest (§8).
+// Survival growth (request): Bulwark and Arena Champion holders gain 20 max HP
+// for every battle they come out of alive — each encounter of a quest counts.
+// Applied once per battle, on export.
+Combat.applySurvivalGrowth = function (st) {
+  if (st.__growthApplied) return [];
+  st.__growthApplied = true;
+  const grown = [];
+  for (const u of st.units) {
+    const ch = u.ch;
+    if (ch.isMonster || ch.campaign) continue;
+    const alive = !u.downed || st.winner === u.side;       // downed on the winning side gets up at 1 HP
+    if (!alive) continue;
+    let gain = 0;
+    for (const e of ch.perks) { const sk = SK()[e.skillId]; if (sk && sk.survivalHp) gain += sk.survivalHp; }
+    if (!gain) continue;
+    ch.stats.hp += gain;
+    ch.survivalBattles = (ch.survivalBattles || 0) + 1;
+    if (!u.downed) u.chp += gain;                           // the new headroom is real at once
+    ev(st, { t: 'survivalGrowth', uid: u.uid, gain, total: ch.survivalBattles });
+    grown.push({ ch, gain });
+  }
+  return grown;
+};
+
+Combat.exportHp = function (st) {
+  Combat.applySurvivalGrowth(st);
+  for (const u of st.units) {
+    u.ch.combatHp = u.downed ? 0 : u.chp;
+    u.ch.wasDowned = u.downed;
+    u.ch.hasFled = u.fled;
+    // Purify's ward outlasts the battle just long enough to refuse the chains (request 7)
+    u.ch.__purifiedAtEnd = u.statuses.some(x => x.kind === 'purified');
+  }
+};
+
+// Internals handed to js/core/combat_effects.js (bespoke campaign skills).
+Combat._internals = {
+  dealDamage, computeDamage, healUnit, addStatus, removeStatus, livingUnits, laneUnits,
+  ev, perkVal, LANE_IDX, checkEnd, onUnitDown, finishAction, addExposed, canHealOther, canWard,
+  NEG_STATUSES, POS_STATUSES, DOT_STATUSES,
+};
+ADV.Combat = Combat;
+})();
