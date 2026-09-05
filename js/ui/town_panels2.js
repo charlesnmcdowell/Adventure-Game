@@ -906,16 +906,18 @@ Notices.nameChild = function (scene, n, next) {
     const W = T().W;
     keep(T().text(scene, W / 2, 244, child.sex === 'f' ? 'A daughter is born' : 'A son is born', { size: 22, display: true, ox: 0.5, color: T().css.gold }).setDepth(D));
     keep(T().text(scene, W / 2, 280, (child.sex === 'f' ? 'She' : 'He') + ' is yours to name — only a mother has that right. Type it.', { size: 13, ox: 0.5, color: T().css.inkDim }).setDepth(D));
-    keep(scene.add.rectangle(W / 2, 322, 280, 36, 0x211d18).setStrokeStyle(1, T().c.gold).setDepth(D));
-    const txt = keep(T().text(scene, W / 2, 322, '', { size: 18, ox: 0.5, oy: 0.5 }).setDepth(D + 1));
-    const onKey = (ev) => {
-      if (ev.key === 'Backspace') name = name.slice(0, -1);
-      else if (/^[a-zA-Z '\-]$/.test(ev.key) && name.length < 14) name += ev.key;
-      txt.setText(name);
-    };
-    scene.input.keyboard.on('keydown', onKey);
+    // A real <input> over the canvas (mobile pass) so the keyboard opens.
+    const field = ADV.UI.textField(scene, {
+      x: W / 2, y: 322, w: 280, h: 36, size: 18, maxLen: 14, placeholder: 'a name',
+      onChange: (v) => { name = v; },
+      onCommit: () => done(),
+    });
+    field.el.style.borderColor = '#c8a24a';
+    if (!ADV.UI.isTouch()) field.focus();
+    let closed = false;
     const done = () => {
-      scene.input.keyboard.off('keydown', onKey);
+      if (closed) return; closed = true;
+      field.destroy();
       child.name = name.trim() || null;   // empty = let fate (the seed roll) pick
       ADV.Save.saveGame(game);
       close(); next();

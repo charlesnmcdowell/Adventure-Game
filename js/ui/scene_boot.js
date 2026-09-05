@@ -40,14 +40,17 @@ class TitleScene extends Phaser.Scene {
 
     // visible password field (§14a — honor system by design)
     T().text(this, W / 2, y + 16, 'password', { size: 12, ox: 0.5, color: T().css.inkFaint });
-    const pwBg = this.add.rectangle(W / 2, y + 44, 220, 32, 0x211d18).setStrokeStyle(1, T().c.panelEdge);
-    this.pwText = T().text(this, W / 2, y + 44, '', { size: 16, ox: 0.5, oy: 0.5, color: T().css.purple });
+    // A real <input> (mobile pass): canvas text never opens a phone keyboard.
+    // Plain text by design (§14a) — the border turns purple on a known name.
     this.password = '';
-    this.input.keyboard.on('keydown', (ev) => {
-      if (ev.key === 'Backspace') this.password = this.password.slice(0, -1);
-      else if (/^[a-zA-Z0-9]$/.test(ev.key) && this.password.length < 16) this.password += ev.key;
-      this.pwText.setText(this.password);
-      pwBg.setStrokeStyle(1, ADV.DATA.REGISTRY[this.password.toLowerCase()] ? T().c.purple : T().c.panelEdge);
+    if (this.pwField) this.pwField.destroy();
+    this.pwField = ADV.UI.textField(this, {
+      x: W / 2, y: y + 44, w: 220, h: 32, size: 16, maxLen: 16, color: 'purple',
+      pattern: /^[a-zA-Z0-9]$/, autocapitalize: 'none',
+      onChange: (v) => {
+        this.password = v;
+        this.pwField.el.style.borderColor = ADV.DATA.REGISTRY[v.toLowerCase()] ? '#b48ee0' : '';
+      },
     });
 
     T().text(this, W / 2, H - 70, 'save data lives in this browser · reset from the town codex', { size: 11, ox: 0.5, color: T().css.inkFaint });
@@ -55,12 +58,13 @@ class TitleScene extends Phaser.Scene {
 
   confirmNew() {
     const W = T().W, H = T().H;
+    if (this.pwField) this.pwField.hide();
     const dim = this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.7).setDepth(50).setInteractive();
     T().panel(this, W / 2 - 240, H / 2 - 90, 480, 180).setDepth(51);
     const t1 = T().text(this, W / 2, H / 2 - 56, 'Start a brand new game?', { size: 20, display: true, ox: 0.5, color: T().css.blood }).setDepth(52);
     const t2 = T().text(this, W / 2, H / 2 - 24, 'Everything goes: the world, the journal, every skill level, every life. A new life after death happens on its own — this is the clean slate.', { size: 13, ox: 0.5, color: T().css.inkDim, wrap: 420, align: 'center' }).setDepth(52);
     const b1 = T().button(this, W / 2 - 190, H / 2 + 20, 170, 40, 'Wipe it all', () => { ADV.Save.reset(); this.startCards(); }, { color: T().css.blood });
-    const b2 = T().button(this, W / 2 + 20, H / 2 + 20, 170, 40, 'Keep playing', () => { [dim, t1, t2].forEach(x => x.destroy()); b1.destroy(); b2.destroy(); });
+    const b2 = T().button(this, W / 2 + 20, H / 2 + 20, 170, 40, 'Keep playing', () => { [dim, t1, t2].forEach(x => x.destroy()); b1.destroy(); b2.destroy(); if (this.pwField) this.pwField.show(); });
     b1.g.setDepth(52); b1.txt.setDepth(53); b1.zone.setDepth(54);
     b2.g.setDepth(52); b2.txt.setDepth(53); b2.zone.setDepth(54);
   }
@@ -68,6 +72,7 @@ class TitleScene extends Phaser.Scene {
   // Pre-game: 5 cards, skippable (§12)
   startCards() {
     const W = T().W, H = T().H;
+    if (this.pwField) { this.pwField.destroy(); this.pwField = null; }
     const cards = ADV.DATA.PREGAME_CARDS;
     let idx = 0;
     const dim = this.add.rectangle(W / 2, H / 2, W, H, 0x0b0a08, 0.92).setDepth(60).setInteractive();

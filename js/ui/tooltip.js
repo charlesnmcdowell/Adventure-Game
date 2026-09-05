@@ -61,6 +61,17 @@ const Tooltip = {
   // Wire hover on any interactive zone/object. textFn is lazy (built on hover).
   attach(scene, obj, textFn) {
     obj.on('pointerover', (p) => { const t = textFn(); if (t) Tooltip.show(scene, t, p.x, p.y); });
+  // Phones have no hover (mobile pass): a tap shows the inspector for a few
+  // seconds alongside whatever the tap does, and any later tap hides it.
+  if (ADV.UI && ADV.UI.isTouch && ADV.UI.isTouch()) {
+    obj.on('pointerup', (p) => {
+      const t = textFn(); if (!t) return;
+      Tooltip.show(scene, t, p.x, p.y);
+      if (Tooltip._tapTimer) clearTimeout(Tooltip._tapTimer);
+      Tooltip._tapTimer = setTimeout(() => Tooltip.hide(), 3500);
+    });
+    return;
+  }
     obj.on('pointermove', (p) => Tooltip.move(scene, p.x, p.y));
     obj.on('pointerout', () => Tooltip.hide());
     obj.on('pointerdown', () => Tooltip.hide());

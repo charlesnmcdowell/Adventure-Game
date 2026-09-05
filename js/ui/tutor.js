@@ -67,7 +67,7 @@ Tutor.callout = function (scene, rect, title, body, opts) {
   const pw = 300;
   const bodyWrap = pw - 28;
   const probe = T().text(scene, 0, 0, body, { size: 12, wrap: bodyWrap });
-  const ph = Math.min(160, 36 + probe.height + (opts.pass ? 22 : 44));
+  const ph = Math.min(176, 36 + probe.height + (opts.pass ? 22 : 58));   // room for a 44px-tall button (mobile pass)
   try { probe.destroy(); } catch (e) {}
   const pad = 14;
   const fits = (x, y) => x >= pad && y >= pad && x + pw <= W - pad && y + ph <= H - pad;
@@ -92,7 +92,7 @@ Tutor.callout = function (scene, rect, title, body, opts) {
   k(T().text(scene, px + 12, py + 28, body, { size: 12, wrap: bodyWrap, color: T().css.ink }).setDepth(D + 1));
   const close = () => objs.forEach(o => { try { o.destroy(); } catch (e) {} });
   if (!opts.pass) {
-    const b = T().button(scene, px + pw - 118, py + ph - 38, 102, 28, opts.label || 'Next', () => { close(); if (opts.onNext) opts.onNext(); }, { size: 12, bold: true, color: T().css.gold });
+    const b = T().button(scene, px + pw - 160, py + ph - 54, 146, 44, opts.label || 'Next', () => { close(); if (opts.onNext) opts.onNext(); }, { size: 13, bold: true, color: T().css.gold });
     b.g.setDepth(D + 1); b.txt.setDepth(D + 2); b.zone.setDepth(D + 3); objs.push(b.g, b.txt, b.zone);
   } else {
     k(T().text(scene, px + 12, py + ph - 20, opts.hint || '↑ click it to continue', { size: 11, italic: true, color: T().css.inkDim }).setDepth(D + 1));

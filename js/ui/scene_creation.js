@@ -36,19 +36,18 @@ class CreationScene extends Phaser.Scene {
 
     // name entry
     T().text(this, 100, 62, 'Name', { size: 13, color: T().css.inkDim });
-    this.add.rectangle(230, 92, 260, 34, 0x211d18).setStrokeStyle(1, T().c.panelEdge);
-    this.nameText = T().text(this, 230, 92, this.sel.name, { size: 18, ox: 0.5, oy: 0.5 });
-    this.caret = T().text(this, 230, 92, '_', { size: 18, ox: 0.5, oy: 0.5, color: T().css.gold });
-    this.tweens.add({ targets: this.caret, alpha: 0, duration: 400, yoyo: true, repeat: -1 });
-    this.input.keyboard.removeAllListeners('keydown');
-    this.input.keyboard.on('keydown', (ev) => {
-      if (this.done || this.phase !== 1) return;
-      if (ev.key === 'Backspace') this.sel.name = this.sel.name.slice(0, -1);
-      else if (/^[a-zA-Z '\-]$/.test(ev.key) && this.sel.name.length < 14) this.sel.name += ev.key;
-      this.nameText.setText(this.sel.name);
-      this.caret.setX(230 + this.nameText.width / 2 + 6);
-      this.drawNextButton();
+    // A real <input> over the canvas: canvas text can't open a phone keyboard.
+    // (mobile pass) The drawn box is gone; the field draws its own.
+    if (this.nameField) this.nameField.destroy();
+    this.nameField = ADV.UI.textField(this, {
+      x: 230, y: 92, w: 260, h: 34, size: 18, value: this.sel.name, maxLen: 14,
+      placeholder: 'your name',
+      onChange: (v) => { if (this.done || this.phase !== 1) return; this.sel.name = v; this.drawNextButton(); },
+      onCommit: () => { if (this.sel.name.trim() && this.phase === 1) this.drawNextButton(); },
     });
+    // Desktop: start typing immediately. (Phones ignore programmatic focus
+    // without a gesture, which is what we want — no keyboard until a tap.)
+    if (!ADV.UI.isTouch()) this.nameField.focus();
     T().text(this, 380, 92, '(type it — NPCs will use it)', { size: 11, oy: 0.5, color: T().css.inkFaint });
     this.firstGame = (ADV.Save.loadMeta().lives || 0) === 0;
 
@@ -88,7 +87,7 @@ class CreationScene extends Phaser.Scene {
           const zone = this.add.zone(x, cy, cw, chh).setOrigin(0).setInteractive({ useHandCursor: true });
           const tag = ADV.Portraits.slotTag(slot);
           const sexLabel = this.add.text(x + cw / 2, cy + chh - 10, sex === 'f' ? 'Woman' : 'Man', { fontFamily: 'Georgia, serif', fontSize: '12px', color: sex === 'f' ? '#d4a0c0' : '#9ab0d0' }).setOrigin(0.5, 0.5);
-          zone.on('pointerdown', () => { this.sel.slot = slot; this.sel.sex = sex; this.refresh(); });
+          zone.on('pointerdown', () => { this.sel.slot = slot; this.sel.sex = sex; this.refresh(); if (this.faceHint) this.faceHint.setText(`${sex === 'f' ? 'A woman' : 'A man'} — ${tag} #${slot}`); });
           zone.on('pointerover', () => {
             if (this.faceHint) this.faceHint.setText(`${sex === 'f' ? 'A woman' : 'A man'} — ${tag} #${slot}`);
           });
@@ -160,6 +159,7 @@ class CreationScene extends Phaser.Scene {
   // ---------------------------------------------------- phase 2: free skills
   buildPhase2() {
     this.phase = 2;
+    if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
     this.children.removeAll();
     const W = T().W, H = T().H;
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
@@ -183,7 +183,7 @@ class CreationScene extends Phaser.Scene {
       b.txt = T().text(this, x + 14, y + (rh - 8) / 2, `${sk.name}${sk.kind === 'perk' ? ' ◆' : ''}`, { size: 14, oy: 0.5 });
       b.tag = T().text(this, x + cw - 14, y + (rh - 8) / 2, sk.archetype || 'social', { size: 11, ox: 1, oy: 0.5, color: T().css.inkFaint });
       const zone = this.add.zone(x, y, cw, rh - 8).setOrigin(0).setInteractive({ useHandCursor: true });
-      zone.on('pointerdown', () => this.toggleSkill(id));
+      zone.on('pointerdown', () => { this.descText.setText(sk.name + ' — ' + sk.desc); this.toggleSkill(id); });
       zone.on('pointerover', () => this.descText.setText(sk.name + ' — ' + sk.desc));
       ADV.Tooltip.attach(this, zone, () => ADV.SkillInfo.describe(null, id));
       this.skillButtons.push(b);
@@ -231,8 +231,11 @@ class CreationScene extends Phaser.Scene {
   buildHiro() {
     const W = T().W, H = T().H;
     T().text(this, 100, 62, 'Name', { size: 13, color: T().css.inkDim });
-    this.add.rectangle(230, 92, 260, 34, 0x211d18).setStrokeStyle(1, T().c.panelEdge);
-    this.nameText = T().text(this, 230, 92, '', { size: 18, ox: 0.5, oy: 0.5 });
+    if (this.nameField) this.nameField.destroy();
+    this.nameField = ADV.UI.textField(this, {
+      x: 230, y: 92, w: 260, h: 34, size: 18, value: '', maxLen: 14, placeholder: 'Hiro',
+      onChange: (v) => { this.sel.name = v; },
+    });
     const key = ADV.Portraits.hiroKey(this);
     this.add.image(W / 2 - 220, 350, key).setDisplaySize(260, 330);
     T().text(this, W / 2 - 40, 190, 'The password is spoken.', { size: 24, display: true, color: T().css.purple });
@@ -249,6 +252,7 @@ class CreationScene extends Phaser.Scene {
   begin() {
     if (this.done) return;
     this.done = true;
+    if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
     const opts = {
       seed: Math.floor(Math.random() * 1e9),
       name: this.sel.name.trim() || (this.isHiro ? 'Hiro' : 'Rook'),

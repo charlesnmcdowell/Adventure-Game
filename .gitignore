@@ -8,3 +8,4 @@ _to_delete_vo.zip
 package.json
 package-lock.json
 .eslintrc.json
+Claude outputs/

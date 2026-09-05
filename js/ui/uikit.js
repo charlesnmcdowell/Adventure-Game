@@ -271,5 +271,97 @@ const UI = {
   },
 };
 
+// ---- DOM text fields --------------------------------------------------------
+// Canvas text cannot summon a phone's software keyboard, so every typed field
+// in the game is a real <input> laid over the canvas. Fields are declared in
+// GAME-SPACE coordinates (the 1280x760 design grid) and re-projected onto the
+// page whenever the canvas is re-fit — index.html calls UI.repositionFields()
+// from its resize burst. Font size never drops below 16 CSS px (iOS zooms
+// into anything smaller), so a narrow phone gets a slightly larger field than
+// the design grid says; that is the right trade.
+//
+//   const f = ADV.UI.textField(scene, { x, y, w, h, value, maxLen, pattern,
+//                                        onChange(v), onCommit(v), color, size });
+//   f.value() / f.set(v) / f.focus() / f.destroy()
+//
+// The field is destroyed with the scene (shutdown/destroy hooks) so a scene
+// switch never leaves a stray input on the page.
+const FIELDS = new Set();
+
+function projectField(f) {
+  const game = window.__game;
+  if (!game || !game.canvas) return;
+  const r = game.canvas.getBoundingClientRect();
+  const sx = r.width / T().W, sy = r.height / T().H;
+  const s = Math.min(sx, sy);
+  // Minimum sizes win over the design grid on small phones; keep the field
+  // centred on its design point either way.
+  const w = Math.max(44, f.w * sx), h = Math.max(32, f.h * sy);
+  const el = f.el;
+  el.style.left = (r.left + f.x * sx - w / 2) + 'px';
+  el.style.top = (r.top + f.y * sy - h / 2) + 'px';
+  el.style.width = w + 'px';
+  el.style.height = h + 'px';
+  el.style.fontSize = Math.max(16, f.size * s) + 'px';
+  el.style.lineHeight = h + 'px';
+  el.style.display = f.hidden ? 'none' : '';
+}
+
+UI.textField = function (scene, o) {
+  const el = document.createElement('input');
+  el.type = 'text';
+  el.className = 'adv-field' + (o.color === 'purple' ? ' adv-purple' : '');
+  el.autocomplete = 'off'; el.autocapitalize = o.autocapitalize || 'words';
+  el.autocorrect = 'off'; el.spellcheck = false;
+  el.setAttribute('enterkeyhint', 'done');
+  el.maxLength = o.maxLen || 14;
+  if (o.placeholder) el.placeholder = o.placeholder;
+  el.value = o.value || '';
+  const pattern = o.pattern || /^[a-zA-Z '\-]*$/;
+  const f = { el, x: o.x, y: o.y, w: o.w, h: o.h, size: o.size || 18, hidden: false,
+    value() { return el.value; },
+    set(v) { el.value = v; },
+    focus() { try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } },
+    blur() { el.blur(); },
+    hide() { f.hidden = true; projectField(f); },
+    show() { f.hidden = false; projectField(f); },
+    destroy() { FIELDS.delete(f); if (el.parentNode) el.parentNode.removeChild(el); },
+  };
+  let last = el.value;
+  el.addEventListener('input', () => {
+    // Enforce the same alphabet the old keydown handlers allowed, without
+    // fighting the keyboard: strip disallowed characters rather than refuse.
+    let v = el.value.split('').filter(ch => pattern.test(ch)).join('').slice(0, el.maxLength);
+    if (v !== el.value) el.value = v;
+    if (v !== last) { last = v; if (o.onChange) o.onChange(v); }
+  });
+  el.addEventListener('keydown', (ev) => {
+    ev.stopPropagation();               // Phaser's window listener must not see typing
+    if (ev.key === 'Enter') { ev.preventDefault(); el.blur(); if (o.onCommit) o.onCommit(el.value); }
+  });
+  el.addEventListener('blur', () => { if (o.onBlur) o.onBlur(el.value); });
+  // A phone tap must focus on the FIRST touch: the game shell sets
+  // touch-action:none on the body, so the field opts back in.
+  el.addEventListener('touchstart', () => { f.focus(); }, { passive: true });
+  document.body.appendChild(el);
+  FIELDS.add(f);
+  projectField(f);
+  if (scene && scene.events) {
+    scene.events.once('shutdown', () => f.destroy());
+    scene.events.once('destroy', () => f.destroy());
+  }
+  return f;
+};
+
+UI.repositionFields = function () { FIELDS.forEach(projectField); };
+UI.isTouch = function () {
+  return ('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0 ||
+    (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+};
+UI.hasFocusedField = function () {
+  const a = document.activeElement;
+  return !!(a && a.classList && a.classList.contains('adv-field'));
+};
+
 ADV.UI = UI;
 })();

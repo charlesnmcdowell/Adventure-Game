@@ -83,7 +83,11 @@ const T = {
       txt.setY(y + h / 2 - 8);
       sub = T.text(scene, x + w / 2, y + h / 2 + 11, opts.sub, { size: 11, ox: 0.5, oy: 0.5, color: opts.subColor || T.css.inkDim });
     }
-    const zone = scene.add.zone(x, y, w, h).setOrigin(0).setInteractive({ useHandCursor: !opts.disabled });
+    // Touch devices (mobile pass): pad the invisible hit area by 4px a side —
+    // the tightest stacked buttons sit 4-6px apart, so this never overlaps a
+    // neighbour, and it turns near-misses on small controls into hits.
+    const pad = (ADV.UI && ADV.UI.isTouch && ADV.UI.isTouch()) ? 4 : 0;
+    const zone = scene.add.zone(x - pad, y - pad, w + 2 * pad, h + 2 * pad).setOrigin(0).setInteractive({ useHandCursor: !opts.disabled });
     if (!opts.disabled) {
       zone.on('pointerover', () => draw(true));
       zone.on('pointerout', () => { draw(false); zone.__press = null; });

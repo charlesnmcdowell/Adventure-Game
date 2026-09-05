@@ -2,16 +2,69 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- viewport-fit=cover lets the canvas run under the iPhone notch/home bar; the
+     game draws its own margins. maximum-scale/user-scalable stop pinch and
+     double-tap zoom, which a canvas game never wants. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b0a08">
 <title>Adventurer</title>
 <style>
-  html, body { margin: 0; padding: 0; background: #0b0a08; height: 100%; }
-  #game { display: flex; justify-content: center; align-items: center; height: 100%; }
-  canvas { image-rendering: auto; }
+  html, body {
+    margin: 0; padding: 0; background: #0b0a08;
+    width: 100%; height: 100%;
+    overflow: hidden;                 /* no page scroll, no horizontal scroll */
+    overscroll-behavior: none;        /* no rubber-band on the body */
+    position: fixed; inset: 0;        /* iOS: body never scrolls under the toolbar */
+    -webkit-text-size-adjust: 100%;
+    touch-action: none;               /* the canvas owns every gesture */
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;      /* no long-press callout over the canvas */
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* 100dvh tracks the iOS Safari toolbar as it shows/hides; fall back to 100%. */
+  /* Phaser's autoCenter positions the canvas inside #game with margins;
+     #game itself must NOT also flex-centre it or the offset doubles. */
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; height: 100dvh; display: block; }
+  canvas { image-rendering: auto; display: block; touch-action: none; }
+
+  /* DOM text fields overlaid on the canvas (canvas text can't summon a
+     software keyboard). Positioned by ADV.UI.textField in game-space units. */
+  .adv-field {
+    position: fixed; box-sizing: border-box; z-index: 20;
+    background: #211d18; color: #e8e0d0; border: 1px solid #5a4e3c; border-radius: 4px;
+    font-family: Georgia, 'Times New Roman', serif; font-size: 16px; /* >=16px: iOS won't zoom */
+    text-align: center; outline: none; padding: 0 8px; margin: 0;
+    -webkit-user-select: text; user-select: text; touch-action: manipulation;
+    -webkit-appearance: none; appearance: none;
+  }
+  .adv-field:focus { border-color: #c8a24a; }
+  .adv-field.adv-purple { color: #b48ee0; }
+
+  /* Landscape-only: on a phone held upright, ask for a turn. Dismisses itself
+     the moment the viewport is wider than it is tall. */
+  #rotate {
+    position: fixed; inset: 0; z-index: 100; display: none;
+    background: #0b0a08; color: #d8cdb8; text-align: center;
+    font-family: Georgia, serif; padding: 0 24px;
+    flex-direction: column; justify-content: center; align-items: center; gap: 18px;
+  }
+  #rotate .icon { width: 64px; height: 112px; border: 3px solid #c8a24a; border-radius: 10px;
+                  animation: advturn 1.6s ease-in-out infinite; }
+  #rotate .t { font-size: 20px; color: #e7b450; letter-spacing: 1px; }
+  #rotate .s { font-size: 14px; color: #8b7d6b; }
+  @keyframes advturn { 0%,25% { transform: rotate(0deg); } 60%,100% { transform: rotate(90deg); } }
+  body.portrait #rotate { display: flex; }
 </style>
 </head>
 <body>
 <div id="game"></div>
+<div id="rotate" aria-live="polite">
+  <div class="icon"></div>
+  <div class="t">Turn your phone sideways</div>
+  <div class="s">Adventurer plays in landscape</div>
+</div>
 
 <script src="lib/phaser.min.js"></script>
 
@@ -89,8 +142,53 @@ window.__game = new Phaser.Game({
   height: ADV.T.H,
   backgroundColor: '#171512',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  input: { activePointers: 3 },
   scene: [ADV.TitleScene, ADV.CreationScene, ADV.TownScene, ADV.QuestScene, ADV.CombatScene, ADV.DeathScene],
 });
+
+// ---- mobile viewport handling -------------------------------------------
+// Phaser's FIT mode measures the parent once per resize event. On phones the
+// viewport keeps changing AFTER that event fires: iOS Safari's toolbar slides
+// away a few hundred ms after rotation, Chrome's URL bar collapses on scroll,
+// and returning from the background can land on a stale size. So every trigger
+// schedules a short burst of re-measures rather than a single one.
+(function () {
+  const game = window.__game;
+  const isPhone = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent) && !/iPad/i.test(navigator.userAgent);
+  let timers = [];
+  function refit() {
+    const el = document.getElementById('game');
+    const vv = window.visualViewport;
+    const w = Math.round(vv ? vv.width : window.innerWidth);
+    const h = Math.round(vv ? vv.height : window.innerHeight);
+    el.style.width = w + 'px';
+    el.style.height = h + 'px';
+    // Phaser reads canvas.style inside refresh(); before boot there is no
+    // canvas yet, so wait for 'ready' (hooked below) rather than call early.
+    if (game && game.scale && game.canvas) {
+      game.scale.setParentSize(w, h);
+      game.scale.refresh();
+    }
+    // Landscape-only: portrait on a phone shows the rotate prompt.
+    const portrait = isPhone && h > w;
+    document.body.classList.toggle('portrait', portrait);
+    if (ADV.UI && ADV.UI.repositionFields) ADV.UI.repositionFields();
+  }
+  function burst() {
+    timers.forEach(clearTimeout); timers = [];
+    refit();
+    [60, 200, 450, 900].forEach(ms => timers.push(setTimeout(refit, ms)));
+  }
+  window.addEventListener('resize', burst);
+  window.addEventListener('orientationchange', burst);
+  window.addEventListener('pageshow', burst);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) burst(); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', burst);
+  if (screen.orientation) screen.orientation.addEventListener('change', burst);
+  game.events.once('ready', burst);
+  burst();
+  window.__refit = burst;   // test hook
+})();
 </script>
 </body>
 </html>
