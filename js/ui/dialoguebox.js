@@ -16,10 +16,14 @@ const DialogueBox = {
       ADV.Music.speakFile(speaker.personalityId, r.band, r.idx + 1,
         ADV.Character.voiceTagFor(world, speaker));
     }
-    return DialogueBox.showText(scene, game, speaker, r.text, onDone);
+    // the raw line still carries its delivery tags — the face reads them (expression pass)
+    const raw = (() => { try { const p = ADV.DATA.DIALOGUE[speaker.personalityId]; const arr = p && (p[r.band] || p.general); return arr ? arr[r.idx] : null; } catch (e) { return null; } })();
+    return DialogueBox.showText(scene, game, speaker, r.text, onDone, { raw });
   },
 
-  showText(scene, game, speaker, line, onDone) {
+  // opts: { raw } — the untrimmed line with [delivery] tags, for reactions
+  showText(scene, game, speaker, line, onDone, opts) {
+    opts = opts || {};
     const W = T().W, H = T().H;
     const bh = 132, y = H - bh - 12;
     const group = [];
@@ -34,16 +38,22 @@ const DialogueBox = {
     const key = ADV.Portraits.key(scene, speaker);
     const img = scene.add.image(88, y + bh / 2, key).setDisplaySize(96, 122).setDepth(902);
     if (ADV.Portraits.animate) ADV.Portraits.animate(scene, img, speaker, key);
-    if (ADV.Portraits.express && game && speaker && !speaker.isMonster) {
-      let mood = 'neutral';
-      if (speaker.isPlayer && ADV.Survival) {
-        const sv = ADV.Survival.state(speaker);
-        mood = sv.sick ? 'hurt' : (sv.hunger ? 'sad' : 'neutral');
-      } else if (ADV.Rel) {
-        const tier = ADV.Rel.tierBetween(game.world, speaker.id, game.world.playerId);
-        mood = (tier === 'romantic' || tier === 'friendly') ? 'happy' : (tier === 'hatred' ? 'angry' : 'neutral');
-      }
-      ADV.Portraits.express(scene, img, speaker, key, mood);
+    if (ADV.Portraits.moodFor && game && speaker) {
+      const P = ADV.Portraits;
+      P.stand(scene, img, game, speaker, key, 'dialogue');
+      // delivery tags → a reaction as the line opens; the speaker looks at the player
+      const tags = P.tagsIn(opts.raw || line);
+      tags.slice(0, 2).forEach((t, i) => scene.time.delayedCall(i * 500, () => P.react(scene, img, speaker, key, t.mood, { ms: 900, intensity: t.intensity })));
+      if (/\[(nod|agrees?)\]/i.test(opts.raw || '')) P.motion(scene, img, 'nod');
+      if (/\[(shakes head|refus)/i.test(opts.raw || '')) P.motion(scene, img, 'shake');
+      if (/\[(curious|questioning)\]/i.test(opts.raw || '')) P.motion(scene, img, 'tilt');
+      P.look(scene, img, speaker, key, 0.8, 0.2, 320, true);
+      // lip flap on the voice clip (or a word-count fallback when the line is silent)
+      const el = ADV.Music && ADV.Music.voiceEl;
+      P.lipFlap(scene, img, speaker, key, el && !el.error ? el : null, { words: String(line || '').split(/\s+/).length });
+      // skin states the standing mood does not carry
+      const sv = ADV.Survival && !speaker.isMonster ? ADV.Survival.state(speaker) : null;
+      P.skinState(scene, img, speaker, key, { sick: !!(sv && sv.sick), pale: sv && sv.hunger >= 3 ? 0.6 : 0 });
     }
     const frame = scene.add.graphics().setDepth(903);
     frame.lineStyle(2, T().c.panelEdge, 1);
@@ -69,20 +79,16 @@ const DialogueBox = {
     scene.tweens.add({ targets: hint, y: hint.y + 4, duration: 420, yoyo: true, repeat: -1 });
     group.push(hint);
 
-    if (ADV.Tooltip) ADV.Tooltip.hide();
-    if (ADV.Tutor) ADV.Tutor.clear(scene);
     if (ADV.Notices && ADV.Notices.block) ADV.Notices.block(scene);
     if (!scene.__cutscene && scene.hideChrome) scene.hideChrome();
     const close = () => {
       timer.remove(false);
       if (ADV.Music) ADV.Music.stopVoice();
       for (const g of group) { try { g.destroy(); } catch (e) {} }
-      if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('dialogue');
       if (!scene.__cutscene && scene.showChrome) scene.showChrome();
       if (ADV.Notices && ADV.Notices.unblock) ADV.Notices.unblock(scene);
       if (onDone) onDone();
     };
-    if (ADV.UI && ADV.UI.holdCard) ADV.UI.holdCard('dialogue', close);
     dim.on('pointerdown', () => {
       if (!doneTyping) { timer.remove(false); txt.setText(line); doneTyping = true; }
       else close();

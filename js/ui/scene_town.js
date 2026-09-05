@@ -59,10 +59,10 @@ class TownScene extends Phaser.Scene {
     const key = ADV.Portraits.key(this, p);
     const pimg = add(this.add.image(x + w / 2, y + 92, key).setDisplaySize(140, 168));
     if (ADV.Portraits.animate) ADV.Portraits.animate(this, pimg, p, key);
-    if (ADV.Portraits.express) {
+    if (ADV.Portraits.stand) {
+      ADV.Portraits.stand(this, pimg, this.game_ || this.g(), p, key, 'town');
       const sv = ADV.Survival ? ADV.Survival.state(p) : null;
-      const mood = sv && sv.sick ? 'hurt' : (sv && sv.hunger) ? 'sad' : 'neutral';
-      ADV.Portraits.express(this, pimg, p, key, mood);
+      ADV.Portraits.skinState(this, pimg, p, key, { sick: !!(sv && sv.sick), pale: sv && sv.hunger >= 3 ? 0.6 : 0 });
     }
     const fg = add(this.add.graphics());
     fg.lineStyle(2, T().c.gold, 0.7); fg.strokeRect(x + w / 2 - 70, y + 8, 140, 168);
@@ -462,7 +462,8 @@ class TownScene extends Phaser.Scene {
       const x0 = 390 + (i - mid) * 54;
       const y0 = 548 + (i % 2) * 14;
       const cont = keep(this.add.container(x0, y0).setDepth(D + 2 + (isLead ? n : i)).setAlpha(0));
-      const img = this.add.image(0, 0, ADV.Portraits.key(this, c)).setDisplaySize(bw, bh);
+      const ekey = ADV.Portraits.key(this, c);
+      const img = this.add.image(0, 0, ekey).setDisplaySize(bw, bh);
       const rim = this.add.rectangle(0, 0, bw + 4, bh + 4, 0x000000, 0)
         .setStrokeStyle(2, isLead ? T().c.gold : T().c.panelEdge, 0.95);
       const nm = T().text(this, 0, bh / 2 + 10, short(c), {

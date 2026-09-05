@@ -45,11 +45,11 @@ CampaignUI.playBeat = function (scene, game, beat, done) {
     if (i >= lines.length) { if (done) done(); return; }
     const line = lines[i++];
     if (ADV.Music) ADV.Music.speakCampaign(who, beat.key, i);
-    ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who), next);
+    ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who), next, { raw: line.t });
   };
   if (beat.death && !beat.offscreen) {
     // the rival's last line, then the screen goes red for a moment
-    const speak = () => { const line = lines[0]; if (ADV.Music) ADV.Music.speakCampaign(who, 'death', 1); ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who), () => { ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8); scene.time.delayedCall(600, done); }); };
+    const speak = () => { const line = lines[0]; if (ADV.Music) ADV.Music.speakCampaign(who, 'death', 1); ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who), () => { ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8); scene.time.delayedCall(600, done); }, { raw: line.t }); };
     speak(); return;
   }
   if (beat.death && beat.offscreen) {
@@ -137,6 +137,7 @@ Panels.campaign = function (scene, r) {
   const key = ADV.Portraits.key(scene, bossCh);
   const bimg = scene.keep(scene.add.image(r.x + r.w - 92, r.y + 132, key).setDisplaySize(110, 140));
   if (ADV.Portraits.animate) ADV.Portraits.animate(scene, bimg, bossCh, key);
+  if (ADV.Portraits.stand) ADV.Portraits.stand(scene, bimg, game, bossCh, key, 'town');
   const fg = scene.keep(scene.add.graphics()); fg.lineStyle(2, T().c.gold, 0.7); fg.strokeRect(r.x + r.w - 147, r.y + 62, 110, 140);
   scene.keep(T().text(scene, r.x + r.w - 92, r.y + 210, v.boss.name, { size: 12, ox: 0.5, color: T().css.gold }));
   scene.keep(T().text(scene, r.x + r.w - 92, r.y + 226, v.boss.epithet || 'runs the hall', { size: 11, ox: 0.5, italic: true, color: T().css.inkDim }));
@@ -213,7 +214,7 @@ CampaignUI.branchChoice = function (scene, game, done) {
         close(); ADV.Campaign.chooseSide(game, 'crane');
         CampaignUI.playBeat(scene, game, { who: 'crane', key: 'sided' }, done);
       }, { size: 14, bold: true, color: T().css.gold }));
-      ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 + 10, 360, 240, 40, 'Side with Hargrave', () => {
+      ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 + 10, 360, 240, 40, 'Side with Holloway', () => {
         close(); ADV.Campaign.chooseSide(game, 'holloway');
         CampaignUI.playBeat(scene, game, { who: 'holloway', key: 'sided' }, done);
       }, { size: 14, bold: true, color: T().css.blue }));

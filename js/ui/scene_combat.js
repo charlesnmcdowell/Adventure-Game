@@ -67,6 +67,13 @@ class CombatScene extends Phaser.Scene {
       this.mode === 'assassination' ? 'Only one side walks away.' :
       (st.ambushUid ? 'Your ambush — strike first, twice' : ''), { size: 16, display: true, ox: 0.5, color: T().css.blood });
 
+    // an ambush opens on startled faces (Part B): the ambushed side, or the
+    // victims of the player's own ambush
+    if (this.mode === 'ambush' || st.ambushUid) {
+      const ambusher = st.ambushUid ? st.units.find(x => x.uid === st.ambushUid) : null;
+      const victimSide = this.mode === 'ambush' ? 'a' : (ambusher ? (ambusher.side === 'a' ? 'b' : 'a') : 'b');
+      this.time.delayedCall(250, () => { for (const o of this.unitViews.values()) if (o.u.side === victimSide) this.reactAt(o, 'surprised', { ms: 600, intensity: 1 }); });
+    }
     this.eventCursor = st.events.length;
     if (this.res_a) { this.res_a = null; }
     if (this.res_b) { this.res_b = null; }
@@ -84,7 +91,7 @@ class CombatScene extends Phaser.Scene {
     if (u.ch.isUndead) { img.setTint(0x88bb99); img.__baseTint = 0x88bb99; }
     else if (u.lane === 'back') { img.setTint(0xb0a898); img.__baseTint = 0xb0a898; }
     if (ADV.Portraits.animate) ADV.Portraits.animate(this, img, u.ch, key);
-    if (ADV.Portraits.express) ADV.Portraits.express(this, img, u.ch, key, this.combatMood(u));
+    if (ADV.Portraits.express) { const m = this.combatMood(u); ADV.Portraits.express(this, img, u.ch, key, m.mood, m.intensity); }
     const frame = this.add.graphics();
     const isPlayer = !!u.ch.isPlayer;
     frame.lineStyle(2, isPlayer ? T().c.gold : u.side === 'a' ? T().c.green : T().c.blood, 0.9);
@@ -100,22 +107,56 @@ class CombatScene extends Phaser.Scene {
     return view;
   }
 
+  // Standing mood in combat comes from one chooser for every surface (Part C).
+  // Enemies are people too — no isMonster guard here any more.
   combatMood(u) {
-    if (!u || !u.ch || u.ch.isMonster || u.dead || u.chp <= 0) return 'neutral';
-    const pct = u.maxHp ? u.chp / u.maxHp : 1;
-    if (pct < 0.25) return 'afraid';
-    if (pct < 0.55) return 'hurt';
+    if (!u || !u.ch || u.dead || u.chp <= 0) return { mood: 'neutral', intensity: 0 };
     const st = this.st();
-    const turn = st && ADV.Combat.currentTurn ? ADV.Combat.currentTurn(st) : null;
-    if (turn && turn.unit && turn.unit.uid === u.uid) return 'angry';
-    return 'neutral';
+    const foes = st ? st.units.filter(x => x.side !== u.side && !x.downed && !x.fled) : [];
+    const facingUndead = foes.some(x => x.ch.isUndead || x.ch.status === 'undead' || x.risen || (x.ch.actives || []).some(a => /necromancy|conscript/.test(a.skillId)));
+    const cleanse = (u.ch.actives || []).some(a => /cleanse|purify|absolution/.test(a.skillId));
+    return ADV.Portraits.moodFor(this.game_, u.ch, 'combat', { unit: u, st, facingUndead, cleanse });
+  }
+
+  // relationship helpers for reactions (Part B): kin on the same field
+  isKin(a, b) {
+    if (!a || !b || a === b) return false;
+    if (ADV.Rel && ADV.Rel.isPartner && ADV.Rel.isPartner(a, b)) return true;
+    return a.motherId === b.id || a.fatherId === b.id || b.motherId === a.id || b.fatherId === a.id;
+  }
+  laughsAtKills(ch) {
+    return /^(M02|M25|M26|F02|F26|M17|F17)$/.test(ch.personalityId || '') || (ch.perks || []).some(p => p.skillId === 'arena_champion');
+  }
+  reactAt(v, mood, opts) {
+    if (!v || !v.img || !ADV.Portraits.react) return;
+    ADV.Portraits.react(this, v.img, v.u.ch, v.img.texture && v.img.texture.key, mood, opts);
+  }
+  cameraPunch() {
+    const now = this.time.now;
+    if (this.__lastPunch && now - this.__lastPunch < 1500) return;
+    this.__lastPunch = now;
+    const cam = this.cameras.main;
+    this.tweens.add({ targets: cam, zoom: 1.06, duration: 180, yoyo: true, ease: 'Quad.easeOut', onComplete: () => { cam.setZoom(1); } });
+  }
+  unitSkin(v) {
+    if (!ADV.Portraits.skinState || !v.img) return;
+    const u = v.u;
+    const has = (k) => (u.statuses || []).some(s => s.kind === k);
+    const pct = u.maxHp ? u.chp / u.maxHp : 1;
+    const state = { pale: pct < 0.25 ? 1 : pct < 0.4 ? 0.5 : 0, sick: has('poison') ? 1 : 0, frozen: has('frozen'), burning: has('burn'), wound: !!u.__wound,
+      flush: (v.img.__expressMood === 'angry' || v.img.__expressMood === 'furious') ? 0.8 : 0 };
+    const sig = JSON.stringify(state);
+    if (v.__skinSig === sig) return;
+    v.__skinSig = sig;
+    ADV.Portraits.skinState(this, v.img, u.ch, v.img.texture && v.img.texture.key, state);
   }
 
   redrawUnit(v) {
     const u = v.u;
     if (ADV.Portraits.express && v.img) {
-      const mood = this.combatMood(u);
-      if (v.img.__expressMood !== mood) ADV.Portraits.express(this, v.img, u.ch, v.img.texture && v.img.texture.key, mood);
+      const m = this.combatMood(u);
+      if (v.img.__expressMood !== m.mood || Math.abs((v.img.__expressK == null ? 1 : v.img.__expressK) - m.intensity) > 0.05) ADV.Portraits.express(this, v.img, u.ch, v.img.texture && v.img.texture.key, m.mood, m.intensity);
+      this.unitSkin(v);
     }
     v.hpBar.clear();
     const w = v.img.displayWidth;
@@ -253,6 +294,8 @@ class CombatScene extends Phaser.Scene {
         if (u && !this.unitViews.has(e.uid)) this.makeUnitView(u);
         const nv = this.view(e.uid);
         if (nv) { ADV.VFX.damageNumber(this, nv.x, nv.y - 40, 'RISEN', '#9a70c0'); ADV.VFX.flashOverlay(this, 0x2a3a3a, 0.4); }
+        // something stood up: everyone on the other side is startled
+        if (u) for (const o of this.unitViews.values()) if (o.u.side !== u.side && !o.u.downed) this.reactAt(o, 'surprised', { ms: 500, intensity: 0.8 });
         return 400;
       }
       case 'campaignExit': {
@@ -316,6 +359,10 @@ class CombatScene extends Phaser.Scene {
         if (!src) return 10;
         const dir = src.u.side === 'a' ? 1 : -1;
         const tgt = e.target ? this.view(e.target) : null;
+        if (ADV.Portraits.look) {
+          if (tgt && tgt !== src) ADV.Portraits.look(this, src.img, src.u.ch, src.img.texture.key, Math.sign(tgt.x - src.x) * 0.9, Math.sign(tgt.y - src.y) * 0.4, 220);
+          for (const o of this.unitViews.values()) if (o !== src && !o.u.downed && Math.random() < 0.6) ADV.Portraits.look(this, o.img, o.u.ch, o.img.texture.key, Math.sign(src.x - o.x) * 0.7, 0, 260);
+        }
         const lbl = T().text(this, src.x, src.y - 78, e.name, { size: 12, ox: 0.5, color: T().css.gold })
           .setDepth(600).setAlpha(0.95);
         this.tweens.add({ targets: lbl, y: lbl.y - 16, alpha: 0, delay: 350, duration: 400, onComplete: () => lbl.destroy() });
@@ -334,32 +381,76 @@ class CombatScene extends Phaser.Scene {
         if (!v) return 10;
         const color = e.tag === 'reflect' ? '#d4a94e' : e.tag === 'retaliation' ? '#9a70c0' : e.tag === 'dot' ? '#83b56b' : '#f4eee0';
         V.damageNumber(this, v.x + (Math.random() * 20 - 10), v.y - 30, e.dmg, color);
+        const frac = e.dmg / Math.max(1, v.u.maxHp || 40);
         if (e.tag === 'dot' && ADV.SpellFX) {
           ADV.SpellFX.tick(this, v, e);
+          this.reactAt(v, 'pain', { ms: 400, intensity: Math.min(0.6, 0.2 + frac * 2) });
           this.redrawUnit(v);
           return 140;
         }
         V.recoil(this, v.img, v.u.side === 'a' ? 1 : -1);
         V.tintFlash(this, v.img, 0xff6655);
-        this.redrawUnit(v);
         const heavy = e.tag !== 'dot' && e.dmg >= Math.max(12, (v.u.maxHp || 40) * 0.18);
+        // the face flinches in proportion; a heavy blow also turns the head and leaves a mark
+        this.reactAt(v, 'pain', { ms: heavy ? 900 : 600, intensity: Math.min(1, 0.4 + frac * 2) });
+        if (heavy) { ADV.Portraits.motion(this, v.img, 'recoil', { side: v.u.side === 'a' ? -1 : 1, amount: 1 }); if (frac >= 0.28) v.u.__wound = true; }
+        // the attacker enjoys it — or grins, if that is who they are
+        const by = e.by ? this.view(e.by) : null;
+        if (by && by.u.side !== v.u.side && heavy) this.reactAt(by, this.laughsAtKills(by.u.ch) ? 'laughing' : 'smug', { ms: 500, intensity: 0.6 });
+        this.redrawUnit(v);
         if (heavy && V.hitStop) V.hitStop(this, 60);
         return heavy ? 210 : 150;
       }
-      case 'heal': { if (v) { V.healSparkle(this, v.x, v.y); V.damageNumber(this, v.x, v.y - 20, '+' + e.amount, '#83b56b'); this.redrawUnit(v); } return 140; }
+      case 'heal': {
+        if (v) {
+          V.healSparkle(this, v.x, v.y); V.damageNumber(this, v.x, v.y - 20, '+' + e.amount, '#83b56b');
+          this.reactAt(v, 'content', { ms: 600, intensity: 0.9 });
+          const by = e.by ? this.view(e.by) : null;
+          if (by && by !== v && this.isKin(by.u.ch, v.u.ch)) { this.reactAt(by, 'tender', { ms: 700, intensity: 0.8 }); this.reactAt(v, 'tender', { ms: 700, intensity: 0.6 }); }
+          this.redrawUnit(v);
+        }
+        return 140;
+      }
       case 'down': {
-        if (v) { V.shake(this, v.img); this.redrawUnit(v); V.camShake(this, 0.004); }
+        if (v) {
+          V.shake(this, v.img); this.redrawUnit(v); V.camShake(this, 0.004);
+          ADV.Portraits.motion(this, v.img, 'slump');
+          // the field reacts: allies flinch, kin grieve, the killer savours it
+          for (const o of this.unitViews.values()) {
+            if (o === v || o.u.downed || o.u.fled) continue;
+            if (o.u.side === v.u.side) this.reactAt(o, this.isKin(o.u.ch, v.u.ch) ? 'grief' : 'afraid', { ms: this.isKin(o.u.ch, v.u.ch) ? 1400 : 800, intensity: this.isKin(o.u.ch, v.u.ch) ? 1 : 0.5 });
+          }
+          const by = e.by ? this.view(e.by) : null;
+          if (by && by.u.side !== v.u.side) this.reactAt(by, this.laughsAtKills(by.u.ch) ? 'laughing' : 'smug', { ms: 900, intensity: 0.9 });
+        }
         return 220;
       }
-      case 'execute': { if (v) { V.scalePunch(this, v.img); V.camShake(this, 0.008); V.flashOverlay(this, 0xa8352c); this.redrawUnit(v); } return 260; }
-      case 'evade': { if (v) V.damageNumber(this, v.x, v.y - 30, 'miss', '#a89a7c'); return 100; }
+      case 'execute': {
+        if (v) {
+          V.scalePunch(this, v.img); V.camShake(this, 0.008); V.flashOverlay(this, 0xa8352c);
+          this.reactAt(v, 'surprised', { ms: 200, intensity: 1 });
+          this.reactAt(v, 'pain', { ms: 900, intensity: 1 });
+          v.u.__wound = true;
+          this.cameraPunch();
+          const by = e.by ? this.view(e.by) : null;
+          if (by) this.reactAt(by, this.laughsAtKills(by.u.ch) ? 'laughing' : 'smug', { ms: 900, intensity: 1 });
+          this.redrawUnit(v);
+        }
+        return 260;
+      }
+      case 'evade': {
+        if (v) { V.damageNumber(this, v.x, v.y - 30, 'miss', '#a89a7c'); this.reactAt(v, 'smug', { ms: 450, intensity: 0.5 }); }
+        const by = e.by ? this.view(e.by) : null;
+        if (by) this.reactAt(by, 'angry', { ms: 500, intensity: 0.5 });
+        return 100;
+      }
       case 'counter': { if (v) V.damageNumber(this, v.x, v.y - 30, 'counter!', '#6fa0bf'); return 140; }
       case 'ward': { if (v) V.damageNumber(this, v.x, v.y - 30, 'blocked', '#d4a94e'); return 100; }
       case 'status': { if (v) this.redrawUnit(v); return 60; }
-      case 'taunted': { if (v) { V.damageNumber(this, v.x, v.y - 30, 'taunted', '#9a70c0'); this.redrawUnit(v); } return 90; }
+      case 'taunted': { if (v) { V.damageNumber(this, v.x, v.y - 30, 'taunted', '#9a70c0'); this.reactAt(v, 'furious', { ms: 700, intensity: 1 }); this.redrawUnit(v); } return 90; }
       case 'sundered': { if (v) V.damageNumber(this, v.x, v.y - 30, 'armor torn', '#d4a94e'); return 100; }
       case 'flee': {
-        if (v) { if (e.success) { this.tweens.add({ targets: v.img, alpha: 0.15, x: v.x + (v.u.side === 'a' ? -60 : 60), duration: 300 }); } else V.damageNumber(this, v.x, v.y - 30, 'cornered!', '#d8574a'); }
+        if (v) { this.reactAt(v, 'afraid', { ms: 900, intensity: 1 }); if (e.success) { this.tweens.add({ targets: v.img, alpha: 0.15, x: v.x + (v.u.side === 'a' ? -60 : 60), duration: 300 }); } else V.damageNumber(this, v.x, v.y - 30, 'cornered!', '#d8574a'); }
         const l = ADV.Game.prompt(this.game_, 'firstFlee');
         if (l) ADV.Notices.toast(this, l);
         return 260;

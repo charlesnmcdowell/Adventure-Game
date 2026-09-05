@@ -62,6 +62,8 @@ class QuestScene extends Phaser.Scene {
       const key = ADV.Portraits.key(this, e);
       const img = this.add.image(x, 240, key).setDisplaySize(110, 140);
       if (e.boss) img.setDisplaySize(134, 170);
+      if (ADV.Portraits.animate) ADV.Portraits.animate(this, img, e, key);
+      if (ADV.Portraits.express) ADV.Portraits.express(this, img, e, key, e.boss ? 'smug' : e.isUndead ? 'dazed' : 'angry', e.boss ? 0.8 : 0.45);
       const f = this.add.graphics();
       f.lineStyle(2, e.boss ? T().c.blood : T().c.panelEdge, 1);
       f.strokeRect(x - img.displayWidth / 2, 240 - img.displayHeight / 2, img.displayWidth, img.displayHeight);

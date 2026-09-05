@@ -93,6 +93,14 @@ function card(scene, st, c, x0, y0, opts) {
   });
   cont.add([rim, img, nm]);
   cont.__img = img;
+  // faces in a cutscene carry the moment: grief at a funeral, the standing mood
+  // (relief reads as content) on the ride home. Overlays follow the container.
+  if (ADV.Portraits.express) {
+    const game = scene.game_ || (scene.g && scene.g());
+    const ckey = img.texture && img.texture.key;
+    if (opts.mood) ADV.Portraits.express(scene, img, c, ckey, opts.mood, opts.moodK == null ? 1 : opts.moodK);
+    else if (game && ADV.Portraits.stand) { const m = ADV.Portraits.moodFor(game, c, 'cutscene'); ADV.Portraits.express(scene, img, c, ckey, m.mood === 'neutral' ? 'content' : m.mood, m.mood === 'neutral' ? 0.5 : m.intensity); }
+  }
   return cont;
 }
 
@@ -217,7 +225,7 @@ Cut.funeral = function (scene, rec, done) {
   const conts = mourners.map((c, i) => {
     const x0 = 220 + (i - mid) * 54;
     const y0 = 548 + (i % 2) * 14;
-    const cont = card(scene, st, c, x0, y0, { z: i, tint: 0x9aa0aa, lead: c.isPlayer });
+    const cont = card(scene, st, c, x0, y0, { z: i, tint: 0x9aa0aa, lead: c.isPlayer, mood: 'grief', moodK: c.isPlayer ? 1 : 0.8 });
     scene.tweens.add({ targets: cont, alpha: 1, duration: 280, delay: 140 + i * 90 });
     scene.tweens.add({
       targets: cont,

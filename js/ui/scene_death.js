@@ -64,6 +64,7 @@ class DeathScene extends Phaser.Scene {
         .setStrokeStyle(2, m.tier === 'romantic' ? T().c.gold : T().c.panelEdge, 0.9);
       const nm = T().text(this, 0, 64, (m.c.name || '').split(' ')[0], { size: 12, ox: 0.5, display: true, color: T().css.ink });
       cont.add([rim, img, nm]);
+      if (ADV.Portraits.express) ADV.Portraits.express(this, img, m.c, img.texture.key, 'grief', m.tier === 'romantic' ? 1 : m.tier === 'friendly' ? 0.7 : 0.45);
       // their own line, in the band their standing with the dead earned, drawn
       // with them rather than through a chain of timed modals
       let said = '';
