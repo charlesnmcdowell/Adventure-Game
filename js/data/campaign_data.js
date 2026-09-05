@@ -47,7 +47,7 @@ Object.assign(ADV.DATA.GEAR_SETS, {
 const CH = {};
 function chr(o) { CH[o.id] = o; }
 // The Gaping Maw
-chr({ id: 'wren', name: 'Wren Sallow', faction: 'maw', role: 'recruiter', sex: 'm', fights: false,
+chr({ id: 'wren', name: 'Wren Pell', faction: 'maw', role: 'recruiter', sex: 'm', fights: false,
   portrait: { skin: 'tan', hair: 'fringe', wardrobe: 'hiking', color: '#5a4a3a' } });
 chr({ id: 'kite', name: 'Kite', faction: 'maw', role: 'rival', sex: 'f', campaignExit: true,
   perks: ['opportunist', 'carrion_sense'], actives: ['backstab', 'vanishing_strike', 'ghoststep', 'marked_for_the_knife', 'smoke_bomb'],
@@ -68,7 +68,7 @@ chr({ id: 'roscarrow', name: 'Dain Roscarrow', faction: 'antler', role: 'rival',
 chr({ id: 'crane', name: 'Aldis Crane', epithet: 'First Horn', faction: 'antler', role: 'boss', sex: 'f', campaignExit: true,
   perks: ['bulwark', 'momentum'], actives: ['bulwark_formation', 'hold_the_road', 'paid_in_full', 'line_advance', 'shield_breaker'],
   level: 26, portrait: { skin: 'fair', hair: 'bun', wardrobe: 'armor', color: '#6e6a5a' } });
-chr({ id: 'holloway', name: 'Holloway', faction: 'antler', role: 'antagonist', sex: 'm', hero: true,
+chr({ id: 'holloway', name: 'Hargrave', faction: 'antler', role: 'antagonist', sex: 'm', hero: true,
   perks: ['momentum', 'bulwark'], actives: ['cleave', 'sunder', 'veterans_cut', 'shield_breaker'],
   level: 26, portrait: { skin: 'pale', hair: 'fringe', wardrobe: 'armor', color: '#3a3a44' } });
 // Varenholm Academy

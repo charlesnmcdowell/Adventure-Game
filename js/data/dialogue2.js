@@ -56,7 +56,7 @@ p('M22', 'Patient', 'm', {
   ],
   hatred: [
     '[calm] I am not going to shout. I have simply stopped making room for you.',
-    '[thoughtful] I waited eleven months to find out what you were. I was patient about it and I was right.',
+    '[thoughtful] I waited a long time to find out what you were. I was patient about it and I was right.',
     '[flatly] You will get tired before I do. That has always been the whole plan.',
     '[calm] There is no hurry. You are not going anywhere I cannot walk to.',
   ],
@@ -307,7 +307,7 @@ p('F21', 'Composed', 'f', {
   ],
   romantic: [
     '[softly] I am composed about everything except the sound of the door when it is you.',
-    '[calm] I have made a decision about my life and it is you. It took eleven seconds.',
+    '[calm] I have made a decision about my life and it is you. It did not take long.',
     '[quietly] Come back. I will not say it loudly and I will not say it twice.',
     '[softly] You are the one thing I do not have a plan for, {target}.',
   ],

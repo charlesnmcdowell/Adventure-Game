@@ -448,7 +448,7 @@ Campaign.complete = function (game) {
       s.villainReveal = true;
     }
   }
-  if (f.id === 'maw') ADV.World.feed(world, 'The watch has eleven names and a pattern. Nothing changes tonight; everything changes eventually.', [p.id]);
+  if (f.id === 'maw') ADV.World.feed(world, 'The watch has a list of names and a pattern. Nothing changes tonight; everything changes eventually.', [p.id]);
 };
 
 // Quartermaster: re-issue a lost faction set once per life (§10)

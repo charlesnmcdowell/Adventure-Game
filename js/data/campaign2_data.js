@@ -87,12 +87,12 @@ chr({ id: 'ayame', name: 'Ayame', faction: 'green', role: 'rival', sex: 'f', cam
 chr({ id: 'isamu', name: 'Lord Isamu', faction: 'green', role: 'boss', sex: 'm', campaignExit: true, level: 28,
   perks: ['the_clan_watches'], actives: ['iai_draw', 'stone_stance', 'kiai', 'crossing_guard', 'rising_cut', 'field_honour'],
   portrait: { skin: 'fair', hair: 'bun', wardrobe: 'armor', color: '#2f3a2a' } });
-chr({ id: 'kira', name: 'Kira', epithet: 'the Widow', faction: 'green', role: 'antagonist', sex: 'f', level: 29,
+chr({ id: 'kira', name: 'Tomoe', epithet: 'the Widow', faction: 'green', role: 'antagonist', sex: 'f', level: 29,
   perks: ['unbroken_form', 'green_discipline'], actives: ['iai_draw', 'rising_cut', 'measured_shot', 'bear_stance', 'stone_stance'],
   portrait: { skin: 'pale', hair: 'long', wardrobe: 'ninja', color: '#2a2630' } });
 
 // 2c — The Red Tally
-chr({ id: 'hallow', name: 'Quartermaster Hallow', faction: 'tally', role: 'recruiter', sex: 'm', fights: false,
+chr({ id: 'hallow', name: 'Quartermaster Cask', faction: 'tally', role: 'recruiter', sex: 'm', fights: false,
   perks: ['shares_and_plunder'], actives: ['reading_the_tally', 'black_flag'], level: 26,
   portrait: { skin: 'brown', hair: 'dreads', wardrobe: 'suit', color: '#5a3a2a' } });
 chr({ id: 'beau', name: 'Beau Castell', faction: 'tally', role: 'rival', sex: 'm', campaignExit: true, level: 21,
@@ -102,8 +102,8 @@ chr({ id: 'beau', name: 'Beau Castell', faction: 'tally', role: 'rival', sex: 'm
 chr({ id: 'saintcloud', name: 'Captain Meriel Saint-Cloud', faction: 'tally', role: 'boss', sex: 'f', campaignExit: true, level: 28,
   perks: ['shares_and_plunder'], actives: ['flintlock_shot', 'chain_shot', 'cutlass_work', 'fire_ship', 'boarding_plate', 'rum_ration'],
   portrait: { skin: 'brown', hair: 'braids', wardrobe: 'suit', color: '#7a2a3a' } });
-// Vane-Kessler: the Tally's antagonist AND the Admiralty's boss (§2e).
-chr({ id: 'vanekessler', name: 'Admiral August Vane-Kessler', faction: 'navy', role: 'boss', sex: 'm', campaignExit: true, level: 30,
+// Kessler: the Tally's antagonist AND the Admiralty's boss (§2e).
+chr({ id: 'vanekessler', name: 'Admiral August Kessler', faction: 'navy', role: 'boss', sex: 'm', campaignExit: true, level: 30,
   altFaction: 'tally', altRole: 'antagonist',
   perks: ['naval_discipline', 'broadside_doctrine'], actives: ['riposte_line', 'saber_thrust', 'volley_fire', 'ranging_cannon', 'close_order', 'chain_and_bar'],
   portrait: { skin: 'pale', hair: 'short', wardrobe: 'armor', color: '#2a3a5a' } });
@@ -112,7 +112,7 @@ chr({ id: 'vanekessler', name: 'Admiral August Vane-Kessler', faction: 'navy', r
 chr({ id: 'crell', name: 'Boatswain Crell', faction: 'navy', role: 'recruiter', sex: 'm', fights: false,
   perks: ['naval_discipline'], actives: ['close_order', 'sick_bay'], level: 24,
   portrait: { skin: 'tan', hair: 'buzz', wardrobe: 'hiking', color: '#3a4a5a' } });
-chr({ id: 'fane', name: 'Lieutenant Isolde Fane', faction: 'navy', role: 'rival', sex: 'f', campaignExit: true, level: 21,
+chr({ id: 'fane', name: 'Lieutenant Isolde Merrow', faction: 'navy', role: 'rival', sex: 'f', campaignExit: true, level: 21,
   perks: ['naval_discipline'], actives: ['saber_thrust', 'close_order', 'volley_fire', 'signal_flags', 'marine_form'],
   portrait: { skin: 'fair', hair: 'bun', wardrobe: 'armor', color: '#3a4a7a' },
   exitLines: ['I am off my feet, not out of the fight. Continue.', 'Their gunner reloads on the second round. Take him then.', 'Note the time. I will want it in the report.'] });
@@ -227,7 +227,7 @@ mb({ id: 'two_refused', name: "Jiro's Refused", faction: 'bell', base: 'the_refu
 mb({ id: 'instructor_sagara', name: 'Instructor Sagara', faction: 'green', base: 'green_recruit', signature: 'rising_cut', equips: 4 });
 mb({ id: 'the_petitioner', name: 'The Petitioner', faction: 'green', base: 'stone_bannerman', signature: 'stone_stance', equips: 4 });
 mb({ id: 'blade_captain_doi', name: 'Blade-Captain Doi', faction: 'green', base: 'sworn_blade', signature: 'iai_draw', equips: 5 });
-mb({ id: 'kiras_hired', name: "Kira's Hired", faction: 'green', base: 'clan_archer', signature: 'measured_shot', equips: 4, count: 2 });
+mb({ id: 'kiras_hired', name: "Tomoe's Hired", faction: 'green', base: 'clan_archer', signature: 'measured_shot', equips: 4, count: 2 });
 // Red Tally
 mb({ id: 'bosun_teague', name: 'Bosun Teague', faction: 'tally', base: 'sea_dog', signature: 'sea_dog_form', equips: 4 });
 mb({ id: 'the_factor', name: 'The Factor', faction: 'tally', base: 'gun_captain', signature: 'chain_shot', equips: 4 });
@@ -264,7 +264,7 @@ Object.assign(ADV.DATA.CAMPAIGN_QUESTS, {
       enc: [{ types: ['green_recruit', 'clan_archer', 'stone_bannerman'] }, { types: ['sworn_blade', 'clan_archer', 'green_recruit'] }, { mini: 'blade_captain_doi', with: ['sworn_blade', 'clan_physician'] }] },
     { n: 4, name: 'The Widow', tier: 2, rival: true, rivalDies: true, brief: "Escort duty. Lord Isamu's cousin. Boring work, good pay.",
       enc: [{ types: ['clan_archer', 'clan_archer', 'green_recruit'] }, { types: ['sworn_blade', 'stone_bannerman', 'clan_archer'] }, { mini: 'kiras_hired' }] },
-    { n: 5, name: 'Eleven Years', tier: 3, bossAlly: true, brief: 'This woman has been training in secret for eleven years to reach me. Today she reaches me.',
+    { n: 5, name: "The Widow's Forms", tier: 3, bossAlly: true, brief: 'This woman learned our forms alone, in a shed, off a book and a dead man\'s memory. Today she reaches me.',
       enc: [{ types: ['clan_archer', 'sworn_blade', 'green_recruit'] }, { types: ['sworn_blade', 'clan_physician', 'clan_archer'] }, { types: ['stone_bannerman', 'sworn_blade', 'clan_archer', 'green_recruit'] }, { boss: 'kira', with: ['clan_archer', 'clan_archer', 'sworn_blade'] }] },
   ],
   tally: [
@@ -276,7 +276,7 @@ Object.assign(ADV.DATA.CAMPAIGN_QUESTS, {
       enc: [{ types: ['tally_hand', 'gun_captain', 'powder_monkey'] }, { types: ['sea_dog', 'tally_hand', 'gun_captain'] }, { mini: 'captain_ordell', with: ['gun_captain', 'ships_surgeon'] }] },
     { n: 4, name: 'The Prize', tier: 2, rival: true, rivalDies: true, brief: 'Fat merchantman, light escort, no complications.',
       enc: [{ types: ['tally_hand', 'tally_hand', 'powder_monkey'] }, { types: ['gun_captain', 'sea_dog', 'tally_hand'] }, { mini: 'marines_of_the_line', with: ['marine_of_the_line'] }] },
-    { n: 5, name: 'Colours Down', tier: 3, bossAlly: true, brief: 'He has hanged eleven captains and written to me about each one. Today we settle it.',
+    { n: 5, name: 'Colours Down', tier: 3, bossAlly: true, brief: 'He has hanged my captains and written to me about each one. Today we settle it.',
       enc: [{ types: ['marine_of_the_line', 'pressed_hand', 'pressed_hand'] }, { types: ['marine_of_the_line', 'gunnery_officer', 'pressed_hand'] }, { types: ['marine_of_the_line', 'marine_of_the_line', 'ships_master', 'pressed_hand'] }, { boss: 'vanekessler', with: ['marine_of_the_line', 'marine_of_the_line', 'gunnery_officer'] }] },
   ],
   navy: [
@@ -299,7 +299,7 @@ ADV.DATA.GOD_LINE = {
   gateQuests: 25, basePay: 1000, minPay: 125,
   routes: [
     { id: 'ossuary', boss: 'pale_mother', name: 'The Ossuary',
-      brief: 'The bonehouse beneath the old quarter has been sealed for nine years. Something inside has started counting.',
+      brief: 'The bonehouse beneath the old quarter has been sealed since the last plague. Something inside has started moving.',
       enc: [{ types: ['grave_touched', 'risen', 'risen'] }, { types: ['the_refused', 'risen', 'grave_touched'] },
             { types: ['risen', 'risen', 'the_refused', 'grave_touched'] }, { types: ['grave_touched', 'grave_touched', 'the_refused', 'risen'] }] },
     { id: 'birthing_house', boss: 'pale_mother', name: 'The Birthing House',
@@ -307,7 +307,7 @@ ADV.DATA.GOD_LINE = {
       enc: [{ types: ['house_guard_terrified', 'house_guard_terrified'] }, { types: ['house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified'] },
             { types: ['house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified'] }, { types: ['house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified'] }] },
     { id: 'low_tide', boss: 'drowned_king', name: 'The Low Tide',
-      brief: 'The water has gone out four hundred yards and has not come back for eleven days. People have started walking out to see why.',
+      brief: 'The water has gone out four hundred yards and has not come back for a week. People have started walking out to see why.',
       enc: [{ types: ['drowned_hand', 'drowned_hand'] }, { types: ['drowned_hand', 'drowned_hand', 'drowned_hand'] },
             { types: ['drowned_hand', 'drowned_hand', 'drowned_hand'] }, { types: ['drowned_hand', 'drowned_hand', 'drowned_hand', 'drowned_hand'] }] },
     { id: 'salt_court', boss: 'drowned_king', name: 'The Salt Court',

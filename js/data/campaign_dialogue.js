@@ -54,7 +54,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[impressed] You got the list of our names before the city guards did. Three of our people can walk this city today. Yesterday they could not."
     },
     {
-     "t": "[thoughtful] {target}. I have done this eleven years. Most people quit by now."
+     "t": "[thoughtful] {target}. I have done this eight years. Most people quit by now."
     }
    ],
    "debrief3": [
@@ -165,7 +165,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[flatly] You cannot buy me. You cannot scare me. The proof I wanted is already at the guard house, written down."
     },
     {
-     "t": "[calm] Kill me tonight and nothing changes. They have eleven names and a pattern. You are finished either way. You came anyway. I respect that."
+     "t": "[calm] Kill me tonight and nothing changes. They have a list of names and a pattern. You are finished either way. You came anyway. I respect that."
     }
    ]
   },
@@ -186,7 +186,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[angry] Kite was the best I had. Vesna Arden killed {them} on a normal job, in front of you, and left a candle on the body so the guards would find us."
     },
     {
-     "t": "[flatly] She has done that eleven times this year. Every body has a guild mark and the name of the target. The city guards collect all of it."
+     "t": "[flatly] She has done that eight times this year. Every body has a guild mark and the name of the target. The city guards collect all of it."
     },
     {
      "t": "[quietly] We only exist because nobody can prove we do. She has spent a year building that proof, one body at a time."
@@ -285,7 +285,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[tired] I was a soldier for a country that changed its mind about what it wanted from me."
     },
     {
-     "t": "[thoughtful] Here the job is written down before I leave. Nobody changes it while I am out there. After nine years of the other thing, I would take that over more pay."
+     "t": "[thoughtful] Here the job is written down before I leave. Nobody changes it while I am out there. After a long stretch of the other thing, I would take that over more pay."
     }
    ]
   },
@@ -324,7 +324,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[thoughtful] I had you wrong. I said you would take three jobs and leave. You are past that and still here."
     },
     {
-     "t": "[quietly] I would sign with you again. I have buried eleven who could not hold the road. I do not say this often."
+     "t": "[quietly] I would sign with you again. I have buried people who could not hold the road. I do not say this often."
     }
    ],
    "before4": [
@@ -437,10 +437,10 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[quietly] Sit down. You get the truth before you pick a side."
     },
     {
-     "t": "[angry] Dain beat people and made them fight for free so his jobs cost less. That trick is forbidden. It is called Conscript. I never asked why his costs were so low. The world sent a man named Holloway to stop him. Holloway killed him. That was legal. They fought in this company together for six years. He knows how we move. The world gave him strength, not skill. If you make him swing more than twice, he gets tired."
+     "t": "[angry] Dain beat people and made them fight for free so his jobs cost less. That trick is forbidden. It is called Conscript. I never asked why his costs were so low. The world sent a man named Hargrave to stop him. Hargrave killed him. That was legal. They fought in this company together for six years. He knows how we move. The world gave him strength, not skill. If you make him swing more than twice, he gets tired."
     },
     {
-     "t": "[angry] Dain and I were together eleven years. Nobody in this company knew."
+     "t": "[angry] Dain and I were together seven years. Nobody in this company knew."
     },
     {
      "t": "[angry] Nobody sanctioned this. This is not company business. I am doing it on my own. Pick a side. {target}."
@@ -475,7 +475,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[angry] He is dead. That is all I get."
     },
     {
-     "t": "[sorrowful] I ran this company eleven years and never asked anyone to do a thing that was not written down. Tonight I asked you."
+     "t": "[sorrowful] I ran this company a long time and never asked anyone to do a thing that was not written down. Tonight I asked you."
     },
     {
      "t": "[quietly] You did not have to come with me. I will remember that you did. {target}."
@@ -605,7 +605,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[impressed] You held the left without being told twice. Almost nobody here does that."
     },
     {
-     "t": "[thoughtful] For eleven years I have been the one everyone measures themselves against. Nobody has ever just worked beside me."
+     "t": "[thoughtful] For as long as I have been here I have been the one everyone measures themselves against. Nobody has ever just worked beside me."
     }
    ],
    "before4": [
@@ -650,7 +650,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[angry] Magister. Say something. One word."
     },
     {
-     "t": "[angry] You signed me out of this school in eleven seconds. I counted."
+     "t": "[angry] You signed me out of this school before I had sat down."
     }
    ]
   },

@@ -53,6 +53,10 @@ Tutor.wage = () => TUTORIAL_WAGE;
 // Next button advances.
 Tutor.callout = function (scene, rect, title, body, opts) {
   opts = opts || {};
+  if (ADV.Tooltip) ADV.Tooltip.hide();
+  if (ADV.UI && ADV.UI.holdCard && !ADV.UI.holdCard('tutor', () => Tutor.clear(scene))) {
+    return { close: function () {} };
+  }
   const W = T().W, H = T().H, D = 980;
   const objs = [];
   const k = o => { objs.push(o); return o; };
@@ -90,7 +94,11 @@ Tutor.callout = function (scene, rect, title, body, opts) {
   panel.lineStyle(2, T().c.gold, 0.9); panel.strokeRoundedRect(px, py, pw, ph, 8);
   k(T().text(scene, px + 12, py + 8, title, { size: 14, display: true, color: T().css.gold }).setDepth(D + 1));
   k(T().text(scene, px + 12, py + 28, body, { size: 12, wrap: bodyWrap, color: T().css.ink }).setDepth(D + 1));
-  const close = () => objs.forEach(o => { try { o.destroy(); } catch (e) {} });
+  const close = () => {
+    objs.forEach(o => { try { o.destroy(); } catch (e) {} });
+    scene.tutorObjs = (scene.tutorObjs || []).filter(o => objs.indexOf(o) < 0);
+    if (!(scene.tutorObjs && scene.tutorObjs.length) && ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('tutor');
+  };
   if (!opts.pass) {
     const b = T().button(scene, px + pw - 160, py + ph - 54, 146, 44, opts.label || 'Next', () => { close(); if (opts.onNext) opts.onNext(); }, { size: 13, bold: true, color: T().css.gold });
     b.g.setDepth(D + 1); b.txt.setDepth(D + 2); b.zone.setDepth(D + 3); objs.push(b.g, b.txt, b.zone);
@@ -100,7 +108,11 @@ Tutor.callout = function (scene, rect, title, body, opts) {
   scene.tutorObjs = (scene.tutorObjs || []).concat(objs);
   return { close };
 };
-Tutor.clear = function (scene) { for (const o of (scene.tutorObjs || [])) { try { o.destroy(); } catch (e) {} } scene.tutorObjs = []; };
+Tutor.clear = function (scene) {
+  for (const o of (scene.tutorObjs || [])) { try { o.destroy(); } catch (e) {} }
+  scene.tutorObjs = [];
+  if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('tutor');
+};
 
 // ---------------------------------------------------------------- town hooks
 // Called by the Town scene once the arrival notices are done.

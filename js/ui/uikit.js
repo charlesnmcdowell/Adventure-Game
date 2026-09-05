@@ -49,6 +49,32 @@ const UI = {
 
   walk(scene, fn) { walkDisplay(scene.children.list, fn); },
 
+  // Exclusive informational cards. Tooltip, tutor callout, notice modal, and
+  // the dialogue box must not stack — the screenshot of Sunder over "Try
+  // another" over Marek's line is the failure this blocks. Higher rank wins;
+  // a lower card will not open while a higher one is up, and opening a
+  // higher card dismisses whatever is underneath.
+  //   tooltip 1 < tutor 2 < notice/dialogue 3
+  holdCard(kind, dismiss) {
+    const rank = { tooltip: 1, tutor: 2, notice: 3, dialogue: 3 };
+    const need = rank[kind] || 0;
+    const have = rank[UI._card] || 0;
+    if (have > need) return false;
+    if (UI._card && UI._card !== kind && UI._cardDismiss) {
+      const prev = UI._cardDismiss;
+      UI._card = null;
+      UI._cardDismiss = null;
+      try { prev(); } catch (e) {}
+    }
+    UI._card = kind;
+    UI._cardDismiss = dismiss || null;
+    return true;
+  },
+  releaseCard(kind) {
+    if (UI._card === kind) { UI._card = null; UI._cardDismiss = null; }
+  },
+  cardIs(kind) { return UI._card === kind; },
+
   allText(scene) {
     const out = [];
     walkDisplay(scene.children.list, o => { if (o.text != null && o.text !== '') out.push(o); });

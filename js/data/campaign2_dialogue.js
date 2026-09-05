@@ -43,7 +43,7 @@ bell: {
     ],
     debrief4: [
       L('[sorrowful] Suzume is dead. Sit down. No — sit down.'),
-      L('[sad] I took {them} off a roof at eleven years old, stealing lamp oil. {they} told me {their} name was a number for a month.'),
+      L('[sad] I took {them} off a roof as a child, stealing lamp oil. {they} told me {their} name was a number for a month.'),
       L('[flatly] The thing that killed {them} did not decay. It should have. Three quests and a raised body comes apart — that is the rule and it did not happen.'),
       L('[quietly] Kaede wants you upstairs. She has known his name for twenty years and she has never once said it out loud.'),
     ],
@@ -126,7 +126,7 @@ green: {
     offer: [
       L('[flatly] Stand straight. I am not going to ask you twice and I am not going to pretend this is a favour.'),
       L('[calm] I train blades for the Green-Eyed. We serve the city\'s law, we are paid by the city, and we do what it writes down.'),
-      L('[thoughtful] I have failed three hundred and eleven people at that door. I remember all of them. You have a bad guard and good feet, and feet are harder to teach.'),
+      L('[thoughtful] I have failed two hundred people at that door. I remember all of them. You have a bad guard and good feet, and feet are harder to teach.'),
       L('[calm] Five contracts, {target}. Do them and you will be a Sworn Blade with a clan behind you.'),
     ],
     tutorial: [
@@ -145,12 +145,12 @@ green: {
       L('[quietly] This clan does that sometimes. You will decide for yourself what to do with it.'),
     ],
     debrief3: [
-      L('[impressed] Ayame filed two lines about you and both were positive. She has never done that in nine years.'),
+      L('[impressed] Ayame filed two lines about you and both were positive. She has never done that since I put her on the roster.'),
       L('[calm] Doi says you read the field instead of the blade. He is the best of us and he does not flatter.'),
     ],
     debrief4: [
       L('[sorrowful] Ayame is dead. Do not stand there.'),
-      L('[sad] I admitted her myself, against the clan, eleven years ago. She was the only woman we have ever formally sworn and she was better than any of us.'),
+      L('[sad] I admitted her myself, against the clan, the year of the fire. She was the only woman we have ever formally sworn and she was better than any of us.'),
       L('[flatly] The woman who killed her used an Iai draw. That is our form. She learned it without a teacher, and she learned it well enough to kill our best.'),
       L('[quietly] Lord Isamu is waiting. He believes he has never done anything wrong. Watch his face when he says her husband\'s name.'),
     ],
@@ -185,17 +185,17 @@ green: {
   },
   kira: {
     appear: [
-      L('[quietly] Not the girl. The one in the green cord. I have waited eleven years for a Sworn Blade to stand still.'),
+      L('[quietly] Not the girl. The one in the green cord. I have waited a long time for a Sworn Blade to stand still.'),
     ],
     afterKill: [
       L('[flatly] Isamu\'s clan burned my husband\'s house on the city\'s authority. My two children were inside it. Every part of that was lawful.'),
-      L('[calm] Women are not admitted to the Green-Eyed. So I learned their forms alone, in a shed, for eleven years, off a book and a dead man\'s memory.'),
+      L('[calm] Women are not admitted to the Green-Eyed. So I learned their forms alone, in a shed, off a book and a dead man\'s memory.'),
       L('[quietly] I have just killed the best blade they had, with their own draw, and she never touched me.'),
       L('[dismissive] I am not hunting your clan, {target}. I am hunting Isamu. Everyone standing in front of him is weather.'),
     ],
     final: [
       L('[angry] Say their names. You signed the order — say the names on it.'),
-      L('[flatly] You will not, because you never read it. That is what I have hated for eleven years. Not the fire. The paperwork.'),
+      L('[flatly] You will not, because you never read it. That is what I have hated since the fire. Not the flame. The paperwork.'),
       L('[calm] I draw first. I always draw first. Put something between us or put me down.'),
     ],
   },
@@ -206,8 +206,8 @@ green: {
       L('[thoughtful] Takeda tells me you have promise. Takeda tells me that about one in forty. Complete the five.'),
     ],
     hunt: [
-      L('[calm] Her name is Kira. Her husband held a clan we destroyed on the city\'s authority eleven years ago, and her children died in it.'),
-      L('[flatly] She has trained in our forms without a teacher for eleven years to reach me. Today she reaches me.'),
+      L('[calm] Her name is Tomoe. Her husband held a clan we destroyed on the city\'s authority, and her children died in it.'),
+      L('[flatly] She has trained in our forms without a teacher since that fire, to reach me. Today she reaches me.'),
       L('[quietly] She opens with an Iai draw and it goes through any guard you set. Do not set one. Be somewhere else instead.'),
     ],
     fight: [
@@ -231,7 +231,7 @@ green: {
 tally: {
   hallow: {
     offer: [
-      L('[happily] Sit down, have a drink, do not touch the ledger. I am Hallow and I keep the tally for the Red Tally fleet.'),
+      L('[happily] Sit down, have a drink, do not touch the ledger. I am Cask and I keep the tally for the Red Tally fleet.'),
       L('[calm] We are pirates. I write down every share and every crime, because a fleet that argues about money sinks faster than one that gets shot at.'),
       L('[impressed] You did a job last week that paid badly and you did it properly anyway. That is rarer than nerve and worth more to me.'),
       L('[playfully] Come on the tally, {target}. Full share, honest arithmetic, and nothing lawful will ever speak to you again.'),
@@ -244,12 +244,12 @@ tally: {
     ],
     decline: [L('[calm] Sensible. Half the people who sign wish they had said that. The offer stays open — I do not chase.')],
     debrief1: [
-      L('[impressed] Teague had eleven shares written down as nine. You found it in a day and you left him breathing, which is what I wanted.'),
+      L('[impressed] Teague had fourteen shares written down as nine. You found it in a day and you left him breathing, which is what I wanted.'),
       L('[calm] Everyone on four decks now knows the tally gets read. That was the actual job.'),
     ],
     debrief2: [
       L('[happily] The Factor paid, apologised, and asked for terms. I gave him terms. I am not a monster, I am a quartermaster.'),
-      L('[thoughtful] Nine years I have kept this ledger. Most people who sign are gone by their fourth job. You are not.'),
+      L('[thoughtful] I have kept this ledger since the first prize. Most people who sign are gone by their fourth job. You are not.'),
     ],
     debrief3: [
       L('[impressed] Ordell\'s fleet took the prize and lost it inside an hour. Beau says you were faster than him. Beau has never said that about anyone.'),
@@ -258,12 +258,12 @@ tally: {
     debrief4: [
       L('[sorrowful] Beau is dead. Put that down and sit.'),
       L('[sad] Fourteen years he shot for this fleet and he was insufferable for all of them, and he was exactly as good as he said he was.'),
-      L('[flatly] Vane-Kessler killed him, took nothing, and let you go on purpose. He wanted the story delivered and he used you to do it.'),
-      L('[quietly] Saint-Cloud is on deck. She has eleven letters from that man, one for every captain he has hanged. She keeps them in order.'),
+      L('[flatly] Kessler killed him, took nothing, and let you go on purpose. He wanted the story delivered and he used you to do it.'),
+      L('[quietly] Saint-Cloud is on deck. She has a letter from that man for every captain he has hanged. She keeps them in order.'),
     ],
     why: [
       L('[calm] People ask how I square it. I do not. I keep a ledger. The ledger is honest even when the fleet is not.'),
-      L('[thoughtful] I have written down four hundred robberies and eleven murders and every share was correct to the coin.'),
+      L('[thoughtful] I have written down four hundred robberies and six murders and every share was correct to the coin.'),
       L('[quietly] That is what I am for. Not the taking — the arithmetic. Somebody has to be trustworthy or the whole thing eats itself.'),
     ],
   },
@@ -295,13 +295,13 @@ tally: {
       L('[calm] Marines, hold. Let the man with the pistol raise it first. I will not have this written down as anything but what it is.'),
     ],
     afterKill: [
-      L('[flatly] Admiral August Vane-Kessler. A foreign empire pays me to make these waters safe for trade, and that is the whole of my instruction.'),
-      L('[calm] I have hanged eleven captains. I did not enjoy any of them and I did not hesitate at any of them either.'),
+      L('[flatly] Admiral August Kessler. A foreign empire pays me to make these waters safe for trade, and that is the whole of my instruction.'),
+      L('[calm] I have hanged captains. I did not enjoy any of them and I did not hesitate at any of them either.'),
       L('[thoughtful] That man was the best shot in your fleet and he died covering someone he had known for three weeks. Tell them that part. It is true.'),
-      L('[dismissive] Go back to Saint-Cloud, {target}. Tell her the twelfth rope is cut and hanging. She will know what I mean — I have written to her about every one.'),
+      L('[dismissive] Go back to Saint-Cloud, {target}. Tell her the last rope is cut and hanging. She will know what I mean — I have written to her about every one.'),
     ],
     final: [
-      L('[calm] Captain Saint-Cloud. Eleven letters and you never answered one.'),
+      L('[calm] Captain Saint-Cloud. Every letter, and you never answered one.'),
       L('[flatly] I am not corrupt, I am not cruel, and I am not wrong. That is what makes this difficult for you and it does not make it any easier for me.'),
       L('[quietly] I will answer every blade that touches me with its own force, so come at me with something that does not touch me. I would rather you learned that now than after.'),
     ],
@@ -309,11 +309,11 @@ tally: {
   saintcloud: {
     first: [
       L('[calm] Meriel Saint-Cloud. I command this fleet. I have never raised my voice on a deck and I have never needed to.'),
-      L('[quietly] There is an admiral out there who writes to me. Courteous letters. He has hanged eleven of my captains and described each one.'),
-      L('[calm] Do Hallow\'s five jobs. Then we will talk about the twelfth letter, which he has not sent yet.'),
+      L('[quietly] There is an admiral out there who writes to me. Courteous letters. He has hanged my captains and described each one.'),
+      L('[calm] Do Cask\'s five jobs. Then we will talk about the letter he has not sent yet.'),
     ],
     hunt: [
-      L('[quietly] He has hanged eleven captains and written to me about each one, by name, in his own hand. I have them in order in my cabin.'),
+      L('[quietly] He has hanged my captains and written to me about each one, by name, in his own hand. I have them in order in my cabin.'),
       L('[calm] He is not a villain. He is a professional with a fleet and an instruction, which is far worse and much harder to kill.'),
       L('[flatly] He turns steel back on whoever swings it. Shoot him. Shoot him from the back of the deck and do not go near him.'),
     ],
@@ -322,12 +322,12 @@ tally: {
       L('[quietly] The marines break if the officer does. Take the officer.'),
     ],
     afterFall: [
-      L('[quietly] Eleven letters. I never answered one and now I never will.'),
+      L('[quietly] All those letters. I never answered one and now I never will.'),
       L('[sad] He was the only honest man who ever came for me. I would have liked him on a different sea.'),
     ],
     ending: [
       L('[calm] The Admiralty has lost its admiral and the shallows are ours for a season. That is all anyone ever gets — a season.'),
-      L('[quietly] Captain\'s Portion, {target}. Written in Hallow\'s hand, which means it is true.'),
+      L('[quietly] Captain\'s Portion, {target}. Written in Cask\'s hand, which means it is true.'),
     ],
   },
 },
@@ -359,11 +359,11 @@ navy: {
       L('[quietly] That is going to happen again. I am telling you now so it is not a surprise the second time.'),
     ],
     debrief3: [
-      L('[impressed] Nairn lost the command and Fane got it. She asked for you by name, which surprised the whole wardroom including me.'),
+      L('[impressed] Nairn lost the command and Merrow got it. She asked for you by name, which surprised the whole wardroom including me.'),
       L('[calm] {they} filed a report on you three pages long. All of it good, all of it in the passive voice.'),
     ],
     debrief4: [
-      L('[sorrowful] Fane is dead. Sit down, lad. Sit down.'),
+      L('[sorrowful] Merrow is dead. Sit down, lad. Sit down.'),
       L('[sad] Youngest officer in the fleet and the only one who read the whole standing order before signing it. She wanted a command so badly she never once asked for one.'),
       L('[flatly] Ash complimented her by name while he did it. Witnesses agree on that. He meant it, which is the part I cannot get past.'),
       L('[quietly] The Admiral wants you. Nine engagements, nine losses, and he has read every report twice.'),
@@ -376,7 +376,7 @@ navy: {
   },
   fane: {
     after1: [
-      L('[formal] Lieutenant Isolde Fane. Youngest officer in this fleet. I have read the standing orders in full, which puts me in a minority of one.'),
+      L('[formal] Lieutenant Isolde Merrow. Youngest officer in this fleet. I have read the standing orders in full, which puts me in a minority of one.'),
       L('[calm] Your commission was executed correctly and reported accurately. I checked both. I check everything.'),
       L('[flatly] The engagements that matter would kill you at your present rate. I intend to have a command before I am thirty and I cannot take passengers.'),
     ],
@@ -389,7 +389,7 @@ navy: {
     ],
     after3: [
       L('[calm] You held the line without being told twice. Do you know how rarely that happens? I have the figures.'),
-      L('[quietly] Eleven years I have been measured against everyone in this fleet. Nobody has ever simply stood next to me and done the work.'),
+      L('[quietly] For as long as I have worn this coat I have been measured against everyone in this fleet. Nobody has ever simply stood next to me and done the work.'),
     ],
     before4: [
       L('[formal] Routine patrol. Nobody has sighted Ash in the shallows for a month, which is itself a data point I do not like.'),
@@ -403,7 +403,7 @@ navy: {
     ],
     afterKill: [
       L('[warmly] Dorian Ash. The Tide-Taker, if you read broadsheets. Nine engagements against this navy and nine of them mine.'),
-      L('[calm] That was Lieutenant Isolde Fane and she was the finest officer in the Admiralty. I knew her name before tonight. I said it while I did it and I meant it.'),
+      L('[calm] That was Lieutenant Isolde Merrow and she was the finest officer in the Admiralty. I knew her name before tonight. I said it while I did it and I meant it.'),
       L('[playfully] I would genuinely rather talk to you than fight you. That is not mercy, it is preference — I find conversation more useful and I am extremely good at it.'),
       L('[calm] Go home, {target}. Tell them exactly what you saw. I would rather have the story out there than another body in the water.'),
     ],
@@ -415,8 +415,8 @@ navy: {
   },
   vanekessler: {
     first: [
-      L('[calm] Admiral August Vane-Kessler. A foreign empire pays this fleet to make these waters safe for trade. That is the entire instruction and I have never needed another.'),
-      L('[flatly] I have hanged eleven pirate captains. I did not enjoy it. I did not hesitate either, and you should decide now whether you can serve under that.'),
+      L('[calm] Admiral August Kessler. A foreign empire pays this fleet to make these waters safe for trade. That is the entire instruction and I have never needed another.'),
+      L('[flatly] I have hanged pirate captains. I did not enjoy it. I did not hesitate either, and you should decide now whether you can serve under that.'),
       L('[thoughtful] Crell says you can take an order. Do the five commissions. Then we will discuss the man who has beaten this fleet nine times.'),
     ],
     hunt: [
@@ -430,7 +430,7 @@ navy: {
     ],
     afterFall: [
       L('[quietly] The tenth engagement. Somebody write that down properly.'),
-      L('[thoughtful] He was the most likeable man I have ever hunted and he drowned eleven of my sailors for cargo. Both of those are true and I have stopped needing them to fit.'),
+      L('[thoughtful] He was the most likeable man I have ever hunted and he drowned my sailors for cargo. Both of those are true and I have stopped needing them to fit.'),
     ],
     ending: [
       L('[calm] The shallows are open, trade is moving, and a village on the north coast will eat this winter. That is what the instruction meant.'),
@@ -444,7 +444,7 @@ navy: {
 ADV.DATA.GOD_LINE_DIALOGUE = {
   pale_mother: [
     L('[quietly] I have been called a great many things and I answer to none of them.'),
-    L('[calm] Do you know how many died to make this room? I do. I have counted every one, twice, and I will count you.'),
+    L('[calm] Do you know how many died to make this room? I do. I know every name, and I will know yours.'),
     L('[flatly] You may leave. I will not stop you and I will not follow. Nobody has ever taken it.'),
     L('[quietly] No. Nobody ever does.'),
   ],

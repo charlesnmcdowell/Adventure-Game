@@ -213,7 +213,7 @@ CampaignUI.branchChoice = function (scene, game, done) {
         close(); ADV.Campaign.chooseSide(game, 'crane');
         CampaignUI.playBeat(scene, game, { who: 'crane', key: 'sided' }, done);
       }, { size: 14, bold: true, color: T().css.gold }));
-      ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 + 10, 360, 240, 40, 'Side with Holloway', () => {
+      ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 + 10, 360, 240, 40, 'Side with Hargrave', () => {
         close(); ADV.Campaign.chooseSide(game, 'holloway');
         CampaignUI.playBeat(scene, game, { who: 'holloway', key: 'sided' }, done);
       }, { size: 14, bold: true, color: T().css.blue }));

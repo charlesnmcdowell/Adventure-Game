@@ -14,6 +14,7 @@ const Tooltip = {
 
   show(scene, textLines, px, py) {
     Tooltip.hide();
+    if (ADV.UI && ADV.UI.holdCard && !ADV.UI.holdCard('tooltip', Tooltip.hide)) return;
     const body = Array.isArray(textLines) ? textLines.join('\n') : textLines;
     const txt = scene.add.text(0, 0, body, {
       fontFamily: T().font.mono, fontSize: '12px', color: T().css.ink,
@@ -53,6 +54,7 @@ const Tooltip = {
   },
 
   hide() {
+    if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('tooltip');
     if (!Tooltip.current) return;
     try { Tooltip.current.bg.destroy(); Tooltip.current.txt.destroy(); } catch (e) {}
     Tooltip.current = null;
