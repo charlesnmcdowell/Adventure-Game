@@ -178,7 +178,8 @@ Campaign.makeActor = function (def) {
     ch.isGod = true; ch.role = 'god'; ch.godLine = true; ch.boss = true;
     ch.godDomain = def.domain || null;
     ch.raisesTheDead = !!def.raisesTheDead;
-    ch.personalityId = def.sex === 'f' ? 'F01' : 'M01';
+    const gPers = ADV.Character.pickPersonality({ pick: a => a[ADV.hashStr(def.id) % a.length] }, def.sex === 'f' ? 'f' : 'm');
+    if (gPers) ch.personalityId = gPers.id;
     if (def.statMult) for (const k of ['hp', 'atk', 'def', 'spd']) ch.stats[k] = Math.round(ch.stats[k] * def.statMult);
     const DOT = {
       bleed: { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
@@ -228,7 +229,8 @@ Campaign.spawnEnemy = function (rng, typeId, level, opts) {
   else ch.stats.hp = Math.round(ch.stats.hp * 1.4);
   if (t.statMult) for (const k of ['hp', 'atk', 'def', 'spd']) ch.stats[k] = Math.round(ch.stats[k] * t.statMult);
   if (opts.boss) {
-    ch.personalityId = 'M01';
+    const pers = ADV.Character.pickPersonality(rng, ch.sex || 'm', opts.world);
+    if (pers) ch.personalityId = pers.id;
     const riders = [
       { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
       { kind: 'poison', power: 0.5, rounds: 3, stacks: true },
@@ -281,7 +283,7 @@ Campaign.guardBoss = function (game, out, factionId, level, rng, spawn) {
   if (!G) return out;
   const hasHealer = out.some(ch => !ch.boss && !ch.isBossFight && skillsOf(ch).some(restores));
   const hasTank = out.some(ch => !ch.boss && !ch.isBossFight && skillsOf(ch).some(guardish));
-  const mk = spawn || ((t, l, o) => Campaign.spawnEnemy(rng, t, l, o));
+  const mk = spawn || ((t, l, o) => Campaign.spawnEnemy(rng, t, l, Object.assign({ world: game.world }, o || {})));
   if (!hasTank && D().CAMPAIGN_ENEMIES[G.tank]) out.push(mk(G.tank, level, { signature: G.tankSkill, guard: true }));
   if (!hasHealer && D().CAMPAIGN_ENEMIES[G.healer]) out.push(mk(G.healer, level, { signature: G.heal, guard: true }));
   return out;
@@ -295,20 +297,21 @@ Campaign.spawnEncounter = function (game, quest, encIdx) {
   const lo = quest.enemyLevels[0], hi = quest.enemyLevels[1];
   const lvl = Math.round(lo + (hi - lo) * (encIdx / Math.max(1, quest.cEnc.length - 1)));
   const out = [];
+  const world = game.world;
   for (const t of spec.types || []) {
-    if (D().CAMPAIGN_ENEMIES[t]) out.push(Campaign.spawnEnemy(rng, t, lvl));
-    else out.push(ADV.Character.makeEnemy(rng, t, { level: lvl }));
+    if (D().CAMPAIGN_ENEMIES[t]) out.push(Campaign.spawnEnemy(rng, t, lvl, { world }));
+    else out.push(ADV.Character.makeEnemy(rng, t, { level: lvl, world }));
   }
   if (spec.mini) {
     const mb = D().CAMPAIGN_MINIBOSSES[spec.mini];
     const count = mb.count || (mb.pair ? 2 : 1);
     for (let i = 0; i < count; i++) {
-      out.push(Campaign.spawnEnemy(rng, mb.base, hi, { boss: !mb.count, name: mb.name + (count > 1 ? ' ' + (i + 1) : ''), signature: mb.signature, equips: mb.equips || mb.base === 'risen' ? 0 : 4, undead: mb.undead, conscript: mb.conscript }));
+      out.push(Campaign.spawnEnemy(rng, mb.base, hi, { boss: !mb.count, name: mb.name + (count > 1 ? ' ' + (i + 1) : ''), signature: mb.signature, equips: mb.equips || mb.base === 'risen' ? 0 : 4, undead: mb.undead, conscript: mb.conscript, world }));
     }
   }
-  for (const t of spec.with || []) out.push(Campaign.spawnEnemy(rng, t, lvl));
+  for (const t of spec.with || []) out.push(Campaign.spawnEnemy(rng, t, lvl, { world }));
   if (spec.boardBoss) {
-    const bb = ADV.Character.makeEnemy(rng, spec.boardBoss, { level: hi });
+    const bb = ADV.Character.makeEnemy(rng, spec.boardBoss, { level: hi, world });
     if (quest.godLine) { bb.godLineBoss = true; Campaign.grantGodsEdict(bb); }
     out.unshift(bb);
   }
@@ -318,7 +321,7 @@ Campaign.spawnEncounter = function (game, quest, encIdx) {
     const boss = Campaign.actor(game, bossId);
     boss.combatHp = null; boss.campaignExit = false; boss.boss = true; boss.isBossFight = true;
     out.unshift(boss);
-    if (bossId === 'quiet') quest.spawnQueue = [2, 4].map(r => ({ round: r, ch: Campaign.spawnEnemy(rng, 'risen', hi) }));
+    if (bossId === 'quiet') quest.spawnQueue = [2, 4].map(r => ({ round: r, ch: Campaign.spawnEnemy(rng, 'risen', hi, { world }) }));
   }
   // §11 floor + guard on the campaign's own boss fights. War contracts are ordinary board work that
   // borrows campaign spawning (see Quests.makeWarQuest); their named bosses are left as authored.

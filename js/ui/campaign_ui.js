@@ -45,7 +45,7 @@ CampaignUI.playBeat = function (scene, game, beat, done) {
   const next = () => {
     if (i >= lines.length) { if (done) done(); return; }
     const line = lines[i++];
-    if (ADV.Music) ADV.Music.speakCampaign(who, beat.key, i);
+    if (ADV.Music) ADV.Music.speakCampaign(who, beat.key, (beat.voOffset || 0) + i);
     ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who), next, { raw: line.t });
   };
   if (beat.death && !beat.offscreen) {

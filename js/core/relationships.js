@@ -338,9 +338,9 @@ Rel.jilt = function (world, leaver, abandoned) {
   const lines = [];
   Rel.removePartner(leaver, abandoned.id);
   Rel.removePartner(abandoned, leaver.id);
+  ADV.Vault.onBreakup(world, leaver, abandoned);
   if (!abandoned.alive) return lines;
   leaver.jiltCount = (leaver.jiltCount || 0) + 1;
-  ADV.Vault.onBreakup(world, leaver, abandoned);
   const softJilt = leaver.perks.some(p => p.skillId === 'lookism');   // Lookism: they stay Friendly
   if (softJilt) {
     Rel.move(world, abandoned.id, leaver.id, C().REL.FRIENDLY_MIN, 'jilt', { set: true });

@@ -68,10 +68,15 @@ class DeathScene extends Phaser.Scene {
       // their own line, in the band their standing with the dead earned, drawn
       // with them rather than through a chain of timed modals
       let said = '';
+      let vo = null;
       try {
         const r = ADV.util.speakEx(world, m.c, m.tier === 'romantic' ? 'romantic' : 'friendly',
           { target: dead.name, them: null, partner: null, rand: Math.random() });
         said = (r && r.text) || '';
+        if (r && m.c.personalityId) {
+          vo = { pid: m.c.personalityId, band: r.band, idx: r.idx + 1,
+            tag: ADV.Character.voiceTagFor && ADV.Character.voiceTagFor(world, m.c) };
+        }
       } catch (e) { said = ''; }
       if (said) {
         const say = T().text(this, 0, 86, '\u201c' + said + '\u201d',
@@ -79,6 +84,7 @@ class DeathScene extends Phaser.Scene {
             color: m.tier === 'romantic' ? T().css.gold : T().css.inkDim });
         cont.add(say);
       }
+      cont.__vo = vo;
       return cont;
     });
 
@@ -92,9 +98,17 @@ class DeathScene extends Phaser.Scene {
     };
     const revealMourners = () => {
       if (!conts.length) { this.time.delayedCall(900, finish); return; }
-      conts.forEach((c, n) => this.tweens.add({ targets: c, alpha: 1, duration: 500, delay: n * 260 }));
-      // hold on the graveside long enough to read them, then close
-      this.time.delayedCall(1400 + conts.length * 260 + 1800, finish);
+      conts.forEach((c, n) => {
+        this.tweens.add({ targets: c, alpha: 1, duration: 500, delay: n * 260 });
+        if (c.__vo && ADV.Music && ADV.Music.speakFile) {
+          this.time.delayedCall(n * 1400, () => {
+            if (ended) return;
+            ADV.Music.speakFile(c.__vo.pid, c.__vo.band, c.__vo.idx, c.__vo.tag);
+          });
+        }
+      });
+      // hold on the graveside long enough to hear each mourner
+      this.time.delayedCall(1400 + Math.max(conts.length, 1) * 1400 + 800, finish);
     };
     let ended = false;
     const finish = () => {

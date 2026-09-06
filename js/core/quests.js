@@ -407,7 +407,7 @@ Quests.makeTutorialParty = function () {
 };
 
 // Spawn enemy characters for one encounter.
-Quests.spawnEncounter = function (rng, quest, encIdx) {
+Quests.spawnEncounter = function (rng, quest, encIdx, world) {
   const enc = quest.encounters[encIdx];
   // Difficulty curve inside the quest: early encounters sit near the tier's
   // low bound, the finale reaches its high bound (keeps first fights fair
@@ -426,7 +426,7 @@ Quests.spawnEncounter = function (rng, quest, encIdx) {
     const typeMin = quest.tutorialEasy ? lo : t.levels[0];
     const lvl = Math.round(Math.max(typeMin, Math.min(t.levels[1],
       Math.max(lo, Math.min(hi, mid + rng.int(-1, 1))))));
-    const e = ADV.Character.makeEnemy(rng, tid, { level: lvl });
+    const e = ADV.Character.makeEnemy(rng, tid, { level: lvl, world });
     if (e.armored) e.armorBonus = C().ARMORED_BONUS_DEF;
     return e;
   });

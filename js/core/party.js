@@ -152,19 +152,44 @@ Party.roster = function (world, p) {
   return [l].concat(Party.members(world, p)).filter(c => c && c.alive);
 };
 
-// A healer or tank on the roster is what keeps NPC companies alive.
-Party.isSupport = function (ch) {
-  const inc = (ch && ch.archetypeInclination) || [];
-  return inc.indexOf('healer') >= 0 || inc.indexOf('tank') >= 0;
+// Roles come from learned skills first, then inclination — a fighter who
+// took Mend is a healer, and a tank perk counts even with no tank active.
+Party.roleSet = function (ch) {
+  const out = new Set();
+  for (const a of (ch && ch.archetypeInclination) || []) if (a) out.add(a);
+  for (const e of ((ch && ch.perks) || []).concat((ch && ch.actives) || [])) {
+    const sk = ADV.DATA.SKILLS[e.skillId];
+    if (sk && sk.archetype) out.add(sk.archetype);
+  }
+  return out;
 };
-Party.hasSupport = function (world, p) {
-  return Party.roster(world, p).some(Party.isSupport);
+Party.isHealer = function (ch) { return Party.roleSet(ch).has('healer'); };
+Party.isTank = function (ch) { return Party.roleSet(ch).has('tank'); };
+Party.isSupport = function (ch) { return Party.isHealer(ch) || Party.isTank(ch); };
+Party.hasHealer = function (world, p) { return Party.roster(world, p).some(Party.isHealer); };
+Party.hasTank = function (world, p) { return Party.roster(world, p).some(Party.isTank); };
+Party.hasSupport = function (world, p) { return Party.roster(world, p).some(Party.isSupport); };
+Party.missingRoles = function (world, p) {
+  const miss = [];
+  if (!Party.hasHealer(world, p)) miss.push('healer');
+  if (!Party.hasTank(world, p)) miss.push('tank');
+  return miss;
 };
-Party.pickMember = function (rng, pool, preferSupport) {
+// preferRoles: true (any support), 'healer'/'tank', or ['healer','tank'] in order.
+Party.pickMember = function (rng, pool, preferRoles) {
   if (!pool || !pool.length) return null;
-  if (preferSupport) {
-    const sup = pool.filter(Party.isSupport);
-    if (sup.length && rng.chance(0.92)) return rng.pick(sup);
+  const roles = preferRoles === true ? ['healer', 'tank']
+    : preferRoles === 'healer' || preferRoles === 'tank' ? [preferRoles]
+    : Array.isArray(preferRoles) ? preferRoles : [];
+  const match = (role) => pool.filter(c => role === 'healer' ? Party.isHealer(c) : role === 'tank' ? Party.isTank(c) : false);
+  for (const role of roles) {
+    const hit = match(role);
+    if (hit.length) return rng.pick(hit);
+  }
+  if (roles.length) {
+    const any = pool.filter(Party.isSupport);
+    if (any.length) return rng.pick(any);
+    return null;
   }
   return rng.pick(pool);
 };
@@ -303,21 +328,15 @@ Party.applicationOdds = function (world, p, applicant) {
   const blocker = Party.hatredConflict(world, p, applicant.id);
   if (blocker) return { odds: 0, why: 'hatred' };
   let odds = 0.35 + applicant.reputation * 0.02;
-  // Role demand: a party missing a healer weights healing skills heavily (§5)
+  // Role demand: a party missing a healer or tank weights that seat heavily
   const covered = new Set();
-  for (const m of roster) for (const e of m.actives) {
-    const sk = ADV.DATA.SKILLS[e.skillId];
-    if (sk && sk.archetype) covered.add(sk.archetype);
-  }
-  const brings = new Set();
-  for (const e of applicant.actives) {
-    const sk = ADV.DATA.SKILLS[e.skillId];
-    if (sk && sk.archetype) brings.add(sk.archetype);
-  }
+  for (const m of roster) for (const a of Party.roleSet(m)) covered.add(a);
+  const brings = Party.roleSet(applicant);
   let fills = 0;
   for (const a of brings) if (!covered.has(a)) fills++;
   odds += fills * 0.25;
   if (!covered.has('healer') && brings.has('healer')) odds += 0.2;
+  if (!covered.has('tank') && brings.has('tank')) odds += 0.2;
   const pe = applicant.perks.find(x => x.skillId === 'persuade');
   if (pe) {
     const m = ADV.SkillSys.manifest(applicant, pe);

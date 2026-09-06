@@ -53,15 +53,23 @@ ADV.util = {
     const last = speaker.lastVariantUsed[band];
     let pickPool = usable.filter(i => i !== last);
     if (!pickPool.length) pickPool = usable;
-    // warmth position selects within the band where score has range (§6)
+    // warmth picks a third of the band; then we roll inside that third so
+    // Friendly-50 does not lock every speaker to the same clip forever
     let idx;
-    if (ctx.score != null && pickPool.length > 1) {
+    const roll = ctx.rand != null ? ctx.rand : Math.random();
+    if (ctx.score != null && pickPool.length > 1 && ADV.Rel && ADV.Rel.warmth) {
       const w = ADV.Rel.warmth(ctx.score);
-      const pos = w === 'low' ? 0 : w === 'mid' ? 0.5 : 1;
-      idx = pickPool[Math.round(pos * (pickPool.length - 1))];
-      if (idx === last && pickPool.length > 1) idx = pickPool[(pickPool.indexOf(idx) + 1) % pickPool.length];
+      const n = pickPool.length;
+      const third = Math.max(1, Math.ceil(n / 3));
+      let slice = w === 'low' ? pickPool.slice(0, third)
+        : w === 'high' ? pickPool.slice(-third)
+        : pickPool.slice(Math.floor((n - third) / 2), Math.floor((n - third) / 2) + third);
+      slice = slice.filter(i => i !== last);
+      if (!slice.length) slice = pickPool.filter(i => i !== last);
+      if (!slice.length) slice = pickPool;
+      idx = slice[Math.floor(roll * slice.length)];
     } else {
-      idx = pickPool[Math.floor((ctx.rand != null ? ctx.rand : Math.random()) * pickPool.length)];
+      idx = pickPool[Math.floor(roll * pickPool.length)];
     }
     speaker.lastVariantUsed[band] = idx;
     return { text: ADV.util.renderLine(lines[idx], ctx), band, idx };

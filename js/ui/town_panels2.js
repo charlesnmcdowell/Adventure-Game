@@ -697,8 +697,8 @@ Panels.vault = function (scene, r) {
     scroll.addBtn(T().button(scene, r.x + 24, y, 240, 36, 'Open a vault (deposit 0g)', () => { ADV.Vault.ensureOwn(world, p); ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel('vault'); }, { size: 13 }));
     return;
   }
-  const shared = v.sharedWithId || v.holderId !== p.id;
-  const other = world.characters.find(c => c.id === (v.holderId === p.id ? v.sharedWithId : v.holderId));
+  const other = ADV.Vault.sharePartner ? ADV.Vault.sharePartner(world, v, p) : null;
+  const shared = !!other;
   scroll.add(T().text(scene, r.x + 24, y, `In the vault: ${v.gold}g${shared && other ? ` · shared with ${other.name}` : ''}${shared ? ` · shared-quest streak ${v.sharedQuestStreak}` : ''}`, { size: 15, color: T().css.gold })); y += 30;
   if (p.inventory.gold > 0) {
     scroll.addBtn(T().button(scene, r.x + 24, y, 240, 34, `Deposit all (${p.inventory.gold}g)`, () => { ADV.Vault.deposit(world, p, p.inventory.gold); p.inventory.gold = 0; ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel('vault'); }, { size: 13 }));

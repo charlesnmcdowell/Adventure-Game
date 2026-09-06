@@ -15,7 +15,7 @@ const NEG_STATUSES = ['reactionLock', 'rooted', 'burn', 'bleed', 'poison', 'heal
   'withering', 'exposed', 'shock', 'suppressed', 'marked', 'contractMark', 'shadowDot'];
 const DOT_STATUSES = ['burn', 'bleed', 'poison', 'shadowDot'];
 // Buffs and wards — what Dispel/Ward Thief can strip (perks are never statuses, §13d-2)
-const POS_STATUSES = ['guard', 'ward', 'atkBuff', 'thorns', 'aura', 'hot', 'iceArmor', 'purified', 'thornShield', 'grove', 'wings', 'form',
+const POS_STATUSES = ['guard', 'ward', 'atkBuff', 'thorns', 'aura', 'hot', 'iceArmor', 'takenReduce', 'purified', 'thornShield', 'grove', 'wings', 'form',
   'cloak', 'bloodPrice', 'serpent', 'storm', 'bond', 'spellblade', 'warhound', 'fireBarrier',
   'absorb', 'anchor', 'advance', 'lifesteal', 'holdRoad', 'countersign', 'runic',
   'elemGuard', 'volley', 'closed', 'laneGuard', 'immovable', 'charmWard', 'railGuard',
@@ -977,15 +977,11 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
     const py = perkVal(tgt.ch, 'pyromaniac', null);
     if (py && py.fireResist) dmg = Math.round(dmg * (1 - py.fireResist));
   }
-  // Ice Queen frost armor: stacking all-source damage reduction on the defender
-  const ia = tgt.statuses.find(x => x.kind === 'iceArmor');
-  if (ia && !prismatic) dmg = Math.round(dmg * (1 - ia.pct));
-  // Bulwark: damage reduction + reflect (§3a)
+  // Bulwark reflect is calculated here; the reduction itself lands in
+  // applyTakenReduction after the hit (including % HP) is finalized.
   const bw = perkVal(tgt.ch, 'bulwark', null);
   let reflectPct = 0;
-  if (bw && tag !== 'dot') { dmg = Math.round(dmg * bw.dmgTakenMult); reflectPct += bw.reflectPct; }
-  const wf = perkVal(tgt.ch, 'wild_form', null);
-  if (wf) dmg = Math.round(dmg * wf.dmgTakenMult);
+  if (bw && tag !== 'dot') reflectPct += bw.reflectPct;
   // Aura defense
   for (const s of tgt.statuses) if (s.kind === 'aura') dmg = Math.round(dmg / s.def);
   // Guard (Shield Wall): halves incoming, prevented damage dealt to attacker (§15a)
@@ -1056,9 +1052,9 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
     if (group.length > 1) {
       const each = Math.max(1, Math.round(dmg / group.length));
       dealt = 0;
-      for (const g of group) dealt += applyRawDamage(st, src, g, each, tag);
-    } else dealt = applyRawDamage(st, src, tgt, dmg, tag);
-  } else dealt = applyRawDamage(st, src, tgt, dmg, tag);
+      for (const g of group) dealt += applyRawDamage(st, src, g, each, tag, opts);
+    } else dealt = applyRawDamage(st, src, tgt, dmg, tag, opts);
+  } else dealt = applyRawDamage(st, src, tgt, dmg, tag, opts);
   if (opts.element) tgt.lastElementTaken = opts.element;
   if (src && src.reflectImmuneNext && tag !== 'dot') src.reflectImmuneNext = false;
   if (src && dealt > 0 && opts.element === 'fire') {
@@ -1110,11 +1106,32 @@ function applyOpportunist(src, tgt, dmg) {
   return dmg;
 }
 
-function applyRawDamage(st, src, tgt, dmg, tag) {
+// Personal damage reduction — after the hit is calculated (atk, def, % HP
+// riders, Opportunist). A 50% HP blow still eats Bulwark / Frost Armor.
+function applyTakenReduction(tgt, dmg, opts) {
+  if (!tgt || dmg <= 0) return dmg;
+  opts = opts || {};
+  let mult = 1;
+  for (const e of (tgt.ch.perks || [])) {
+    const m = manifestFor(tgt, e.skillId);
+    if (m && m.data && typeof m.data.dmgTakenMult === 'number') mult *= m.data.dmgTakenMult;
+  }
+  const prismatic = opts.element === 'prismatic';
+  for (const s of tgt.statuses || []) {
+    if (typeof s.dmgTakenMult === 'number') mult *= s.dmgTakenMult;
+    if (s.kind === 'iceArmor' && s.pct && !prismatic) mult *= (1 - s.pct);
+  }
+  if (mult === 1) return dmg;
+  return Math.max(0, Math.round(dmg * mult));
+}
+Combat.applyTakenReduction = applyTakenReduction;
+
+function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   if (!tgt || tgt.downed || tgt.fled) return 0;
   // Hollow Discipline: being hit does not break stealth. Only attacking does.
   if (tgt.stealth && !perkVal(tgt.ch, 'hollow_discipline', 'stealthKeepsOnHit')) { /* base rules elsewhere */ }
   dmg = applyOpportunist(src, tgt, dmg);
+  dmg = applyTakenReduction(tgt, dmg, opts);
   if (dmg <= 0) return 0;
   // Temp HP consumed first — still counts as damage taken for reflect/retaliation (§15a),
   // which is honored because those triggers fire in dealDamage before this point.
@@ -1682,9 +1699,13 @@ Combat.act = function (st, u, action) {
   }
   // ----- generic status placements -----
   if (d.selfStatus) {
-    addStatus(st, u, Object.assign({ tier: m.tier, srcUid: u.uid }, d.selfStatus));
+    const self = Object.assign({ tier: m.tier, srcUid: u.uid }, d.selfStatus);
+    if (d.dmgTakenMult != null) self.dmgTakenMult = d.dmgTakenMult;
+    addStatus(st, u, self);
     if (Combat.isShapeshift(skillId) && !u.form) applyForm(st, u, skillId, d.selfStatus.rounds || d.rounds || 3);
     if (!d.power) return finishAction(st, u, skillId);
+  } else if (d.dmgTakenMult != null) {
+    addStatus(st, u, { kind: 'takenReduce', dmgTakenMult: d.dmgTakenMult, rounds: d.rounds || 4, srcUid: u.uid });
   }
   if (d.partyStatus) { for (const x of livingUnits(st, u.side)) addStatus(st, x, Object.assign({ srcUid: u.uid }, d.partyStatus)); return finishAction(st, u, skillId); }
   if (d.allyStatus) { addStatus(st, tgt.side === u.side ? tgt : u, Object.assign({ srcUid: u.uid }, d.allyStatus)); return finishAction(st, u, skillId); }
@@ -2287,6 +2308,7 @@ Combat.exportHp = function (st) {
 // Internals handed to js/core/combat_effects.js (bespoke campaign skills).
 Combat._internals = {
   dealDamage, computeDamage, healUnit, addStatus, removeStatus, livingUnits, laneUnits,
+  applyTakenReduction,
   ev, perkVal, LANE_IDX, checkEnd, onUnitDown, finishAction, addExposed, canHealOther, canWard,
   NEG_STATUSES, POS_STATUSES, DOT_STATUSES, endRoundTicks, applyRawDamage, applyDruidHeal,
 };

@@ -141,10 +141,22 @@ Character.voiceTagFor = function (world, ch) {
 };
 
 // ---- Personality seeding (§17a) ---------------------------------------------
-function pickPersonality(rng, sex) {
-  const pool = Object.values(ADV.DATA.DIALOGUE).filter(p => p.sex === sex && !p.hidden);
-  return rng.pick(pool);
+// Prefer a voice the living roster is not already using, so the town does not
+// fill with the same Stoic / Steely clips. Once every id of that sex is taken,
+// wrap and reuse.
+function pickPersonality(rng, sex, world) {
+  const pool = Object.values(ADV.DATA.DIALOGUE || {}).filter(p => p.sex === sex && !p.hidden);
+  if (!pool.length) return null;
+  const used = new Set();
+  if (world && world.characters) {
+    for (const c of world.characters) {
+      if (c && c.alive && c.personalityId) used.add(c.personalityId);
+    }
+  }
+  const fresh = pool.filter(p => !used.has(p.id));
+  return rng.pick(fresh.length ? fresh : pool);
 }
+Character.pickPersonality = pickPersonality;
 
 function rollVector(rng, personalityName) {
   const v = {};
@@ -186,7 +198,7 @@ Character.seedNPC = function (rng, world, opts) {
   }
   const pool = ADV.DATA.NAMES[sex].filter(n => !used.has(n));
   const name = opts.name || (pool.length ? rng.pick(pool) : rng.pick(ADV.DATA.NAMES[sex]) + ' ' + rng.int(2, 99));
-  const pers = pickPersonality(rng, sex);
+  const pers = pickPersonality(rng, sex, world);
   const archetypes = C().ARCHETYPES;
   const inclination = [opts.inclination || rng.pick(archetypes)];
   if (rng.chance(0.35)) {
@@ -267,7 +279,7 @@ Character.makeEnemy = function (rng, typeId, opts) {
   });
   if (t.boss) { // palette shift + scale handled by UI; stats get a bump via species roll high end
     ch.stats.hp = Math.round(ch.stats.hp * 1.6);
-    const pers = pickPersonality(rng, ch.sex || 'm');
+    const pers = pickPersonality(rng, ch.sex || 'm', opts.world);
     if (pers) ch.personalityId = pers.id;
   }
   if (t.hitStatus) ch.hitStatus = t.hitStatus;

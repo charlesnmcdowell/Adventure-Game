@@ -329,9 +329,13 @@ class CombatScene extends Phaser.Scene {
     const voId = speaker.ch.enemyTypeId;
     const pack = voId && ADV.DATA.MONSTER_VO && ADV.DATA.MONSTER_VO[voId];
     if (pack && pack.roar && pack.roar.length) {
-      const line = pack.roar[0];
+      const n = pack.roar.length;
+      const prev = speaker.ch.__lastRoarIdx;
+      const roarIdx = prev == null ? 0 : (prev + 1) % n;
+      speaker.ch.__lastRoarIdx = roarIdx;
+      const line = pack.roar[roarIdx];
       const text = line.t || line;
-      if (ADV.Music) ADV.Music.speakCampaign(voId, 'roar', 1);
+      if (ADV.Music) ADV.Music.speakCampaign(voId, 'roar', roarIdx + 1);
       if (ADV.DialogueBox) {
         ADV.DialogueBox.showText(this, this.game_, speaker.ch, text, then);
         return;
@@ -339,8 +343,16 @@ class CombatScene extends Phaser.Scene {
     }
     const godId = speaker.ch.campaignId;
     const godLines = godId && ADV.DATA.GOD_LINE_HATRED && ADV.DATA.GOD_LINE_HATRED[godId];
-    if (godLines && ADV.CampaignUI && ADV.CampaignUI.playBeats) {
-      ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'hatred', lines: godLines.slice(0, 1) }], then);
+    if (godLines && godLines.length && ADV.CampaignUI && ADV.CampaignUI.playBeats) {
+      const n = godLines.length;
+      const prev = speaker.ch.__lastGodHateIdx;
+      const hateIdx = prev == null ? 0 : (prev + 1) % n;
+      speaker.ch.__lastGodHateIdx = hateIdx;
+      ADV.CampaignUI.playBeats(this, this.game_, [{
+        who: godId, key: 'hatred',
+        lines: godLines.slice(hateIdx, hateIdx + 1),
+        voOffset: hateIdx,
+      }], then);
       return;
     }
     if (!ADV.DialogueBox) { then(); return; }
@@ -559,11 +571,17 @@ class CombatScene extends Phaser.Scene {
         const by = e.by ? this.view(e.by) : null;
         const speakerCh = by && by.u ? by.u.ch : null;
         return (next) => {
-          if (smite && ADV.CampaignUI && ADV.CampaignUI.playBeats) {
-            const lines = smite.slice(0, 1).map(line => Object.assign({}, line, {
+          if (smite && smite.length && ADV.CampaignUI && ADV.CampaignUI.playBeats) {
+            const n = smite.length;
+            const prev = speakerCh && speakerCh.__lastSmiteIdx;
+            const smiteIdx = prev == null ? 0 : (prev + 1) % n;
+            if (speakerCh) speakerCh.__lastSmiteIdx = smiteIdx;
+            const lines = smite.slice(smiteIdx, smiteIdx + 1).map(line => Object.assign({}, line, {
               t: String(line.t).replace(/\{target\}/g, victim),
             }));
-            ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'smite', lines }], next);
+            ADV.CampaignUI.playBeats(this, this.game_, [{
+              who: godId, key: 'smite', lines, voOffset: smiteIdx,
+            }], next);
             return;
           }
           if (speakerCh && ADV.DialogueBox) {

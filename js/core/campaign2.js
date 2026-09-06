@@ -232,9 +232,10 @@ C2.spawnEncounter = function (game, quest, encIdx) {
   const [lo, hi] = quest.enemyLevels;
   const lvl = Math.round(lo + (hi - lo) * (encIdx / Math.max(1, quest.cEnc.length - 1)));
   const out = [];
+  const world = game.world;
   for (const t of spec.types || []) {
-    if (D().CAMPAIGN_ENEMIES[t]) out.push(C2.spawnEnemy(rng, t, lvl));
-    else out.push(ADV.Character.makeEnemy(rng, t, { level: lvl }));
+    if (D().CAMPAIGN_ENEMIES[t]) out.push(C2.spawnEnemy(rng, t, lvl, { world }));
+    else out.push(ADV.Character.makeEnemy(rng, t, { level: lvl, world }));
   }
   if (spec.mini) {
     const mbd = D().CAMPAIGN_MINIBOSSES[spec.mini];
@@ -244,13 +245,14 @@ C2.spawnEncounter = function (game, quest, encIdx) {
         out.push(C2.spawnEnemy(rng, mbd.base, hi, {
           boss: count === 1, name: mbd.name + (count > 1 ? ' ' + (i + 1) : ''),
           signature: mbd.signature, equips: mbd.equips, undead: mbd.undead,
+          world,
         }));
       }
     }
   }
-  for (const t of spec.with || []) out.push(C2.spawnEnemy(rng, t, lvl));
+  for (const t of spec.with || []) out.push(C2.spawnEnemy(rng, t, lvl, { world }));
   if (spec.boardBoss) {
-    const bb = ADV.Character.makeEnemy(rng, spec.boardBoss, { level: hi });
+    const bb = ADV.Character.makeEnemy(rng, spec.boardBoss, { level: hi, world });
     if (quest.godLine) { bb.godLineBoss = true; ADV.Campaign.grantGodsEdict(bb); }
     out.unshift(bb);
   }
@@ -259,7 +261,7 @@ C2.spawnEncounter = function (game, quest, encIdx) {
     boss.combatHp = null; boss.campaignExit = false; boss.boss = true; boss.isBossFight = true;
     out.unshift(boss);
   }
-  if ((spec.mini || spec.boss || spec.boardBoss) && !quest.war) ADV.Campaign.guardBoss(game, out, quest.factionId, hi, rng, (t, l, o) => C2.spawnEnemy(rng, t, l, o));
+  if ((spec.mini || spec.boss || spec.boardBoss) && !quest.war) ADV.Campaign.guardBoss(game, out, quest.factionId, hi, rng, (t, l, o) => C2.spawnEnemy(rng, t, l, Object.assign({ world }, o || {})));
   return out;
 };
 

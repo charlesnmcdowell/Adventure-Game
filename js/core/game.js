@@ -403,7 +403,7 @@ Game.currentEncounter = function (game) {
   if (q.readyToComplete || q.encIdx >= q.quest.encounters.length) return null;
   if (!q.enemies) {
     q.enemies = q.quest.campaign ? ADV.Campaign.spawnEncounter(game, q.quest, q.encIdx)
-      : ADV.Quests.spawnEncounter(game.rng, q.quest, q.encIdx);
+      : ADV.Quests.spawnEncounter(game.rng, q.quest, q.encIdx, game.world);
     // campaign allies who exited the last fight walk back in at full health (§5a)
     for (const ch of Game.partyRoster(game)) if (ch.campaign && ch.hasFled) { ch.hasFled = false; ch.combatHp = ADV.Character.maxHp(ch); }
     if (q.quest.campaign) {
@@ -466,8 +466,8 @@ Game.adoptBattlefieldNpc = function (game, ch) {
   if (!game || !ch || !game.world) return ch;
   if (ADV.World.byId(game.world, ch.id)) return ch;
   if (!ch.personalityId) {
-    const pool = Object.values(ADV.DATA.DIALOGUE || {}).filter(p => p.sex === (ch.sex || 'm') && !p.hidden);
-    if (pool.length) ch.personalityId = game.rng.pick(pool).id;
+    const pers = ADV.Character.pickPersonality(game.rng, ch.sex || 'm', game.world);
+    if (pers) ch.personalityId = pers.id;
   }
   if (ch.isMonster && ch.species === 'human') {
     const used = new Set((game.world.characters || []).map(c => c && c.name).filter(Boolean));
@@ -1149,7 +1149,7 @@ Game.acceptRescue = function (game, rescue) {
     const types = Object.keys(ADV.DATA.ENEMIES);
     attackers = [];
     const n = rng.int(2, 3);
-    for (let i = 0; i < n; i++) attackers.push(ADV.Character.makeEnemy(rng, rng.pick(types), { level: rng.int(lv[0], lv[1]) }));
+    for (let i = 0; i < n; i++) attackers.push(ADV.Character.makeEnemy(rng, rng.pick(types), { level: rng.int(lv[0], lv[1]), world }));
   }
   for (const ch of defenders.concat(attackers)) ch.combatHp = ADV.Character.maxHp(ch);
   const st = ADV.Combat.create(defenders, attackers, {

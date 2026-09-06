@@ -42,10 +42,11 @@ function seedEmployerParties(world, rng) {
     const p = ADV.Party.create(world, leader.id);
     p.employerParty = true;
     leader.inventory.gold += 120; // leaders start with working capital
-    const want = rng.int(1, 2);
+    const need = ADV.Party.missingRoles(world, p).length;
+    const want = Math.max(need, rng.int(1, 2));
     for (let i = 0; i < want; i++) {
       const open = sorted.filter(c => !c.partyId && c !== leader);
-      const m = ADV.Party.pickMember(rng, open, !ADV.Party.hasSupport(world, p));
+      const m = ADV.Party.pickMember(rng, open, ADV.Party.missingRoles(world, p));
       if (!m) break;
       p.memberIds.push(m.id);
       p.wages[m.id] = rng.int(C().GOLD.wageAcceptMin, 45);
@@ -141,8 +142,10 @@ World.tick = function (world, rng, opts) {
     const roll = rng.float() * 100;
     const power = 25 + skill * 2 + gearBonus + partyBonus + npc.personality.caution / 10;
     let deathChance = npc.personality.aggression / 800 + 0.012;
-    if (party && ADV.Party.hasSupport(world, party)) {
+    if (party && ADV.Party.hasHealer(world, party) && ADV.Party.hasTank(world, party)) {
       deathChance *= party.leaderId === npc.id ? 0.4 : 0.65;
+    } else if (party && ADV.Party.hasSupport(world, party)) {
+      deathChance *= party.leaderId === npc.id ? 0.6 : 0.8;
     }
     if (lowPop) deathChance *= 0.3; // suppress lethality below the population floor (§6)
     if (roll < power) {
@@ -423,12 +426,16 @@ function foundEmployerParty(world, rng, feed, freeFn) {
   if (leader.inventory.gold < C().GOLD.partyStartupCapital + 60) leader.inventory.gold += 120;
   const p = ADV.Party.create(world, leader.id);
   p.employerParty = true;
-  const hirePool = freeFn().filter(c => c !== leader && !ADV.Party.hatredConflict(world, p, c.id));
-  if (hirePool.length) {
-    const first = ADV.Party.pickMember(rng, hirePool, !ADV.Party.isSupport(leader));
+  let hirePool = freeFn().filter(c => c !== leader && !ADV.Party.hatredConflict(world, p, c.id));
+  let seats = 0;
+  while (hirePool.length && seats < 2 && ADV.Party.missingRoles(world, p).length) {
+    const first = ADV.Party.pickMember(rng, hirePool, ADV.Party.missingRoles(world, p));
+    if (!first) break;
     const w = rng.int(C().GOLD.wageAcceptMin, 40);
     p.memberIds.push(first.id); p.wages[first.id] = w;
     first.partyId = p.id; first.leaderId = leader.id; first.wage = w;
+    seats++;
+    hirePool = hirePool.filter(c => c !== first);
   }
   feed(`${leader.name} has started a party of ${leader.sex === 'f' ? 'her' : 'his'} own.`, [leader.id]);
   return p;
@@ -468,12 +475,17 @@ function partyDynamics(world, rng, feed) {
       }
     }
     // NPC-led parties grow when the leader has the purse for it (Hiro keeps one seat open)
-    const needsSupport = !ADV.Party.hasSupport(world, p);
-    const hireOdds = needsSupport ? 0.85 : 0.3;
-    if (npcLed && ADV.Party.roster(world, p).length < (ADV.Hiro ? ADV.Hiro.growthCap(p) : C().PARTY_MAX) && rng.chance(hireOdds)) {
-      const cand = free().filter(c => !ADV.Party.hatredConflict(world, p, c.id));
+    const missing = ADV.Party.missingRoles(world, p);
+    const open = free();
+    const hireOdds = missing.length ? 0.9 : 0.3;
+    // Grow past a healer+tank only while town still has spare free agents
+    // (Hiro and the player need someone left to hire).
+    const canGrow = missing.length || open.length > 4;
+    if (npcLed && canGrow && ADV.Party.roster(world, p).length < (ADV.Hiro ? ADV.Hiro.growthCap(p) : C().PARTY_MAX) && rng.chance(hireOdds)) {
+      const cand = open.filter(c => !ADV.Party.hatredConflict(world, p, c.id));
       if (cand.length) {
-        const c = ADV.Party.pickMember(rng, cand, needsSupport);
+        const c = ADV.Party.pickMember(rng, cand, missing);
+        if (!c) continue;
         const wage = rng.int(C().GOLD.wageAcceptMin, 45);
         if (leader.inventory.gold >= wage * 2) {
           p.memberIds.push(c.id); p.wages[c.id] = wage; c.partyId = p.id; c.leaderId = leader.id; c.wage = wage;

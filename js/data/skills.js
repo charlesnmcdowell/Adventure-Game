@@ -53,7 +53,7 @@ def({ id: 'pyromaniac', name: 'Pyromaniac', kind: 'perk', archetype: 'mage',
     advanced:     { name: 'Fire Lord',    fireResist: 0.25, fireLeech: 0.25 },
   } });
 def({ id: 'ice_queen', name: 'Ice Queen', kind: 'perk', archetype: 'mage',
-  desc: 'Every strike of ice you land layers frost armor on you — stacking damage reduction from all sources.',
+  desc: 'Every strike of ice you land layers frost armor on you — stacking damage reduction from all sources, applied after the hit is calculated (including percent-of-HP blows).',
   tiers: {
     basic:        { name: 'Ice Queen',    iceArmorPerHit: 0.05 },
     intermediate: { name: 'Ice Queen+',   iceArmorPerHit: 0.15 },
@@ -70,7 +70,7 @@ def({ id: 'lightning_king', name: 'Lightning King', kind: 'perk', noTierGrowth: 
 
 // ============ TANK — every skill has an offensive component ============
 def({ id: 'bulwark', name: 'Bulwark', kind: 'perk', archetype: 'tank', survivalHp: 20,
-  desc: 'Reduces damage taken 20% and reflects part of it back. Every battle you walk out of adds 20 max HP, permanently.',
+  desc: 'Reduces all incoming damage 20% after the hit is calculated — including percent-of-HP blows — and reflects part of it back. Every battle you walk out of adds 20 max HP, permanently.',
   tiers: {
     basic:        { name: 'Bulwark',   dmgTakenMult: 0.8, reflectPct: 0.25 },
     intermediate: { name: 'Bulwark+',  dmgTakenMult: 0.8, reflectPct: 0.40, protectAdjacent: true },
