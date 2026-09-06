@@ -45,6 +45,7 @@ function chooseAction(st, u) {
     if (!sk || sk.target === 'postVictory') continue;
     const m = manifestFor(u, e.skillId);
     const d = m.data;
+    if (d.freeBuff) continue;
     const seal = u.statuses.find(x => x.kind === 'sealed');
     if (seal && (seal.tiers || []).includes(m.tier)) continue;
     let offensiveMode = false;

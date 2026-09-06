@@ -11,6 +11,14 @@ class QuestScene extends Phaser.Scene {
     const game = this.game_;
     const W = T().W, H = T().H;
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
+    if (ADV.BattleArt && game.quest) {
+      try {
+        ADV.BattleArt.paint(this, ADV.BattleArt.groundFor(game, 'quest'), ADV.BattleArt.phaseFor(game));
+      } catch (e) {}
+    } else if (ADV.WeatherFX && ADV.Weather) {
+      const phase = ADV.Housing && ADV.Housing.timeOfDay ? ADV.Housing.timeOfDay((game.world && game.world.questClock) || 0) : 'day';
+      ADV.WeatherFX.attach(this, ADV.Weather.at(game.world, { phase }), phase, { x: 0, y: 0, w: W, h: H }, { depth: -5 });
+    }
     if (!game.quest) { this.scene.start('Town'); return; }
     // one track per quest: chosen on the first screen of the run, kept until town
     if (!game.quest.musicStarted) { game.quest.musicStarted = true; ADV.Music.startRun(!!game.quest.quest.isBoss); }
@@ -48,7 +56,7 @@ class QuestScene extends Phaser.Scene {
     T().text(this, W / 2, 60, q.quest.name, { size: 26, display: true, ox: 0.5, color: T().css.gold });
     T().text(this, W / 2, 96, enc.rival
       ? 'Another company wants the same contract'
-      : `Encounter ${enc.encIdx + 1} of ${enc.total} · ${q.quest.factionAlignment} country`, { size: 14, ox: 0.5, color: enc.rival ? T().css.gold : T().css.inkDim });
+      : `Encounter ${enc.encIdx + 1} of ${enc.total} · ${q.quest.factionAlignment}${q.quest.theme ? ' · ' + q.quest.theme : ''}`, { size: 14, ox: 0.5, color: enc.rival ? T().css.gold : T().css.inkDim });
     const p = ADV.Game.player(game);
     T().text(this, W / 2, 120, `Your health: ${p.combatHp}/${ADV.Character.maxHp(p)} — you only heal back in town.`, { size: 13, ox: 0.5, color: p.combatHp < ADV.Character.maxHp(p) * 0.4 ? T().css.blood : T().css.inkDim });
     if (p.combatHp < ADV.Character.maxHp(p)) {

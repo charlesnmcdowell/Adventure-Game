@@ -42,7 +42,7 @@ Tutor.allowed = function (game, id) {
 Tutor.questAllowed = function (game, q) {
   const step = Tutor.step(game);
   if (step === 'done' || step === 'partyQuest') return true;
-  if (step === 'firstQuest') return q.track === 'solo' && q.tier === 1;
+  if (step === 'firstQuest') return q.track === 'solo' && q.tier === 1 && q.factionAlignment === 'neutral';
   return false;
 };
 Tutor.wage = () => TUTORIAL_WAGE;
@@ -169,7 +169,7 @@ Tutor.panel = function (scene, game, id, r) {
   Tutor.clear(scene);
   if (s.step === 'firstQuest' && id === 'board') {
     const b = scene.tutorFirstQuestBtn;
-    Tutor.callout(scene, b ? { x: b.zone.x, y: b.zone.y, w: b.zone.width, h: b.zone.height } : null, 'Take this one', 'Tier 1 solo: one or two enemies. Vault nothing and set out.', { pass: true });
+    Tutor.callout(scene, b ? { x: b.zone.x, y: b.zone.y, w: b.zone.width, h: b.zone.height } : null, 'Take this one', 'A neutral Tier 1 solo: beasts on the road, no banners. Vault nothing and set out.', { pass: true });
   }
   if (s.step === 'partyQuest' && id === 'board') {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 220, h: 48 }, 'Queue up', 'Click Ready. The leader picks the contract; you take your wage either way.', { pass: true, hint: '↑ Ready for the quest' });

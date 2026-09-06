@@ -3,6 +3,7 @@
 (function () {
 'use strict';
 const T = () => ADV.T;
+const AUTO_PACE_PAD_MS = 500;
 
 const LANE_X = { a: { front: 520, mid: 396, back: 272 }, b: { front: 760, mid: 884, back: 1008 } };
 const SLOT_Y = [170, 330, 490];
@@ -88,8 +89,9 @@ class CombatScene extends Phaser.Scene {
     const x = LANE_X[u.side][u.lane], y = SLOT_Y[u.slot] || SLOT_Y[0];
     const key = ADV.Portraits.key(this, u.ch);
     const laneScale = u.lane === 'back' ? 0.9 : u.lane === 'mid' ? 0.95 : 1;
-    const img = this.add.image(x, y, key).setDisplaySize((u.ch.boss ? 112 : 92) * laneScale, (u.ch.boss ? 142 : 116) * laneScale);
-    if (u.ch.isUndead) { img.setTint(0x88bb99); img.__baseTint = 0x88bb99; }
+    const img = this.add.image(x, y, key).setDisplaySize((u.ch.boss ? 112 : 92) * laneScale, (u.ch.boss ? 142 : 116) * laneScale).setDepth(10);
+    if (u.ch.isConscript) { img.setTint(ADV.CONSCRIPT_TINT || 0x9a8ab0); img.__baseTint = ADV.CONSCRIPT_TINT || 0x9a8ab0; }
+    else if (u.ch.isUndead) { img.setTint(0x88bb99); img.__baseTint = 0x88bb99; }
     else if (u.lane === 'back') { img.setTint(0xb0a898); img.__baseTint = 0xb0a898; }
     if (ADV.Portraits.animate) ADV.Portraits.animate(this, img, u.ch, key);
     if (ADV.Portraits.express) { const m = this.combatMood(u); ADV.Portraits.express(this, img, u.ch, key, m.mood, m.intensity); }
@@ -173,7 +175,7 @@ class CombatScene extends Phaser.Scene {
     }
     const PIP = {
       burn: 0xd8574a, bleed: 0xa8352c, poison: 0x5d8a4a, hot: 0x83b56b, thorns: 0x4a6a38,
-      guard: 0xd4a94e, ward: 0x6fa0bf, atkBuff: 0xd4a94e, aura: 0x9a70c0, healcut: 0xa8352c,
+      guard: 0xd4a94e, ward: 0x6fa0bf, atkBuff: 0xd4a94e, beastShape: 0xc48a3a, aura: 0x9a70c0, healcut: 0xa8352c,
       frozen: 0x6fc0e8, shocked: 0xd4a94e, sealed: 0x6a4a8a, purified: 0xf4eee0, iceArmor: 0x6fa0bf,
     };
     const colors = [];
@@ -244,20 +246,54 @@ class CombatScene extends Phaser.Scene {
       if (!t) { this.finish(); return; }
       this.refreshStrip();
       this.refreshIntents();
-      if (t.isPlayer) {
-        if (this.queuePlayerAuto(t.unit)) return;
-        this.showActionBar(t.unit);
-      } else {
-        const go = () => {
-          if (this.ended) return;
-          ADV.Combat.aiTakeTurn(st, t.unit);
-          ADV.Combat.advance(st);
-          this.loop();
-        };
-        if (ADV.Prefs && ADV.Prefs.pauseEnemy()) this.showEnemyHold(t.unit, go);
-        else this.time.delayedCall(160, go);
-      }
+      const takeTurn = () => {
+        if (this.ended) return;
+        if (t.isPlayer) {
+          if (this.queuePlayerAuto(t.unit)) return;
+          this.showActionBar(t.unit);
+        } else {
+          const go = () => {
+            if (this.ended) return;
+            ADV.Combat.aiTakeTurn(st, t.unit);
+            ADV.Combat.advance(st);
+            this.loop();
+          };
+          if (ADV.Prefs && ADV.Prefs.pauseEnemy()) this.showEnemyHold(t.unit, go);
+          else this.time.delayedCall(this.autoGap(160), go);
+        }
+      };
+      this.tryHatredRemark(t.unit, takeTurn);
     });
+  }
+
+  playerAutoArmed() {
+    const p = ADV.Game.player(this.game_);
+    return !!(p && ADV.Combat.autoList && ADV.Combat.autoList(p).length);
+  }
+
+  autoGap(base) {
+    return this.playerAutoArmed() ? (base + AUTO_PACE_PAD_MS) : base;
+  }
+
+  wantsCombatHatred() {
+    if (this.mode === 'assassination' || this.mode === 'ambush') return true;
+    const q = this.game_ && this.game_.quest;
+    return !!(q && q.rivalFight);
+  }
+
+  tryHatredRemark(acting, then) {
+    if (!this.wantsCombatHatred() || !ADV.DialogueBox) { then(); return; }
+    const st = this.st();
+    const speaker = ADV.Combat.hatredRemarkDue(st, { acting, foeSide: 'b' });
+    if (!speaker) { then(); return; }
+    ADV.Combat.noteHatredRemark(st, speaker.ch);
+    const ctx = ADV.DialogueBox.ctxFor
+      ? ADV.DialogueBox.ctxFor(this.game_, speaker.ch, { target: ADV.Game.player(this.game_).name })
+      : {};
+    let started = false;
+    const done = () => { if (started) return; started = true; then(); };
+    const box = ADV.DialogueBox.show(this, this.game_, speaker.ch, 'hatred', ctx, done);
+    if (!box) done();
   }
 
   // animate events appended since eventCursor, then cb
@@ -514,7 +550,7 @@ class CombatScene extends Phaser.Scene {
     const ready = ADV.Combat.autoReadyAction(this.st(), u);
     if (ready) {
       this.showAutoStrip(u, ready);
-      this.autoTimer = this.time.delayedCall(360, () => {
+      this.autoTimer = this.time.delayedCall(this.autoGap(360), () => {
         this.autoTimer = null;
         if (this.ended) return;
         this.commitAction(u, ready.action, ready.tgt);
@@ -527,7 +563,7 @@ class CombatScene extends Phaser.Scene {
     // the field itself is empty (smoke, stealth, no reach).
     if (ADV.Combat.hasLegalCombatAction(this.st(), u)) return false;
     this.showAutoWaitStrip(u);
-    this.autoTimer = this.time.delayedCall(360, () => {
+    this.autoTimer = this.time.delayedCall(this.autoGap(360), () => {
       this.autoTimer = null;
       if (this.ended) return;
       const again = ADV.Combat.autoReadyAction(this.st(), u);
@@ -637,7 +673,10 @@ class CombatScene extends Phaser.Scene {
       const m = ADV.Combat.manifestFor(u, e.skillId);
       const sealed = !!(seal && (seal.tiers || []).includes(m.tier));
       const pool = sealed ? [] : ADV.Combat.validTargets(st, u, e.skillId, false);
-      actions.push({ label: m.data.name, sub: sealed ? 'SEALED' : 'L' + e.level, skillId: e.skillId, off: false, pool });
+      const stance = m.data.freeBuff
+        ? (u.statuses.some(s => s.kind === 'beastShape') ? 'UP · free' : 'free')
+        : ('L' + e.level);
+      actions.push({ label: m.data.name, sub: sealed ? 'SEALED' : stance, skillId: e.skillId, off: false, pool });
       if (m.data.offensive) {
         const opool = sealed ? [] : ADV.Combat.validTargets(st, u, e.skillId, true);
         actions.push({ label: m.data.offensive.name, sub: sealed ? 'SEALED' : 'hostile', skillId: e.skillId, off: true, pool: opool });
@@ -814,8 +853,24 @@ class CombatScene extends Phaser.Scene {
       if (ADV.SkillSys.entryFor(p, 'necromancy')) opts.push({ label: 'Raise them', value: 'necromancy' });
       ADV.DialogueBox.show(this, game, c, 'general', ADV.DialogueBox.ctxFor(game, c), () => {
         ADV.Notices.pickOne(this, c.name + ' is beaten', 'The choice is the victor\'s.', opts, (v) => {
+          const before = (p.conscriptIds || []).slice();
           const r = ADV.Game.resolveDefeatedNamed(game, c, v || 'knockout');
-          if (r && r.error) ADV.Notices.toast(this, r.error);
+          if (r && r.error) { ADV.Notices.toast(this, r.error); next(); return; }
+          if (v === 'conscript' && c.isConscript && ADV.Cutscenes && ADV.Cutscenes.conscription) {
+            const releasedId = before.find(id => (p.conscriptIds || []).indexOf(id) < 0);
+            const released = releasedId ? ADV.World.byId(game.world, releasedId) : null;
+            ADV.Cutscenes.conscription(this, game, p, c, next, { released, townRemember: true });
+            return;
+          }
+          if (v === 'necromancy' && c.isUndead && ADV.Cutscenes && ADV.Cutscenes.raising) {
+            const mourners = [];
+            for (const o of this.unitViews.values()) {
+              if (!o.u || o.u.downed || o.u.ch === c) continue;
+              if (this.isKin(o.u.ch, c)) mourners.push({ img: o.img, ch: o.u.ch });
+            }
+            ADV.Cutscenes.raising(this, game, p, c, next, { mourners });
+            return;
+          }
           next();
         });
       });

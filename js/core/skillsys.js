@@ -52,8 +52,81 @@ SkillSys.manifest = function (ch, entry) {
   const sk = SK()[entry.skillId];
   const lvl = SkillSys.effectiveLevel(ch, entry.skillId, entry.level);
   const tier = SkillSys.tierFor(ch, entry.skillId, lvl);
-  return { skill: sk, tier, level: lvl, data: Object.assign({}, sk, sk.tiers[tier]) };
+  const flare = SkillSys.classFlare(sk, ch);
+  return { skill: sk, tier, level: lvl, data: Object.assign({}, sk, sk.tiers[tier]), flare };
 };
+
+// Same role / target / reach / power — the campaign kits reprint a core
+// strike under another class. Unique 0-power buffs stay out of this.
+SkillSys.mechKey = function (sk) {
+  if (!sk || sk.kind !== 'active' || sk.forbidden || sk.universal || sk.unique) return null;
+  const heal = !!sk.heal && !sk.dualHeal;
+  const dmg = !heal && (sk.power || 0) > 0;
+  if (!heal && !dmg) return null;
+  const tgt = sk.target || (heal ? 'ally' : 'enemy');
+  const reach = sk.reach || 'any';
+  const pow = Math.round((sk.power || 0) * 10) / 10;
+  return (heal ? 'heal' : 'dmg') + '|' + tgt + '|' + reach + '|' + pow;
+};
+
+SkillSys.twinsOf = function (skillId) {
+  const sk = SK()[skillId];
+  const key = SkillSys.mechKey(sk);
+  if (!key || !sk.archetype) return [];
+  const out = [];
+  for (const id of Object.keys(SK())) {
+    if (id === skillId) continue;
+    const o = SK()[id];
+    if (!o || !o.archetype || o.archetype === sk.archetype) continue;
+    if (SkillSys.mechKey(o) === key) out.push(o);
+  }
+  return out;
+};
+
+// Extra rider for a skill that has a mechanical twin in another class.
+// The base power / status stay untouched — this is additive flavour for
+// the class the skill is filed under.
+const CLASS_FLARE = {
+  mage: {
+    kind: 'stormthread', shockBonus: 0.2, markStorm: 0.25,
+    desc: 'Shocked foes take more from this strike, and the next lightning you throw hits harder.',
+  },
+  ranger: {
+    kind: 'followup', bonusHits: 2, hitPowerMult: 0.5,
+    desc: 'Two arrows follow the shot, each at half power.',
+  },
+  tank: {
+    kind: 'brace', guardRounds: 2,
+    desc: 'You brace — a short Guard after the blow.',
+  },
+  healer: {
+    kind: 'mercy', healMult: 1.2,
+    desc: 'The same working mends a fifth more.',
+  },
+  rogue: {
+    kind: 'openVein',
+    poison: { power: 0.4, rounds: 2 },
+    bleed: { power: 0.4, rounds: 2 },
+    desc: 'The cut also leaves poison and bleed.',
+  },
+  fighter: {
+    kind: 'press', extraHit: 1, extraHitMult: 0.6, defStrip: 6,
+    desc: 'A follow-through blow, and the target\'s armor slips.',
+  },
+  druid: {
+    kind: 'wild', thornPct: 0.2, thornRounds: 2, rootRounds: 1,
+    desc: 'Thorns rise on you, and the target is rooted a moment.',
+  },
+};
+
+SkillSys.classFlare = function (sk, ch) {
+  if (!sk || !sk.archetype || !CLASS_FLARE[sk.archetype]) return null;
+  if (ch && (ch.isMonster || ch.enemyTypeId)) return null;
+  const twins = SkillSys.twinsOf(sk.id);
+  if (!twins.length) return null;
+  return Object.assign({ twins: twins.map(t => t.id) }, CLASS_FLARE[sk.archetype]);
+};
+SkillSys.CLASS_FLARE = CLASS_FLARE;
 
 // ---- Journal (§3) — uncapped, survives death --------------------------------
 // journal: { [skillId]: { witnessed: bool, sawTier: 'basic'|'intermediate'|'advanced', eligible: bool } }

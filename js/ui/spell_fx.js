@@ -101,75 +101,126 @@ function ty(tgt, src) { return tgt ? tgt.y : sy(src); }
 function fireBolt(scene, ctx, p) {
   const src = ctx.src, tgt = ctx.tgt, dir = ctx.dir || 1;
   const color = FIRE;
-  if (p.reach === 'lane') {
-    const slots = laneOf(scene, tgt);
-    const x1 = sx(src), y1 = sy(src);
-    slots.forEach((v, i) => {
-      const go = () => {
-        V().bolt(scene, x1, y1, v.x, v.y, color, { segs: 4, w: 4 });
-        V().plume(scene, v.x, v.y, color, { n: 3, scale: p.scale });
-        V().shockwave(scene, v.x, v.y, color, { scale: 2.2 });
-      };
-      if (i) scene.time.delayedCall(i * 40, go); else go();
+  const x1 = sx(src), y1 = sy(src);
+  if (ctx.tier === 'advanced') {
+    if (V().cine) { V().cine.letterbox(scene, true); V().cine.chargeUp(scene, src, color); V().cine.camMove(scene, 'pushIn'); }
+    const cx = tgt ? tgt.x : x1 + 220 * dir;
+    const flight = V().comet ? V().comet(scene, x1, y1, cx, SLOT_Y[1], {
+      r: 22, trail: 2, accel: true, hum: true, boom: 3.5, arc: 30,
+    }) : 320;
+    SLOT_Y.forEach((y, i) => {
+      scene.time.delayedCall(flight + i * 80, () => {
+        if (V().explosion) V().explosion(scene, cx, y, { scale: i === 1 ? 3.5 : 2.2, color });
+        else { V().plume(scene, cx, y, color, { n: 4, scale: 1.6 }); V().shockwave(scene, cx, y, color, { scale: 2.4 }); }
+      });
     });
-    V().screenSweep(scene, color, { dir, dur: 260 });
-    boom(scene, ctx, 0.005);
-    residue(scene, tx(tgt, src), ty(tgt, src), color, 'advanced');
+    scene.time.delayedCall(flight, () => {
+      V().screenSweep(scene, color, { dir, dur: 260 });
+      if (V().cine) { V().cine.camMove(scene, 'whip', { x: 16 * dir }); V().cine.impactFrame(scene, tgt && tgt.img); }
+      if (V().zoomPunch) V().zoomPunch(scene);
+      residue(scene, cx, SLOT_Y[1], color, 'advanced');
+    });
+    scene.time.delayedCall(flight + 400, () => { if (V().cine) V().cine.letterbox(scene, false); });
     return p.wait;
   }
-  V().bolt(scene, sx(src), sy(src), tx(tgt, src), ty(tgt, src), color, { segs: 5, w: 3 * p.scale });
-  V().plume(scene, tx(tgt, src), ty(tgt, src), color, { n: 2 + p.n, scale: p.scale });
-  if (p.reach === 'two') V().burst(scene, tx(tgt, src), ty(tgt, src), color, 8);
+  if (ctx.tier === 'intermediate') {
+    const hits = foes(scene, src, tgt);
+    if (tgt) {
+      const i = hits.indexOf(tgt);
+      if (i > 0) { hits.splice(i, 1); hits.unshift(tgt); }
+      else if (i < 0) hits.unshift(tgt);
+    }
+    const dest = hits.length ? hits.slice(0, 3) : [{ x: tx(tgt, src), y: ty(tgt, src) }];
+    while (dest.length < 3) dest.push(dest[0]);
+    dest.forEach((v, i) => {
+      const go = () => {
+        if (V().comet) V().comet(scene, x1, y1 + (i - 1) * 10, v.x, v.y, { r: 10, boom: 1.4, arc: 16 + i * 6 });
+        else { V().bolt(scene, x1, y1, v.x, v.y, color, { segs: 5, w: 3 }); V().plume(scene, v.x, v.y, color, { n: 3 }); }
+      };
+      if (i) scene.time.delayedCall(i * 60, go); else go();
+    });
+    residue(scene, tx(tgt, src), ty(tgt, src), color, ctx.tier);
+    return p.wait;
+  }
+  if (V().comet) V().comet(scene, x1, y1, tx(tgt, src), ty(tgt, src), { r: 8, boom: 1, arc: 18 });
+  else {
+    V().bolt(scene, x1, y1, tx(tgt, src), ty(tgt, src), color, { segs: 5, w: 3 });
+    V().plume(scene, tx(tgt, src), ty(tgt, src), color, { n: 3 });
+  }
   residue(scene, tx(tgt, src), ty(tgt, src), color, ctx.tier);
   return p.wait;
 }
 
 function frostTouch(scene, ctx, p) {
   const src = ctx.src, tgt = ctx.tgt, color = ICE;
-  const hits = p.reach === 'lane' ? laneOf(scene, tgt) : p.reach === 'two' ? twoOf(scene, src, tgt) : (tgt ? [tgt] : []);
-  if (!hits.length && tgt) hits.push(tgt);
-  if (p.reach === 'lane') {
-    hits.forEach((v, i) => {
-      const go = () => {
-        V().shards(scene, v.x, v.y - 80, color, 4, { scale: p.scale });
-        V().frostSpikes(scene, v.x, v.y, color, { n: 5, scale: p.scale });
-      };
-      if (i) scene.time.delayedCall(i * 30, go); else go();
-    });
-    V().laneWave(scene, tgt ? tgt.x : sx(src) + 200, color, { scale: 2 });
+  const x1 = sx(src), y1 = sy(src);
+  if (ctx.tier === 'advanced') {
+    if (V().cine) { V().cine.letterbox(scene, true); V().cine.chargeUp(scene, src, color); }
+    if (V().blizzard) V().blizzard(scene, { x: 40, y: 110, w: 1200, h: 520 });
+    else V().laneWave(scene, tgt ? tgt.x : x1 + 200, color, { scale: 2 });
+    const hits = foes(scene, src, tgt);
+    hits.forEach((v, i) => scene.time.delayedCall(200 + i * 40, () => {
+      if (V().freezeOver) V().freezeOver(scene, v);
+      V().frostSpikes(scene, v.x, v.y, color, { n: 5, scale: 1.3 });
+    }));
     boom(scene, ctx, 0.004);
-  } else {
-    hits.forEach((v, i) => {
-      const go = () => {
-        V().bolt(scene, sx(src), sy(src), v.x, v.y, color, { segs: 4, w: 3 });
-        V().shards(scene, v.x, v.y, color, 4, { scale: p.scale });
-      };
-      if (i) scene.time.delayedCall(i * 70, go); else go();
-    });
+    scene.time.delayedCall(500, () => { if (V().cine) V().cine.letterbox(scene, false); });
+    residue(scene, tx(tgt, src), ty(tgt, src), color, 'advanced');
+    return p.wait;
   }
+  const hits = ctx.tier === 'intermediate' ? twoOf(scene, src, tgt) : (tgt ? [tgt] : []);
+  if (!hits.length && tgt) hits.push(tgt);
+  hits.forEach((v, i) => {
+    const go = () => {
+      if (V().iceLance) V().iceLance(scene, x1, y1, v.x, v.y, { scale: p.scale });
+      else { V().bolt(scene, x1, y1, v.x, v.y, color, { segs: 4, w: 3 }); V().shards(scene, v.x, v.y, color, 4, { scale: p.scale }); }
+      if (ctx.tier === 'intermediate' && V().freezeOver) V().freezeOver(scene, v, { hold: false, dur: 480 });
+      if (i && hits[i - 1]) V().beam(scene, hits[i - 1].x, hits[i - 1].y, v.x, v.y, color, { w: 2, dur: 220 });
+    };
+    if (i) scene.time.delayedCall(i * 80, go); else go();
+  });
   residue(scene, tx(tgt, src), ty(tgt, src), color, ctx.tier);
   return p.wait;
 }
 
 function sparkFx(scene, ctx, p) {
   const src = ctx.src, tgt = ctx.tgt, color = LIT;
-  const chain = p.reach === 'lane' ? foes(scene, src, tgt) : p.reach === 'two' ? twoOf(scene, src, tgt) : (tgt ? [tgt] : []);
+  if (ctx.tier === 'advanced') {
+    if (V().cine) { V().cine.letterbox(scene, true); V().cine.chargeUp(scene, src, color); }
+    const veil = scene.add.rectangle(ADV.T.W / 2, ADV.T.H / 2, ADV.T.W, ADV.T.H, 0x2a3444, 0).setDepth(6);
+    scene.tweens.add({ targets: veil, alpha: 0.35, duration: 200, yoyo: true, hold: 280, onComplete: () => kill(veil) });
+    const hits = foes(scene, src, tgt);
+    const list = hits.length ? hits : (tgt ? [tgt] : []);
+    list.forEach((v, i) => {
+      scene.time.delayedCall(200 + i * 60, () => {
+        if (V().lightningStreak) V().lightningStreak(scene, v.x + (Math.random() * 40 - 20), 36, v.x, v.y, { scale: 1.1 });
+        else V().bolt(scene, v.x, 36, v.x, v.y, color, { segs: 7, w: 3 });
+        if (V().camShake) V().camShake(scene, 0.003);
+      });
+    });
+    scene.time.delayedCall(200 + list.length * 60, () => {
+      if (V().flashOverlay) V().flashOverlay(scene, 0xffffff, 0.3);
+      if (V().cine) { V().cine.impactFrame(scene, tgt && tgt.img); V().cine.letterbox(scene, false); }
+    });
+    residue(scene, tx(tgt, src), ty(tgt, src), color, 'advanced');
+    return p.wait;
+  }
+  const chain = ctx.tier === 'intermediate' ? twoOf(scene, src, tgt) : (tgt ? [tgt] : []);
   if (!chain.length && tgt) chain.push(tgt);
   let px = sx(src), py = sy(src);
   chain.forEach((v, i) => {
     const fromX = px, fromY = py;
     px = v.x; py = v.y;
     const go = () => {
-      V().bolt(scene, fromX, fromY, v.x, v.y, color, { segs: 6, w: 2 + p.scale });
-      V().bolt(scene, fromX, fromY, v.x, v.y, 0xffffff, { segs: 5, w: 1, dur: 100 });
+      if (V().lightningStreak) V().lightningStreak(scene, fromX, fromY, v.x, v.y, { scale: i ? 0.75 : 1, branches: i ? 2 : 3 });
+      else {
+        V().bolt(scene, fromX, fromY, v.x, v.y, color, { segs: 6, w: 2 + p.scale });
+        V().bolt(scene, fromX, fromY, v.x, v.y, 0xffffff, { segs: 5, w: 1, dur: 100 });
+      }
       V().burst(scene, v.x, v.y, color, 4);
     };
-    if (i) scene.time.delayedCall(i * 55, go); else go();
+    if (i) scene.time.delayedCall(i * 40, go); else go();
   });
-  if (p.reach === 'lane') {
-    V().screenSweep(scene, color, { dir: ctx.dir || 1, dur: 220 });
-    boom(scene, ctx, 0.005);
-  }
   residue(scene, tx(tgt, src), ty(tgt, src), color, ctx.tier);
   return p.wait;
 }
@@ -187,6 +238,11 @@ function emberLash(scene, ctx, p) {
       else { g.lineTo(mx, my); g.lineTo(v.x, v.y); }
       g.strokePath();
       scene.tweens.add({ targets: g, alpha: 0, duration: 200, onComplete: () => kill(g) });
+      if (V().emberTrail) {
+        const tip = scene.add.circle(sx(src), sy(src), 3, 0xffe07a).setDepth(FXD);
+        V().emberTrail(scene, tip, { scale, ms: 200 });
+        scene.tweens.add({ targets: tip, x: v.x, y: v.y, duration: 180, onComplete: () => kill(tip) });
+      }
       V().spray(scene, v.x, v.y, ctx.dir || 1, color, { n: 4, scale });
       V().plume(scene, v.x, v.y, color, { n: 2, scale: 0.8 * scale });
     };
@@ -203,8 +259,13 @@ function rimeGrasp(scene, ctx, p) {
   if (!hits.length) hits.push({ x: tx(tgt, src), y: ty(tgt, src) });
   hits.forEach((v, i) => {
     const go = () => {
-      V().frostSpikes(scene, v.x, v.y, color, { n: 5 + p.n, r: 48 * p.scale, scale: p.scale });
-      V().ring(scene, v.x, v.y, color, { r: 18, scale: 1.6 * p.scale, dur: 240 });
+      for (let k = 0; k < 3; k++) {
+        scene.time.delayedCall(k * 60, () => {
+          V().frostSpikes(scene, v.x, v.y - k * 10, color, { n: 4 + p.n, r: (36 + k * 8) * p.scale, scale: p.scale });
+        });
+      }
+      scene.time.delayedCall(180, () => V().ring(scene, v.x, v.y, color, { r: 18, scale: 1.6 * p.scale, dur: 240 }));
+      if (V().freezeOver && v.img) V().freezeOver(scene, v, { hold: false, dur: 400 });
     };
     if (i) scene.time.delayedCall(i * 60, go); else go();
   });
@@ -579,19 +640,93 @@ const RECIPES = {
   god_aura:      { basic: godAura, intermediate: godAura, advanced: godAura },
 };
 
+const SCHOOLS = ['fire', 'lightning', 'ice', 'blade', 'arrow', 'gun', 'thrown', 'shadow', 'poison', 'holy', 'nature', 'guard', 'command', 'necromancy', 'divine'];
+
+function skillDef(id) {
+  if (!id || !ADV.DATA) return null;
+  return (ADV.DATA.SKILLS && ADV.DATA.SKILLS[id])
+    || (ADV.DATA.CAMPAIGN_SKILLS && ADV.DATA.CAMPAIGN_SKILLS[id])
+    || (ADV.DATA.CAMPAIGN2_SKILLS && ADV.DATA.CAMPAIGN2_SKILLS[id])
+    || null;
+}
+
+function schoolOf(id) {
+  const d = skillDef(id);
+  if (!d || d.kind === 'perk') return null;
+  if (d.element === 'fire') return 'fire';
+  if (d.element === 'ice') return 'ice';
+  if (d.element === 'lightning') return 'lightning';
+  if (d.element === 'shadow') return 'shadow';
+  if (d.element === 'prismatic') return 'ice';
+  if (d.element === 'arcane') return 'lightning';
+  if (d.element === 'acid') return 'poison';
+  if (d.heal) return 'holy';
+  if (d.guard || d.wardAhead) return 'guard';
+  if (d.forbidden || id === 'conscript' || id === 'necromancy' || id === 'blood_pact' || id === 'blood_price') return 'necromancy';
+  if (id === 'god_aura' || id === 'true_rest') return 'divine';
+  if (/venom|poison|bleed|blood_lotus|wither/.test(id)) return 'poison';
+  if (/smoke|backstab|ghost|vanish|cloak|shadow/.test(id)) return 'shadow';
+  if (/shot|volley|quarrel|loosing|bow|arrow/.test(id) && !/flint|grape|cannon|chain_shot/.test(id)) return 'arrow';
+  if (/flint|grape|cannon|chain_shot|volley_fire|powder/.test(id)) return 'gun';
+  if (/shuriken|kunai|chain_and_weight/.test(id)) return 'thrown';
+  if (/snare|thorn|beast|growth|fox|bear/.test(id)) return 'nature';
+  if (/signal|kiai|standing_order|articles/.test(id)) return 'command';
+  if (d.archetype === 'healer') return 'holy';
+  if (d.archetype === 'druid') return 'nature';
+  if (d.archetype === 'ranger') return 'arrow';
+  if (d.archetype === 'rogue') return 'shadow';
+  if (d.archetype === 'tank') return 'guard';
+  if (d.archetype === 'mage') return 'fire';
+  if (d.archetype === 'fighter') return 'blade';
+  if (d.melee || d.archetype === 'fighter') return 'blade';
+  return 'blade';
+}
+
+function genericSchool(scene, ctx, p) {
+  const school = schoolOf(ctx.skillId) || 'blade';
+  const color = ctx.color || STL;
+  const x1 = sx(ctx.src), y1 = sy(ctx.src), x2 = tx(ctx.tgt, ctx.src), y2 = ty(ctx.tgt, ctx.src);
+  if (school === 'fire' && V().comet) V().comet(scene, x1, y1, x2, y2, { r: 7 * p.scale, boom: p.scale });
+  else if (school === 'lightning' && V().lightningStreak) V().lightningStreak(scene, x1, y1, x2, y2, { scale: p.scale });
+  else if (school === 'ice' && V().iceLance) V().iceLance(scene, x1, y1, x2, y2, { scale: p.scale });
+  else if (school === 'holy') { V().healSparkle(scene, x2, y2); V().aura(scene, x2, y2, HOLY); }
+  else if (school === 'shadow') { V().cloud(scene, x2, y2, SHD, { r: 22, a: 0.6 }); V().stab(scene, x2, y2, ctx.dir || 1, SHD, {}); }
+  else if (school === 'poison') { V().spray(scene, x2, y2, ctx.dir || 1, POI, { n: 5, scale: p.scale }); V().drip(scene, x2, y2, POI, { n: 2 }); }
+  else if (school === 'guard') V().ring(scene, x1, y1, GOLD, { r: 24, scale: 1.6 * p.scale });
+  else if (school === 'nature') { V().groundCrack(scene, x2, y2, NAT, { n: 3 }); V().motes(scene, x2, y2, NAT, 4); }
+  else if (school === 'necromancy') { V().ring(scene, x2, y2, PURP, { r: 22, scale: 2 }); V().motes(scene, x2, y2, PURP, 5); }
+  else if (school === 'divine') { V().ring(scene, x1, y1, GOLD, { r: 28, scale: 2.2 }); V().motes(scene, x1, y1, HOLY, 6); }
+  else if (school === 'arrow') V().projectile(scene, x1, y1, x2, y2, STL);
+  else if (school === 'gun') { V().burst(scene, x1, y1, HOLY, 6); V().projectile(scene, x1, y1, x2, y2, GOLD); if (V().camShake) V().camShake(scene, 0.003); }
+  else if (school === 'thrown') V().projectile(scene, x1, y1, x2, y2, STL);
+  else if (school === 'command') { V().laneWave(scene, x1, GOLD, { scale: 1.4 }); }
+  else {
+    if (ctx.src && ctx.src.img) V().lunge(scene, ctx.src.img, ctx.dir || 1);
+    V().slashArc(scene, x2, y2, color);
+    V().slashArc(scene, x2, y2 + 4, color);
+  }
+  return p.wait;
+}
+
 function play(scene, ctx) {
   try {
     ctx = ctx || {};
+    if (scene) scene.__fxBusy = true;
     const rec = RECIPES[ctx.skillId];
-    if (!rec) return 240;
     const tier = ctx.tier || 'basic';
-    const fn = rec[tier] || rec.basic;
-    if (!fn) return 240;
+    const fn = rec && (rec[tier] || rec.basic);
     ctx.tier = tier;
     ctx.color = ctx.color || (V().skillColor && V().skillColor(ctx.skillId)) || STL;
-    const d = fn(scene, ctx);
-    return typeof d === 'number' ? d : waitOf(tier, ctx.skillId);
+    let d;
+    if (fn) d = fn(scene, ctx);
+    else if (schoolOf(ctx.skillId)) d = genericSchool(scene, ctx, tp(tier));
+    else d = 240;
+    const wait = typeof d === 'number' ? d : waitOf(tier, ctx.skillId);
+    if (scene && scene.time) scene.time.delayedCall(wait, () => { scene.__fxBusy = false; });
+    else if (scene) scene.__fxBusy = false;
+    return wait;
   } catch (err) {
+    if (scene) scene.__fxBusy = false;
     if (!ADV.SpellFX._logged) {
       try { console.warn('SpellFX failed', ctx && ctx.skillId, err); } catch (e) {}
       ADV.SpellFX._logged = true;
@@ -602,8 +737,8 @@ function play(scene, ctx) {
 
 function has(skillId, tier) {
   const rec = RECIPES[skillId];
-  if (!rec) return false;
-  return !!(rec[tier || 'basic'] || rec.basic);
+  if (rec && (rec[tier || 'basic'] || rec.basic)) return true;
+  return !!schoolOf(skillId);
 }
 
 function ids() { return Object.keys(RECIPES); }
@@ -644,8 +779,14 @@ function idleBleed(scene, v) {
 }
 function idleFrozen(scene, v) {
   if (v.img) try { v.img.setTint(0x8ec8e0); } catch (e) {}
-  const ring = scene.add.circle(v.x, v.y, 46, ICE, 0).setStrokeStyle(2, ICE, 0.7).setDepth(520);
-  return { objs: [ring], onKill: () => { try { if (v.img) v.img.clearTint(); } catch (e) {} } };
+  const overlay = (V().freezeOver) ? V().freezeOver(scene, v) : scene.add.circle(v.x, v.y, 46, ICE, 0).setStrokeStyle(2, ICE, 0.7).setDepth(520);
+  return {
+    objs: overlay ? [overlay] : [],
+    onKill: () => {
+      try { if (v.img) v.img.clearTint(); } catch (e) {}
+      if (V().clearFreeze) V().clearFreeze(v);
+    },
+  };
 }
 function idleShock(scene, v) {
   const zap = () => {
@@ -676,10 +817,20 @@ function idleTaunt(scene, v) {
   return { objs: [s], tweens: [tw] };
 }
 
+function idleConscript(scene, v) {
+  const g = scene.add.graphics().setDepth(522);
+  g.lineStyle(2, PURP, 0.9);
+  g.strokeCircle(v.x + 34, v.y - 42, 7);
+  g.lineBetween(v.x + 34, v.y - 48, v.x + 34, v.y - 36);
+  g.lineBetween(v.x + 28, v.y - 42, v.x + 40, v.y - 42);
+  return { objs: [g] };
+}
+
 const STATUS = {
   burn: idleBurn, poison: idlePoison, bleed: idleBleed,
   frozen: idleFrozen, shocked: idleShock,
   guard: idleGuard, ward: idleWard, rooted: idleRoot, taunted: idleTaunt,
+  conscript: idleConscript,
 };
 
 function clearStatus(v) {
@@ -695,6 +846,7 @@ function syncStatus(scene, v) {
     for (const s of v.u.statuses || []) {
       if (STATUS[s.kind] && kinds.indexOf(s.kind) < 0) kinds.push(s.kind);
     }
+    if (v.u.ch && v.u.ch.isConscript && kinds.indexOf('conscript') < 0) kinds.push('conscript');
     const keep = kinds.slice(0, 3);
     v._fxMarks = v._fxMarks || {};
     for (const k of Object.keys(v._fxMarks)) {
@@ -722,5 +874,5 @@ function tick(scene, v, e) {
   } catch (err) { return 140; }
 }
 
-ADV.SpellFX = { play, has, ids, tick, syncStatus, clearStatus, RECIPES };
+ADV.SpellFX = { play, has, ids, tick, syncStatus, clearStatus, RECIPES, schoolOf, SCHOOLS, tp, SLOT_Y };
 })();

@@ -86,6 +86,20 @@ Death.graves = function (world) {
     .sort((a, b) => (b.deadAtQuest || 0) - (a.deadAtQuest || 0));
 };
 
+Death.rememberDeadChild = function (world, child, parent) {
+  if (!parent || !child) return;
+  parent.deadDependents = parent.deadDependents || [];
+  if (parent.deadDependents.some(d => d.id === child.id)) return;
+  parent.deadDependents.push({
+    id: child.id,
+    name: child.name || Death.childLabel(child),
+    sex: child.sex,
+    age: child.age,
+    motherId: child.motherId || null,
+    fatherId: child.fatherId || null,
+  });
+};
+
 Death.finalize = function (world, ch, killerId, cause) {
   if (!ch.alive) return;
   if (ch.hiroNpc && !ch.isPlayer && ADV.Hiro) {
@@ -158,6 +172,8 @@ Death.finalize = function (world, ch, killerId, cause) {
     else if (partner.partnerId === ch.id) partner.partnerId = null;
     partner.exIds = partner.exIds || [];
     if (!partner.exIds.includes(ch.id)) partner.exIds.push(ch.id);
+    partner.deadSpouseIds = partner.deadSpouseIds || [];
+    if (!partner.deadSpouseIds.includes(ch.id)) partner.deadSpouseIds.push(ch.id);
   }
 
   // Children (§7): dependents die if under 5; self-sufficient survive.
@@ -167,6 +183,9 @@ Death.finalize = function (world, ch, killerId, cause) {
     for (const child of deps.slice()) {
       if (child.age < C().CHILD_SELF_SUFFICIENT) {
         Death.feed(world, `${ch.name}'s child did not survive her.`, [ch.id]);
+        Death.rememberDeadChild(world, child, ch);
+        const father = child.fatherId ? ADV.World.byId(world, child.fatherId) : null;
+        if (father) Death.rememberDeadChild(world, child, father);
         deps.splice(deps.indexOf(child), 1);
       } else if (killer && child.fatherId === killerId) {
         child.avengerOf = ch.id;

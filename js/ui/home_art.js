@@ -81,8 +81,42 @@ const SKY = {
   castle:   { day: [0x6a88b0, 0xc8b090], evening: [0x4a2a40, 0x8a4a50], night: [0x2a1a3a, 0x6a4a50] },
 };
 
+function haze(g, W, H, color, a) {
+  g.fillStyle(color, a);
+  g.fillRect(0, 0, W, H * 0.42);
+}
+
+function vignette(scene, a) {
+  const key = (ADV.VFX && ADV.VFX._tex) ? ADV.VFX._tex.glowKey(scene) : null;
+  const v = scene.add.rectangle(T().W / 2, T().H / 2, T().W, T().H, 0x000000, 0).setDepth(-4);
+  const g = scene.add.graphics().setDepth(-4);
+  g.fillStyle(0x000000, a == null ? 0.18 : a);
+  g.fillRect(0, 0, T().W, 36);
+  g.fillRect(0, T().H - 36, T().W, 36);
+  g.fillRect(0, 0, 28, T().H);
+  g.fillRect(T().W - 28, 0, 28, T().H);
+  return [v, g, key];
+}
+
+function lightPool(scene, x, y, color, r, a) {
+  try {
+    const key = ADV.VFX && ADV.VFX._tex && ADV.VFX._tex.glowKey(scene);
+    if (key && scene.add.image) {
+      const img = scene.add.image(x, y, key).setDepth(-6).setBlendMode(Phaser.BlendModes.ADD);
+      img.setDisplaySize(r * 2, r * 1.2);
+      if (img.setTint) img.setTint(color || 0xd4a94e);
+      img.setAlpha(a);
+      return img;
+    }
+  } catch (e) {}
+  return scene.add.circle(x, y, r, color || 0xd4a94e, a).setDepth(-6);
+}
+
 const HousingArt = {};
-HousingArt.weatherKind = function (clock) {
+HousingArt.weatherKind = function (clock, world) {
+  if (ADV.Weather && ADV.Weather.at) {
+    return ADV.Weather.at(world || { seed: 1, questClock: clock || 0 }).kind;
+  }
   const n = ((((clock | 0) * 17 + 5) % 10) + 10) % 10;
   if (n < 2) return 'rain';
   if (n === 2) return 'snow';
@@ -90,60 +124,108 @@ HousingArt.weatherKind = function (clock) {
 };
 
 HousingArt.paint = function (scene, homeId) {
-  if (scene.homeArt) { try { scene.homeArt.destroy(); } catch (e) {} }
+  if (scene.homeArt) { try { scene.homeArt.destroy(true); } catch (e) { try { scene.homeArt.destroy(); } catch (e2) {} } }
   if (scene.homeLife) { try { scene.homeLife.destroy(true); } catch (e) {} scene.homeLife = null; }
-  const g = scene.add.graphics().setDepth(-10);
-  scene.homeArt = g;
+  if (scene.weatherFx && scene.weatherFx.destroy) { try { scene.weatherFx.destroy(); } catch (e) {} }
   const W = T().W, H = T().H;
   const id = homeId || 'camp';
-  const clock = (scene.game_ && scene.game_.world && scene.game_.world.questClock) || 0;
+  const world = scene.game_ && scene.game_.world;
+  const clock = (world && world.questClock) || 0;
   const phase = ADV.Housing.timeOfDay(clock);
-  if (id === 'inn') inn(g, W, H, phase);
-  else if (id === 'cottage') cottage(g, W, H, phase);
-  else if (id === 'brick') brick(g, W, H, phase);
-  else if (id === 'mansion') mansion(g, W, H, phase);
-  else if (id === 'castle') castle(g, W, H, phase);
-  else camp(g, W, H, phase);
+  const far = scene.add.graphics().setScrollFactor(0.3);
+  const mid = scene.add.graphics().setScrollFactor(0.6);
+  const near = scene.add.graphics().setScrollFactor(1);
+  const planes = scene.add.container(0, 0).setDepth(-10);
+  planes.add([far, mid, near]);
+  scene.homeArt = planes;
+  scene.homePlanes = { far, mid, near };
+  scene.tweens.add({ targets: far, x: 3, duration: 12000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  if (id === 'inn') inn(mid, W, H, phase);
+  else if (id === 'cottage') cottage(mid, W, H, phase);
+  else if (id === 'brick') brick(mid, W, H, phase);
+  else if (id === 'mansion') mansion(mid, W, H, phase);
+  else if (id === 'castle') castle(mid, W, H, phase);
+  else camp(far, mid, near, W, H, phase);
   paintLife(scene, id, phase, clock);
-  return g;
+  const weather = ADV.Weather
+    ? ADV.Weather.at(world || { seed: 1, questClock: clock }, { phase })
+    : { kind: HousingArt.weatherKind(clock, world), intensity: 0.6, wind: 0.3 };
+  let mask = null;
+  if (id === 'inn' && scene.makeGeometryMask) {
+    const mg = scene.add.graphics();
+    mg.fillStyle(0xffffff, 1); mg.fillRect(980, 140, 160, 200);
+    mask = mg.createGeometryMask();
+    mg.setVisible(false);
+  }
+  if (ADV.WeatherFX) {
+    ADV.WeatherFX.attach(scene, weather, phase, { x: 0, y: 0, w: W, h: H }, {
+      depth: -5, town: true, sunX: 1080, sunY: phase === 'evening' ? 118 : 70,
+      tintScale: id === 'inn' ? 0.5 : 1,
+      mask: (weather.kind === 'rain' || weather.kind === 'snow' || weather.kind === 'storm') ? mask : null,
+    });
+  }
+  scene.homePost = vignette(scene, 0.18);
+  return planes;
 };
 
-function camp(g, W, H, phase) {
+function camp(far, mid, near, W, H, phase) {
   const [top, bot] = SKY.camp[phase];
-  sky(g, W, H, top, bot);
-  celestial(g, phase, top, 42);
+  sky(far, W, H, top, bot);
+  celestial(far, phase, top, 42);
+  haze(far, W, H, top, phase === 'day' ? 0.22 : 0.32);
+  const litF = phase === 'day' ? 1.12 : phase === 'evening' ? 1.18 : 0.92;
+  const shdF = phase === 'day' ? 0.82 : phase === 'evening' ? 0.72 : 0.7;
   const hillA = phase === 'night' ? 0x1a2218 : phase === 'evening' ? 0x2a2818 : 0x3a5a32;
   const hillB = phase === 'night' ? 0x162018 : phase === 'evening' ? 0x242018 : 0x2e4a28;
   const hillC = phase === 'night' ? 0x1c241a : phase === 'evening' ? 0x2c2418 : 0x355828;
-  hill(g, -40, 390, 520, 160, hillA);
-  hill(g, 380, 410, 620, 150, hillB);
-  hill(g, 860, 380, 500, 170, hillC);
-  g.fillStyle(phase === 'night' ? 0x12100e : 0x3a3028, 1);
-  for (const [x, h] of [[920, 48], [948, 62], [980, 40], [1008, 70], [1040, 44], [1072, 56], [1100, 38]]) {
-    g.fillRect(x, 430 - h, 22, h);
+  hill(far, -40, 390, 520, 160, shadeHex(hillA, shdF));
+  hill(far, -20, 400, 480, 130, shadeHex(hillA, litF));
+  hill(mid, 380, 410, 620, 150, hillB);
+  hill(mid, 400, 420, 560, 120, shadeHex(hillB, litF));
+  hill(far, 860, 380, 500, 170, hillC);
+  mid.fillStyle(phase === 'night' ? 0x12100e : 0x3a3028, 1);
+  for (const [x, hh] of [[920, 48], [948, 62], [980, 40], [1008, 70], [1040, 44], [1072, 56], [1100, 38]]) {
+    mid.fillRect(x, 430 - hh, 22, hh);
+    mid.fillStyle(shadeHex(phase === 'night' ? 0x12100e : 0x3a3028, litF), 1);
+    mid.fillRect(x, 430 - hh, 6, hh);
+    mid.fillStyle(phase === 'night' ? 0x12100e : 0x3a3028, 1);
   }
   const lamp = phase === 'day' ? 0 : phase === 'evening' ? 0.7 : 0.85;
   if (lamp) {
-    g.fillStyle(0xd4a94e, lamp);
-    for (const [x, y] of [[928, 400], [956, 388], [988, 408], [1016, 378], [1048, 404], [1080, 392]]) g.fillRect(x, y, 4, 5);
+    mid.fillStyle(0xd4a94e, lamp);
+    for (const [x, y] of [[928, 400], [956, 388], [988, 408], [1016, 378], [1048, 404], [1080, 392]]) mid.fillRect(x, y, 4, 5);
   }
-  g.fillStyle(phase === 'night' ? 0x2a2418 : 0x4a6a38, 1); g.fillRect(0, 520, W, H - 520);
-  g.fillStyle(phase === 'night' ? 0x3a3224 : 0x5a7a44, 1); g.fillTriangle(0, 520, 200, 500, 420, 530);
-  g.fillTriangle(700, 525, 980, 495, W, 530);
+  near.fillStyle(phase === 'night' ? 0x2a2418 : 0x4a6a38, 1); near.fillRect(0, 520, W, H - 520);
+  near.fillStyle(phase === 'night' ? 0x3a3224 : 0x5a7a44, 1); near.fillTriangle(0, 520, 200, 500, 420, 530);
+  near.fillTriangle(700, 525, 980, 495, W, 530);
+  for (let i = 0; i < 18; i++) {
+    near.fillStyle(phase === 'night' ? 0x243020 : 0x4a6a34, 0.7);
+    near.fillTriangle(30 + i * 70, 720, 48 + i * 70, 688, 66 + i * 70, 720);
+  }
   const trunk = phase === 'day' ? 0x4a3020 : 0x2a2014;
   const leaf = phase === 'day' ? 0x2a5a28 : 0x1a2a18;
-  tree(g, 110, 520, 140, trunk, leaf);
-  tree(g, 1180, 530, 160, trunk, phase === 'day' ? 0x245022 : 0x152218);
-  tree(g, 240, 545, 90, trunk, leaf);
-  g.fillStyle(0x3a3028, 1); g.fillRoundedRect(560, 575, 90, 28, 10);
-  g.fillStyle(0x5a4030, 1); g.fillRoundedRect(568, 568, 74, 18, 8);
+  tree(near, 110, 520, 140, trunk, leaf);
+  tree(near, 1180, 530, 160, trunk, phase === 'day' ? 0x245022 : 0x152218);
+  tree(near, 240, 545, 90, trunk, leaf);
+  near.fillStyle(shadeHex(leaf, litF), 0.45);
+  near.fillCircle(96, 520 - 140 * 0.45, 18);
+  near.fillCircle(1164, 530 - 160 * 0.45, 20);
+  near.fillStyle(0x3a3028, 1); near.fillRoundedRect(560, 575, 90, 28, 10);
+  near.fillStyle(0x5a4030, 1); near.fillRoundedRect(568, 568, 74, 18, 8);
   const fire = phase === 'day' ? 0.25 : phase === 'evening' ? 0.55 : 0.85;
-  g.fillStyle(0x7a3a1a, 0.2 + fire * 0.2); g.fillCircle(720, 582, 48);
-  g.fillStyle(0xd4a94e, fire); g.fillCircle(720, 582, 18);
-  g.fillStyle(0xd8574a, fire > 0.4 ? 1 : 0.4); g.fillCircle(720, 580, 9);
-  g.fillStyle(0x3a2a20, 1);
-  g.fillTriangle(704, 598, 710, 568, 716, 598);
-  g.fillTriangle(724, 598, 730, 566, 736, 598);
+  near.fillStyle(0x7a3a1a, 0.2 + fire * 0.2); near.fillCircle(720, 582, 48);
+  near.fillStyle(0xd4a94e, fire); near.fillCircle(720, 582, 18);
+  near.fillStyle(0xd8574a, fire > 0.4 ? 1 : 0.4); near.fillCircle(720, 580, 9);
+  near.fillStyle(0x3a2a20, 1);
+  near.fillTriangle(704, 598, 710, 568, 716, 598);
+  near.fillTriangle(724, 598, 730, 566, 736, 598);
+}
+
+function shadeHex(hex, f) {
+  const r = Math.min(255, Math.round(((hex >> 16) & 255) * f));
+  const g = Math.min(255, Math.round(((hex >> 8) & 255) * f));
+  const b = Math.min(255, Math.round((hex & 255) * f));
+  return (r << 16) | (g << 8) | b;
 }
 
 function inn(g, W, H, phase) {
@@ -279,14 +361,23 @@ function castle(g, W, H, phase) {
 function paintLife(scene, id, phase, clock) {
   const life = scene.add.container(0, 0).setDepth(-9);
   scene.homeLife = life;
-  if (id !== 'inn') {
+  if (id !== 'inn') paintCrowd(scene, life, clock);
+  if (!ADV.WeatherFX) {
     const weather = HousingArt.weatherKind(clock);
     if (weather === 'rain') paintRain(scene, life);
     if (weather === 'snow') paintSnow(scene, life);
-    paintCrowd(scene, life, clock);
   }
   smokeStacks(scene, life, id);
   flickerLamps(scene, life, id, phase);
+  if (id === 'camp') {
+    const fireA = phase === 'day' ? 0.12 : phase === 'evening' ? 0.4 : 0.7;
+    const pool = lightPool(scene, 720, 600, 0xe87840, 90, fireA);
+    life.add(pool);
+    scene.tweens.add({
+      targets: pool, alpha: { from: fireA, to: fireA * 0.55 },
+      duration: 180, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+    });
+  }
 }
 
 function paintRain(scene, life) {

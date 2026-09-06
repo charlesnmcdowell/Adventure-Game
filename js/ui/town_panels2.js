@@ -192,16 +192,22 @@ Panels.createParty = function (scene, r) {
   }
   // roster
   const members = ADV.Party.members(world, party);
+  const seats = (party.memberIds || []).map(id => ADV.World.byId(world, id)).filter(Boolean);
   const bound = ADV.Party.followers(world, party).length;
   const extra = C().FORBIDDEN_EXTRA_SLOTS || 3;
   scroll.add(T().text(scene, r.x + 24, y, `Payroll: ${ADV.Party.payroll(world, party)}g per quest · ${members.length + 1}/${C().PARTY_MAX}` + (bound ? ` + ${bound} bound (up to ${extra} extra)` : ` · ${extra} extra seats for the bound`), { size: 14, color: T().css.gold }));
   y += 28;
   scroll.addBtn(T().button(scene, r.x + 24, y, 300, 38, `Disband — ${C().GOLD.partyStartupCapital}g back`, () => Panels.foldParty(scene), { size: 14 }));
   y += 48;
-  for (const m of members) {
+  scroll.add(T().text(scene, r.x + 24, y, 'YOUR COMPANY', { size: 12, color: T().css.inkDim })); y += 20;
+  y = Panels.hireSkillBlock(scene, scroll, r.x + 24, y, r.w - 56, p, 'You (lead)');
+  y += 8;
+  for (const m of seats) {
     const followers = (m.conscriptIds || []).length + (m.undeadIds || []).length;
     const relTier = ADV.Rel.tierBetween(world, m.id, p.id);
-    const sub = `wage ${party.wages[m.id]}g · ${relTier}${followers ? ' · commands ' + followers : ''}`;
+    const laid = m.hospitalizedQuestsLeft > 0 ? ` · laid up ${m.hospitalizedQuestsLeft}` : '';
+    const dead = !m.alive ? ' · dead' : '';
+    const sub = `wage ${party.wages[m.id] || m.wage || 0}g · ${relTier}${followers ? ' · commands ' + followers : ''}${laid}${dead}`;
     scroll.addBtn(T().button(scene, r.x + 24, y, 320, 44, m.name, () => {
       ADV.Notices.confirm(scene, 'Dismiss ' + m.name + '?', 'They keep what they were paid, and they remember.', 'Dismiss', () => {
         ADV.Party.removeMember(world, party, m.id);
@@ -210,26 +216,57 @@ Panels.createParty = function (scene, r) {
         scene.refreshAll(); scene.openPanel('create');
       });
     }, { size: 14, sub, subColor: T().relColor(relTier) }));
-    y += 52;
+    y += 50;
+    y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, m);
+    y += 10;
   }
   y += 8;
   scroll.add(T().text(scene, r.x + 24, y, 'FOR HIRE', { size: 12, color: T().css.inkDim })); y += 24;
-  const cands = world.characters.filter(c => c.alive && !c.isPlayer && !c.isMonster && !c.partyId &&
+  const taken = ADV.Party.takenIds(world);
+  const cands = world.characters.filter(c => c.alive && !c.isPlayer && !c.isMonster && !taken.has(c.id) &&
     !c.registryId && c.status === 'normal' && !c.isConscript && !c.isUndead && c.hospitalizedQuestsLeft <= 0);
   for (const cand of cands) {
     const blocked = ADV.Party.hatredConflict(world, party, cand.id);
-    const skills = cand.actives.slice(0, 3).map(e => ADV.DATA.SKILLS[e.skillId].name).join(', ');
     const knowsForbidden = ['conscript', 'necromancy'].some(id => ADV.SkillSys.knows(cand, id));
     const bond = Panels.hireBond(world, p, cand);
-    const sub = `${skills}${bond ? ' · ' + bond.label : ''}${knowsForbidden ? ' · knows forbidden arts' : ''}${blocked ? ' · WILL NOT SERVE' : ''}`;
+    const sub = `${bond ? bond.label : 'available'}${knowsForbidden ? ' · knows forbidden arts' : ''}${blocked ? ' · WILL NOT SERVE' : ''}`;
     scroll.addBtn(T().button(scene, r.x + 24, y, r.w - 240, 44, `${cand.name} (rank ${cand.rank})`, () => {
       if (blocked) { scene.promptOnce('firstBlockedHire'); ADV.Notices.toast(scene, 'Bad blood. No wage fixes it.'); return; }
       if (bond) ADV.Notices.toast(scene, `${cand.name} is ${bond.label}.`);
       Panels.wageDialog(scene, party, cand);
     }, { size: 14, sub, subColor: blocked ? T().css.blood : (bond ? bond.color : (knowsForbidden ? T().css.purple : T().css.inkDim)), disabled: members.length + 1 >= C().PARTY_MAX }));
-    y += 52;
+    y += 50;
+    y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, cand);
+    y += 10;
   }
   scroll.extend(y);
+};
+
+Panels.hireSkillBlock = function (scene, scroll, x, y, maxW, ch, title) {
+  if (title) {
+    scroll.add(T().text(scene, x, y, title, { size: 13, color: T().css.gold }));
+    y += 18;
+  }
+  const entries = (ch.actives || []).concat(ch.perks || []);
+  if (!entries.length) {
+    scroll.add(T().text(scene, x, y, 'no skills yet', { size: 11, italic: true, color: T().css.inkFaint }));
+    return y + 16;
+  }
+  for (const e of entries) {
+    const sk = ADV.DATA.SKILLS[e.skillId];
+    if (!sk) continue;
+    const m = ADV.SkillSys.manifest(ch, e);
+    const arch = sk.archetype ? ' · ' + sk.archetype : '';
+    const flare = m.flare ? ' · flare' : '';
+    const t = T().text(scene, x, y, `${m.data.name} · L${e.level}${arch}${flare}`, {
+      size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: maxW,
+    });
+    t.setInteractive({ useHandCursor: true });
+    ADV.Tooltip.attach(scene, t, () => ADV.SkillInfo.describe(ch, e.skillId));
+    scroll.add(t);
+    y += Math.max(16, (t.height || 14) + 2);
+  }
+  return y;
 };
 
 Panels.foldParty = function (scene) {
@@ -280,7 +317,12 @@ Panels.wageDialog = function (scene, party, cand) {
     }
     const go = T().button(scene, W / 2 - 190, rowY + 48, 180, 40, 'Make the offer', () => {
       close();
-      const r = ADV.Party.offerWage(game.world, game.rng, party, cand, wage);
+      const live = ADV.Party.of(game.world, scene.player());
+      if (!live || live.leaderId !== scene.player().id) {
+        ADV.Notices.toast(scene, 'You do not lead a company.');
+        return;
+      }
+      const r = ADV.Party.offerWage(game.world, game.rng, live, cand, wage);
       scene.speak(cand, r.ok ? ADV.DialogueBox.bandFor(game, cand) : 'general', {}, () => {
         ADV.Notices.toast(scene, r.ok
           ? `${cand.name} signs on at ${wage}g.${bond ? ' They are ' + bond.label + '.' : ''}`
@@ -408,9 +450,27 @@ Panels.roster = function (scene, r) {
   const left = ADV.UI.scrollArea(scene, { x: r.x + 8, y: r.y + 56, w: half - 20, h: r.h - 68 });
   const right = ADV.UI.scrollArea(scene, { x: r.x + half, y: r.y + 80, w: r.w - half - 16, h: r.h - 92 });
   let y = r.y + 60;
+  const kin = ADV.Rel.familyIds(world, p);
   const adults = ADV.World.adults(world).filter(c => !c.isPlayer)
-    .sort((a, b) => (!!b.hiroNpc) - (!!a.hiroNpc));
+    .sort((a, b) => {
+      const fa = kin[a.id] ? 0 : 1;
+      const fb = kin[b.id] ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      return (!!b.hiroNpc) - (!!a.hiroNpc);
+    });
+  let familyHead = false;
+  let guildHead = false;
   for (const c of adults) {
+    if (kin[c.id] && !familyHead) {
+      left.add(T().text(scene, r.x + 24, y, 'YOUR FAMILY', { size: 11, color: T().css.gold }));
+      y += 18;
+      familyHead = true;
+    } else if (!kin[c.id] && familyHead && !guildHead) {
+      y += 8;
+      left.add(T().text(scene, r.x + 24, y, 'THE GUILD', { size: 11, color: T().css.inkFaint }));
+      y += 18;
+      guildHead = true;
+    }
     const tier = ADV.Rel.tierBetween(world, c.id, p.id);
     const status = !c.alive ? 'dead' : c.isUndead ? 'undead' : c.isConscript ? 'conscripted' :
       c.status === 'hero' ? 'HERO' : c.status === 'villain' ? 'VILLAIN' :
@@ -537,8 +597,9 @@ Panels.digestFeed = function (world, entries) {
 // ============================================================== GRAVEYARD
 Panels.graveyard = function (scene, r) {
   const world = scene.g().world;
+  const p = scene.player();
   header(scene, r, 'Graveyard', 'Those who died on the road, and those who did not come home. The guild roster is for the living.');
-  const graves = ADV.Death.graves(world);
+  const graves = ADV.Rel.familyFirst(world, p, ADV.Death.graves(world));
   const listTop = r.y + 84;
   const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: listTop, w: r.w - 16, h: r.y + r.h - listTop - 8 });
   let y = listTop;
@@ -547,7 +608,20 @@ Panels.graveyard = function (scene, r) {
     scroll.extend(y + 30);
     return;
   }
+  let familyHead = false;
+  let restHead = false;
   for (const c of graves) {
+    const kin = ADV.Rel.isFamily(world, p, c);
+    if (kin && !familyHead) {
+      scroll.add(T().text(scene, r.x + 24, y, 'YOUR FAMILY', { size: 11, color: T().css.gold }));
+      y += 20;
+      familyHead = true;
+    } else if (!kin && familyHead && !restHead) {
+      y += 8;
+      scroll.add(T().text(scene, r.x + 24, y, 'THE REST', { size: 11, color: T().css.inkFaint }));
+      y += 20;
+      restHead = true;
+    }
     const raw = c.obituary || (ADV.Death.composeObituary && ADV.Death.composeObituary(world, c, null, 'quest'));
     const ob = raw && typeof raw === 'object' ? raw : { name: c.name, title: c.title || c.epithet || null, rank: c.rank || 1, skills: [], spouses: [], children: [], text: typeof raw === 'string' ? raw : '', deadAtQuest: c.deadAtQuest };
     const label = `${ob.name}${ob.title ? ' · ' + ob.title : ''}`;

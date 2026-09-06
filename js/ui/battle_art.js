@@ -27,8 +27,26 @@ function phaseMul(phase) { return phase === 'night' ? 0.58 : phase === 'evening'
 
 // ---------------------------------------------------------------- elements
 // Each takes (g, o, P) — graphics, the layer's own options, the resolved palette.
+function lightDir(phase) {
+  if (phase === 'evening') return 1;
+  return -1;
+}
+function keyLit(hex, phase, side) {
+  const dir = lightDir(phase);
+  const f = (side === dir) ? (phase === 'night' ? 1.08 : phase === 'evening' ? 1.16 : 1.1)
+    : (phase === 'night' ? 0.72 : phase === 'evening' ? 0.74 : 0.84);
+  return shade(hex, f);
+}
+
 const EL = {
-  hill(g, o, P) { g.fillStyle(P[o.c] || P.far, 1); g.fillEllipse(o.x + o.w / 2, o.y + o.h * 1.6, o.w * 1.35, o.h * 1.5); },
+  hill(g, o, P, phase) {
+    const base = P[o.c] || P.far;
+    g.fillStyle(keyLit(base, phase, -1), 1);
+    g.fillEllipse(o.x + o.w / 2, o.y + o.h * 1.6, o.w * 1.35, o.h * 1.5);
+    g.fillStyle(keyLit(base, phase, 1), 0.55);
+    const dir = lightDir(phase);
+    g.fillEllipse(o.x + o.w / 2 + dir * o.w * 0.12, o.y + o.h * 1.45, o.w * 0.7, o.h * 1.1);
+  },
 
   ridge(g, o, P) {
     g.fillStyle(P[o.c] || P.far, 1);
@@ -41,13 +59,17 @@ const EL = {
     g.lineTo(o.x + o.w, o.y + o.h); g.closePath(); g.fillPath();
   },
 
-  tree(g, o, P) {
+  tree(g, o, P, phase) {
     const h = o.h || 120;
+    const leaf = P[o.c] || P.leaf;
     g.fillStyle(P.trunk || 0x3a2a1c, 1); g.fillRect(o.x - 5, o.y - h * 0.35, 10, h * 0.4);
-    g.fillStyle(P[o.c] || P.leaf, 1);
+    g.fillStyle(keyLit(leaf, phase, -1), 1);
     g.fillCircle(o.x, o.y - h * 0.45, h * 0.28);
     g.fillCircle(o.x - h * 0.16, o.y - h * 0.32, h * 0.2);
     g.fillCircle(o.x + h * 0.16, o.y - h * 0.32, h * 0.2);
+    g.fillStyle(keyLit(leaf, phase, 1), 0.5);
+    const dir = lightDir(phase);
+    g.fillCircle(o.x + dir * h * 0.1, o.y - h * 0.48, h * 0.14);
   },
 
   bamboo(g, o, P) {
@@ -187,6 +209,23 @@ const EL = {
     g.fillStyle(c, 1); g.fillTriangle(o.x - (o.w || 70), o.y, o.x, o.y - (o.h || 80), o.x + (o.w || 70), o.y);
     g.fillStyle(shade(c, 0.65), 1); g.fillTriangle(o.x - 14, o.y, o.x, o.y - 40, o.x + 14, o.y);
   },
+
+  cart(g, o, P) {
+    const c = P.trunk || 0x4a3020;
+    g.save();
+    g.translateCanvas(o.x, o.y);
+    g.rotateCanvas(-0.35);
+    g.fillStyle(c, 1); g.fillRoundedRect(-38, -18, 76, 28, 4);
+    g.fillStyle(shade(c, 1.2), 1); g.fillRect(-34, -28, 68, 12);
+    g.fillStyle(0x2a2018, 1);
+    g.fillCircle(-22, 12, 11); g.fillCircle(24, 12, 11);
+    g.fillStyle(shade(c, 0.7), 1);
+    g.fillCircle(-22, 12, 4); g.fillCircle(24, 12, 4);
+    g.restore();
+    g.fillStyle(P.path || 0xa8916a, 1);
+    g.fillRect(o.x + 18, o.y - 8, 16, 10);
+    g.fillRect(o.x + 30, o.y - 4, 12, 8);
+  },
 };
 
 // ---------------------------------------------------------------- recipes
@@ -196,15 +235,17 @@ const GROUNDS = {
   bandit_road: {
     sky: { day: [0x6fa0bf, 0xd8c48a], evening: [0xc06038, 0x5a3020], night: [0x0e1420, 0x1a2230] },
     P: { far: 0x3a5a32, mid: 0x2e4a28, near: 0x4a6a38, leaf: 0x2a5a28, trunk: 0x4a3020, accent: 0xd4a94e, path: 0xa8916a },
+    weatherBias: null,
     layers: [
-      { el: 'hill', x: -60, y: 300, w: 560, h: 150, c: 'far' },
-      { el: 'hill', x: 420, y: 320, w: 640, h: 140, c: 'mid' },
-      { el: 'hill', x: 900, y: 296, w: 520, h: 160, c: 'far' },
-      { el: 'road', x: 640, y: 512, w: 430, h: 290, top: 46 },
-      { el: 'tree', x: 120, y: 470, h: 190 }, { el: 'tree', x: 232, y: 492, h: 130 },
-      { el: 'tree', x: 1130, y: 476, h: 200 }, { el: 'tree', x: 1030, y: 498, h: 140 },
-      { el: 'brazier', x: 300, y: 600, h: 26 },
-      { el: 'tent', x: 240, y: 600, w: 62, h: 74, c: 'trunk' },
+      { el: 'hill', x: -60, y: 300, w: 560, h: 150, c: 'far', plane: 'far' },
+      { el: 'hill', x: 420, y: 320, w: 640, h: 140, c: 'mid', plane: 'mid' },
+      { el: 'hill', x: 900, y: 296, w: 520, h: 160, c: 'far', plane: 'far' },
+      { el: 'road', x: 640, y: 512, w: 430, h: 290, top: 46, plane: 'mid' },
+      { el: 'cart', x: 780, y: 560, plane: 'mid' },
+      { el: 'tree', x: 120, y: 470, h: 190, plane: 'near' }, { el: 'tree', x: 232, y: 492, h: 130, plane: 'near' },
+      { el: 'tree', x: 1130, y: 476, h: 200, plane: 'near' }, { el: 'tree', x: 1030, y: 498, h: 140, plane: 'near' },
+      { el: 'brazier', x: 300, y: 600, h: 26, plane: 'near' },
+      { el: 'tent', x: 240, y: 600, w: 62, h: 74, c: 'trunk', plane: 'near' },
     ],
   },
   crypt: {
@@ -268,6 +309,7 @@ const GROUNDS = {
 
   // --- god line: the Drowned King, Route B ---------------------------------
   salt_court: {
+    weatherBias: 'storm',
     sky: { day: [0x2a3a48, 0x3a4a56], evening: [0x24303e, 0x2e3a48], night: [0x070b12, 0x0e1620] },
     P: { far: 0x1a2530, mid: 0x3a4450, near: 0x22303c, leaf: 0x1e3a34, trunk: 0x2a2218, accent: 0x6fc0e8, water: 0x1e3442 },
     layers: [
@@ -282,6 +324,7 @@ const GROUNDS = {
     ],
   },
   ossuary: {
+    weatherBias: 'storm',
     sky: { day: [0x5a5a62, 0x7a6a58], evening: [0x3a3040, 0x4a3a38], night: [0x0a0c12, 0x141820] },
     P: { far: 0x3a3834, mid: 0x5a5448, near: 0x2e2c28, leaf: 0x2a3a2a, trunk: 0x2a2218, accent: 0xd8c48a, water: 0x2a3a44 },
     layers: [
@@ -333,6 +376,7 @@ const GROUNDS = {
     ],
   },
   marsh: {
+    weatherBias: 'rain',
     sky: { day: [0x6a8a78, 0xb8c8a0], evening: [0x8a5038, 0x3a2818], night: [0x0c1410, 0x182018] },
     P: { far: 0x2a4a38, mid: 0x3a5a44, near: 0x4a5a3a, leaf: 0x2a5a38, trunk: 0x3a2a18, accent: 0x5d8a4a, water: 0x2a4a44 },
     layers: [
@@ -398,17 +442,33 @@ BA.has = (id) => !!GROUNDS[id];
 BA.ids = () => Object.keys(GROUNDS);
 
 // ---------------------------------------------------------------- paint
+function planeOf(layer) {
+  if (layer.plane) return layer.plane;
+  if (layer.c === 'far' || layer.el === 'ridge' || layer.el === 'fog') return 'far';
+  if (layer.el === 'tree' || layer.el === 'brazier' || layer.el === 'torch' || layer.el === 'tent' || layer.el === 'crate' || layer.el === 'rubble' || layer.el === 'cart') return 'near';
+  return 'mid';
+}
+
 BA.paint = function (scene, groundId, phase) {
   const W = T().W, H = T().H;
   const rec = GROUNDS[groundId] || GROUNDS.bandit_road;
   phase = phase || 'day';
-  const g = scene.add.graphics().setDepth(-20);
+  if (scene.battleArt) { try { scene.battleArt.destroy(true); } catch (e) { try { scene.battleArt.destroy(); } catch (e2) {} } }
+  if (scene.weatherFx && scene.weatherFx.destroy) { try { scene.weatherFx.destroy(); } catch (e) {} }
+
+  const far = scene.add.graphics().setScrollFactor(0.3);
+  const mid = scene.add.graphics().setScrollFactor(0.6);
+  const near = scene.add.graphics().setScrollFactor(1);
+  const planes = scene.add.container(0, 0).setDepth(-20);
+  planes.add([far, mid, near]);
+  scene.battleArt = planes;
+  scene.battlePlanes = { far, mid, near };
 
   const sky = (rec.sky && rec.sky[phase]) || [0x121110, 0x121110];
-  g.fillStyle(sky[0], 1); g.fillRect(0, 0, W, H);
-  g.fillStyle(sky[1], 0.55); g.fillRect(0, H * 0.30, W, H * 0.70);
+  far.fillStyle(sky[0], 1); far.fillRect(0, 0, W, H);
+  far.fillStyle(sky[1], 0.55); far.fillRect(0, H * 0.30, W, H * 0.70);
+  far.fillStyle(sky[0], 0.28); far.fillRect(0, 0, W, H * 0.4);
 
-  // resolve role colours for this phase once
   const m = phaseMul(phase);
   const P = {};
   for (const k of Object.keys(rec.P || {})) P[k] = shade(rec.P[k], m);
@@ -416,23 +476,59 @@ BA.paint = function (scene, groundId, phase) {
   P.mid = P.mid || 0x4a4a52; P.far = P.far || 0x2e2c34; P.near = P.near || 0x3a3a42;
   P.accent = P.accent || 0xd4a94e; P.water = P.water || 0x3a5a6a;
 
-  // ground plane, with a band of the far colour above it so the horizon reads as
-  // depth instead of a hard stripe across the screen
-  g.fillStyle(P.far, 1); g.fillRect(0, H * 0.55, W, H * 0.12);
-  g.fillStyle(P.near, 1); g.fillRect(0, H * 0.64, W, H * 0.36);
-  g.fillStyle(shade(P.near, 1.12), 0.45); g.fillRect(0, H * 0.64, W, 10);
+  mid.fillStyle(P.far, 1); mid.fillRect(0, H * 0.55, W, H * 0.12);
+  near.fillStyle(P.near, 1); near.fillRect(0, H * 0.64, W, H * 0.36);
+  near.fillStyle(shade(P.near, 1.12), 0.45); near.fillRect(0, H * 0.64, W, 10);
 
+  const G = { far, mid, near };
+  const lights = [];
   for (const layer of (rec.layers || [])) {
     const fn = EL[layer.el];
     if (!fn) continue;
+    const g = G[planeOf(layer)] || mid;
     try { fn(g, layer, P, phase); } catch (e) { /* one bad layer must not kill the fight */ }
+    if (layer.el === 'brazier' || layer.el === 'torch') lights.push(layer);
   }
-  if (phase !== 'day') { g.fillStyle(0x080a10, phase === 'night' ? 0.18 : 0.08); g.fillRect(0, 0, W, H); }
-  // scrim: the fight is the subject, the ground is where it happens
-  g.fillStyle(0x0d0c0a, 0.34); g.fillRect(0, 0, W, H);
-  // and a heavier band right behind the lanes, where portraits must read
-  g.fillStyle(0x0d0c0a, 0.22); g.fillRect(0, 110, W, 580);
-  return g;
+  const poolA = phase === 'day' ? 0.08 : phase === 'evening' ? 0.28 : 0.55;
+  lights.forEach((o) => {
+    try {
+      const key = ADV.VFX && ADV.VFX._tex && ADV.VFX._tex.glowKey(scene);
+      if (key) {
+        const img = scene.add.image(o.x, o.y + 8, key).setDepth(-15).setBlendMode(Phaser.BlendModes.ADD);
+        img.setDisplaySize(110, 70);
+        if (img.setTint) img.setTint(0xe87840);
+        img.setAlpha(poolA);
+        planes.add(img);
+        scene.tweens.add({ targets: img, alpha: { from: poolA, to: poolA * 0.6 }, duration: 200, yoyo: true, repeat: -1 });
+      }
+    } catch (e) {}
+  });
+
+  if (phase !== 'day') { near.fillStyle(0x080a10, phase === 'night' ? 0.18 : 0.08); near.fillRect(0, 0, W, H); }
+  const grade = scene.add.rectangle(W / 2, H / 2, W, H,
+    phase === 'evening' ? 0xff9a50 : phase === 'night' ? 0x4060a0 : 0x000000,
+    phase === 'day' ? 0 : 0.08).setDepth(-14);
+  planes.add(grade);
+  const scrim = scene.add.graphics().setDepth(-12);
+  scrim.fillStyle(0x0d0c0a, 0.34); scrim.fillRect(0, 0, W, H);
+  scrim.fillStyle(0x0d0c0a, 0.22); scrim.fillRect(0, 110, W, 580);
+  planes.add(scrim);
+
+  const game = scene.game_ || (scene.g && scene.g());
+  const world = game && game.world;
+  if (ADV.WeatherFX && ADV.Weather) {
+    const w = ADV.Weather.at(world || { seed: 1, questClock: 0 }, { phase, groundId });
+    ADV.WeatherFX.attach(scene, w, phase, { x: 0, y: 80, w: W, h: 560 }, {
+      depth: -5, combat: true, onLightning: () => {
+        if (scene.__stormFaced) return;
+        scene.__stormFaced = true;
+        if (scene.unitViews && scene.reactAt) {
+          for (const v of scene.unitViews.values()) scene.reactAt(v, 'surprised', { ms: 500, intensity: 0.4 });
+        }
+      },
+    });
+  }
+  return planes;
 };
 
 // ---------------------------------------------------------------- selection

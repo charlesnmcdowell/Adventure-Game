@@ -50,7 +50,14 @@ Party.repairWorld = function (world) {
       if (ch.partyId || ch.leaderId) { ch.partyId = null; ch.leaderId = null; }
       continue;
     }
-    const keep = on.find(p => p.leaderId === ch.id) || on[on.length - 1];
+    const playerLed = on.find(p => {
+      const lead = ADV.World.byId(world, p.leaderId);
+      return lead && lead.isPlayer;
+    });
+    const keep = on.find(p => p.leaderId === ch.id)
+      || (ch.partyId && on.find(p => p.id === ch.partyId))
+      || playerLed
+      || on[on.length - 1];
     ch.partyId = keep.id;
     ch.leaderId = keep.leaderId === ch.id ? null : keep.leaderId;
     for (const p of on) {
@@ -88,6 +95,32 @@ Party.of = function (world, ch) {
     if (hits.length) return hits[hits.length - 1];
   }
   return list.find(p => Party.serves(p, ch.id)) || null;
+};
+
+// The object the UI is holding may be stale after a save/reload. Prefer the
+// live record in world.parties so a hire cannot write to a ghost company.
+Party.live = function (world, p) {
+  if (!p || !world) return null;
+  const list = world.parties || [];
+  if (list.indexOf(p) >= 0) return p;
+  return list.find(x => x.id === p.id && x.leaderId === p.leaderId)
+    || list.find(x => x.id === p.id)
+    || null;
+};
+
+// Anyone already seated as leader or hire — used so FOR HIRE never lists a
+// body that is already on a payroll (even if their partyId was wiped).
+Party.takenIds = function (world) {
+  const out = new Set();
+  for (const p of (world && world.parties) || []) {
+    if (p.leaderId) out.add(p.leaderId);
+    for (const id of p.memberIds || []) out.add(id);
+  }
+  return out;
+};
+
+Party.seatsOf = function (world, chId) {
+  return ((world && world.parties) || []).filter(p => Party.serves(p, chId));
 };
 
 // What contracts this company prefers: the leader's leaning, or their
@@ -216,6 +249,14 @@ Party.requestRaise = function (world, rng, ch, ask) {
 };
 
 Party.offerWage = function (world, rng, p, candidate, wage) {
+  p = Party.live(world, p) || p;
+  if (!p || !candidate) return { ok: false, why: 'no party' };
+  if (Party.serves(p, candidate.id)) return { ok: false, why: 'already hired' };
+  for (const other of Party.seatsOf(world, candidate.id)) {
+    if (other === p) continue;
+    if (other.leaderId === candidate.id) return { ok: false, why: 'leads another company' };
+    Party.removeMember(world, other, candidate.id);
+  }
   wage = Party.clampWage(wage);
   if (Party.roster(world, p).length >= C().PARTY_MAX) return { ok: false, why: 'party full' };
   const blocker = Party.hatredConflict(world, p, candidate.id);

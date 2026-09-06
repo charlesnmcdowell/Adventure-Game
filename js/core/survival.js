@@ -19,15 +19,18 @@ function settled(ch) {
 }
 
 Survival.state = function (ch) {
-  if (!ch) return { hunger: 0, questsSinceShelter: 0, sick: false, sickStacks: 0 };
+  if (!ch) return { hunger: 0, questsSinceShelter: 0, sick: false, sickStacks: 0, favoriteFoodId: null, autoBuyFood: false, questTicks: 0 };
   if (!ch.survival) {
-    ch.survival = { hunger: 0, questsSinceShelter: 0, sick: false, sickStacks: 0 };
+    ch.survival = { hunger: 0, questsSinceShelter: 0, sick: false, sickStacks: 0, favoriteFoodId: null, autoBuyFood: false, questTicks: 0 };
   }
   const s = ch.survival;
   if (s.hunger == null) s.hunger = 0;
   if (s.questsSinceShelter == null) s.questsSinceShelter = 0;
   if (s.sick == null) s.sick = false;
   if (s.sickStacks == null) s.sickStacks = s.sick ? 1 : 0;
+  if (s.favoriteFoodId == null) s.favoriteFoodId = null;
+  if (s.autoBuyFood == null) s.autoBuyFood = false;
+  if (s.questTicks == null) s.questTicks = 0;
   return s;
 };
 
@@ -117,6 +120,18 @@ Survival.onQuestResolved = function (game) {
   }
   out.sick = !!s.sick;
   clampHp(ch);
+  if (s.autoBuyFood && s.favoriteFoodId && ((s.questTicks || 0) % 2 === 0)) {
+    const buy = ADV.Character && ADV.Character.tryAutoBuyMeal
+      ? ADV.Character.tryAutoBuyMeal(ch) : { ok: false, error: 'no grocer' };
+    if (buy && buy.ok) {
+      const food = (ADV.DATA.FOODS || []).find(f => f.id === s.favoriteFoodId);
+      out.autoBought = { id: s.favoriteFoodId, name: (ch.meal && ch.meal.name) || (food && food.name), cost: food ? food.cost : 0 };
+      out.hunger = s.hunger;
+    } else {
+      out.autoBuyFailed = (buy && buy.error) || 'could not buy';
+    }
+  }
+  s.questTicks = (s.questTicks || 0) + 1;
   if (!alreadyDead && Survival.stacks(ch) >= KILL_AT) {
     out.died = true;
     ADV.Game.onPlayerDeath(game, null);

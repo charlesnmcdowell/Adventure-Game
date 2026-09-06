@@ -62,6 +62,106 @@ Rel.removePartner = function (ch, otherId) {
   Rel.setPartners(ch, Rel.partnerIds(ch).filter(id => id !== otherId));
 };
 
+function childRole(sex) { return sex === 'f' ? 'daughter' : 'son'; }
+function spouseRole(sex) { return sex === 'f' ? 'wife' : 'husband'; }
+function childLabel(d) {
+  if (d && d.name) return d.name;
+  return d && d.sex === 'f' ? 'Daughter' : 'Son';
+}
+
+// Spouses and children of `ch`, living and dead. Young dependents are
+// included even though they are not roster adults. Jilted exes are not
+// family — only a death writes deadSpouseIds.
+Rel.familyOf = function (world, ch) {
+  if (!ch || !world) return [];
+  const out = [];
+  const seen = {};
+  const add = (entry) => {
+    if (!entry) return;
+    const key = entry.id || ('anon:' + (entry.name || '') + ':' + entry.role);
+    if (seen[key]) return;
+    seen[key] = true;
+    out.push(entry);
+  };
+  for (const id of Rel.partnerIds(ch)) {
+    const p = ADV.World.byId(world, id);
+    if (!p) continue;
+    add({ id: p.id, name: p.name, role: spouseRole(p.sex), alive: !!p.alive, ch: p });
+  }
+  for (const id of (ch.deadSpouseIds || [])) {
+    const p = ADV.World.byId(world, id);
+    add({
+      id, name: p ? p.name : 'Spouse', role: spouseRole(p && p.sex),
+      alive: false, ch: p || null,
+    });
+  }
+  if (ADV.Death && ADV.Death.graves && ch.name) {
+    for (const g of ADV.Death.graves(world)) {
+      const spouses = g.obituary && g.obituary.spouses;
+      if (spouses && spouses.includes(ch.name)) {
+        add({ id: g.id, name: g.name, role: spouseRole(g.sex), alive: false, ch: g });
+      }
+    }
+  }
+  const takeYoung = (d, alive) => {
+    if (!d) return;
+    add({
+      id: d.id, name: childLabel(d), role: childRole(d.sex),
+      alive: !!alive, young: true, age: d.age, dep: d, ch: null,
+    });
+  };
+  for (const d of (ch.dependents || [])) takeYoung(d, true);
+  for (const d of (ch.deadDependents || [])) takeYoung(d, false);
+  for (const id of Rel.partnerIds(ch)) {
+    const p = ADV.World.byId(world, id);
+    if (!p) continue;
+    for (const d of (p.dependents || [])) {
+      if (d.fatherId === ch.id || d.motherId === ch.id) takeYoung(d, true);
+    }
+    for (const d of (p.deadDependents || [])) {
+      if (d.fatherId === ch.id || d.motherId === ch.id) takeYoung(d, false);
+    }
+  }
+  const want = {};
+  for (const id of (ch.childIds || [])) want[id] = true;
+  for (const c of (world.characters || [])) {
+    if (!c || c.id === ch.id || c.isMonster) continue;
+    if (c.motherId === ch.id || c.fatherId === ch.id || want[c.id]) {
+      add({
+        id: c.id, name: c.name, role: childRole(c.sex),
+        alive: !!c.alive, ch: c, young: false,
+      });
+    }
+  }
+  const rank = (e) => {
+    const spouse = (e.role === 'wife' || e.role === 'husband') ? 0 : 1;
+    return spouse * 2 + (e.alive ? 0 : 1);
+  };
+  out.sort((a, b) => rank(a) - rank(b) || String(a.name || '').localeCompare(String(b.name || '')));
+  return out;
+};
+
+Rel.familyIds = function (world, ch) {
+  const ids = {};
+  for (const f of Rel.familyOf(world, ch)) if (f.id) ids[f.id] = true;
+  return ids;
+};
+
+Rel.isFamily = function (world, ch, other) {
+  if (!ch || !other) return false;
+  return !!Rel.familyIds(world, ch)[other.id];
+};
+
+// Stable: family of `ch` first, original relative order otherwise.
+Rel.familyFirst = function (world, ch, list) {
+  const ids = Rel.familyIds(world, ch);
+  return (list || []).slice().sort((a, b) => {
+    const fa = ids[a.id] ? 0 : 1;
+    const fb = ids[b.id] ? 0 : 1;
+    return fa - fb;
+  });
+};
+
 // Warmth position within the current band: 'low' | 'mid' | 'high' (§6)
 Rel.warmth = function (score) {
   const t = Rel.tier(score);

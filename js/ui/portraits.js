@@ -159,7 +159,7 @@ function palette(o) {
 
 // garment silhouette that follows the body: closed neckline unless open
 function garmentShape(ctx, cx, y0, sh, neck) {
-  ctx.beginPath();
+    ctx.beginPath();
   ctx.moveTo(cx - sh - 2, H);
   ctx.quadraticCurveTo(cx - sh + 2, y0 + 16, cx - sh / 2 - 8, y0 + 4);
   if (neck === 'v') { ctx.lineTo(cx - 16, y0 + 2); ctx.lineTo(cx, y0 + 30); ctx.lineTo(cx + 16, y0 + 2); }
@@ -754,12 +754,12 @@ function drawExtras(kind, col) {
     }
     if (kind === 'bandana') {
       ctx.fillStyle = col || '#8a3020';
-      ctx.beginPath();
+  ctx.beginPath();
       ctx.moveTo(cx - hr + 2, EYE_Y - 8);
       ctx.quadraticCurveTo(cx, EYE_Y - 52, cx + hr - 2, EYE_Y - 8);
       ctx.lineTo(cx + hr - 6, EYE_Y + 4);
       ctx.quadraticCurveTo(cx, EYE_Y - 18, cx - hr + 6, EYE_Y + 4);
-      ctx.closePath(); ctx.fill();
+  ctx.closePath(); ctx.fill();
       ctx.beginPath();
       ctx.moveTo(cx + hr - 14, EYE_Y - 6);
       ctx.lineTo(cx + hr + 10, EYE_Y + 18);
@@ -768,12 +768,12 @@ function drawExtras(kind, col) {
     }
     if (kind === 'tricorne') {
       ctx.fillStyle = '#1c1c22';
-      ctx.beginPath();
+    ctx.beginPath();
       ctx.moveTo(cx - hr - 12, EYE_Y - 16);
       ctx.quadraticCurveTo(cx, EYE_Y - 8, cx + hr + 12, EYE_Y - 16);
       ctx.quadraticCurveTo(cx + 20, EYE_Y - 54, cx, EYE_Y - 58);
       ctx.quadraticCurveTo(cx - 20, EYE_Y - 54, cx - hr - 12, EYE_Y - 16);
-      ctx.closePath(); ctx.fill();
+    ctx.closePath(); ctx.fill();
       ctx.strokeStyle = '#d4a94e'; ctx.lineWidth = 2;
       ctx.stroke();
     }
@@ -1027,7 +1027,7 @@ function drawMonster(ctx, typeId, tint, o) {
   grad.addColorStop(0, 'rgba(255,255,255,0.05)'); grad.addColorStop(1, 'rgba(0,0,0,0.3)');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
   const cx = W / 2;
-  if (typeId === 'dire_wolf') {
+  if (typeId === 'dire_wolf' || typeId === 'shadow_beast') {
     const fur = tint || '#5a5a5f';
     ctx.fillStyle = fur;
     ctx.beginPath(); ctx.ellipse(cx, EYE_Y + 30, 75, 65, 0, 0, Math.PI * 2); ctx.fill(); // ruff

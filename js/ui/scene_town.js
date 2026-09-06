@@ -62,7 +62,9 @@ class TownScene extends Phaser.Scene {
     if (ADV.Portraits.stand) {
       ADV.Portraits.stand(this, pimg, this.game_ || this.g(), p, key, 'town');
       const sv = ADV.Survival ? ADV.Survival.state(p) : null;
-      ADV.Portraits.skinState(this, pimg, p, key, { sick: !!(sv && sv.sick), pale: sv && sv.hunger >= 3 ? 0.6 : 0 });
+      const wx = ADV.Weather && ADV.Weather.at ? ADV.Weather.at(this.game_.world) : null;
+      const wet = wx && (wx.kind === 'rain' || wx.kind === 'storm');
+      ADV.Portraits.skinState(this, pimg, p, key, { sick: !!(sv && sv.sick), pale: Math.max(sv && sv.hunger >= 3 ? 0.6 : 0, wet ? 0.2 : 0) });
     }
     const fg = add(this.add.graphics());
     fg.lineStyle(2, T().c.gold, 0.7); fg.strokeRect(x + w / 2 - 70, y + 8, 140, 168);
@@ -142,18 +144,21 @@ class TownScene extends Phaser.Scene {
       add(b.g); add(b.txt); add(b.zone);
       yy += 17;
     }
-    const kids = (p.dependents || []);
-    if (kids.length) {
-      yy += 8;
-      add(T().text(this, x + 16, yy, `Children: ${kids.map(d => d.age >= C().CHILD_SELF_SUFFICIENT ? '◉' : '◎').join(' ')}  (${kids.length})`, { size: 13, color: T().css.blue }));
-    }
     const home = ADV.Housing.of(p);
     yy += 20;
     add(T().text(this, x + 16, yy, home.id === 'camp' ? 'No home — sleeping outside the walls' : home.name, { size: 12, color: home.id === 'camp' ? T().css.inkFaint : T().css.gold, wrap: w - 32 }));
-    const spouses = ADV.Rel.partnerIds(p).map(id => this.game_.world.characters.find(c => c.id === id)).filter(Boolean);
-    if (spouses.length) {
-      yy += 20;
-      add(T().text(this, x + 16, yy, (spouses.length === 1 ? 'Partner: ' : 'Spouses: ') + spouses.map(s => s.name.split(' ')[0]).join(', '), { size: 13, color: T().css.purple, wrap: w - 32 }));
+    const family = ADV.Rel.familyOf(this.game_.world, p);
+    if (family.length) {
+      yy += 18;
+      add(T().text(this, x + 16, yy, 'Family', { size: 11, color: T().css.gold }));
+      for (const f of family) {
+        yy += 15;
+        const age = f.young && f.age != null ? ` · ${f.age}` : '';
+        const mark = f.alive ? '' : ' · deceased';
+        add(T().text(this, x + 16, yy, `${f.name} · ${f.role}${age}${mark}`, {
+          size: 12, color: f.alive ? T().css.purple : T().css.inkFaint, wrap: w - 32,
+        }));
+      }
     }
     add(T().text(this, x + 16, T().H - 44, `world clock: quest ${this.game_.world.questClock} · life ${this.game_.life}`, { size: 11, color: T().css.inkFaint }));
     if (this._chromeHidden) this.applyChromeHidden(false);
@@ -353,6 +358,15 @@ class TownScene extends Phaser.Scene {
     if (this.game_.pendingChildNaming) this.noticeQueue.unshift({ kind: 'nameChild', child: this.game_.pendingChildNaming });
     if (this.game_.childJustSelfSufficient) { this.game_.childJustSelfSufficient = false; this.promptOnce('childSelfSufficient'); }
     if (ADV.Rel.hatredEdgeCount(w, p.id) > 0) this.promptOnce('firstHatred');
+    if (this.game_.lastAutoBuy) {
+      const ab = this.game_.lastAutoBuy;
+      this.game_.lastAutoBuy = null;
+      ADV.Notices.toast(this, ab.ok
+        ? `The grocer sent ${ab.name} (${ab.cost}g) for the road.`
+        : (ab.error === 'not enough gold'
+          ? 'The grocer could not send your usual — you are short of gold.'
+          : 'The grocer could not send your usual.'));
+    }
     if (ADV.Survival) {
       const s = ADV.Survival.state(p);
       if (s.hunger > 0) this.promptOnce('firstHunger');

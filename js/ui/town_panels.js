@@ -78,7 +78,9 @@ function questRow(scene, r, q, y, enabled, note, scroll) {
   const label = `${q.name}`;
   let extra = null;
   if (ADV.Campaign2UI) { try { extra = ADV.Campaign2UI.questNote(scene.g(), q); } catch (e) { extra = null; } }
-  const sub = `${tierLabel} · ${q.encounters.length} enc · ${q.payout}g · ${q.factionAlignment}${note ? ' · ' + note : ''}`;
+  if (!extra && q.brief) extra = q.brief;
+  const themeBit = q.theme ? ' · ' + q.theme : '';
+  const sub = `${tierLabel} · ${q.encounters.length} enc · ${q.payout}g · ${q.factionAlignment}${themeBit}${note ? ' · ' + note : ''}`;
   const mk = scroll ? (b) => scroll.addBtn(b) : (b) => keepBtn(scene, b);
   const btnW = r.w - 48;
   const btn = mk(T().button(scene, r.x + 24, y, btnW, 42, label, () => {
@@ -110,7 +112,7 @@ Panels.departure = function (scene, q) {
   const D = 202;
   const tx = (x, y2, s, o) => { const t = T().text(scene, x, y2, s, o); t.setDepth(D); return keep(t); };
   tx(W / 2, 130, 'Departure: ' + q.name, { size: 22, display: true, ox: 0.5, color: T().css.gold });
-  tx(W / 2, 164, 'Anything you carry is lost if you die. Leave what you can\'t replace.', { size: 13, ox: 0.5, italic: true, color: T().css.inkDim });
+  tx(W / 2, 164, q.brief || 'Anything you carry is lost if you die. Leave what you can\'t replace.', { size: 13, ox: 0.5, italic: true, wrap: 540, color: T().css.inkDim });
   scene.promptOnce('firstDeparture');
 
   let vaultAmt = 0;
@@ -179,7 +181,7 @@ Panels.departure = function (scene, q) {
 // The old Store is four doors now. Panels.store stays as the Grocer alias so
 // openPanel('store') and the tutorial's 'store' tour stop keep working.
 Panels.grocer = function (scene, r) {
-  header(scene, r, 'Grocer', 'Eat before a contract or you come back Hungry. Hungry takes a quarter of your strength each time; four nights and it kills you. One meal wipes the stack.');
+  header(scene, r, 'Grocer', 'Eat before a contract or you come back Hungry. Star a favorite and turn Auto Buy on — the grocer sends it every other quest so the stack does not run away.');
   Panels.storeFood(scene, r);
 };
 Panels.store = function (scene, r) { return Panels.grocer(scene, r); };
@@ -205,21 +207,42 @@ Panels.maw = function (scene, r) {
 Panels.storeFood = function (scene, r) {
   const game = scene.g();
   const p = scene.player();
+  const s = ADV.Survival.state(p);
   const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: r.y + 100, w: r.w - 16, h: r.h - 108 });
   let y = r.y + 104;
-  if (p.meal) { scroll.add(T().text(scene, r.x + 24, y, `You have eaten: ${p.meal.name}. Buying another replaces it.`, { size: 13, color: T().css.green })); y += 26; }
+  if (p.meal) { scroll.add(T().text(scene, r.x + 24, y, `You have eaten: ${p.meal.name}. Buying another replaces it.`, { size: 13, color: T().css.green })); y += 22; }
+  const fav = s.favoriteFoodId && ADV.DATA.FOODS.find(f => f.id === s.favoriteFoodId);
+  scroll.add(T().text(scene, r.x + 24, y,
+    fav ? (s.autoBuyFood ? `Auto Buy sends ${fav.name} every other quest.` : `Favorite: ${fav.name}. Turn Auto Buy on to have it sent every other quest.`)
+      : 'Star a favorite, then Auto Buy — the grocer sends it every other return.',
+    { size: 12, color: T().css.inkDim, wrap: r.w - 56 }));
+  y += 24;
+  scroll.addBtn(T().button(scene, r.x + 24, y, 220, 34, s.autoBuyFood ? 'AUTO BUY · ON' : 'AUTO BUY · OFF', () => {
+    if (!s.favoriteFoodId) { ADV.Notices.toast(scene, 'Star a favorite first.'); return; }
+    s.autoBuyFood = !s.autoBuyFood;
+    ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel(scene.currentPanel || 'grocer');
+  }, { size: 13, color: s.autoBuyFood ? T().css.green : T().css.ink, display: true }));
+  y += 44;
   const cw = Math.floor((r.w - 56) / 2);
   let col = 0, colY = [y, y];
   for (const f of ADV.DATA.FOODS) {
     const bonus = Object.entries(f.bonus).map(([k, v]) => '+' + v + ' ' + k.toUpperCase()).join(' ');
     const x = r.x + 24 + col * (cw + 8);
-    const b = T().button(scene, x, colY[col], cw, 46, `${f.name} — ${f.cost}g`, () => {
+    const isFav = s.favoriteFoodId === f.id;
+    const isMeal = p.meal && p.meal.id === f.id;
+    const bw = cw - 52;
+    const b = T().button(scene, x, colY[col], bw, 46, `${isFav ? '★ ' : ''}${f.name} — ${f.cost}g`, () => {
       const res = ADV.Character.eat(p, f.id);
       if (!res.ok) { ADV.Notices.toast(scene, res.error === 'not enough gold' ? 'You cannot afford it.' : res.error); return; }
       if (res.cured) scene.promptOnce('firstMealCure');
       ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel(scene.currentPanel || 'grocer');
-    }, { size: 14, sub: `${bonus} for one quest · ${f.blurb}`, subColor: p.meal && p.meal.id === f.id ? T().css.green : T().css.inkDim, disabled: p.inventory.gold < f.cost, display: true });
+    }, { size: 14, sub: `${bonus} for one quest · ${f.blurb}`, subColor: isMeal ? T().css.green : (isFav ? T().css.gold : T().css.inkDim), disabled: p.inventory.gold < f.cost, display: true });
     scroll.addBtn(b);
+    scroll.addBtn(T().button(scene, x + bw + 6, colY[col], 42, 46, isFav ? '★' : '☆', () => {
+      s.favoriteFoodId = isFav ? null : f.id;
+      if (!s.favoriteFoodId) s.autoBuyFood = false;
+      ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel(scene.currentPanel || 'grocer');
+    }, { size: 18, color: isFav ? T().css.gold : T().css.inkDim, display: true }));
     colY[col] += 54;
     col = colY.indexOf(Math.min(...colY));
   }
@@ -578,6 +601,36 @@ Panels.factions = function (scene, r) {
 };
 
 // ============================================================== HOME
+Panels.homeFamily = function (scene, scroll, r, y, p, game) {
+  const world = game.world;
+  const family = ADV.Rel.familyOf(world, p);
+  scroll.add(T().text(scene, r.x + 24, y, 'YOUR FAMILY', { size: 12, color: T().css.gold }));
+  y += 22;
+  if (!family.length) {
+    scroll.add(T().text(scene, r.x + 36, y, 'No spouse or children yet. The people you marry and raise will be listed here, living and dead.', {
+      size: 13, italic: true, color: T().css.inkFaint, wrap: r.w - 80,
+    }));
+    return y + 40;
+  }
+  for (const f of family) {
+    const face = f.ch || { sex: f.role === 'wife' || f.role === 'daughter' ? 'f' : 'm', portraitSeed: ADV.hashStr ? ADV.hashStr(f.id || f.name) : 1 };
+    try {
+      const pk = ADV.Portraits.key(scene, face);
+      const img = scene.add.image(r.x + 48, y + 22, pk).setDisplaySize(28, 36);
+      if (!f.alive) img.setTint(0x777777);
+      scroll.add(img);
+    } catch (e) { /* portrait optional for unnamed young */ }
+    const age = f.young && f.age != null ? `, age ${f.age}` : '';
+    const mark = f.alive ? '' : '  ·  deceased';
+    scroll.add(T().text(scene, r.x + 72, y + 4, `${f.name} · ${f.role}${age}${mark}`, {
+      size: 14, color: f.alive ? T().css.ink : T().css.inkFaint,
+    }));
+    y += 44;
+  }
+  y += 10;
+  return y;
+};
+
 Panels.home = function (scene, r) {
   const game = scene.g();
   const p = scene.player();
@@ -587,6 +640,7 @@ Panels.home = function (scene, r) {
     : ('You keep ' + cur.name + '. Paying more upgrades the house — you never move backwards.'));
   const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: r.y + 96, w: r.w - 16, h: r.h - 108 });
   let y = r.y + 100;
+  y = Panels.homeFamily(scene, scroll, r, y, p, game);
   for (const h of ADV.Housing.list()) {
     const owned = cur.id === h.id;
     const worse = ADV.Housing.rank(h.id) < ADV.Housing.rank(cur.id);

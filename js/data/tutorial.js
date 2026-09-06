@@ -25,7 +25,7 @@ ADV.DATA.PROMPTS = {
   firstHome:           'A roof of your own changes the town behind the menus, and a brick house, a mansion, or a castle will hold two, three, or five spouses without anyone being left.',
   firstIntentIcon:     'Their portraits show what they plan to do before you act.',
   firstAffordableSet:  'A full set makes all your matching skills stronger.',
-  firstFactionShift:   'The quests you accept decide who trusts you.',
+  firstFactionShift:   'The quests you accept decide who trusts you — law hunts outlaws, crime hits the watch, and a neutral job is only beasts.',
   firstDeparture:      "Anything you carry is lost if you die — leave what you can't replace.",
   firstWeightLimit:    'Gold weighs something; your payouts go to the vault by default.',
   firstTheft:          "They can only take what you're carrying, never what you're wearing.",

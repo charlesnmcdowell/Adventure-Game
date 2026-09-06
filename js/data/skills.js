@@ -206,8 +206,8 @@ def({ id: 'thorn_skin', name: 'Thorn Skin', kind: 'active', archetype: 'druid',
     advanced:     { name: 'Barkflesh', thornPct: 0.5, thornScope: 'party', rounds: 3 },
   } });
 def({ id: 'beast_shape', name: 'Beast Shape', kind: 'active', archetype: 'druid',
-  power: 0, target: 'self', reach: 'any',
-  desc: 'Self offense buff for several rounds.',
+  power: 0, target: 'self', reach: 'any', freeBuff: true,
+  desc: 'A free shapeshift. Applied at the start of battle and again whenever it falls off. Does not cost a turn. Can be stripped like any buff.',
   tiers: {
     basic:        { name: 'Beast Shape', atkMult: 1.5, rounds: 3 },
     intermediate: { name: 'Greater Beast', atkMult: 1.5, rounds: 3, lifeSteal: 0.3 },

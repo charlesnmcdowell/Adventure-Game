@@ -8,14 +8,31 @@ const Quests = {};
 let QID = 1;
 Quests.resetIds = function (n) { QID = n || 1; };
 
-Quests.generateBoard = function (world, rng) {
+Quests.tutorialNeedsNeutral = function (game) {
+  const t = game && game.tutorial;
+  if (!t || (t.step !== 'tour' && t.step !== 'firstQuest')) return false;
+  // Headless soaks never load the tutor module and never leave 'tour', so
+  // they must not freeze every refresh on the first-hour board.
+  if (typeof ADV.Tutor === 'undefined') return false;
+  if (game.meta && game.meta.lives > 1) return false;
+  const p = game.player || (game.world && ADV.World && ADV.World.byId(game.world, game.world.playerId));
+  if (p && (p.fatherId || p.motherId)) return false;
+  return true;
+};
+
+Quests.generateBoard = function (world, rng, game) {
+  // Keep board rolls off the world clock stream so a refresh cannot
+  // rewrite the next tick's assassinations and outings.
+  if (rng && typeof rng.fork === 'function') rng = rng.fork('board:' + ((world && world.questClock) || 0));
   const board = [];
   const factions = ['law', 'criminal', 'neutral'];
+  const forceTutNeutral = Quests.tutorialNeedsNeutral(game);
   for (const tier of [1, 2, 3]) {
     for (const track of ['solo', 'party']) {
       const n = tier === 1 ? 2 : 1;
       for (let i = 0; i < n; i++) {
-        board.push(Quests.make(rng, tier, track, rng.pick(factions)));
+        const fac = (forceTutNeutral && tier === 1 && track === 'solo') ? 'neutral' : rng.pick(factions);
+        board.push(Quests.make(rng, tier, track, fac));
       }
     }
   }
@@ -28,7 +45,84 @@ Quests.generateBoard = function (world, rng) {
   // the god line (add-on §7): one route offered at a time, from rank 25
   const god = Quests.makeGodQuest(world, rng);
   if (god) board.push(god);
+  if (forceTutNeutral) Quests.forceTutorialNeutrals(board, rng);
   return board;
+};
+
+// Live saves from before camp-locked generation can still be on firstQuest
+// with a law or criminal Tier-1 solo. Rewrite those so the tour cannot
+// push the player into a banner.
+Quests.forceTutorialNeutrals = function (board, rng) {
+  if (!board) return board;
+  let n = 0;
+  for (let i = 0; i < board.length; i++) {
+    const q = board[i];
+    if (!q || q.track !== 'solo' || q.tier !== 1) continue;
+    if (q.factionAlignment !== 'neutral' || !Quests.foesMatchAlignment(q)) {
+      board[i] = Quests.make(rng, 1, 'solo', 'neutral');
+    }
+    n++;
+  }
+  while (n < 2) {
+    board.unshift(Quests.make(rng, 1, 'solo', 'neutral'));
+    n++;
+  }
+  return board;
+};
+
+// ---- Alignment camps -------------------------------------------------------
+// A contract of one banner never fields its own people.
+Quests.campOf = function (tid) {
+  const t = (ADV.DATA.ENEMIES && ADV.DATA.ENEMIES[tid])
+    || (ADV.DATA.BOSSES && ADV.DATA.BOSSES[tid]);
+  return (t && t.camp) || null;
+};
+Quests.foeCamps = function (faction) {
+  if (faction === 'law') return ['criminal'];
+  if (faction === 'criminal') return ['law'];
+  return ['wild'];
+};
+Quests.alignmentVs = function (camp) {
+  if (camp === 'criminal') return 'law';
+  if (camp === 'law') return 'criminal';
+  return 'neutral';
+};
+Quests.enemyLevelsFor = function (tier) {
+  const T = C().QUEST_TIERS[tier] || C().QUEST_TIERS[1];
+  return T.enemyLevels;
+};
+Quests.enemyPool = function (tier, faction, opts) {
+  opts = opts || {};
+  const camps = Quests.foeCamps(faction);
+  const [lo, hi] = opts.levels || Quests.enemyLevelsFor(tier);
+  const book = opts.bosses ? ADV.DATA.BOSSES : ADV.DATA.ENEMIES;
+  const ids = Object.keys(book).filter(id => {
+    const e = book[id];
+    if (!e || !camps.includes(e.camp)) return false;
+    if (opts.bosses) return true;
+    const [elo, ehi] = e.levels || [1, 99];
+    return elo <= hi && ehi >= lo;
+  });
+  if (ids.length) return ids;
+  return Object.keys(book).filter(id => book[id] && camps.includes(book[id].camp));
+};
+function fillTheme(text, enemy) {
+  const one = (enemy && enemy.name) || 'beast';
+  const many = (enemy && enemy.plural) || (one + 's');
+  return String(text || '').replace(/\{es\}/g, many).replace(/\{e\}/g, one);
+}
+
+Quests.foesMatchAlignment = function (quest) {
+  if (!quest) return true;
+  if (quest.war || quest.campaign || quest.godLine) return true;
+  const camps = Quests.foeCamps(quest.factionAlignment);
+  for (const enc of quest.encounters || []) {
+    for (const id of enc.enemyTypeIds || []) {
+      const camp = Quests.campOf(id);
+      if (camp && !camps.includes(camp)) return false;
+    }
+  }
+  return true;
 };
 
 // ---- The faction war (add-on §6) -------------------------------------------
@@ -93,18 +187,57 @@ Quests.makeGodQuest = function (world, rng) {
   };
 };
 
-const HAZARD_NAMES = {
-  marsh_stalker: ['Drain the {e} marsh', 'Bounty: the {e} nest'],
-  ember_cultist: ['Put out the {e} fires', 'The {e} pyre'],
-  frost_hag: ['Break the {e} coven', 'Thaw the {e} pass'],
-  gravewarden: ['Unseal the {e} crypt', 'The {e} vigil'],
+const HAZARD_THEMES = {
+  marsh_stalker: {
+    names: ['Drain the {e} marsh', 'Bounty: the {e} nest'],
+    briefs: [
+      'The writ wants the {e} nest emptied. Bring proof. Do not come back with a story.',
+      'A posted bounty. The {es} stop taking from the reed-road, dead or bound.',
+    ],
+    theme: 'marsh bounty',
+  },
+  ember_cultist: {
+    names: ['Put out the {e} fires', 'The {e} pyre'],
+    briefs: [
+      'A cult is lighting the outskirts. The magistrate wants the pyre cold.',
+      'The {e} has a house of fire. The county pays to see it dark.',
+    ],
+    theme: 'cult pyre',
+  },
+  frost_hag: {
+    names: ['Break the {e} coven', 'Thaw the {e} pass'],
+    briefs: [
+      'The pass is iced shut. No banners — just the {e} and the road.',
+      'A coven of {es} has nested in the stones. Map them, then thin them.',
+    ],
+    theme: 'coven thaw',
+  },
+  gravewarden: {
+    names: ['Unseal the {e} crypt', 'The {e} vigil'],
+    briefs: [
+      'The crypt should have stayed shut. The law wants the {e} put down.',
+      'A vigil that will not end. Cut it, and the county sleeps.',
+    ],
+    theme: 'crypt vigil',
+  },
 };
 // A party contract built around one debuff crew (with a second type mixed in)
 Quests.makeHazard = function (rng, hz, faction) {
   const T = C().QUEST_TIERS[hz];
-  const lead = rng.pick(ADV.DATA.TIER_ENEMY_TABLE.debuff);
-  const other = rng.pick(ADV.DATA.TIER_ENEMY_TABLE.debuff.filter(t => t !== lead));
-  const filler = rng.pick(ADV.DATA.TIER_ENEMY_TABLE[T.tier]);
+  const debuff = ADV.DATA.TIER_ENEMY_TABLE.debuff;
+  const camps = Quests.foeCamps(faction);
+  let leads = debuff.filter(id => camps.includes(Quests.campOf(id)));
+  if (!leads.length) {
+    const lead0 = rng.pick(debuff);
+    faction = Quests.alignmentVs(Quests.campOf(lead0));
+    leads = debuff.filter(id => Quests.foeCamps(faction).includes(Quests.campOf(id)));
+    if (!leads.length) leads = [lead0];
+  }
+  const lead = rng.pick(leads);
+  const sameCamp = debuff.filter(t => t !== lead && Quests.campOf(t) === Quests.campOf(lead));
+  const pool = Quests.enemyPool(T.tier, faction, { levels: T.enemyLevels });
+  const other = sameCamp.length ? rng.pick(sameCamp) : (pool.filter(t => t !== lead)[0] || lead);
+  const filler = rng.pick(pool.length ? pool : [lead]);
   const encN = rng.int(3, 4);
   const encounters = [];
   for (let i = 0; i < encN; i++) {
@@ -114,17 +247,35 @@ Quests.makeHazard = function (rng, hz, faction) {
     encounters.push({ enemyTypeIds: rng.shuffle(ids), boss: false });
   }
   const e = ADV.DATA.ENEMIES[lead];
+  const pack = HAZARD_THEMES[lead] || { names: ['Hazard: {e}'], briefs: ['A crew of {es} holds the ground.'], theme: 'hazard' };
   return {
     id: 'q' + (QID++), tier: T.tier, track: 'party', factionAlignment: faction, hazard: lead,
-    name: rng.pick(HAZARD_NAMES[lead]).replace('{e}', e.name),
+    theme: pack.theme,
+    name: fillTheme(rng.pick(pack.names), e),
+    brief: fillTheme(rng.pick(pack.briefs), e),
     payout: T.partyPay, enemyLevels: T.enemyLevels, encounters, isBoss: false,
   };
 };
 
-const QUEST_NAMES = {
-  law: ['Bounty: {e} raids', 'Escort the magistrate', 'Clear the {e} road', 'Warrant: {e} den'],
-  criminal: ['Job: {e} problem', 'Quiet delivery past the {e}', 'Take the {e} stash', 'Settle the {e} matter'],
-  neutral: ['Cull the {e}', 'Caravan guard: {e} country', 'Lost cargo in {e} territory', 'Survey the {e} ruin'],
+const QUEST_THEMES = {
+  law: [
+    { theme: 'warrant', name: 'Warrant: {e} den', brief: 'The magistrate wants the {e} nest emptied. Bring proof. Do not come back with a story.' },
+    { theme: 'road clear', name: 'Clear the {e} road', brief: 'Caravans will not move while {es} hold the mile-marker. The writ says drive them off.' },
+    { theme: 'bounty', name: 'Bounty: {e} raids', brief: 'A posted bounty. Dead or bound, the {e} stops taking from the county.' },
+    { theme: 'escort', name: 'Escort the magistrate', brief: 'Walk the magistrate through {e} country. The law does not duck into alleys.' },
+  ],
+  criminal: [
+    { theme: 'quiet run', name: 'Quiet delivery past the {e}', brief: 'A crate needs to move. The {e} is why it has not. Quiet is paid extra.' },
+    { theme: 'breakout', name: 'Crack the {e} lockup', brief: 'Someone inside is worth more than the lock. The {e} will not open the door.' },
+    { theme: 'heist', name: 'Lift the {e} payroll', brief: 'The watch chest sits behind a {e}. Take it. Leave nothing that talks.' },
+    { theme: 'settle', name: 'Settle the {e} matter', brief: 'A rival paid the {e} to lean on our people. Lean back.' },
+  ],
+  neutral: [
+    { theme: 'beast cull', name: 'Cull the {e}', brief: 'The woods have too many {es}. The village pays for a thinner count, not a speech.' },
+    { theme: 'salvage', name: 'Lost cargo, {e} country', brief: 'A wagon spilled in {e} territory. Bring back what the beasts have not ruined.' },
+    { theme: 'survey', name: 'Survey the {e} ruin', brief: 'Map the old stones. The {es} that nest there are not the point, but they will be.' },
+    { theme: 'caravan', name: 'Caravan guard: {e} road', brief: 'Walk the wagons through {e} country. No banners. No writs. Just the road.' },
+  ],
 };
 
 Quests.make = function (rng, tier, track, faction) {
@@ -132,59 +283,55 @@ Quests.make = function (rng, tier, track, faction) {
   const isBoss = tier === 'boss';
   const encN = isBoss ? 3 : (track === 'solo' ? rng.int(C().SOLO_ENCOUNTERS[0], C().SOLO_ENCOUNTERS[1])
                                               : rng.int(C().PARTY_ENCOUNTERS[0], C().PARTY_ENCOUNTERS[1]));
-  const table = isBoss ? ADV.DATA.TIER_ENEMY_TABLE[3] : (ADV.DATA.TIER_ENEMY_TABLE[tier] || ADV.DATA.TIER_ENEMY_TABLE[1]);
-  const flavor = ADV.DATA.FACTION_ENEMIES[faction] || [];
+  const pool = Quests.enemyPool(isBoss ? 3 : tier, faction);
   const encounters = [];
   for (let i = 0; i < encN; i++) {
     const last = i === encN - 1;
     if (isBoss && last) {
-      const bossId = rng.pick(ADV.DATA.TIER_ENEMY_TABLE.boss);
-      // the boss brings one top-tier mook (the boss table itself holds only bosses)
-      const escortPool = ADV.DATA.TIER_ENEMY_TABLE[3].filter(t => ADV.DATA.ENEMIES[t]);
-      encounters.push({ enemyTypeIds: [bossId, rng.pick(escortPool)], boss: true });
+      const bossPool = Quests.enemyPool('boss', faction, { bosses: true });
+      const bossId = rng.pick(bossPool.length ? bossPool : Object.keys(ADV.DATA.BOSSES));
+      const escortPool = Quests.enemyPool(3, faction);
+      encounters.push({ enemyTypeIds: [bossId, rng.pick(escortPool.length ? escortPool : pool)], boss: true });
       continue;
     }
     // Solo: single enemies at tier 1; pairs only in tier 2+ finales (§15a curve)
     const nEnemies = track === 'solo'
       ? ((last && tier !== 1) ? rng.int(C().SOLO_ENEMIES[0], C().SOLO_ENEMIES[1]) : 1)
       : rng.int(C().PARTY_ENEMIES[0], C().PARTY_ENEMIES[1]);
-    // Half the time a faction-flavored contract draws only its faction's
-    // enemies; otherwise (or when the flavored pool is empty) the full tier
-    // table. (Replaces a precedence bug that could filter the pool to empty
-    // and spawn an undefined enemy type.)
-    let pool = table;
-    if (flavor.length && rng.chance(0.5)) {
-      const flavored = table.filter(t => flavor.includes(t));
-      if (flavored.length) pool = flavored;
-    }
     const ids = [];
-    for (let k = 0; k < nEnemies; k++) ids.push(rng.pick(pool));
+    const use = pool.length ? pool : Quests.enemyPool(tier, faction);
+    for (let k = 0; k < nEnemies; k++) ids.push(rng.pick(use));
     encounters.push({ enemyTypeIds: ids, boss: false });
   }
   const mainEnemy = ADV.DATA.ENEMIES[encounters[0].enemyTypeIds[0]] || ADV.DATA.BOSSES[encounters[0].enemyTypeIds[0]];
-  const name = rng.pick(QUEST_NAMES[faction]).replace('{e}', mainEnemy ? mainEnemy.name : 'beast');
+  const pack = rng.pick(QUEST_THEMES[faction] || QUEST_THEMES.neutral);
   return {
     id: 'q' + (QID++), tier, track, factionAlignment: faction,
-    name: isBoss ? 'BOSS: ' + name : name,
+    theme: pack.theme,
+    name: (isBoss ? 'BOSS: ' : '') + fillTheme(pack.name, mainEnemy),
+    brief: fillTheme(pack.brief, mainEnemy),
     payout: isBoss ? C().QUEST_TIERS.boss.partyPay : (track === 'solo' ? T.soloPay : T.partyPay),
     enemyLevels: (isBoss ? C().QUEST_TIERS.boss : T).enemyLevels,
     encounters, isBoss,
   };
 };
 
-// Guided first party job: two single bandits so the NPC lead does not die
+// Guided first party job: two single beasts so the NPC lead does not die
 // on a 3–5 enemy board contract before the player has learned the ropes.
+// Neutral on purpose — the tour must not push a banner.
 Quests.makeTutorialParty = function () {
   const T = C().QUEST_TIERS[1];
   return {
     id: 'q_tut_party',
     tier: 1, track: 'party', factionAlignment: 'neutral',
+    theme: 'beast cull',
     name: 'A short road job',
+    brief: 'Two beasts on the mile-road. The village pays to have them gone. No banners. No writs.',
     payout: T.partyPay,
     enemyLevels: [1, 2],
     encounters: [
-      { enemyTypeIds: ['bandit'], boss: false },
-      { enemyTypeIds: ['bandit'], boss: false },
+      { enemyTypeIds: ['dire_wolf'], boss: false },
+      { enemyTypeIds: ['dire_wolf'], boss: false },
     ],
     isBoss: false, tutorialEasy: true,
   };
@@ -207,7 +354,8 @@ Quests.spawnEncounter = function (rng, quest, encIdx) {
   }
   return enc.enemyTypeIds.map(tid => {
     const t = ADV.DATA.ENEMIES[tid] || ADV.DATA.BOSSES[tid];
-    const lvl = Math.round(Math.max(t.levels[0], Math.min(t.levels[1],
+    const typeMin = quest.tutorialEasy ? lo : t.levels[0];
+    const lvl = Math.round(Math.max(typeMin, Math.min(t.levels[1],
       Math.max(lo, Math.min(hi, mid + rng.int(-1, 1))))));
     const e = ADV.Character.makeEnemy(rng, tid, { level: lvl });
     if (e.armored) e.armorBonus = C().ARMORED_BONUS_DEF;
@@ -292,15 +440,13 @@ Quests.availableVerbs = function (world, player, party, quest, enemies) {
     verbs.push({ verb: perkId, ok: odds > 0, odds, note, label: spec.label, mode: 'bypass', tier: m.tier });
   }
 
-  // Alignment pass (§8): criminal standing talks past bandits, law past guards
+  // Alignment pass (§8): criminal standing talks past outlaws, law past the watch
   const fs = player.factionStanding;
-  const lawEnemies = ['plated_sentinel'];
-  const crimEnemies = ['bandit', 'grave_acolyte'];
-  const tid = lead.enemyTypeId;
-  if (crimEnemies.includes(tid) && fs.criminal >= 30) {
+  const foeCamp = Quests.campOf(lead.enemyTypeId) || lead.factionAlignment;
+  if (foeCamp === 'criminal' && fs.criminal >= 30) {
     verbs.push({ verb: 'alignment', ok: true, odds: 0.95, label: 'Flash criminal standing', mode: 'bypass' });
   }
-  if (lawEnemies.includes(tid) && fs.law >= 30) {
+  if (foeCamp === 'law' && fs.law >= 30) {
     verbs.push({ verb: 'alignment', ok: true, odds: 0.95, label: 'Show the law\'s writ', mode: 'bypass' });
   }
   return verbs;

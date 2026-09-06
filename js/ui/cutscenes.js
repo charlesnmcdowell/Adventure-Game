@@ -204,6 +204,10 @@ Cut.funeral = function (scene, rec, done) {
     .filter(c => c && c.alive);
   if (player && player.alive && !mourners.some(c => c.id === player.id)) mourners.unshift(player);
 
+  if (ADV.WeatherFX && ADV.Weather) {
+    const pick = ((ADV.hashStr ? ADV.hashStr((world && world.seed) + ':funeral') : 1) % 2) ? 'rain' : 'overcast';
+    ADV.WeatherFX.attach(scene, { kind: pick, intensity: 0.75, wind: 0.45 }, 'day', { x: 0, y: 0, w: T().W, h: T().H }, { depth: -5, town: true });
+  }
   const st = stage(scene, {
     caption: mourners.length > 1
       ? `They walk ${leaderName} to the ground.`
@@ -293,5 +297,148 @@ Cut.funeral = function (scene, rec, done) {
   });
 };
 
+const CONSCRIPT_TINT = 0x9a8ab0;
+
+function hatredMood(ch) {
+  const b = ADV.Portraits && ADV.Portraits.PERSONALITY_BIAS && ch
+    ? ADV.Portraits.PERSONALITY_BIAS[ch.personalityId] : null;
+  const rest = b && b[0];
+  if (rest === 'angry' || rest === 'furious' || rest === 'resolve') return 'furious';
+  if (rest === 'disgust' || rest === 'smug') return 'disgust';
+  if (rest === 'afraid') return 'afraid';
+  if (rest === 'sad' || rest === 'grief') return 'grief';
+  return 'angry';
+}
+
+Cut.conscription = function (scene, game, victor, c, done, extra) {
+  extra = extra || {};
+  if (!c) { if (done) done(); return; }
+  if (busy(scene) && !scene.__cutscene) { if (done) done(); return; }
+  const W = T().W;
+  const st = stage(scene, { caption: '', gloom: 0.6 });
+  if (ADV.VFX && ADV.VFX.cine) { ADV.VFX.cine.letterbox(scene, true); ADV.VFX.cine.camMove(scene, 'drift', { ms: 5000 }); }
+  const vCard = card(scene, st, victor, 220, 340, { lead: true, z: 2 });
+  const nCard = card(scene, st, c, W - 220, 340, { lead: true, z: 3 });
+  scene.tweens.add({ targets: vCard, alpha: 1, x: 360, duration: 360, ease: 'Cubic.easeOut' });
+  scene.tweens.add({ targets: nCard, alpha: 1, x: W - 360, duration: 360, ease: 'Cubic.easeOut' });
+  const mood = hatredMood(c);
+  if (nCard.__img && ADV.Portraits.express) {
+    ADV.Portraits.express(scene, nCard.__img, c, nCard.__img.texture && nCard.__img.texture.key, mood, 1);
+    if (ADV.Portraits.look) ADV.Portraits.look(scene, nCard.__img, c, nCard.__img.texture.key, -0.9, 0, 0);
+  }
+
+  let openBox = null;
+  const bind = () => {
+    const g = st.keep(scene.add.graphics().setDepth(DEPTH + 6));
+    const dummy = { a: 0 };
+    scene.tweens.add({
+      targets: dummy, a: Math.PI * 2, duration: 600,
+      onUpdate: () => {
+        g.clear();
+        g.lineStyle(3, 0x6a4a8a, 0.95);
+        g.beginPath(); g.arc(nCard.x, nCard.y, 78, -Math.PI / 2, -Math.PI / 2 + dummy.a); g.strokePath();
+      },
+    });
+    for (let i = 0; i < 3; i++) {
+      scene.time.delayedCall(200 + i * 140, () => {
+        if (ADV.VFX && ADV.VFX.beam) ADV.VFX.beam(scene, vCard.x + 40, vCard.y, nCard.x - 40, nCard.y - 10 + i * 10, 0x3a2a48, { w: 3, dur: 180 });
+        if (ADV.VFX && ADV.VFX.camShake) ADV.VFX.camShake(scene, 0.002);
+      });
+    }
+    scene.time.delayedCall(640, () => {
+      try { if (nCard.__img) nCard.__img.setTint(CONSCRIPT_TINT); } catch (e) {}
+      if (nCard.__img && ADV.Portraits.express) {
+        ADV.Portraits.express(scene, nCard.__img, c, nCard.__img.texture && nCard.__img.texture.key, 'dazed', 0.8);
+      }
+      scene.tweens.add({ targets: g, alpha: 0.35, duration: 400 });
+      const n = c.conscriptQuestsLeft || 3;
+      st.say(`${c.name} is yours for ${n} quest${n === 1 ? '' : 's'}.`);
+      if (extra.townRemember !== false) {
+        scene.time.delayedCall(700, () => st.say('The town will remember.'));
+      }
+    });
+    if (extra.released) {
+      const old = extra.released;
+      const free = card(scene, st, old, 80, 560, { lead: false, mood: 'content', moodK: 0.7, z: 1 });
+      scene.tweens.add({ targets: free, alpha: 1, duration: 200 });
+      scene.tweens.add({ targets: free, x: -80, alpha: 0, duration: 900, delay: 400 });
+      st.keep(T().text(scene, 80, 640, `${shortName(old)} walks free.`, { size: 12, ox: 0.5, italic: true, color: T().css.inkDim }).setDepth(DEPTH + 4));
+    }
+  };
+
+  const speakThenBind = () => {
+    if (st.done) return;
+    const ctx = ADV.DialogueBox && ADV.DialogueBox.ctxFor
+      ? ADV.DialogueBox.ctxFor(game, c, { target: victor.name, them: victor.name })
+      : {};
+    if (ADV.DialogueBox && ADV.DialogueBox.show) {
+      openBox = ADV.DialogueBox.show(scene, game, c, 'hatred', ctx, () => { openBox = null; bind(); });
+      if (!openBox) bind();
+    } else bind();
+  };
+
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true; st.done = true;
+    if (openBox && openBox.close) { try { openBox.close(); } catch (e) {} }
+    if (ADV.VFX && ADV.VFX.cine) ADV.VFX.cine.letterbox(scene, false);
+    closeOut(scene, st, done);
+  };
+  armSkip(scene, st, finish, 700);
+  scene.time.delayedCall(420, speakThenBind);
+  scene.time.delayedCall(7200, finish);
+};
+
+Cut.raising = function (scene, game, victor, c, done, extra) {
+  extra = extra || {};
+  if (!c) { if (done) done(); return; }
+  const W = T().W;
+  const st = stage(scene, { caption: `${c.name} stands again.`, gloom: 0.6 });
+  if (ADV.VFX && ADV.VFX.cine) { ADV.VFX.cine.letterbox(scene, true); ADV.VFX.cine.camMove(scene, 'drift', { ms: 4200 }); }
+  const vCard = card(scene, st, victor, 220, 340, { lead: true, z: 2 });
+  const nCard = card(scene, st, c, W - 220, 340, { lead: true, z: 3, tint: 0x9aa0aa, mood: 'neutral', moodK: 0.2 });
+  scene.tweens.add({ targets: vCard, alpha: 1, x: 360, duration: 360 });
+  scene.tweens.add({ targets: nCard, alpha: 1, x: W - 360, duration: 360 });
+  const g = st.keep(scene.add.graphics().setDepth(DEPTH + 6));
+  const dummy = { a: 0 };
+  scene.tweens.add({
+    targets: dummy, a: Math.PI * 2, duration: 600,
+    onUpdate: () => {
+      g.clear(); g.lineStyle(3, 0x9a70c0, 0.95);
+      g.beginPath(); g.arc(nCard.x, nCard.y, 78, -Math.PI / 2, -Math.PI / 2 + dummy.a); g.strokePath();
+    },
+  });
+  if (ADV.VFX && ADV.VFX.motes) ADV.VFX.motes(scene, W - 360, 360, 0x5d8a4a, 8);
+  scene.time.delayedCall(500, () => {
+    if (nCard.__img && ADV.Portraits.express) {
+      ADV.Portraits.express(scene, nCard.__img, c, nCard.__img.texture && nCard.__img.texture.key, 'dazed', 1);
+      if (ADV.Portraits.look) ADV.Portraits.look(scene, nCard.__img, c, nCard.__img.texture.key, 0, -0.4, 0);
+    }
+  });
+  const mourners = extra.mourners || [];
+  mourners.forEach((m, i) => {
+    scene.time.delayedCall(800 + i * 200, () => {
+      if (m.img && ADV.Portraits.react) ADV.Portraits.react(scene, m.img, m.ch, m.img.texture && m.img.texture.key, 'grief', { ms: 800, intensity: 0.8 });
+    });
+  });
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true; st.done = true;
+    if (ADV.VFX && ADV.VFX.cine) ADV.VFX.cine.letterbox(scene, false);
+    closeOut(scene, st, done);
+  };
+  armSkip(scene, st, finish, 700);
+  if (mourners[0] && ADV.DialogueBox) {
+    scene.time.delayedCall(900, () => {
+      const m = mourners[0].ch;
+      ADV.DialogueBox.show(scene, game, m, 'hatred', ADV.DialogueBox.ctxFor(game, m, { target: victor.name }), () => {});
+    });
+  }
+  scene.time.delayedCall(5200, finish);
+};
+
 ADV.Cutscenes = Cut;
+ADV.CONSCRIPT_TINT = CONSCRIPT_TINT;
 })();

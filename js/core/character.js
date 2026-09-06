@@ -211,6 +211,12 @@ Character.eat = function (ch, foodId) {
   return { ok: true, meal: ch.meal, cured: !!cured };
 };
 Character.digest = function (ch) { if (ch.meal) ch.meal = null; };
+Character.tryAutoBuyMeal = function (ch) {
+  const s = ADV.Survival ? ADV.Survival.state(ch) : (ch && ch.survival);
+  const id = s && s.favoriteFoodId;
+  if (!id) return { ok: false, error: 'no favorite' };
+  return Character.eat(ch, id);
+};
 
 // ---- Enemy instances (§17) --------------------------------------------------
 Character.makeEnemy = function (rng, typeId, opts) {
@@ -233,6 +239,7 @@ Character.makeEnemy = function (rng, typeId, opts) {
     portraitSeed: ADV.hashStr(t.portrait), portraitKind: 'enemy',
     portraitId: t.portrait,
     enemyTypeId: typeId, isMonster: true, boss: !!t.boss,
+    factionAlignment: t.camp === 'law' ? 'law' : t.camp === 'criminal' ? 'criminal' : 'neutral',
     organic: t.species !== 'construct' && t.organic !== false,
     armored: !!t.armored, usesOffensiveModes: !!t.usesOffensiveModes,
     perkCap: 8, activeCap: 8,

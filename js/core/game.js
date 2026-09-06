@@ -53,7 +53,7 @@ Game.newGame = function (opts) {
     // the guided first hour runs once per fresh game; later lives and Hiro skip it
     tutorial: (meta.lives <= 1 && !player.registryId) ? { step: 'tour', tourIdx: 0, declined: false } : { step: 'done' },
   };
-  game.board = ADV.Quests.generateBoard(world, rng);
+  game.board = ADV.Quests.generateBoard(world, rng, game);
   ADV.Save.saveGame(game);
   return game;
 };
@@ -68,7 +68,10 @@ Game.load = function () {
   const game = { world, rng, meta: data.meta, player, board: data.board, life: data.life, quest: null, lastOutcome: null,
     campaign: data.campaign || (ADV.Campaign ? ADV.Campaign.fresh() : null),
     campaign2: data.campaign2 || (ADV.Campaign2 ? ADV.Campaign2.fresh() : null), tutorial: data.tutorial || { step: 'done' } };
-  if (!game.board) game.board = ADV.Quests.generateBoard(world, rng);
+  if (!game.board) game.board = ADV.Quests.generateBoard(world, rng, game);
+  else if (ADV.Quests.tutorialNeedsNeutral && ADV.Quests.tutorialNeedsNeutral(game)) {
+    ADV.Quests.forceTutorialNeutrals(game.board, rng);
+  }
   if (ADV.Party && ADV.Party.repairWorld) ADV.Party.repairWorld(world);
   // One-shot: compensate a live save hit by the party-id / wage bugs. Tests
   // run in Node and never take this branch.
@@ -228,13 +231,16 @@ Game.departureInfo = function (game, quest) {
 // Stay home: no quest, world advances anyway (§7). Home is safe — no ambush.
 Game.stayHome = function (game) {
   const p = Game.player(game);
-  if (ADV.Survival) ADV.Survival.onQuestResolved(game);
-  else ADV.Character.digest(p);
+  if (ADV.Survival) {
+    const surv = ADV.Survival.onQuestResolved(game);
+    if (surv && surv.autoBought) game.lastAutoBuy = { ok: true, name: surv.autoBought.name, cost: surv.autoBought.cost };
+    else if (surv && surv.autoBuyFailed) game.lastAutoBuy = { ok: false, error: surv.autoBuyFailed };
+  } else ADV.Character.digest(p);
   agePlayerChildren(game);
   tickPlayerPregnancy(game);
   ADV.World.tick(game.world, game.rng, { playerQuested: false });
   ADV.Vault.onQuestResolved(game.world, p, false);
-  game.board = ADV.Quests.generateBoard(game.world, game.rng);
+  game.board = ADV.Quests.generateBoard(game.world, game.rng, game);
   ADV.Save.saveGame(game);
   return { ok: true };
 };
@@ -755,8 +761,11 @@ Game.completeQuest = function (game) {
   }
 
   // the meal was for this quest (request: food lasts one quest)
-  if (ADV.Survival) ADV.Survival.onQuestResolved(game);
-  else ADV.Character.digest(p);
+  if (ADV.Survival) {
+    const surv = ADV.Survival.onQuestResolved(game);
+    if (surv && surv.autoBought) game.lastAutoBuy = { ok: true, name: surv.autoBought.name, cost: surv.autoBought.cost };
+    else if (surv && surv.autoBuyFailed) game.lastAutoBuy = { ok: false, error: surv.autoBuyFailed };
+  } else ADV.Character.digest(p);
 
   // the god line pays on a halving scale and counts its own clears (§7)
   if (!q.failed && !q.playerDead && q.quest.godLine && ADV.Campaign2) {
@@ -791,7 +800,7 @@ Game.completeQuest = function (game) {
 
   game.quest = null;
   game.lastOutcome = out;
-  game.board = ADV.Quests.generateBoard(world, game.rng);
+  game.board = ADV.Quests.generateBoard(world, game.rng, game);
   ADV.Save.saveGame(game);
   return out;
 };
@@ -1051,7 +1060,7 @@ Game.finishAssassination = function (game) {
   tickPlayerPregnancy(game);
   ADV.World.tick(world, game.rng, { playerQuested: true });
   game.assassination = null;
-  game.board = ADV.Quests.generateBoard(world, game.rng);
+  game.board = ADV.Quests.generateBoard(world, game.rng, game);
   ADV.Save.saveGame(game);
   return out;
 };
@@ -1115,7 +1124,7 @@ Game.finishRescue = function (game) {
   // accepting consumed world time (§6)
   ADV.World.tick(world, game.rng, { playerQuested: true });
   game.rescueCombat = null;
-  game.board = ADV.Quests.generateBoard(world, game.rng);
+  game.board = ADV.Quests.generateBoard(world, game.rng, game);
   ADV.Save.saveGame(game);
   return out;
 };
@@ -1155,7 +1164,7 @@ Game.continueAfterDeath = function (game, opts) {
     heir.perkCap = C().PLAYER_PERK_SLOTS; heir.activeCap = C().PLAYER_ACTIVE_SLOTS;
     game.pendingDeath = null;
     if (ADV.Campaign) ADV.Campaign.reset(game);   // the heir is uncontacted (§3)
-    game.board = ADV.Quests.generateBoard(game.world, game.rng);
+    game.board = ADV.Quests.generateBoard(game.world, game.rng, game);
     ADV.Save.saveGame(game);
     return { mode: 'nepotism', player: heir };
   }

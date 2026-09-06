@@ -157,6 +157,7 @@ const PARAM_LABEL = {
   thornPct: v => `reflects ${Math.round(v * 100)}% of damage taken`,
   thornScope: v => `thorns cover: ${v}`,
   rounds: v => `lasts ${v} rounds`,
+  freeBuff: () => 'does not cost a turn — applied at battle start and whenever it falls off',
   atkMult: v => `ATK ×${v}`,
   lifeSteal: v => `heals ${Math.round(v * 100)}% of damage dealt`,
   surviveLethal: () => 'survives one lethal blow per battle at 1 HP',
@@ -358,6 +359,14 @@ const SkillInfo = {
       const td = Object.assign({}, sk, sk.tiers[tname]);
       const diffs = paramLines(sk.tiers[tname]);
       L.push(`${tname} (×${C().TIER_MULT[tname]}): ${td.name}${diffs.length ? ' — ' + diffs.map(s => s.replace('  · ', '')).join('; ') : ''}`);
+    }
+
+    const flare = ADV.SkillSys.classFlare && ADV.SkillSys.classFlare(sk);
+    if (flare) {
+      L.push('');
+      L.push(`class flare (${sk.archetype}): ${flare.desc}`);
+      const names = (flare.twins || []).map(id => (ADV.DATA.SKILLS[id] || {}).name || id).slice(0, 5);
+      if (names.length) L.push('  · kindred skill in another class: ' + names.join(', '));
     }
 
     if (sk.forbidden) L.push(`⚠ ${sk.warning} Using it builds toward Divine Intervention.`);

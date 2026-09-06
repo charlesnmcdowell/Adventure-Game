@@ -19,7 +19,7 @@ const POS_STATUSES = ['guard', 'ward', 'atkBuff', 'thorns', 'aura', 'hot', 'iceA
   'cloak', 'bloodPrice', 'serpent', 'storm', 'bond', 'spellblade', 'warhound', 'fireBarrier',
   'absorb', 'anchor', 'advance', 'lifesteal', 'holdRoad', 'countersign', 'runic',
   'elemGuard', 'volley', 'closed', 'laneGuard', 'immovable', 'charmWard', 'railGuard',
-  'venomTouch', 'openingTouch'];
+  'venomTouch', 'openingTouch', 'beastShape'];
 Combat.NEG_STATUSES = NEG_STATUSES; Combat.POS_STATUSES = POS_STATUSES;
 
 // ---------------------------------------------------------------- unit wrap
@@ -139,6 +139,8 @@ Combat.create = function (charsA, charsB, opts) {
     leaderId: opts.leaderId || null,
     leaderFell: false,
     leaderFled: false,
+    turnsSinceHatred: 99,
+    hatredSpoken: {},
   };
   let i = 0;
   for (const ch of charsA) st.units.push(makeUnit(ch, 'a', i++));
@@ -156,6 +158,7 @@ Combat.create = function (charsA, charsB, opts) {
   }
   ev(st, { t: 'start', ambush: !!st.ambushUid });
   startRound(st);
+  for (const u of st.units) refreshFreeBuffs(st, u);
   return st;
 };
 
@@ -264,6 +267,42 @@ Combat.grantTurn = function (st, u, ally, n) {
   ev(st, { t: 'grantTurn', uid: ally.uid, by: u.uid });
 };
 
+function beastShapeUp(u) {
+  return !!(u && u.statuses.some(s => s.kind === 'beastShape'));
+}
+
+function applyBeastShape(st, u, m, skillId) {
+  if (!u || !m) return false;
+  const d = m.data || {};
+  const already = beastShapeUp(u);
+  addStatus(st, u, {
+    kind: 'beastShape',
+    mult: d.atkMult || 1.5,
+    lifeSteal: d.lifeSteal || 0,
+    splashAdjacent: !!d.splashAdjacent,
+    rounds: d.rounds || 3,
+  });
+  if (!already) {
+    const lv = Sys().recordUse(u.ch, skillId || 'beast_shape');
+    if (lv) ev(st, { t: 'levelUp', uid: u.uid, skillId: skillId || 'beast_shape', level: lv.level, tier: lv.tier });
+  }
+  return !already;
+}
+
+function refreshFreeBuffs(st, u) {
+  if (!u || u.downed || u.fled || u.reserved) return;
+  for (const e of u.ch.actives || []) {
+    const m = manifestFor(u, e.skillId);
+    if (!m || !m.data.freeBuff) continue;
+    const seal = u.statuses.find(x => x.kind === 'sealed');
+    if (seal && (seal.tiers || []).includes(m.tier)) continue;
+    if (e.skillId === 'beast_shape' || m.data.atkMult) {
+      if (!beastShapeUp(u)) applyBeastShape(st, u, m, e.skillId);
+    }
+  }
+}
+Combat.refreshFreeBuffs = refreshFreeBuffs;
+
 function startRound(st) {
   st.round++;
   for (const u of st.units) { u.delayed = 0; u.attackedThisRoundBy = []; } // per-round trackers
@@ -297,7 +336,7 @@ Combat.currentTurn = function (st) {
     if (u.loseNextAction) {
       u.loseNextAction = false;
       ev(st, { t: 'skip', uid: u.uid, reason: 'bound' });
-      st.turnIdx++; continue;
+      st.turnIdx++; tickHatredClock(st); continue;
     }
     const fz = u.statuses.find(x => x.kind === 'frozen');
     if (fz) {
@@ -308,13 +347,50 @@ Combat.currentTurn = function (st) {
         // thaw immunity: no re-freeze stunlock (3 rounds)
         u.statuses.push({ kind: 'freezeImmune', rounds: 3 });
       }
-      st.turnIdx++; continue;
+      st.turnIdx++; tickHatredClock(st); continue;
     }
+    refreshFreeBuffs(st, u);
     return { unit: u, isPlayer: !!u.ch.isPlayer };
   }
 };
 
-Combat.advance = function (st) { st.turnIdx++; checkEnd(st); };
+function tickHatredClock(st) {
+  st.turnsSinceHatred = (st.turnsSinceHatred == null ? 99 : st.turnsSinceHatred) + 1;
+}
+
+Combat.advance = function (st) { st.turnIdx++; tickHatredClock(st); checkEnd(st); };
+
+// Named guild foes (assassination, ambush, rival intercept) each get one
+// hatred line. After anyone speaks, the next speaker waits two turns.
+Combat.hatredRemarkDue = function (st, opts) {
+  opts = opts || {};
+  if (!st) return null;
+  const since = st.turnsSinceHatred == null ? 99 : st.turnsSinceHatred;
+  const spoken = st.hatredSpoken || {};
+  const foeSide = opts.foeSide || 'b';
+  const cands = (st.units || []).filter(u => {
+    const ch = u.ch;
+    if (!ch || u.downed || u.fled || u.reserved) return false;
+    if (u.side !== foeSide) return false;
+    if (ch.isMonster || ch.isPlayer || ch.isQuestThrall || ch.isUndead) return false;
+    if (spoken[ch.id]) return false;
+    return true;
+  });
+  if (!cands.length) return null;
+  const acting = opts.acting;
+  const pick = acting && cands.indexOf(acting) >= 0 ? acting : cands[0];
+  const already = Object.keys(spoken).length;
+  if (!already) return pick;
+  if (since < 2) return null;
+  return pick;
+};
+
+Combat.noteHatredRemark = function (st, ch) {
+  if (!st || !ch) return;
+  st.hatredSpoken = st.hatredSpoken || {};
+  st.hatredSpoken[ch.id] = true;
+  st.turnsSinceHatred = 0;
+};
 
 // -------------------------------------------------------------- targeting
 function canMelee(st, attacker, target) {
@@ -410,6 +486,7 @@ Combat.skillNeedsAuto = function (ch, skillId, offensiveMode) {
   const data = entry ? Sys().manifest(ch, entry).data : sk;
   tgt = data.target;
   if (offensiveMode && data.offensive) tgt = data.offensive.target || 'enemy';
+  if (data.freeBuff) return false;
   return tgt !== 'self';
 };
 
@@ -489,6 +566,7 @@ function autoUsable(st, u, r) {
   if (d.interrupt && u.statuses.some(x => x.kind === 'shock' || x.kind === 'shocked')) return null;
   if (d.reload && u.reloadLock[r.skillId] && !perkVal(u.ch, 'powder_discipline', 'noReload')) return null;
   if (d.openerOnly && u.actedThisEncounter) return null;
+  if (d.freeBuff) return null;
   if (d.revive && u.usedOncePerBattle[r.skillId]) return null;
   let pool = Combat.validTargets(st, u, r.skillId, r.off);
   if (!pool.length) return null;
@@ -566,6 +644,15 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   let dmg = atk * power * tierMult * (1 + lvl * C().LEVEL_DAMAGE_SCALAR);
 
   // Perk modifiers
+  const flare = m.flare;
+  if (flare && flare.shockBonus && defUnit && defUnit.statuses
+    && defUnit.statuses.some(s => s.kind === 'shocked' || s.kind === 'shock')) {
+    dmg *= (1 + flare.shockBonus);
+  }
+  if (atkUnit.stormMark && ((m.data.element === 'lightning') || m.data.shock)) {
+    dmg *= (1 + atkUnit.stormMark);
+    atkUnit.stormMark = 0;
+  }
   const af = perkVal(ch, 'arcane_focus', null);
   if (af && m.data.elemental) dmg *= af.eleDmgMult;
   const wf = perkVal(ch, 'wild_form', null);
@@ -596,7 +683,7 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   }
   // Beast shape / auras / campaign self-buffs
   for (const s of atkUnit.statuses) {
-    if (s.kind === 'atkBuff') dmg *= s.mult;
+    if (s.kind === 'atkBuff' || s.kind === 'beastShape') dmg *= s.mult;
     if (s.kind === 'aura') dmg *= s.atk;
     if (s.kind === 'suppressed') dmg *= s.mult;        // Suppressing Volley
     if (s.kind === 'advance') dmg *= s.mult;           // Line Advance
@@ -1236,6 +1323,7 @@ Combat.act = function (st, u, action) {
     const atk = Ch().effStat(u.ch, 'atk');
     const tierMult = C().TIER_MULT[m.tier];
     let amount = Math.round(atk * power * tierMult * (1 + m.level * C().LEVEL_DAMAGE_SCALAR) * (C().HEAL_MULT || 1));
+    if (m.flare && m.flare.healMult) amount = Math.round(amount * m.flare.healMult);
     let targets = d.target === 'party' ? livingUnits(st, u.side)
       : d.target === 'allyLane' ? laneUnits(st, u.side, tgt.lane)
       : [tgt];
@@ -1336,8 +1424,11 @@ Combat.act = function (st, u, action) {
     return finishAction(st, u, skillId);
   }
   if (d.atkMult) {
-    addStatus(st, u, { kind: 'atkBuff', mult: d.atkMult, rounds: d.rounds || 3 });
-    if (d.lifeSteal) addStatus(st, u, { kind: 'lifesteal', pct: d.lifeSteal, rounds: d.rounds || 3 });
+    if (d.freeBuff) applyBeastShape(st, u, m, skillId);
+    else {
+      addStatus(st, u, { kind: 'atkBuff', mult: d.atkMult, rounds: d.rounds || 3 });
+      if (d.lifeSteal) addStatus(st, u, { kind: 'lifesteal', pct: d.lifeSteal, rounds: d.rounds || 3 });
+    }
     return finishAction(st, u, skillId);
   }
   if (d.auraAtk) {
@@ -1429,6 +1520,12 @@ Combat.act = function (st, u, action) {
   }
   // Chain Lightning (campaign): jumps to every enemy, losing power each jump
   if (d.chainDecay) targets = [tgt].concat(livingUnits(st, tgt.side).filter(x => x !== tgt));
+  // Primal Form: splash one more enemy in the same lane
+  const shape = u.statuses.find(x => x.kind === 'beastShape');
+  if (shape && shape.splashAdjacent && targets.length === 1) {
+    const extra = laneUnits(st, tgt.side, tgt.lane).find(x => x !== tgt);
+    if (extra) targets.push(extra);
+  }
   // Storm Shape: attacks also hit one enemy in an adjacent lane
   if (u.statuses.some(x => x.kind === 'storm') && targets.length === 1) {
     const li = LANE_IDX[tgt.lane];
@@ -1450,6 +1547,8 @@ Combat.act = function (st, u, action) {
     if (pick === 'shocked') { d.shock = 0.1; d.shockRounds = 2; }
   }
   const hits = d.hits || 1;
+  const flareHits = (m.flare && (m.flare.bonusHits || m.flare.extraHit)) || 0;
+  const flareHitMult = m.flare && (m.flare.hitPowerMult || m.flare.extraHitMult);
   if (d.reload) u.reloadLock[skillId] = true;             // Flintlock Shot is now empty
   // Volley Fire / Broadside Doctrine: one more body in the same lane
   const vol = u.statuses.find(x => x.kind === 'volley');
@@ -1463,7 +1562,7 @@ Combat.act = function (st, u, action) {
     if (more.length) targets = targets.concat(more);
     if (vol) removeStatus(u, vol);
   }
-  for (let hi = 0; hi < hits; hi++) for (const t of targets) {
+  for (let hi = 0; hi < hits + flareHits; hi++) for (const t of targets) {
     if (t.downed) continue;
     if (d.chainDecay && targets.indexOf(t) > 0) { /* decayed power handled below */ }
     // Executes
@@ -1480,7 +1579,9 @@ Combat.act = function (st, u, action) {
       continue;
     }
     const powerOverride = d.chainDecay ? (d.power || 2.0) * Math.pow(d.chainDecay, targets.indexOf(t)) : undefined;
-    const dmg = computeDamage(st, u, t, m, powerOverride != null ? { power: powerOverride } : undefined);
+    const flarePower = (hi >= hits && flareHitMult) ? (d.power || 0) * flareHitMult : undefined;
+    const dmg = computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
+      : (powerOverride != null ? { power: powerOverride } : undefined));
     const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
       cannotMiss: !!d.cannotMiss, ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
     if (isMelee && !t.downed) addExposed(st, t, 1);
@@ -1541,17 +1642,47 @@ Combat.act = function (st, u, action) {
     if (d.loseAction && !t.downed) { t.loseNextAction = true; ev(st, { t: 'bound', uid: t.uid }); }
     const ls = u.statuses.find(s => s.kind === 'lifesteal');
     if (ls && dealt > 0) healUnit(st, null, u, Math.round(dealt * ls.pct));
+    const bs = u.statuses.find(s => s.kind === 'beastShape');
+    if (bs && bs.lifeSteal && dealt > 0) healUnit(st, null, u, Math.round(dealt * bs.lifeSteal));
     // Finisher-like heal riders on damage
     if (d.lifeSteal && dealt > 0) healUnit(st, null, u, Math.round(dealt * d.lifeSteal));
+    if (hi === 0 && dealt > 0) applyFlareOnHit(st, u, t, m);
   }
   return finishAction(st, u, skillId);
 }
 
+function applyFlareOnHit(st, u, t, m) {
+  const f = m && m.flare;
+  if (!f || !t || t.downed) return;
+  const atk = Ch().effStat(u.ch, 'atk');
+  if (f.poison) addStatus(st, t, { kind: 'poison', power: f.poison.power, rounds: f.poison.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
+  if (f.bleed) addStatus(st, t, { kind: 'bleed', power: f.bleed.power, rounds: f.bleed.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
+  if (f.rootRounds) addStatus(st, t, { kind: 'rooted', rounds: f.rootRounds });
+  if (f.defStrip) { t.defStripped = Math.max(t.defStripped || 0, f.defStrip); ev(st, { t: 'sundered', uid: t.uid }); }
+}
+
+function applyFlareSelf(st, u, m) {
+  const f = m && m.flare;
+  if (!f) return;
+  if (f.guardRounds) addStatus(st, u, { kind: 'guard', scope: 'self', rounds: f.guardRounds });
+  if (f.markStorm) u.stormMark = Math.max(u.stormMark || 0, f.markStorm);
+  if (f.thornPct) addStatus(st, u, { kind: 'thorns', pct: f.thornPct, rounds: f.thornRounds || 2 });
+}
+
 function finishAction(st, u, skillId) {
-  u.actedThisEncounter = true;
-  const lv = Sys().recordUse(u.ch, skillId);
-  if (lv) ev(st, { t: 'levelUp', uid: u.uid, skillId, level: lv.level, tier: lv.tier });
-  if (u.refundAction) { u.refundAction = false; ev(st, { t: 'refund', uid: u.uid }); return { ok: true, refund: true }; }
+  const m = skillId && skillId !== 'basic_attack' ? manifestFor(u, skillId) : null;
+  applyFlareSelf(st, u, m);
+  const free = !!(m && m.data && m.data.freeBuff);
+  if (!free) u.actedThisEncounter = true;
+  if (!free) {
+    const lv = Sys().recordUse(u.ch, skillId);
+    if (lv) ev(st, { t: 'levelUp', uid: u.uid, skillId, level: lv.level, tier: lv.tier });
+  }
+  if (free || u.refundAction) {
+    u.refundAction = false;
+    ev(st, { t: 'refund', uid: u.uid });
+    return { ok: true, refund: true };
+  }
   return { ok: true };
 }
 
