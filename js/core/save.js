@@ -4,7 +4,8 @@
 'use strict';
 
 const Save = {};
-const KEYS = ['adv:world', 'adv:characters', 'adv:edges', 'adv:vaults', 'adv:meta'];
+const KEYS = ['adv:world', 'adv:characters', 'adv:edges', 'adv:vaults', 'adv:meta', 'adv:backup'];
+Save.VERSION = 1;
 
 // storage backend: localStorage in the browser, injectable for tests
 let store = null;
@@ -44,9 +45,34 @@ Save.saveGame = function (game) {
     campaignProgress: w.campaignProgress || [],
   });
   put('adv:characters', w.characters);
-  put('adv:edges', w.edges);
-  put('adv:vaults', w.vaults);
+  put('adv:edges', w.edges || []);
+  put('adv:vaults', w.vaults || []);
   Save.saveMeta(game);
+  Save.writeBackup();
+};
+
+Save.writeBackup = function () {
+  const world = get('adv:world');
+  const characters = get('adv:characters');
+  if (!world || !characters) return false;
+  return put('adv:backup', {
+    v: Save.VERSION,
+    world, characters,
+    edges: get('adv:edges') || [],
+    vaults: get('adv:vaults') || [],
+    meta: get('adv:meta') || null,
+  });
+};
+
+Save.restoreBackup = function () {
+  const bak = get('adv:backup');
+  if (!bak || !bak.world || !bak.characters) return false;
+  put('adv:world', bak.world);
+  put('adv:characters', bak.characters);
+  put('adv:edges', bak.edges || []);
+  put('adv:vaults', bak.vaults || []);
+  if (bak.meta) put('adv:meta', bak.meta);
+  return true;
 };
 
 Save.saveMeta = function (game) {
@@ -58,12 +84,16 @@ Save.loadMeta = function () {
 };
 
 Save.loadGame = function () {
-  const ws = get('adv:world');
-  if (!ws) return null;
-  const characters = get('adv:characters');
-  const edges = get('adv:edges');
-  const vaults = get('adv:vaults');
-  if (!characters || !edges || !vaults) return null;
+  let ws = get('adv:world');
+  let characters = get('adv:characters');
+  if (!ws || !characters) {
+    if (!Save.restoreBackup()) return null;
+    ws = get('adv:world');
+    characters = get('adv:characters');
+    if (!ws || !characters) return null;
+  }
+  const edges = get('adv:edges') || [];
+  const vaults = get('adv:vaults') || [];
   const world = {
     seed: ws.seed, questClock: ws.questClock,
     characters, edges, vaults,
@@ -93,9 +123,24 @@ Save.loadGame = function () {
 
 Save.hasSave = function () { return !!get('adv:world'); };
 
+// Continue is only real if the full save loads and the player is still alive.
+// A leftover world key must not hide the title notice or offer a dead Continue.
+Save.hasValidContinue = function () {
+  try {
+    const data = Save.loadGame();
+    if (!data || !data.world) return false;
+    const player = ADV.World && ADV.World.byId
+      ? ADV.World.byId(data.world, data.world.playerId)
+      : (data.world.characters || []).find(c => c && c.id === data.world.playerId);
+    return !!(player && player.alive);
+  } catch (e) {
+    return false;
+  }
+};
+
 ADV.TitleNotice = {
   text: 'All characters and data will be wiped at 8 PM CST. Sorry for the inconvenience — a new expansion has released. Create a new character and let me know if you like it.',
-  visible: () => !Save.hasSave(),
+  visible: () => !Save.hasValidContinue(),
 };
 
 Save.reset = function () {

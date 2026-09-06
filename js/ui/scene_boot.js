@@ -21,7 +21,7 @@ class TitleScene extends Phaser.Scene {
     T().text(this, W / 2, 218, 'a life, several times over', { size: 18, display: true, italic: true, ox: 0.5, color: T().css.inkDim });
     T().text(this, W / 2, 268, 'Stats never change. Skills are everything. Death is not the end of what you know.', { size: 14, ox: 0.5, color: T().css.inkFaint });
 
-    const hasSave = ADV.Save.hasSave();
+    const hasSave = ADV.Save.hasValidContinue ? ADV.Save.hasValidContinue() : ADV.Save.hasSave();
     let y = 340;
     if (ADV.TitleNotice && ADV.TitleNotice.visible()) {
       T().text(this, W / 2, 318, ADV.TitleNotice.text, {
@@ -31,7 +31,8 @@ class TitleScene extends Phaser.Scene {
     }
     if (hasSave) {
       T().button(this, W / 2 - 130, y, 260, 46, 'Continue', () => {
-        const game = ADV.Game.load();
+        let game = null;
+        try { game = ADV.Game.load(); } catch (e) { game = null; }
         if (game) { this.registry.set('game', game); this.scene.start('Town'); }
         else this.msg('The saved life could not be recalled.');
       }, { display: true, bold: true });
