@@ -69,7 +69,7 @@ ADV.DATA.CONST = {
   // Campaign recruiters wait for a record (request): 4 contracts done, moderate rep
   CAMPAIGN_GATE: { minQuests: 4, minRep: 4 },
   // Courtship (request 7/13): shared-quest gates and the wealth ladder
-  COURT: { maleFriendlyAfter: 1, maleProposeAfter: 2, femaleFriendlyAfter: 2, wealthTop: 5, declineCooldown: 3 },
+  COURT: { maleFriendlyAfter: 1, maleProposeAfter: 2, femaleFriendlyAfter: 2, wealthTop: 5, declineCooldown: 3, playerAskBy: 3 },
   ENVY_RATIO_TRIGGER: 4,
   ENVY_RATIO_DECAY: 2,
 

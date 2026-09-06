@@ -98,8 +98,15 @@ World.markPlayerContact = function (world, key) {
 World.pruneStrangerContacts = function (world) {
   if (!world) return;
   const keep = (id) => World.rodeWithPlayer(world, World.byId(world, id));
+  const keepAsk = (id) => {
+    if (keep(id)) return true;
+    const npc = World.byId(world, id);
+    const pl = World.byId(world, world.playerId);
+    if (!npc || !pl) return false;
+    return Rel().score(world, npc.id, pl.id) >= C().REL.FRIENDLY_MIN;
+  };
   world.pendingRescues = (world.pendingRescues || []).filter(r => keep(r.targetId));
-  world.pendingProposals = (world.pendingProposals || []).filter(p => keep(p.fromId));
+  world.pendingProposals = (world.pendingProposals || []).filter(p => keepAsk(p.fromId));
   world.pendingHeroInvites = (world.pendingHeroInvites || []).filter(i => keep(i.heroId));
 };
 

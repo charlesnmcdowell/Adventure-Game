@@ -2,7 +2,11 @@
 //   - men warm to a woman after 1 shared quest and ask after 2 (if both single)
 //   - women warm to a man after 2 shared quests — unless he is one of the five
 //     wealthiest men in town, in which case every single woman who is not
-//     already his enemy is Friendly at once and asks him herself
+//     already his enemy is Friendly at once
+//   - anyone Friendly toward the player (opposite sex) can be asked in person,
+//     even if they already have an NPC spouse
+//   - at least one of those Friendlys asks the player within 3 quests; never
+//     back-to-back (PLAYER_CONTACT_GAP). A shared quest can hurry the ask.
 //   - a decline drops the asker to Neutral for 3 quests, then the rules apply
 //     again (a rich man stays a rich man)
 //   - Lookism: the opposite sex starts Friendly toward the holder
@@ -86,12 +90,16 @@ Court.wants = function (world, from, to) {
 
 // Would `from` ask `to` now?
 Court.wouldAsk = function (world, from, to) {
-  if (!Court.wants(world, from, to)) return false;
+  if (!from || !to || from === to || from.sex === to.sex) return false;
   if (ADV.Rel.isPartner(from, to)) return false;
-  if (ADV.Housing && (!ADV.Housing.canTakeSpouse(from) || !ADV.Housing.canTakeSpouse(to))) return false;
   if (from.hiroNpc) return false;                                  // Hiro never asks
-  // The player is only asked by people who have ridden a contract with them.
-  if (to && to.isPlayer && Court.shared(world, from.id, to.id) < 1) return false;
+  if (Court.onCooldown(world, from.id, to.id)) return false;
+  if (to.isPlayer) {
+    if (ADV.Housing && !ADV.Housing.canTakeSpouse(to)) return false;
+    return Rel().score(world, from.id, to.id) >= C().REL.FRIENDLY_MIN;
+  }
+  if (!Court.wants(world, from, to)) return false;
+  if (ADV.Housing && (!ADV.Housing.canTakeSpouse(from) || !ADV.Housing.canTakeSpouse(to))) return false;
   if (from.sex === 'm') return Court.shared(world, from.id, to.id) >= C().COURT.maleProposeAfter;
   return Court.richestMen(world).includes(to);   // women ask only the wealthy
 };
@@ -133,10 +141,31 @@ function npcTownEligible(world, from, to) {
 function holdingForPlayer(world, from, player) {
   if (!from || !player || from.isPlayer || from.sex === player.sex) return false;
   if (from.hiroNpc) return false;
-  if (!freeSlot(from) || !freeSlot(player)) return false;
+  if (!freeSlot(player)) return false;
   if (Rel().isPartner(from, player)) return false;
+  if (Rel().score(world, from.id, player.id) >= C().REL.FRIENDLY_MIN) return true;
   if (!Court.wants(world, from, player)) return false;
   return Court.shared(world, from.id, player.id) >= 1;
+}
+
+function ensurePlayerAsk(world, rng, player) {
+  if (!player || !freeSlot(player)) { world.friendlyAskWait = 0; return; }
+  const people = world.characters.filter(eligible);
+  const cands = people.filter(c => !c.isPlayer && Court.wouldAsk(world, c, player));
+  if (!cands.length) { world.friendlyAskWait = 0; return; }
+  world.friendlyAskWait = (world.friendlyAskWait || 0) + 1;
+  if ((world.pendingProposals || []).length) return;
+  if (ADV.World && ADV.World.playerContactReady && !ADV.World.playerContactReady(world, 'lastPlayerProposalAt')) return;
+  const rode = cands.filter(c => Court.shared(world, c.id, player.id) >= 1);
+  const must = world.friendlyAskWait >= (C().COURT.playerAskBy || 3);
+  const pool = rode.length ? rode : (must ? cands : []);
+  if (!pool.length) return;
+  pool.sort((a, b) => {
+    const ds = Rel().score(world, b.id, player.id) - Rel().score(world, a.id, player.id);
+    if (ds) return ds;
+    return Court.shared(world, b.id, player.id) - Court.shared(world, a.id, player.id);
+  });
+  queueProposal(world, pool[0].id);
 }
 
 function pairNpcs(world, from, to, feed) {
@@ -151,12 +180,9 @@ Court.tick = function (world, rng, feed, lowPop) {
   const player = ADV.World.byId(world, world.playerId);
   for (const from of people) {
     if (from.isPlayer) continue;                         // the player asks in person
-    // Prefer the player over any NPC. Character-list order used to marry a
-    // ready suitor to the first eligible woman before the player was seen.
-    if (player && Court.wouldAsk(world, from, player)) {
-      queueProposal(world, from.id);
-      continue;
-    }
+    // Prefer the player over any NPC. Do not marry a Friendly suitor off
+    // before they have had a chance to ask — incoming asks are paced below.
+    if (player && Court.wouldAsk(world, from, player)) continue;
     if (holdingForPlayer(world, from, player)) continue;
     for (const to of people) {
       if (from === to || from.sex === to.sex || to.isPlayer) continue;
@@ -188,6 +214,7 @@ Court.tick = function (world, rng, feed, lowPop) {
       taken.add(from.id); taken.add(to.id);
     }
   }
+  ensurePlayerAsk(world, rng, player);
   // lapsed asks (the player never answered) fall away quietly
   world.pendingProposals = (world.pendingProposals || []).filter(p => {
     const c = ADV.World.byId(world, p.fromId);

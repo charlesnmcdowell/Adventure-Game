@@ -792,10 +792,10 @@ Panels.personDialog = function (scene, c) {
   }
   scene.speak(c, null, {}, () => {
     const isPartner = ADV.Rel.isPartner(p, c);
-    const canProp = !isPartner && ADV.Housing.canTakeSpouse(p) && ADV.Housing.canTakeSpouse(c) && ADV.Rel.canRomance(world, p.id, c.id);
+    const canProp = !isPartner && ADV.Housing.canTakeSpouse(p) && ADV.Rel.canRomance(world, p.id, c.id);
     const iHate = ADV.Rel.hates(world, p.id, c.id);
     const buttons = [];
-    if (canProp && canProp.ok) buttons.push({ label: 'Propose', value: 'propose' });
+    if (canProp && canProp.ok) buttons.push({ label: 'Request romance', value: 'propose' });
     if (isPartner) buttons.push({ label: 'Leave them (jilt)', value: 'jilt' });
     if (!iHate && !isPartner) buttons.push({ label: 'Declare hatred', value: 'hate' });
     if (iHate) buttons.push({ label: 'Attempt assassination', value: 'kill' });
@@ -803,26 +803,34 @@ Panels.personDialog = function (scene, c) {
     ADV.Notices.pickOne(scene, c.name, `${c.sex === 'f' ? 'Woman' : 'Man'} · rank ${c.rank} · ${c.sex === 'f' ? 'she' : 'he'} thinks of you as ${ADV.Rel.tierBetween(world, c.id, p.id)}.`, buttons, (val) => {
       if (val === 'propose') {
         scene.promptOnce('firstRomanceOption');
-        if (c.hiroNpc && !ADV.Hiro.acceptsProposal(p)) {
-          scene.speak(c, 'general', {}, () => {
-            ADV.Notices.confirm(scene, 'Not yet', `${c.name} only takes a proposal from a woman with a reputation of ${ADV.Hiro.RULES.minRep} or better. Yours is ${p.reputation}. Earn it on the road.`, 'Understood', () => {}, T().css.purple);
-          });
-          return;
-        }
-        const accept = ADV.Rel.score(world, c.id, p.id) >= C().REL.FRIENDLY_MIN;
-        if (accept) {
-          const lines = ADV.Rel.commit(world, p.id, c.id);
-          lines.forEach(l => ADV.World.feed(world, l.text, l.actorIds));
-          scene.speak(c, 'romantic', {}, () => {
-            ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel('rel');
-          });
-        } else {
-          ADV.Courtship.decline(world, c, p);   // refusal: Neutral for three quests, then the rules again
-          scene.speak(c, 'general', {}, () => {
-            ADV.Notices.toast(scene, 'Refused. Three quests before they will hear it again.');
-            ADV.Save.saveGame(game); scene.openPanel('rel');
-          });
-        }
+        const ask = () => {
+          if (c.hiroNpc && !ADV.Hiro.acceptsProposal(p)) {
+            scene.speak(c, 'general', {}, () => {
+              ADV.Notices.confirm(scene, 'Not yet', `${c.name} only takes a proposal from a woman with a reputation of ${ADV.Hiro.RULES.minRep} or better. Yours is ${p.reputation}. Earn it on the road.`, 'Understood', () => {}, T().css.purple);
+            });
+            return;
+          }
+          const accept = ADV.Rel.score(world, c.id, p.id) >= C().REL.FRIENDLY_MIN;
+          if (accept) {
+            const lines = ADV.Rel.commit(world, p.id, c.id);
+            lines.forEach(l => ADV.World.feed(world, l.text, l.actorIds));
+            scene.speak(c, 'romantic', {}, () => {
+              ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel('rel');
+            });
+          } else {
+            ADV.Courtship.decline(world, c, p);   // refusal: Neutral for three quests, then the rules again
+            scene.speak(c, 'general', {}, () => {
+              ADV.Notices.toast(scene, 'Refused. Three quests before they will hear it again.');
+              ADV.Save.saveGame(game); scene.openPanel('rel');
+            });
+          }
+        };
+        const taken = ADV.Rel.partnerIds(c).map(id => ADV.World.byId(world, id)).filter(s => s && s.alive && s !== p);
+        if (taken.length) {
+          ADV.Notices.confirm(scene, 'They are not free',
+            `${c.name} is with ${taken[0].name}. Asking means they leave them.`,
+            'Ask anyway', ask, T().css.purple);
+        } else ask();
       } else if (val === 'jilt') {
         scene.promptOnce('firstJilting');
         ADV.Notices.confirm(scene, 'Leave ' + c.name + '?',
@@ -1076,16 +1084,18 @@ Notices.proposal = function (scene, n, next) {
   const p = scene.player();
   const pr = n.proposal;
   const c = ADV.World.byId(world, pr.fromId);
-  if (!c || !c.alive || ADV.Rel.isPartner(p, c) || !ADV.Housing.canTakeSpouse(c) || !ADV.Housing.canTakeSpouse(p) || !(world.pendingProposals || []).includes(pr)) {
+  if (!c || !c.alive || ADV.Rel.isPartner(p, c) || !ADV.Housing.canTakeSpouse(p) || !(world.pendingProposals || []).includes(pr)) {
     world.pendingProposals = (world.pendingProposals || []).filter(x => x !== pr);
     return next();
   }
   scene.promptOnce('firstProposalReceived');
   scene.speak(c, 'romantic', {}, () => {
+    const shared = ADV.Courtship.shared(world, c.id, p.id);
     const rich = c.sex === 'f' ? ADV.Courtship.wealthRank(world, p) : 0;
-    Notices.pickOne(scene, `${c.name} asks you`, c.sex === 'f'
-      ? `You are one of the wealthiest men in town (rank ${rich}) and she knows it. Say yes and you are together; say no and she cools for three quests.`
-      : `You have ridden together ${ADV.Courtship.shared(world, c.id, p.id)} times and he has made up his mind. Say yes and you are together; say no and he cools for three quests.`,
+    Notices.pickOne(scene, `${c.name} asks you`,
+      (c.sex === 'f' && rich && rich <= C().COURT.wealthTop && shared < 1)
+        ? `You are one of the wealthiest men in town (rank ${rich}) and she knows it. Say yes and you are together; say no and she cools for three quests.`
+        : `${c.sex === 'f' ? 'She' : 'He'} is Friendly and wants a romance. Say yes and you are together; say no and ${c.sex === 'f' ? 'she' : 'he'} cools for three quests.`,
       [{ label: 'Yes', value: 'yes' }, { label: 'No', value: 'no' }], (v) => {
         world.pendingProposals = (world.pendingProposals || []).filter(x => x !== pr);
         if (v === 'yes') {
