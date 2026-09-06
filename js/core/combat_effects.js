@@ -37,7 +37,7 @@ E.venomDraw = (I, st, u, tgt, d) => {
   const foe = tgt.side !== u.side ? tgt : I.livingUnits(st, u.side === 'a' ? 'b' : 'a')[0];
   if (!donor || !foe) return;
   const drawn = donor.statuses.filter(s => s.kind === 'poison');
-  for (const s of drawn) { I.removeStatus(donor, s); I.addStatus(st, foe, Object.assign({}, s)); }
+  for (const s of drawn) { I.removeStatus(donor, s); I.addStatus(st, foe, (ADV.Combat.reseatDot || ((x) => x))(Object.assign({}, s), foe)); }
   I.ev(st, { t: 'venomDraw', from: donor.uid, to: foe.uid, n: drawn.length });
 };
 

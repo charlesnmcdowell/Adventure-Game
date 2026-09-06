@@ -259,6 +259,7 @@ C2.spawnEncounter = function (game, quest, encIdx) {
     boss.combatHp = null; boss.campaignExit = false; boss.boss = true; boss.isBossFight = true;
     out.unshift(boss);
   }
+  if ((spec.mini || spec.boss || spec.boardBoss) && !quest.war) ADV.Campaign.guardBoss(game, out, quest.factionId, hi, rng, (t, l, o) => C2.spawnEnemy(rng, t, l, o));
   return out;
 };
 

@@ -143,8 +143,14 @@ const PARAM_LABEL = {
   thirdHitTwice: () => 'every 3rd consecutive attacking turn strikes twice',
   cleaveRows: v => v === 1 ? "hits the target's row" : `hits ${v} rows around the target`,
   hitScale: () => 'damage is multiplied by the number of enemies hit',
-  status: v => 'inflicts: ' + Object.entries(v).map(([k, s]) =>
-    `${k}${s.stacks ? ' (STACKS)' : ''} ${s.power}× ATK/2 per round, ${s.rounds} rounds`).join('; '),
+  status: (v, tier) => 'inflicts: ' + Object.entries(v).map(([k, s]) => {
+    // poison & bleed are a percentage of the target's max HP by tier (DOT_PROMPT.md §1)
+    if ((k === 'poison' || k === 'bleed') && ADV.Combat && ADV.Combat.DOT_PCT) {
+      const pct = ADV.Combat.DOT_PCT[tier || 'basic'] || 0.5, n = s.rounds || 3;
+      return `${k}${s.stacks ? ' (STACKS)' : ''}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
+    }
+    return `${k}${s.stacks ? ' (STACKS)' : ''} ${s.power}× ATK/2 per round, ${s.rounds} rounds`;
+  }).join('; '),
   defStrip: v => `strips ${v} DEF for the battle (counters Armored +${C().ARMORED_BONUS_DEF})`,
   defStripAll: () => 'strips ALL DEF for the battle',
   delayTarget: () => 'target acts later this round (SPD −4 in the order)',
@@ -304,12 +310,12 @@ const SKIP_KEYS = new Set(['name', 'note', 'tiers', 'id', 'kind', 'archetype', '
   'target', 'reach', 'offensive', 'heal', 'elemental', 'universal', 'unique', 'noSlot',
   'forbidden', 'social', 'warning', 'katana', 'noTierGrowth', 'faction', 'campaign', 'tier']);
 
-function paramLines(data) {
+function paramLines(data, tier) {
   const out = [];
   for (const [k, v] of Object.entries(data)) {
     if (SKIP_KEYS.has(k) || v == null || v === false) continue;
     const f = PARAM_LABEL[k];
-    out.push('  · ' + (f ? f(v) : `${k}: ${JSON.stringify(v)}`));
+    out.push('  · ' + (f ? f(v, tier) : `${k}: ${JSON.stringify(v)}`));
   }
   return out;
 }
@@ -361,7 +367,7 @@ const SkillInfo = {
     }
 
     // current-tier parameters (the backend truth)
-    const pl = paramLines(data);
+    const pl = paramLines(data, tier);
     if (pl.length) { L.push('this tier does:'); L.push(...pl); }
 
     // offensive mode
@@ -375,7 +381,7 @@ const SkillInfo = {
     for (const tname of ['basic', 'intermediate', 'advanced']) {
       if (tname === tier || sk.noTierGrowth) continue;
       const td = Object.assign({}, sk, sk.tiers[tname]);
-      const diffs = paramLines(sk.tiers[tname]);
+      const diffs = paramLines(sk.tiers[tname], tname);
       L.push(`${tname} (×${C().TIER_MULT[tname]}): ${td.name}${diffs.length ? ' — ' + diffs.map(s => s.replace('  · ', '')).join('; ') : ''}`);
     }
 

@@ -89,6 +89,19 @@ Quests.enemyLevelsFor = function (tier) {
   const T = C().QUEST_TIERS[tier] || C().QUEST_TIERS[1];
   return T.enemyLevels;
 };
+// DOT_PROMPT.md §10: at tier 2+, roughly one fight in three carries a healer of
+// the same camp. Never at tier 1; never replaces the lead; appends or swaps a filler.
+Quests.maybeHealer = function (ids, pool, rng, tier) {
+  if (!ids || !ids.length || (tier | 0) < 2) return ids;
+  if (ids.some(id => ADV.DATA.ENEMIES[id] && ADV.DATA.ENEMIES[id].healer)) return ids;
+  if (!rng.chance(1 / 3)) return ids;
+  const camp = Quests.campOf(ids[0]);
+  const healers = (pool || []).filter(id => ADV.DATA.ENEMIES[id] && ADV.DATA.ENEMIES[id].healer && (!camp || Quests.campOf(id) === camp));
+  if (!healers.length) return ids;
+  const h = rng.pick(healers);
+  if (ids.length >= 4) ids[ids.length - 1] = h; else ids.push(h);
+  return ids;
+};
 Quests.enemyPool = function (tier, faction, opts) {
   opts = opts || {};
   const camps = Quests.foeCamps(faction);
@@ -296,6 +309,7 @@ Quests.makeHazard = function (rng, hz, faction) {
     const n = rng.int(3, 4);
     const ids = [lead];
     for (let k = 1; k < n; k++) ids.push(rng.chance(0.5) ? lead : rng.chance(0.5) ? other : filler);
+    Quests.maybeHealer(ids, pool, rng, T.tier);
     encounters.push({ enemyTypeIds: rng.shuffle(ids), boss: false });
   }
   const e = ADV.DATA.ENEMIES[lead];
@@ -354,6 +368,7 @@ Quests.make = function (rng, tier, track, faction) {
     const ids = [];
     const use = pool.length ? pool : Quests.enemyPool(tier, faction);
     for (let k = 0; k < nEnemies; k++) ids.push(rng.pick(use));
+    if (track !== 'solo') Quests.maybeHealer(ids, use, rng, tier);
     encounters.push({ enemyTypeIds: ids, boss: false });
   }
   const mainEnemy = ADV.DATA.ENEMIES[encounters[0].enemyTypeIds[0]] || ADV.DATA.BOSSES[encounters[0].enemyTypeIds[0]];

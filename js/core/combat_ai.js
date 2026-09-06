@@ -62,7 +62,9 @@ function chooseAction(st, u) {
     let offensiveMode = false;
     let pool = Combat.validTargets(st, u, e.skillId, false);
     if (d.heal) {
-      const hurt = allies.filter(a => a.chp / a.maxHp < 0.7).sort((x, y) => x.chp / x.maxHp - y.chp / y.maxHp);
+      // heals cleanse now (DOT_PROMPT.md §9): an ally carrying poison or bleed is hurt even above the HP line
+      const dotted = (a) => a.statuses.some(s => s.kind === 'poison' || s.kind === 'bleed');
+      const hurt = allies.filter(a => a.chp / a.maxHp < 0.7 || dotted(a)).sort((x, y) => (x.chp / x.maxHp - (dotted(x) ? 0.3 : 0)) - (y.chp / y.maxHp - (dotted(y) ? 0.3 : 0)));
       const downed = st.units.filter(x => x.side === u.side && x.downed && !x.fled && !x.reserved);
       if (d.revive && downed.length && ADV.Combat.canSpendBattleUse(u, e.skillId, d)) {
         candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: downed[0].uid, weight: 50 });

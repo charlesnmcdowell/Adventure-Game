@@ -1012,11 +1012,15 @@ function tick(scene, v, e) {
   try {
     if (!v) return 140;
     const kinds = (v.u && v.u.statuses || []).map(s => s.kind);
+    // the tick is a slice of the target's health now: the splash grows with it
+    const frac = e && v.u ? Math.min(1, (e.dmg || 0) / Math.max(1, v.u.maxHp || 40)) : 0.05;
+    const big = 1 + frac * 3;
     if (kinds.indexOf('burn') >= 0) V().plume(scene, v.x, v.y + 16, FIRE, { n: 2, scale: 0.7 });
-    else if (kinds.indexOf('poison') >= 0) V().motes(scene, v.x, v.y, POI, 3);
-    else if (kinds.indexOf('bleed') >= 0) V().drip(scene, v.x, v.y, BLD, { n: 2 });
+    else if (kinds.indexOf('poison') >= 0) { V().motes(scene, v.x, v.y, POI, Math.round(3 * big)); if (frac >= 0.15) { V().cloud(scene, v.x, v.y, POI, { r: 18 * big, a: 0.45, scale: 1.6, dur: 380 }); V().drip(scene, v.x, v.y, POI, { n: 3 }); } }
+    else if (kinds.indexOf('bleed') >= 0) { V().drip(scene, v.x, v.y, BLD, { n: Math.round(2 * big) }); if (frac >= 0.15) { V().spray(scene, v.x, v.y, v.u.side === 'a' ? -1 : 1, BLD, { n: Math.round(3 * big), scale: big * 0.6 }); if (V().cine) V().cine.impactFrame(scene, v.img); } }
     else V().motes(scene, v.x, v.y, POI, 2);
-    return 140;
+    if (frac >= 0.3 && V().camShake) V().camShake(scene, 0.003);
+    return frac >= 0.15 ? 200 : 140;
   } catch (err) { return 140; }
 }
 

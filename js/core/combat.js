@@ -25,7 +25,7 @@ Combat.isGod = isGod;
 
 // ---------------------------------------------------------------- unit wrap
 function makeUnit(ch, side, idx) {
-  const maxHp = Ch().maxHp(ch);
+  const maxHp = Math.max(Ch().maxHp(ch), ch.hpFloor || 0);   // boss floor (DOT_PROMPT.md §11)
   return {
     uid: side + idx, ch, side,
     lane: null, slot: 0,
@@ -239,6 +239,7 @@ function applyRevive(st, src, tgt, d, skillId) {
   if (d.grantSelfTurn) Combat.grantTurn(st, src || tgt, tgt, d.grantSelfTurn);
   // Part B3/C3: the mark the risen wears, and the reviver's word (once per fight, guaranteed)
   const arch = skillArchetype(skillId);
+  if (arch === 'druid' || arch === 'healer') healCleanse(st, tgt, 'all', src ? src.uid : null);
   if (arch === 'druid') addStatus(st, tgt, { kind: 'grove', rounds: d.buffRounds || d.reviveBuffRounds || 3, srcUid: src ? src.uid : null });
   else if (arch === 'healer') addStatus(st, tgt, { kind: 'wings', rounds: d.reviveBuffRounds || 2, srcUid: src ? src.uid : null });
   ev(st, { t: 'revive', uid: tgt.uid, by: src ? src.uid : tgt.uid, skillId: skillId || null, arch });
@@ -1007,7 +1008,7 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
     guarded.owner.preventedStored += prevented;               // Paid in Full ledger
     if (src) bounce(guarded.owner, src, prevented);
     // Unseen Guard: the interceptor is unseen and the attacker bleeds
-    if (guarded.unseen && src) addStatus(st, src, { kind: 'bleed', power: 0.6, rounds: 3, stacks: true, srcAtk: Ch().effStat(guarded.owner.ch, 'atk') });
+    if (guarded.unseen && src) { const ug = manifestFor(guarded.owner, 'unseen_guard'); addStatus(st, src, { kind: 'bleed', tier: ug ? ug.tier : 'basic', power: 0.6, rounds: 3, stacks: true, srcAtk: Ch().effStat(guarded.owner.ch, 'atk'), srcUid: guarded.owner.uid }); }
   }
   // Ward shields (Guardian Ward)
   const ward = tgt.statuses.find(s => s.kind === 'ward' && (s.hits > 0 || s.rounds > 0));
@@ -1105,7 +1106,7 @@ function applyRankRiders(st, src, tgt) {
   const atk = Ch().effStat(src.ch, 'atk');
   for (const s of list) {
     if (!s || !s.kind) continue;
-    addStatus(st, tgt, Object.assign({ srcAtk: atk, srcUid: src.uid, srcLevel: src.ch.enemyLevel || 1 }, s));
+    addStatus(st, tgt, Object.assign({ srcAtk: atk, srcUid: src.uid, srcLevel: src.ch.enemyLevel || 1 }, s, { ticks: undefined, dealt: undefined, ticksTotal: undefined }));
   }
 }
 
@@ -1138,7 +1139,7 @@ function applyRawDamage(st, src, tgt, dmg, tag) {
   // Paper Charm / Sealed: whoever strikes the warded ally is poisoned for it
   const pc = tgt.statuses.find(x => x.kind === 'charmWard');
   if (pc && src && tag !== 'dot' && tag !== 'reflect') {
-    addStatus(st, src, { kind: 'poison', power: pc.power, rounds: pc.rounds, stacks: true, srcAtk: Ch().effStat(tgt.ch, 'atk'), srcUid: tgt.uid });
+    addStatus(st, src, { kind: 'poison', tier: pc.tier || 'basic', power: pc.power, rounds: pc.rounds, stacks: true, srcAtk: Ch().effStat(tgt.ch, 'atk'), srcUid: tgt.uid });
   }
   // Come Aboard: the next one to swing at you comes over the rail
   const bp = tgt.statuses.find(x => x.kind === 'railGuard');
@@ -1241,7 +1242,7 @@ function hopPoison(st, dead) {
   const tgt = cand[0];
   for (const s of dots) {
     s.__hopped = true;
-    addStatus(st, tgt, Object.assign({}, s, { fresh: true, __hopped: false }));
+    addStatus(st, tgt, reseatDot(Object.assign({}, s, { fresh: true, __hopped: false }), tgt));
   }
   ev(st, { t: 'poisonHop', from: dead.uid, to: tgt.uid, n: dots.length });
 }
@@ -1279,8 +1280,34 @@ function findGuard(st, tgt) {
 }
 
 // ---------------------------------------------------------------- healing
+// Heals cleanse (DOT_PROMPT.md §9). `scope`: 'stack' (one poison + one bleed,
+// oldest first), 'dots' (every poison + bleed), 'dots+' (plus burn, healcut),
+// 'all' (the full negative list). Emits `cleansed` with byHeal so the field shows it.
+function healCleanse(st, tgt, scope, byUid) {
+  if (!tgt || !scope) return 0;
+  let cured = 0;
+  const kill = (s) => { removeStatus(tgt, s); cured++; };
+  if (scope === 'stack') {
+    for (const kind of ['poison', 'bleed']) { const s = tgt.statuses.find(x => x.kind === kind); if (s) kill(s); }
+  } else {
+    const kinds = scope === 'all' ? NEG_STATUSES : scope === 'dots+' ? ['poison', 'bleed', 'burn', 'healcut'] : ['poison', 'bleed'];
+    for (const x of tgt.statuses.slice()) if (kinds.includes(x.kind)) kill(x);
+  }
+  if (cured) ev(st, { t: 'cleansed', uid: tgt.uid, cured, byHeal: true, by: byUid || null });
+  return cured;
+}
+Combat.healCleanse = healCleanse;
+// what a healer's restoring heal strips, by tier
+function healerCleanseScope(tier) { return tier === 'advanced' ? 'all' : tier === 'intermediate' ? 'dots+' : 'dots'; }
+
 function healUnit(st, src, tgt, amount, opts) {
   opts = opts || {};
+  // self-heals (leech, lifesteal, kill heals, drains): ≥10% of max HP clears one stack of each DoT, ≥25% clears them all
+  if (!opts.noCleanse && (src == null || src === tgt) && amount > 0 && tgt.maxHp) {
+    const frac = amount / tgt.maxHp;
+    if (frac >= 0.25) healCleanse(st, tgt, 'dots', tgt.uid);
+    else if (frac >= 0.10) healCleanse(st, tgt, 'stack', tgt.uid);
+  }
   if (tgt.statuses.some(x => x.kind === 'withering')) { ev(st, { t: 'withered', uid: tgt.uid }); return 0; }
   const hc = tgt.statuses.find(x => x.kind === 'healcut');
   if (hc) amount = Math.round(amount * (1 - (hc.pct || 0.5)));
@@ -1340,6 +1367,7 @@ function pickHealTargets(st, u, tgt, tier) {
 }
 Combat.pickHealTargets = pickHealTargets;
 function applyDruidHeal(st, u, t, tier, amt) {
+  healCleanse(st, t, 'dots', u.uid);
   const old = t.statuses.find(x => x.kind === 'hot' && x.druid);
   if (old) removeStatus(t, old);
   addStatus(st, t, { kind: 'hot', druid: true, ticks: DRUID_TICKS, perTick: Math.max(1, Math.round(amt / DRUID_TICKS)), srcUid: u.uid, tier });
@@ -1359,8 +1387,49 @@ function tickCooldowns(st) {
   }
 }
 
+// Poison & bleed pass (DOT_PROMPT.md §1–§3): a tick is a percentage of the
+// TARGET's max HP by the tier of the skill that applied it, spread over the
+// status's ticks. Nothing else computes a DoT number.
+const DOT_PCT = { basic: 0.5, intermediate: 1.0, advanced: 2.0 };
+Combat.DOT_PCT = DOT_PCT;
+function isPctDot(kind) { return kind === 'poison' || kind === 'bleed'; }
+// every poison/bleed carries tier, pct, ticks and a running total; rounds/fresh never touch it
+function normaliseDot(status) {
+  if (!isPctDot(status.kind)) return status;
+  status.tier = DOT_PCT[status.tier] != null ? status.tier : 'basic';
+  status.pct = DOT_PCT[status.tier];
+  if (status.ticks == null) status.ticks = status.rounds != null && status.rounds > 0 ? status.rounds : 3;
+  if (status.ticksTotal == null) status.ticksTotal = status.ticks;
+  if (status.dealt == null) status.dealt = 0;
+  delete status.rounds; delete status.fresh;
+  return status;
+}
+// A transferred DoT keeps its remaining ticks; the leftover fraction is of the NEW target's max HP.
+function reseatDot(status, tgt) {
+  if (!isPctDot(status.kind) || !tgt) return status;
+  normaliseDot(status);
+  const total = Math.round((tgt.maxHp || 1) * status.pct);
+  const elapsed = Math.max(0, (status.ticksTotal || status.ticks) - status.ticks);
+  status.dealt = Math.round(total * elapsed / Math.max(1, status.ticksTotal));
+  return status;
+}
+Combat.reseatDot = reseatDot;
+function dotTick(st, status, tgt) {
+  if (!isPctDot(status.kind)) return 0;
+  normaliseDot(status);
+  const total = Math.round((tgt.maxHp || 1) * status.pct);
+  // even ticks; the remainder rides on the last one so the total is exact
+  let dmg = status.ticks <= 1 ? Math.max(0, total - status.dealt) : Math.round(total / status.ticksTotal);
+  const src = status.srcUid ? st.units.find(x => x.uid === status.srcUid) : null;
+  if (src && src.side === 'b' && tgt.side === 'a') dmg = Math.round(dmg * (C().DOT_ENEMY_MULT == null ? 1 : C().DOT_ENEMY_MULT));
+  return Math.max(1, dmg);
+}
+Combat.dotTick = dotTick;
+Combat.normaliseDot = normaliseDot;
+
 // --------------------------------------------------------------- statuses
 function addStatus(st, tgt, status) {
+  normaliseDot(status);
   if (status.kind === 'anchor' && (tgt.anchorSpent || tgt.statuses.some(x => x.kind === 'anchor'))) return;
   if (status.rounds != null) status.fresh = true; // survives the round it was cast
   const dm = perkVal(tgt.ch, 'demigod', null);
@@ -1422,7 +1491,7 @@ function endRoundTicks(st) {
     if (u.statuses.some(x => x.kind === 'serpent')) u.evade = Math.max(u.evade, 1);
     for (const s of u.statuses.slice()) {
       if (DOT_STATUSES.includes(s.kind)) {
-        let dot = Math.max(1, Math.round((s.srcAtk || 8) * s.power * 0.5 * (1 + (s.srcLevel || 1) * 0.015)));
+        let dot = isPctDot(s.kind) ? dotTick(st, s, u) : Math.max(1, Math.round((s.srcAtk || 8) * s.power * 0.5 * (1 + (s.srcLevel || 1) * 0.015)));
         const srcU = s.srcUid ? st.units.find(x => x.uid === s.srcUid) : null;
         const septic = srcU && (s.kind === 'bleed' || s.kind === 'poison') ? perkVal(srcU.ch, 'septic_sanguine', null) : null;
         if (septic) dot = Math.round(dot * septic.dotMult);                     // Septic Sanguine
@@ -1432,11 +1501,18 @@ function endRoundTicks(st) {
           const py = perkVal(srcU.ch, 'pyromaniac', null);                     // burns feed the Pyromaniac too
           if (py && py.fireLeech) healUnit(st, null, srcU, Math.max(1, Math.round(dealt * py.fireLeech)));
         }
+        if (isPctDot(s.kind)) {
+          s.dealt += dot; s.ticks--;
+          if (s.ticks <= 0) removeStatus(u, s);
+          if (u.downed) break;
+          continue;
+        }
       }
       if (s.kind === 'hot') {
         if (s.ticks != null) {
           const srcU = s.srcUid ? st.units.find(x => x.uid === s.srcUid) : null;
-          healUnit(st, srcU && !srcU.downed ? srcU : null, u, s.perTick || 1, { tick: true });
+          healUnit(st, srcU && !srcU.downed ? srcU : null, u, s.perTick || 1, { tick: true, noCleanse: true });
+          healCleanse(st, u, s.druid ? 'dots' : 'stack', s.srcUid || null);   // a druid tick keeps them clean; a regen tick strips one of each
           s.ticks--; if (s.ticks <= 0) removeStatus(u, s);
           continue;
         }
@@ -1522,7 +1598,7 @@ function spreadSeptic(st, origin, status) {
   for (const o of livingUnits(st, origin.side)) {
     if (o.uid === origin.uid) continue;
     if (Math.abs(LANE_IDX[o.lane] - li) > 2) continue;
-    const copy = Object.assign({}, status, { _spread: true });
+    const copy = Object.assign({}, status, { _spread: true, ticks: status.ticksTotal, dealt: 0 });
     addStatus(st, o, copy);
   }
 }
@@ -1703,11 +1779,11 @@ Combat.act = function (st, u, action) {
       // Field Suture: closed up and put somewhere nobody is looking
       if (d.allyStealth) { t.stealth = true; t.stealthRounds = d.allyStealth; ev(st, { t: 'stealth', uid: t.uid }); }
       // Paper Charm: the ward answers with poison
-      if (d.wardPoison) addStatus(st, t, { kind: 'charmWard', power: d.wardPoison.power, rounds: d.wardPoison.rounds });
+      if (d.wardPoison) addStatus(st, t, { kind: 'charmWard', tier: m.tier, power: d.wardPoison.power, rounds: d.wardPoison.rounds });
       // Signal Flags: this ally moves the moment you are done
       if (d.grantTurn && t !== u && !t.grantedTurns) Combat.grantTurn(st, u, t, d.grantTurn);
       // Surgeon's Saw: it works, and they will bleed for a while
-      if (d.selfBleedOnTarget) addStatus(st, t, { kind: 'bleed', power: d.selfBleedOnTarget.power, rounds: d.selfBleedOnTarget.rounds, srcAtk: atk, srcUid: u.uid });
+      if (d.selfBleedOnTarget) addStatus(st, t, { kind: 'bleed', tier: m.tier, power: d.selfBleedOnTarget.power, rounds: d.selfBleedOnTarget.rounds, srcAtk: atk, srcUid: u.uid });
       // Regeneration (A2): double the tier value over 5 ticks; refreshes, never stacks; 3-turn cooldown
       if (d.hotRounds) {
         const old = t.statuses.find(x => x.kind === 'hot' && x.regen);
@@ -1726,7 +1802,10 @@ Combat.act = function (st, u, action) {
         if (!cured && amt <= 0) continue;
       }
       if (d.cures) for (const kind of d.cures) { const s = t.statuses.find(x => x.kind === kind); if (s) removeStatus(t, s); }
-      if (amt > 0) healUnit(st, u, t, amt);
+      if (amt > 0) {
+        healUnit(st, u, t, amt, { noCleanse: true });
+        if (d.archetype === 'healer') healCleanse(st, t, healerCleanseScope(m.tier), u.uid);
+      }
     }
     return finishAction(st, u, skillId);
   }
@@ -1738,12 +1817,12 @@ Combat.act = function (st, u, action) {
     const tierMult = C().TIER_MULT[m.tier];
     if (o.statusTransfer) {
       const mine = u.statuses.find(s => DOT_STATUSES.includes(s.kind));
-      if (mine) { removeStatus(u, mine); addStatus(st, tgt, Object.assign({}, mine)); }
+      if (mine) { removeStatus(u, mine); addStatus(st, tgt, reseatDot(Object.assign({}, mine), tgt)); }
       else dealDamage(st, u, tgt, Math.max(1, Math.round(atk * 1.0 * tierMult) - Ch().effStat(tgt.ch, 'def')), 'spell');
       return finishAction(st, u, skillId);
     }
     if (o.dotRounds) {
-      addStatus(st, tgt, { kind: 'poison', rounds: o.dotRounds, power: o.power, srcAtk: atk, srcUid: u.uid });
+      addStatus(st, tgt, { kind: 'poison', tier: m.tier, rounds: o.dotRounds, power: o.power, srcAtk: atk, srcUid: u.uid });
       return finishAction(st, u, skillId);
     }
     if (o.wardReflect) {
@@ -1771,7 +1850,11 @@ Combat.act = function (st, u, action) {
     }
     const allies = livingUnits(st, u.side).sort((x, y) => (x.chp / x.maxHp) - (y.chp / y.maxHp));
     const healTargets = d.healTargets === 'party' ? allies : allies.slice(0, d.healTargets || 1);
-    for (const a of healTargets) healUnit(st, u, a, Math.round(total / Math.max(1, healTargets.length)));
+    for (const a of healTargets) {
+      const amt = Math.round(total / Math.max(1, healTargets.length));
+      healUnit(st, u, a, amt, { noCleanse: d.archetype === 'healer' });
+      if (d.archetype === 'healer') healCleanse(st, a, healerCleanseScope(m.tier), u.uid);
+    }
     return finishAction(st, u, skillId);
   }
 
@@ -1969,7 +2052,7 @@ Combat.act = function (st, u, action) {
       if (d.rootRounds) addStatus(st, t, { kind: 'rooted', rounds: d.rootRounds });
       if (d.exposedOnSecond && hi === 1) addExposed(st, t, d.exposedOnSecond);
       const vt = u.statuses.find(x => x.kind === 'venomTouch');          // Fox Form
-      if (vt) addStatus(st, t, { kind: 'poison', power: vt.power, rounds: vt.dot.rounds, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid });
+      if (vt) addStatus(st, t, { kind: 'poison', tier: vt.tier || 'basic', power: vt.power, rounds: vt.dot.rounds, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid });
       const ot = u.statuses.find(x => x.kind === 'openingTouch');        // Marine Form
       if (ot) addExposed(st, t, ot.stacks);
     }
@@ -1985,7 +2068,7 @@ Combat.act = function (st, u, action) {
     if (dealt > 0 && !t.downed && d.withering) addStatus(st, t, { kind: 'withering', rounds: d.withering });
     if (dealt > 0 && !t.downed && d.healcutRounds) addStatus(st, t, { kind: 'healcut', rounds: d.healcutRounds, pct: 0.5 });
     if (dealt > 0 && !t.downed && d.runic) { t.evade = 0; addStatus(st, t, { kind: 'runic', rounds: 2, srcUid: u.uid }); }
-    if (dealt > 0 && u.statuses.some(x => x.kind === 'serpent') && !t.downed) addStatus(st, t, { kind: 'poison', power: 0.6, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid });
+    if (dealt > 0 && !t.downed) { const sp = u.statuses.find(x => x.kind === 'serpent'); if (sp) addStatus(st, t, { kind: 'poison', tier: sp.tier || 'basic', power: 0.6, rounds: 3, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid }); }
     if (dealt > 0 && u.statuses.some(x => x.kind === 'storm') && !t.downed) addStatus(st, t, { kind: 'shock', rounds: 1 });
     if (d.selfWardPct && dealt > 0) addStatus(st, u, { kind: 'ward', hits: 1, pool: Math.round(dealt * d.selfWardPct) });
     if (d.laneBuff) for (const x of laneUnits(st, u.side, u.lane)) addStatus(st, x, Object.assign({}, d.laneBuff));
@@ -2007,7 +2090,7 @@ Combat.act = function (st, u, action) {
     // riders
     if (d.status && dealt > 0) {
       for (const [kind, sdef] of Object.entries(d.status)) {
-        addStatus(st, t, Object.assign({ kind, srcAtk: Ch().effStat(u.ch, 'atk'), srcLevel: m.level, srcUid: u.uid }, sdef));
+        addStatus(st, t, Object.assign({ kind, tier: m.tier, srcAtk: Ch().effStat(u.ch, 'atk'), srcLevel: m.level, srcUid: u.uid }, sdef));
       }
       // A killing blow still leaves its poison on the corpse so it can leap.
       if (t.downed) hopPoison(st, t);
@@ -2034,8 +2117,8 @@ function applyFlareOnHit(st, u, t, m) {
   const f = m && m.flare;
   if (!f || !t || t.downed) return;
   const atk = Ch().effStat(u.ch, 'atk');
-  if (f.poison) addStatus(st, t, { kind: 'poison', power: f.poison.power, rounds: f.poison.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
-  if (f.bleed) addStatus(st, t, { kind: 'bleed', power: f.bleed.power, rounds: f.bleed.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
+  if (f.poison) addStatus(st, t, { kind: 'poison', tier: m.tier, power: f.poison.power, rounds: f.poison.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
+  if (f.bleed) addStatus(st, t, { kind: 'bleed', tier: m.tier, power: f.bleed.power, rounds: f.bleed.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
   if (f.rootRounds) addStatus(st, t, { kind: 'rooted', rounds: f.rootRounds });
   if (f.defStrip) { t.defStripped = Math.max(t.defStripped || 0, f.defStrip); ev(st, { t: 'sundered', uid: t.uid }); }
 }

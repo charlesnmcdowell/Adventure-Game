@@ -47,7 +47,7 @@ ADV.DATA.ENEMIES = {
   },
   thorn_lurker: {
     id: 'thorn_lurker', name: 'Thorn Lurker', plural: 'Thorn Lurkers', species: 'beast', portrait: 'dire_wolf', camp: 'wild',
-    perks: ['wild_form'], actives: ['thorn_lash', 'thorn_skin'],
+    perks: ['wild_form'], actives: ['thorn_lash', 'thorn_skin', 'regenerate'], healer: true,
     levels: [6, 20],
   },
   cliff_raptor: {
@@ -67,7 +67,7 @@ ADV.DATA.ENEMIES = {
   },
   storm_bailiff: {
     id: 'storm_bailiff', name: 'Storm Bailiff', plural: 'Storm Bailiffs', species: 'human', portrait: 'hedge_mage', camp: 'law',
-    perks: ['lightning_king'], actives: ['spark', 'frost_touch'],
+    perks: ['lightning_king'], actives: ['spark', 'triage'], healer: true,
     levels: [8, 22], hpMult: 0.7,
   },
   pyre_justicar: {
@@ -83,7 +83,7 @@ ADV.DATA.ENEMIES = {
   grave_acolyte: {
     id: 'grave_acolyte', name: 'Grave Acolyte', plural: 'Grave Acolytes', species: 'human', portrait: 'grave_acolyte', camp: 'criminal',
     perks: ['devoted'], actives: ['regenerate', 'necromancy', 'wither_touch'],
-    levels: [10, 20], usesOffensiveModes: true, hpMult: 0.8,
+    healer: true, levels: [10, 20], usesOffensiveModes: true, hpMult: 0.8,
   },
   marsh_stalker: {
     id: 'marsh_stalker', name: 'Marsh Stalker', plural: 'Marsh Stalkers', species: 'human', portrait: 'bandit', camp: 'criminal',
@@ -103,12 +103,28 @@ ADV.DATA.ENEMIES = {
   gravewarden: {
     id: 'gravewarden', name: 'Gravewarden', plural: 'Gravewardens', species: 'human', portrait: 'grave_acolyte', camp: 'criminal',
     perks: ['devoted'], actives: ['wither_touch', 'regenerate', 'venom_fang'],
-    levels: [10, 24], usesOffensiveModes: true, hpMult: 0.9,
+    healer: true, levels: [10, 24], usesOffensiveModes: true, hpMult: 0.9,
   },
   shadow_beast: {
     id: 'shadow_beast', name: 'Shadow Beast', plural: 'Shadow Beasts', species: 'beast', portrait: 'dire_wolf', camp: 'wild',
     perks: ['momentum'], actives: ['umbral_rake', 'thorn_skin'],
     levels: [14, 24], atkMult: 0.9,
+  },
+  // ---- healers in every camp (DOT_PROMPT.md §10) ----
+  field_chaplain: {
+    id: 'field_chaplain', name: 'Field Chaplain', plural: 'Field Chaplains', species: 'human', portrait: 'hedge_mage', camp: 'law',
+    perks: ['devoted'], actives: ['mend', 'guardian_ward', 'spark'], healer: true,
+    levels: [10, 24], hpMult: 0.8, usesOffensiveModes: false,
+  },
+  cutpurse_leech: {
+    id: 'cutpurse_leech', name: 'Cutpurse Leech', plural: 'Cutpurse Leeches', species: 'human', portrait: 'bandit', camp: 'criminal',
+    perks: ['opportunist'], actives: ['blood_pact', 'stitch_and_run', 'backstab'], healer: true,
+    levels: [10, 22], hpMult: 0.85,
+  },
+  moss_matron: {
+    id: 'moss_matron', name: 'Moss Matron', plural: 'Moss Matrons', species: 'beast', portrait: 'frost_hag', camp: 'wild',
+    perks: ['wild_form'], actives: ['growth_field', 'regenerate', 'thorn_lash'], healer: true,
+    levels: [10, 26], hpMult: 1.2,
   },
 };
 
@@ -151,9 +167,11 @@ function idsOf(book, camp) {
 ADV.DATA.TIER_ENEMY_TABLE = {
   1: ['bandit', 'hedge_mage', 'dire_wolf', 'town_watch', 'cave_boar', 'cutthroat'],
   2: ['bandit', 'hedge_mage', 'dire_wolf', 'plated_sentinel', 'town_watch', 'frost_hag',
-      'cutthroat', 'plague_knave', 'storm_bailiff', 'pyre_justicar', 'thorn_lurker', 'cliff_raptor'],
+      'cutthroat', 'plague_knave', 'storm_bailiff', 'pyre_justicar', 'thorn_lurker', 'cliff_raptor',
+      'field_chaplain', 'cutpurse_leech', 'moss_matron'],
   3: ['dire_wolf', 'plated_sentinel', 'grave_acolyte', 'shadow_beast', 'frost_hag',
-      'bleed_sister', 'rime_justicar', 'cave_boar', 'cliff_raptor'],
+      'bleed_sister', 'rime_justicar', 'cave_boar', 'cliff_raptor',
+      'field_chaplain', 'cutpurse_leech', 'moss_matron', 'gravewarden'],
   boss: ['bandit_king', 'archmagister', 'alpha', 'sentinel_prime', 'grave_bishop'],
   debuff: ['marsh_stalker', 'plague_knave', 'frost_hag', 'gravewarden', 'ember_cultist'],
 };

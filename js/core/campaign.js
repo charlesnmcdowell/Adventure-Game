@@ -255,6 +255,38 @@ Campaign.spawnEnemy = function (rng, typeId, level, opts) {
   return ch;
 };
 
+// DOT_PROMPT.md §11: boss fights are never softer than the player.
+// - every boss / mini-boss unit floors its max HP at the player's max HP
+//   (on the combat unit via ch.hpFloor, never on saved stats; never lowered)
+// - the escort always holds a tank and a healer of the faction; missing ones
+//   are APPENDED (the quest author's list is kept whole)
+// a "tank" skill: a guard, ward, thorns, lane hold, or one of the faction stances (any tier)
+Campaign.isTankSkill = function (id) {
+  const d = D().SKILLS[id];
+  if (!d || d.kind === 'perk') return false;
+  const G = D().CAMPAIGN_BOSS_GUARD || {};
+  if (Object.values(G).some(g => g.tankSkill === id)) return true;
+  if (['bulwark_formation', 'shield_wall', 'guardian_ward', 'crossing_guard', 'bear_stance', 'chain_and_bar', 'aegis_protocol', 'thorn_skin', 'line_advance', 'iron_fan_guard', 'unseen_guard'].includes(id)) return true;
+  const tiers = d.tiers ? Object.values(d.tiers) : [];
+  return [d].concat(tiers).some(t => t.guardScope || t.shieldHits || t.shieldRounds || t.thornPct || t.laneGuard || t.immovable || (t.selfStatus && ['ward', 'guard', 'thorns'].includes(t.selfStatus.kind)) || (t.laneStatus && (t.laneStatus.kind === 'holdRoad' || t.laneStatus.closed)));
+};
+Campaign.guardBoss = function (game, out, factionId, level, rng, spawn) {
+  const p = ADV.Game.player(game);
+  const floor = p ? ADV.Character.maxHp(p) : 0;
+  const restores = (id) => { const d = D().SKILLS[id]; return !!(d && d.heal && (d.power || d.hotRounds || d.healFromTaken || d.revive) && d.target !== 'enemy'); };
+  const guardish = (id) => Campaign.isTankSkill(id);
+  const skillsOf = (ch) => (ch.actives || []).concat(ch.perks || []).map(a => a.skillId);
+  for (const ch of out) if (ch.boss || ch.isBossFight || ch.godLineBoss) { ch.hpFloor = Math.max(ch.hpFloor || 0, floor); }
+  const G = D().CAMPAIGN_BOSS_GUARD && D().CAMPAIGN_BOSS_GUARD[factionId];
+  if (!G) return out;
+  const hasHealer = out.some(ch => !ch.boss && !ch.isBossFight && skillsOf(ch).some(restores));
+  const hasTank = out.some(ch => !ch.boss && !ch.isBossFight && skillsOf(ch).some(guardish));
+  const mk = spawn || ((t, l, o) => Campaign.spawnEnemy(rng, t, l, o));
+  if (!hasTank && D().CAMPAIGN_ENEMIES[G.tank]) out.push(mk(G.tank, level, { signature: G.tankSkill, guard: true }));
+  if (!hasHealer && D().CAMPAIGN_ENEMIES[G.healer]) out.push(mk(G.healer, level, { signature: G.heal, guard: true }));
+  return out;
+};
+
 // Build the enemy roster for one campaign encounter.
 Campaign.spawnEncounter = function (game, quest, encIdx) {
   const s = Campaign.state(game);
@@ -288,6 +320,9 @@ Campaign.spawnEncounter = function (game, quest, encIdx) {
     out.unshift(boss);
     if (bossId === 'quiet') quest.spawnQueue = [2, 4].map(r => ({ round: r, ch: Campaign.spawnEnemy(rng, 'risen', hi) }));
   }
+  // §11 floor + guard on the campaign's own boss fights. War contracts are ordinary board work that
+  // borrows campaign spawning (see Quests.makeWarQuest); their named bosses are left as authored.
+  if ((spec.mini || spec.boss || spec.boardBoss) && !quest.war) Campaign.guardBoss(game, out, quest.factionId || (Campaign.faction(game) || {}).id, hi, rng);
   return out;
 };
 

@@ -1508,7 +1508,7 @@ const Portraits = {
   // Returns a texture key, generating the canvas texture on first request.
   key(scene, ch) {
     let key;
-    const TYPE_TINTS = { marsh_stalker: '#2a4a2a', ember_cultist: '#7a3a1a', frost_hag: '#2a4a6a', gravewarden: '#3a3a26' };
+    const TYPE_TINTS = { marsh_stalker: '#2a4a2a', ember_cultist: '#7a3a1a', frost_hag: '#2a4a6a', gravewarden: '#3a3a26', field_chaplain: '#6a5a2a', cutpurse_leech: '#4a2a3a', moss_matron: '#2a5a3a' };
     const typeTint = ch.isMonster && TYPE_TINTS[ch.enemyTypeId];
     const setBit = ch.equippedSet ? '_s' + ch.equippedSet : '';
     const vetBit = '_r' + (ch.rank || 1) + 'q' + (ch.questsCompleted || 0);

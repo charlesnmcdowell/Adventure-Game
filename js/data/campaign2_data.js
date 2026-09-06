@@ -205,7 +205,7 @@ en({ id: 'gunnery_officer', name: 'Gunnery Officer', faction: 'navy', species: '
   pool: ['ranging_cannon', 'chain_and_bar', 'flare', 'volley_fire', 'broadside_doctrine'] });
 en({ id: 'signal_officer', name: 'Signal Officer', faction: 'navy', species: 'human', portrait: 'hedge_mage', equips: 3,
   skins: [{ name: 'Flag Locker', tint: '#2a5a6a' }, { name: 'Speaking Trumpet', tint: '#5a5a2a' }, { name: 'Young', tint: '#3a4a7a' }],
-  pool: ['signal_flags', 'chart_the_water', 'flare', 'articles_of_war', 'naval_discipline'] });
+  pool: ['signal_flags', 'chart_the_water', 'flare', 'sick_bay', 'naval_discipline'] });
 en({ id: 'ships_master', name: "Ship's Master", faction: 'navy', species: 'human', portrait: 'plated_sentinel', equips: 3,
   skins: [{ name: 'Grey Coat', tint: '#5a5a5a' }, { name: 'Charts', tint: '#6a6252' }, { name: 'Weathered', tint: '#4a5252' }],
   pool: ['riposte_line', 'saber_thrust', 'chart_the_water', 'sick_bay', 'colours_and_papers'] });

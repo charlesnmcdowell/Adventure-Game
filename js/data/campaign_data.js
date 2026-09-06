@@ -185,3 +185,15 @@ ADV.DATA.CAMPAIGN_QUESTS = {
   ],
 };
 })();
+
+// DOT_PROMPT.md §11: every boss / mini-boss fight fields at least one tank and
+// one healer of the faction. The healer's `heal` is forced into its loadout.
+ADV.DATA.CAMPAIGN_BOSS_GUARD = {
+  maw:       { tank: 'house_guard',         tankSkill: 'unseen_guard',   healer: 'candle_bearer',    heal: 'stitch_and_run' },
+  antler:    { tank: 'rival_company_spear', tankSkill: 'hold_the_road',  healer: 'sanctioned_adept', heal: 'stanch' },
+  varenholm: { tank: 'unlicensed_warder',   tankSkill: 'warding_stance', healer: 'academy_proctor',  heal: 'restorative_circle' },
+  bell:      { tank: 'chain_hand',          tankSkill: 'iron_fan_guard', healer: 'poison_sister',    heal: 'field_suture' },
+  green:     { tank: 'stone_bannerman',     tankSkill: 'stone_stance',   healer: 'clan_physician',   heal: 'field_honour' },
+  tally:     { tank: 'gun_captain',         tankSkill: 'boarding_plate', healer: 'ships_surgeon',    heal: 'surgeons_saw' },
+  navy:      { tank: 'marine_of_the_line',  tankSkill: 'close_order',    healer: 'signal_officer',   heal: 'sick_bay' },
+};
