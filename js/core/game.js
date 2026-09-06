@@ -415,7 +415,7 @@ Game.currentEncounter = function (game) {
       } else if (q.quest.war) {
         const pack = (ADV.DATA.FACTION_WAR_DIALOGUE || {})[q.quest.warAgainst];
         const lines = pack ? (onBoss ? pack.boss : (q.encIdx === 0 ? pack.open : null)) : null;
-        q.openerBeats = (lines && pack) ? [{ who: pack.who, key: 'war', lines }] : [];
+        q.openerBeats = (lines && pack) ? [{ who: pack.who, key: onBoss ? 'warboss' : 'waropen', lines }] : [];
       } else if (q.quest.campaign2) {
         q.openerBeats = (onBoss && q.quest.n === 5) ? ADV.Campaign.finalOpener(game, q.quest.factionId) : [];
       } else {

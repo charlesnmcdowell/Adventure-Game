@@ -295,6 +295,13 @@ const Music = {
     Music.voiceEl = el;
     playEl(el);
   },
+  speakTutorial(id) {
+    if (!id) return;
+    Music.stopVoice();
+    const el = watch(new Audio('audio/vo/tutorial/' + id + '.mp3'));
+    Music.voiceEl = el;
+    playEl(el);
+  },
   stopVoice() {
     if (Music.voiceEl) { pauseEl(Music.voiceEl); Music.voiceEl = null; }
   },

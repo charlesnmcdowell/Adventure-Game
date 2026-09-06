@@ -89,7 +89,11 @@ class TitleScene extends Phaser.Scene {
     const hint = T().text(this, W / 2, H / 2 + 54, 'click to continue', { size: 12, ox: 0.5, color: T().css.inkFaint }).setDepth(62);
     const skip = T().button(this, W / 2 - 60, H / 2 + 120, 120, 34, 'Skip all', () => finish(), { size: 13 });
     skip.g.setDepth(62); skip.txt.setDepth(63); skip.zone.setDepth(64);
-    const render = () => { num.setText((idx + 1) + ' / ' + cards.length); txt.setText(cards[idx]); };
+    const render = () => {
+      num.setText((idx + 1) + ' / ' + cards.length);
+      txt.setText(cards[idx]);
+      if (ADV.Music && ADV.Music.speakTutorial) ADV.Music.speakTutorial('card_' + (idx + 1));
+    };
     const finish = () => {
       [dim, panel, num, txt, hint].forEach(x => x.destroy()); skip.destroy();
       this.scene.start('Creation', { password: this.password });

@@ -106,6 +106,7 @@ Tutor.callout = function (scene, rect, title, body, opts) {
     k(T().text(scene, px + 12, py + ph - 20, opts.hint || '↑ click it to continue', { size: 11, italic: true, color: T().css.inkDim }).setDepth(D + 1));
   }
   scene.tutorObjs = (scene.tutorObjs || []).concat(objs);
+  if (opts.vo && ADV.Music && ADV.Music.speakTutorial) ADV.Music.speakTutorial(opts.vo);
   return { close };
 };
 Tutor.clear = function (scene) {
@@ -130,34 +131,34 @@ Tutor.town = function (scene, game) {
         return;
       }
       s.tourIdx++;
-      Tutor.callout(scene, btnRect(item[0]), item[1], item[2], { onNext: next, label: s.tourIdx >= TOUR.length ? 'Got it' : 'Next' });
+      Tutor.callout(scene, btnRect(item[0]), item[1], item[2], { onNext: next, label: s.tourIdx >= TOUR.length ? 'Got it' : 'Next', vo: 'tour_' + s.tourIdx });
     };
-    Tutor.callout(scene, null, 'Welcome to the town', 'This is home between contracts. Nothing here moves until you do — take a moment, and I will show you what each door is for.', { onNext: next, label: 'Show me' });
+    Tutor.callout(scene, null, 'Welcome to the town', 'This is home between contracts. Nothing here moves until you do — take a moment, and I will show you what each door is for.', { onNext: next, label: 'Show me', vo: 'welcome' });
     return true;
   }
   if (s.step === 'firstQuest') {
     if (scene.currentPanel === 'board') { Tutor.panel(scene, game, 'board', scene.contentRect()); return true; }
-    Tutor.callout(scene, btnRect('board'), 'Your first contract', 'Open the Quest Board and take a Tier 1 solo contract. Come back alive and we go on.', { pass: true });
+    Tutor.callout(scene, btnRect('board'), 'Your first contract', 'Open the Quest Board and take a Tier 1 solo contract. Come back alive and we go on.', { pass: true, vo: 'first_contract' });
     return true;
   }
   if (s.step === 'trainer') {
     scene.openPanel('board');
     Tutor.callout(scene, null, 'Gold', `You came home with ${ADV.Game.player(game).inventory.gold}g. Gold buys skills at the trainer and lifts the ones you have a whole tier. Gear, food and insurance too — but skills first.`, { onNext: () => {
-      Tutor.callout(scene, btnRect('trainer'), 'The Trainer', 'Open the Trainer to see what is for sale.', { pass: true });
-    } });
+      Tutor.callout(scene, btnRect('trainer'), 'The Trainer', 'Open the Trainer to see what is for sale.', { pass: true, vo: 'trainer_door' });
+    }, vo: 'gold' });
     return true;
   }
   if (s.step === 'vault') {
-    Tutor.callout(scene, btnRect('vault'), 'The Vault', 'Gold you carry dies with you. Open the Vault to see where it is kept safe.', { pass: true });
+    Tutor.callout(scene, btnRect('vault'), 'The Vault', 'Gold you carry dies with you. Open the Vault to see where it is kept safe.', { pass: true, vo: 'vault_door' });
     return true;
   }
   if (s.step === 'party') {
-    Tutor.callout(scene, btnRect('apply'), 'A party', 'Solo work is thin. Open Apply for Party and hire on with someone — the leader takes the risk, you take a wage.', { pass: true });
+    Tutor.callout(scene, btnRect('apply'), 'A party', 'Solo work is thin. Open Apply for Party and hire on with someone — the leader takes the risk, you take a wage.', { pass: true, vo: 'party_door' });
     return true;
   }
   if (s.step === 'partyQuest') {
     if (scene.currentPanel === 'board') { Tutor.panel(scene, game, 'board', scene.contentRect()); return true; }
-    Tutor.callout(scene, btnRect('board'), 'Ride with them', 'You are hired. Open the Quest Board and queue up — the leader decides the contract, not you.', { pass: true });
+    Tutor.callout(scene, btnRect('board'), 'Ride with them', 'You are hired. Open the Quest Board and queue up — the leader decides the contract, not you.', { pass: true, vo: 'ride' });
     return true;
   }
   return false;
@@ -169,21 +170,21 @@ Tutor.panel = function (scene, game, id, r) {
   Tutor.clear(scene);
   if (s.step === 'firstQuest' && id === 'board') {
     const b = scene.tutorFirstQuestBtn;
-    Tutor.callout(scene, b ? { x: b.zone.x, y: b.zone.y, w: b.zone.width, h: b.zone.height } : null, 'Take this one', 'A neutral Tier 1 solo: beasts on the road, no banners. Vault nothing and set out.', { pass: true });
+    Tutor.callout(scene, b ? { x: b.zone.x, y: b.zone.y, w: b.zone.width, h: b.zone.height } : null, 'Take this one', 'A neutral Tier 1 solo: beasts on the road, no banners. Vault nothing and set out.', { pass: true, vo: 'take_this' });
   }
   if (s.step === 'partyQuest' && id === 'board') {
-    Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 220, h: 48 }, 'Queue up', 'Click Ready. The leader picks the contract; you take your wage either way.', { pass: true, hint: '↑ Ready for the quest' });
+    Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 220, h: 48 }, 'Queue up', 'Click Ready. The leader picks the contract; you take your wage either way.', { pass: true, hint: '↑ Ready for the quest', vo: 'queue' });
   }
   if (s.step === 'trainer' && id === 'trainer') {
-    Tutor.callout(scene, { x: r.x + 24, y: r.y + 122, w: r.w - 48, h: 200 }, 'Skills for sale', 'Gold-priced skills you have never seen; free ones you witnessed in battle. Click a skill you already own to buy tutoring — 300g to Intermediate, 600g to Advanced. Nothing to buy yet? Come back richer.', { onNext: () => { s.step = 'vault'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood' });
+    Tutor.callout(scene, { x: r.x + 24, y: r.y + 122, w: r.w - 48, h: 200 }, 'Skills for sale', 'Gold-priced skills you have never seen; free ones you witnessed in battle. Click a skill you already own to buy tutoring — 300g to Intermediate, 600g to Advanced. Nothing to buy yet? Come back richer.', { onNext: () => { s.step = 'vault'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'skills_sale' });
   }
   if (s.step === 'vault' && id === 'vault') {
-    Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 120 }, 'Safe keeping', 'This is your vault. Gold here survives your death and passes to your heirs. Before every quest you choose what to leave behind. When you marry, the two of you share one — you may draw your share once per stay.', { onNext: () => { s.step = 'party'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood' });
+    Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 120 }, 'Safe keeping', 'This is your vault. Gold here survives your death and passes to your heirs. Before every quest you choose what to leave behind. When you marry, the two of you share one — you may draw your share once per stay.', { onNext: () => { s.step = 'party'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'safe_keeping' });
   }
   if (s.step === 'party' && id === 'apply') {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 80 }, s.declined ? 'Try another' : 'Ask to join', s.declined
       ? 'Turned away — that happens; reputation and what your sheet fills decide it. Ask the next party.'
-      : 'Set your asking wage, then pick a party. Reputation opens 30g to 200g; a high ask is harder to land. After you hire on you can keep asking for raises, up to 300g.', { pass: true, hint: '↑ set a wage, then click a party' });
+      : 'Set your asking wage, then pick a party. Reputation opens 30g to 200g; a high ask is harder to land. After you hire on you can keep asking for raises, up to 300g.', { pass: true, hint: '↑ set a wage, then click a party', vo: s.declined ? 'try_another' : 'ask_join' });
   }
 };
 
@@ -207,7 +208,7 @@ Tutor.onQuestDone = function (game, failed) {
   ADV.Save.saveGame(game);
 };
 Tutor.finalWords = function (scene, game) {
-  Tutor.callout(scene, null, 'That is the whole loop', 'Contracts, gold, skills, people. From here it is yours: quit the party when you want to lead or go solo, name your wage when you join the next, marry, buy knives. Death is not the end of what you know.', { label: 'Go on' });
+  Tutor.callout(scene, null, 'That is the whole loop', 'Contracts, gold, skills, people. From here it is yours: quit the party when you want to lead or go solo, name your wage when you join the next, marry, buy knives. Death is not the end of what you know.', { label: 'Go on', vo: 'final_words' });
 };
 
 ADV.Tutor = Tutor;
