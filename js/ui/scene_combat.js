@@ -30,6 +30,7 @@ class CombatScene extends Phaser.Scene {
     this.targeting = null;
     this.actionObjs = [];
     this.autoTimer = null;
+    this._autoPaused = false;
     const W = T().W, H = T().H;
     // A roadside mugging and a drowned king used to share one flat rectangle.
     if (ADV.BattleArt) {
@@ -479,6 +480,15 @@ class CombatScene extends Phaser.Scene {
       case 'survivalGrowth': { if (v) V.damageNumber(this, v.x, v.y - 44, `+${e.gain} MAX HP (${e.total})`, '#83b56b'); return 240; }
       case 'extraTurn': { if (v) V.damageNumber(this, v.x, v.y - 40, 'storm speed — again!', '#6fc0e8'); return 260; }
       case 'arenaChampion': { if (v) { V.scalePunch(this, v.img); V.damageNumber(this, v.x, v.y - 44, `ARENA CHAMPION ×${e.stacks}`, '#d4a94e'); this.redrawUnit(v); } return 320; }
+      case 'poisonHop': {
+        const dest = e.to ? this.view(e.to) : null;
+        if (v) V.damageNumber(this, v.x, v.y - 30, 'poison leaps', '#5d8a4a');
+        if (dest) {
+          V.damageNumber(this, dest.x, dest.y - 30, 'caught it', '#5d8a4a');
+          this.redrawUnit(dest);
+        }
+        return 180;
+      }
       default: return 10;
     }
   }
@@ -500,6 +510,7 @@ class CombatScene extends Phaser.Scene {
   }
 
   queuePlayerAuto(u) {
+    if (this._autoPaused) { this._autoPaused = false; return false; }
     const ready = ADV.Combat.autoReadyAction(this.st(), u);
     if (ready) {
       this.showAutoStrip(u, ready);
@@ -511,6 +522,9 @@ class CombatScene extends Phaser.Scene {
       return true;
     }
     if (!ADV.Combat.ensureAutoRepeat(u.ch)) return false;
+    // Rotation is armed but nothing in it can fire. If the player still has a
+    // legal skill, hand the turn back so they can pick. Only auto-wait when
+    // the field itself is empty (smoke, stealth, no reach).
     if (ADV.Combat.hasLegalCombatAction(this.st(), u)) return false;
     this.showAutoWaitStrip(u);
     this.autoTimer = this.time.delayedCall(360, () => {
@@ -567,13 +581,17 @@ class CombatScene extends Phaser.Scene {
     const rot = this.autoRotationLabel(u);
     keep(T().panel(this, 40, H - 110, W - 80, 96));
     keep(T().text(this, 56, H - 88, 'AUTO · ' + name, { size: 16, color: T().css.green }));
-    keep(T().text(this, 56, H - 62, 'Rotation: ' + rot + '. Weakest target each swing.', { size: 12, color: T().css.inkDim, wrap: W - 280 }));
-    const stop = T().button(this, W - 200, H - 86, 140, 60, 'STOP', () => {
+    keep(T().text(this, 56, H - 62, 'Rotation: ' + rot + '. Weakest target each swing.', { size: 12, color: T().css.inkDim, wrap: W - 360 }));
+    const stop = T().button(this, W - 348, H - 86, 128, 60, 'PAUSE', () => {
+      this._autoPaused = true;
+      this.showActionBar(u);
+    }, { size: 13, color: T().css.gold, sub: 'keep rotation' });
+    const wipe = T().button(this, W - 200, H - 86, 128, 60, 'CLEAR', () => {
       ADV.Combat.clearAutoFlags(u.ch);
       ADV.Save.saveGame(this.game_);
       this.showActionBar(u);
-    }, { size: 15, color: T().css.gold, sub: 'end auto' });
-    keep(stop.g); keep(stop.txt); if (stop.sub) keep(stop.sub); keep(stop.zone);
+    }, { size: 13, color: T().css.inkDim, sub: 'end auto' });
+    for (const b of [stop, wipe]) { keep(b.g); keep(b.txt); if (b.sub) keep(b.sub); keep(b.zone); }
   }
 
   showAutoWaitStrip(u) {
@@ -582,13 +600,17 @@ class CombatScene extends Phaser.Scene {
     const keep = o => { this.actionObjs.push(o); return o; };
     keep(T().panel(this, 40, H - 110, W - 80, 96));
     keep(T().text(this, 56, H - 88, 'AUTO · waiting', { size: 16, color: T().css.green }));
-    keep(T().text(this, 56, H - 62, 'No target right now (smoke, stealth, or out of reach). Auto will swing when one appears.', { size: 12, color: T().css.inkDim }));
-    const stop = T().button(this, W - 200, H - 86, 140, 60, 'STOP', () => {
+    keep(T().text(this, 56, H - 62, 'No target right now (smoke, stealth, or out of reach). Auto will swing when one appears.', { size: 12, color: T().css.inkDim, wrap: W - 360 }));
+    const stop = T().button(this, W - 348, H - 86, 128, 60, 'PAUSE', () => {
+      this._autoPaused = true;
+      this.showActionBar(u);
+    }, { size: 13, color: T().css.gold, sub: 'pick yourself' });
+    const wipe = T().button(this, W - 200, H - 86, 128, 60, 'CLEAR', () => {
       ADV.Combat.clearAutoFlags(u.ch);
       ADV.Save.saveGame(this.game_);
       this.showActionBar(u);
-    }, { size: 15, color: T().css.gold, sub: 'end auto' });
-    keep(stop.g); keep(stop.txt); if (stop.sub) keep(stop.sub); keep(stop.zone);
+    }, { size: 13, color: T().css.inkDim, sub: 'end auto' });
+    for (const b of [stop, wipe]) { keep(b.g); keep(b.txt); if (b.sub) keep(b.sub); keep(b.zone); }
   }
 
   showActionBar(u) {
@@ -597,7 +619,8 @@ class CombatScene extends Phaser.Scene {
     const W = T().W, H = T().H;
     const keep = o => { this.actionObjs.push(o); return o; };
     keep(T().panel(this, 40, H - 110, W - 80, 96));
-    keep(T().text(this, 56, H - 104, 'Your move', { size: 12, color: T().css.gold }));
+    const rot = ADV.Combat.autoList(u.ch);
+    keep(T().text(this, 56, H - 104, rot.length ? ('AUTO · ' + this.autoRotationLabel(u)) : 'Your move', { size: 12, color: T().css.gold }));
     let x = 56;
     const mkBtn = (label, sub, fn, disabled, tipSkillId) => {
       const w = Math.max(96, label.length * 8 + 22);
@@ -658,11 +681,19 @@ class CombatScene extends Phaser.Scene {
           return on
             ? 'This skill is in the auto rotation. Tap AUTO off to drop it; the others keep going.'
             : (heal
-              ? 'Add this heal to the auto rotation. Combat walks your auto skills in order.'
-              : 'Add this skill to the auto rotation. Combat walks them in order, weakest target.');
+              ? 'Add this heal to the auto rotation. Combat walks your auto skills in order and skips a heal nobody needs.'
+              : 'Add this skill to the auto rotation. Combat walks them in order and skips one that cannot fire.');
         });
         x += 48;
       }
+    }
+
+    if (rot.length) {
+      mkBtn('GO', 'auto next', () => {
+        const ready = ADV.Combat.autoReadyAction(this.st(), u);
+        if (ready) this.commitAction(u, ready.action, ready.tgt);
+        else ADV.Notices.toast(this, 'Nothing in the rotation can fire — pick a skill.');
+      });
     }
 
     if (!ADV.Combat.hasLegalCombatAction(st, u)) {
@@ -685,12 +716,15 @@ class CombatScene extends Phaser.Scene {
   }
 
   toggleSkillAuto(u, action) {
+    const had = ADV.Combat.autoList(u.ch).length > 0;
     const on = !ADV.Combat.skillAutoOn(u.ch, action.skillId, action.off);
     ADV.Combat.setSkillAuto(u.ch, action.skillId, on, action.off);
     const line = ADV.Game.prompt(this.game_, 'firstSkillAuto');
     if (line) ADV.Notices.toast(this, line);
     ADV.Save.saveGame(this.game_);
-    if (on) {
+    // First skill into an empty rotation starts walking. Adding more just
+    // joins the list — PAUSE if you want the bar back mid-rotation.
+    if (on && !had) {
       const ready = ADV.Combat.autoReadyAction(this.st(), u);
       if (ready) { this.commitAction(u, ready.action, ready.tgt); return; }
     }

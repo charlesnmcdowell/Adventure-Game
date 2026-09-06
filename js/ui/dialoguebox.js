@@ -79,16 +79,20 @@ const DialogueBox = {
     scene.tweens.add({ targets: hint, y: hint.y + 4, duration: 420, yoyo: true, repeat: -1 });
     group.push(hint);
 
+    if (ADV.Tooltip) ADV.Tooltip.hide();
+    if (ADV.Tutor) ADV.Tutor.clear(scene);
     if (ADV.Notices && ADV.Notices.block) ADV.Notices.block(scene);
     if (!scene.__cutscene && scene.hideChrome) scene.hideChrome();
     const close = () => {
       timer.remove(false);
       if (ADV.Music) ADV.Music.stopVoice();
       for (const g of group) { try { g.destroy(); } catch (e) {} }
+      if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('dialogue');
       if (!scene.__cutscene && scene.showChrome) scene.showChrome();
       if (ADV.Notices && ADV.Notices.unblock) ADV.Notices.unblock(scene);
       if (onDone) onDone();
     };
+    if (ADV.UI && ADV.UI.holdCard) ADV.UI.holdCard('dialogue', close);
     dim.on('pointerdown', () => {
       if (!doneTyping) { timer.remove(false); txt.setText(line); doneTyping = true; }
       else close();

@@ -268,8 +268,9 @@ function venomFang(scene, ctx, p) {
   const src = ctx.src, tgt = ctx.tgt, color = POI, dir = ctx.dir || 1;
   if (src && src.img) V().lunge(scene, src.img, dir);
   V().stab(scene, tx(tgt, src), ty(tgt, src) - 6, dir, color, { w: 4 });
-  V().stab(scene, tx(tgt, src), ty(tgt, src) + 8, dir, color, { w: 3 });
+  V().stab(scene, tx(tgt, src), ty(tgt, src) + 8, dir, BLD, { w: 3 });
   V().motes(scene, tx(tgt, src), ty(tgt, src), color, 3 + p.n);
+  V().drip(scene, tx(tgt, src), ty(tgt, src), BLD, { n: 2 + p.n });
   if (ctx.tier === 'advanced') {
     laneOf(scene, tgt).forEach(v => V().motes(scene, v.x, v.y, color, 4));
   }

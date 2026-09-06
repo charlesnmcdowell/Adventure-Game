@@ -481,13 +481,29 @@ Combat.setSkillAuto = function (ch, skillId, on, offensiveMode) {
 function autoUsable(st, u, r) {
   if (!r) return null;
   if (r.skillId !== 'basic_attack' && !Sys().entryFor(u.ch, r.skillId)) return null;
+  const m = manifestFor(u, r.skillId);
+  if (!m) return null;
+  const d = m.data;
   const seal = u.statuses.find(x => x.kind === 'sealed');
-  if (seal && r.skillId !== 'basic_attack') {
-    const m = manifestFor(u, r.skillId);
-    if (m && (seal.tiers || []).includes(m.tier)) return null;
-  }
-  const pool = Combat.validTargets(st, u, r.skillId, r.off);
+  if (seal && r.skillId !== 'basic_attack' && (seal.tiers || []).includes(m.tier)) return null;
+  if (d.interrupt && u.statuses.some(x => x.kind === 'shock' || x.kind === 'shocked')) return null;
+  if (d.reload && u.reloadLock[r.skillId] && !perkVal(u.ch, 'powder_discipline', 'noReload')) return null;
+  if (d.openerOnly && u.actedThisEncounter) return null;
+  if (d.revive && u.usedOncePerBattle[r.skillId]) return null;
+  let pool = Combat.validTargets(st, u, r.skillId, r.off);
   if (!pool.length) return null;
+  const off = r.off && d.offensive;
+  if (!off && d.heal && (d.power || d.hotRounds || d.healFromTaken) && !d.shieldHits && !d.shieldRounds) {
+    const needy = pool.filter(x => x.downed || x.chp < x.maxHp);
+    if (!needy.length) return null;
+    pool = needy;
+  }
+  if (!off && r.skillId === 'cleanse') {
+    const needy = pool.filter(x => x.ch.isConscript || x.ch.isUndead ||
+      x.statuses.some(s => NEG_STATUSES.includes(s.kind)));
+    if (!needy.length) return null;
+    pool = needy;
+  }
   const tgt = Combat.lowestHealth(pool);
   if (!tgt) return null;
   return {
@@ -908,7 +924,35 @@ function noteLeaderOut(st, u, died) {
   ev(st, { t: 'end', winner: st.winner, reason: died ? 'leaderFell' : 'leaderFled' });
 }
 
+function hopPoison(st, dead) {
+  const dots = (dead.statuses || []).filter(s => s.kind === 'poison' && !s.__hopped);
+  if (!dots.length) return;
+  const order = { front: 0, mid: 1, back: 2 };
+  const cand = livingUnits(st, dead.side).filter(x => {
+    if (x === dead) return false;
+    if (x.ch.statusImmunities && x.ch.statusImmunities.includes('poison')) return false;
+    if (x.statuses.some(s => s.kind === 'purified')) return false;
+    const dm = perkVal(x.ch, 'demigod', null);
+    if (dm && dm.statusImmune) return false;
+    return true;
+  });
+  if (!cand.length) return;
+  cand.sort((a, b) => {
+    const da = Math.abs((order[a.lane] || 0) - (order[dead.lane] || 0));
+    const db = Math.abs((order[b.lane] || 0) - (order[dead.lane] || 0));
+    if (da !== db) return da - db;
+    return (a.slot || 0) - (b.slot || 0);
+  });
+  const tgt = cand[0];
+  for (const s of dots) {
+    s.__hopped = true;
+    addStatus(st, tgt, Object.assign({}, s, { fresh: true, __hopped: false }));
+  }
+  ev(st, { t: 'poisonHop', from: dead.uid, to: tgt.uid, n: dots.length });
+}
+
 function onUnitDown(st, u) {
+  hopPoison(st, u);
   noteLeaderOut(st, u, true);
   // step a reserve into the field on the following turn (§15a)
   const side = u.side;
@@ -1481,10 +1525,12 @@ Combat.act = function (st, u, action) {
       if (u.consecutiveCount % 3 === 0 && !t.downed) dealDamage(st, u, t, computeDamage(st, u, t, m), tag);
     }
     // riders
-    if (d.status && dealt > 0 && !t.downed) {
+    if (d.status && dealt > 0) {
       for (const [kind, sdef] of Object.entries(d.status)) {
         addStatus(st, t, Object.assign({ kind, srcAtk: Ch().effStat(u.ch, 'atk'), srcLevel: m.level, srcUid: u.uid }, sdef));
       }
+      // A killing blow still leaves its poison on the corpse so it can leap.
+      if (t.downed) hopPoison(st, t);
     }
     if (d.freeze && !t.downed) addStatus(st, t, { kind: 'frozen', skips: d.freeze });
     if (d.shock && !t.downed) addStatus(st, t, { kind: 'shocked', pct: d.shock, rounds: d.shockRounds || 3 });

@@ -395,11 +395,11 @@ ADV.DATA.SKILLS = S;
 // ---- Debuff kit (request 14): the four things the new contracts throw at you
 def({ id: 'venom_fang', name: 'Venom Fang', kind: 'active', archetype: 'rogue',
   power: 1.6, reach: 'front', target: 'enemy', melee: true,
-  desc: 'A shallow, dirty cut: Poison that stacks with every bite.',
+  desc: 'A shallow, dirty cut: Poison and Bleed in one stab, both stacking with every bite.',
   tiers: {
-    basic:        { name: 'Venom Fang',  status: { poison: { power: 0.6, rounds: 3, stacks: true } } },
-    intermediate: { name: 'Black Fang',  status: { poison: { power: 0.8, rounds: 3, stacks: true } } },
-    advanced:     { name: 'Plague Fang', status: { poison: { power: 1.0, rounds: 4, stacks: true } }, adjacent: 1 },
+    basic:        { name: 'Venom Fang',  status: { poison: { power: 0.6, rounds: 3, stacks: true }, bleed: { power: 0.6, rounds: 3, stacks: true } } },
+    intermediate: { name: 'Black Fang',  status: { poison: { power: 0.8, rounds: 3, stacks: true }, bleed: { power: 0.8, rounds: 3, stacks: true } } },
+    advanced:     { name: 'Plague Fang', status: { poison: { power: 1.0, rounds: 4, stacks: true }, bleed: { power: 1.0, rounds: 4, stacks: true } }, adjacent: 1 },
   } });
 def({ id: 'ember_lash', name: 'Ember Lash', kind: 'active', archetype: 'mage',
   elemental: true, element: 'fire', power: 1.8, reach: 'any', target: 'enemy',

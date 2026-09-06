@@ -94,7 +94,9 @@ function buildOf(o) {
 function drawBody(ctx, o, cx, skin) {
   const chinY = chinYOf(o);
   const b = buildOf(o);
-  const y0 = EYE_Y + 62;                       // garment line / shoulder top
+  // Sit the garment just under this face's chin so lean/broad/jaw variants
+  // don't leave a floating collar or a buried neck.
+  const y0 = chinY + 12;
   const sh = b.shoulder;
   ctx.fillStyle = shade(skin, o.sex === 'f' ? 1.0 : 0.94);
   // neck
@@ -176,12 +178,17 @@ function folds(ctx, cx, y0, sh, col, n) {
     ctx.beginPath(); ctx.moveTo(x, y0 + 40 + (i % 2) * 8); ctx.quadraticCurveTo(x + 3, y0 + 80, x - 2, H); ctx.stroke();
   }
 }
-// pauldron with a highlight rim
+// Scale costume details to this bust's shoulder width (72 is the design default).
+function fit(sh, n) { return n * (sh / 72); }
+function headWOf(o) { return 46 + (o.jaw || 0) * 4; }
+// pauldron sits on the actual shoulder, not a fixed inset
 function pauldron(ctx, cx, y0, sh, s, col, size, rim) {
+  const px = cx + s * (sh - size * 0.42);
+  const py = y0 + 10;
   ctx.fillStyle = col;
-  ctx.beginPath(); ctx.ellipse(cx + s * (sh / 2 + 6), y0 + 12, size, size * 0.66, s * 0.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(px, py, size, size * 0.66, s * 0.2, 0, Math.PI * 2); ctx.fill();
   ctx.strokeStyle = rim; ctx.lineWidth = 1.6;
-  ctx.beginPath(); ctx.ellipse(cx + s * (sh / 2 + 6), y0 + 10, size - 3, size * 0.5, s * 0.2, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(px, py - 2, size - 3, size * 0.5, s * 0.2, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
 }
 // form shading over the whole garment: shaded side + light side
 function garmentLight(ctx, cx, y0, sh) {
@@ -196,15 +203,17 @@ const PATTERNS = {
   plate(ctx, o, cx, y0, sh, P) {
     garmentShape(ctx, cx, y0, sh, 'high'); ctx.fillStyle = P.base; ctx.fill();
     ctx.fillStyle = shade(P.base, 0.8);
-    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(cx - 40 + i * 3, y0 + 36 + i * 22); ctx.quadraticCurveTo(cx, y0 + 46 + i * 22, cx + 40 - i * 3, y0 + 36 + i * 22); ctx.lineTo(cx + 44 - i * 3, y0 + 58 + i * 22); ctx.quadraticCurveTo(cx, y0 + 68 + i * 22, cx - 44 + i * 3, y0 + 58 + i * 22); ctx.closePath(); ctx.fill(); }
+    const lame = fit(sh, 40);
+    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(cx - lame + i * 3, y0 + 36 + i * 22); ctx.quadraticCurveTo(cx, y0 + 46 + i * 22, cx + lame - i * 3, y0 + 36 + i * 22); ctx.lineTo(cx + lame + 4 - i * 3, y0 + 58 + i * 22); ctx.quadraticCurveTo(cx, y0 + 68 + i * 22, cx - lame - 4 + i * 3, y0 + 58 + i * 22); ctx.closePath(); ctx.fill(); }
     ctx.strokeStyle = P.metal; ctx.lineWidth = 1.6;
-    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(cx - 40 + i * 3, y0 + 36 + i * 22); ctx.quadraticCurveTo(cx, y0 + 46 + i * 22, cx + 40 - i * 3, y0 + 36 + i * 22); ctx.stroke(); }
+    for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(cx - lame + i * 3, y0 + 36 + i * 22); ctx.quadraticCurveTo(cx, y0 + 46 + i * 22, cx + lame - i * 3, y0 + 36 + i * 22); ctx.stroke(); }
     // gorget
+    const gw = fit(sh, 22);
     ctx.fillStyle = shade(P.base, 1.1);
-    ctx.beginPath(); ctx.moveTo(cx - 22, y0 - 8); ctx.lineTo(cx - 26, y0 + 26); ctx.quadraticCurveTo(cx, y0 + 36, cx + 26, y0 + 26); ctx.lineTo(cx + 22, y0 - 8); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - gw, y0 - 8); ctx.lineTo(cx - gw - 4, y0 + 26); ctx.quadraticCurveTo(cx, y0 + 36, cx + gw + 4, y0 + 26); ctx.lineTo(cx + gw, y0 - 8); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = P.metal; ctx.lineWidth = 2; ctx.stroke();
-    for (const s of [-1, 1]) pauldron(ctx, cx, y0, sh, s, shade(P.base, 1.25), 26, P.metal);
-    rivets(ctx, [[cx - sh / 2 - 14, y0 + 8], [cx - sh / 2 + 2, y0 + 6], [cx + sh / 2 + 14, y0 + 8], [cx + sh / 2 - 2, y0 + 6], [cx - 18, y0 + 30], [cx + 18, y0 + 30]], P.metal);
+    for (const s of [-1, 1]) pauldron(ctx, cx, y0, sh, s, shade(P.base, 1.25), fit(sh, 26), P.metal);
+    rivets(ctx, [[cx - sh / 2 - 4, y0 + 8], [cx - sh / 2 + 8, y0 + 6], [cx + sh / 2 + 4, y0 + 8], [cx + sh / 2 - 8, y0 + 6], [cx - fit(sh, 18), y0 + 30], [cx + fit(sh, 18), y0 + 30]], P.metal);
     if (o.centreRidge) { ctx.strokeStyle = P.metal; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(cx, y0 + 36); ctx.lineTo(cx, H); ctx.stroke(); }
     if (o.sunEmblem) { ctx.strokeStyle = P.trim; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, y0 + 14, 7, 0, Math.PI * 2); ctx.stroke(); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * 9, y0 + 14 + Math.sin(a) * 9); ctx.lineTo(cx + Math.cos(a) * 13, y0 + 14 + Math.sin(a) * 13); ctx.stroke(); } }
     garmentLight(ctx, cx, y0, sh);
@@ -213,34 +222,37 @@ const PATTERNS = {
   leather_plate(ctx, o, cx, y0, sh, P) {
     garmentShape(ctx, cx, y0, sh, 'round'); ctx.fillStyle = P.base; ctx.fill();
     ctx.fillStyle = P.metal;
-    ctx.beginPath(); ctx.rect(cx - 30, y0 + 30, 26, 34); ctx.fill();
-    ctx.beginPath(); ctx.rect(cx + 6, y0 + 36, 24, 30); ctx.fill();
+    const pw = fit(sh, 26);
+    ctx.beginPath(); ctx.rect(cx - fit(sh, 30), y0 + 30, pw, 34); ctx.fill();
+    ctx.beginPath(); ctx.rect(cx + fit(sh, 6), y0 + 36, fit(sh, 24), 30); ctx.fill();
     ctx.strokeStyle = shade(P.base, 0.6); ctx.lineWidth = 4;   // straps
-    ctx.beginPath(); ctx.moveTo(cx - 34, y0 + 8); ctx.lineTo(cx + 8, H); ctx.moveTo(cx + 34, y0 + 8); ctx.lineTo(cx - 8, H); ctx.stroke();
-    rivets(ctx, [[cx - 4, y0 + 52], [cx - 12, y0 + 74], [cx + 12, y0 + 74], [cx + 4, y0 + 52]], P.trim);
-    pauldron(ctx, cx, y0, sh, -1, P.metal, 24, shade(P.metal, 1.3));
-    pauldron(ctx, cx, y0, sh, 1, shade(P.base, 1.2), 20, shade(P.base, 1.5));
+    ctx.beginPath(); ctx.moveTo(cx - sh * 0.48, y0 + 8); ctx.lineTo(cx + 8, H); ctx.moveTo(cx + sh * 0.48, y0 + 8); ctx.lineTo(cx - 8, H); ctx.stroke();
+    rivets(ctx, [[cx - 4, y0 + 52], [cx - fit(sh, 12), y0 + 74], [cx + fit(sh, 12), y0 + 74], [cx + 4, y0 + 52]], P.trim);
+    pauldron(ctx, cx, y0, sh, -1, P.metal, fit(sh, 24), shade(P.metal, 1.3));
+    pauldron(ctx, cx, y0, sh, 1, shade(P.base, 1.2), fit(sh, 20), shade(P.base, 1.5));
     garmentLight(ctx, cx, y0, sh);
   },
   // samurai lamellar: rows of laced plates, sode shoulder guards, katana hilt
   lamellar(ctx, o, cx, y0, sh, P) {
     garmentShape(ctx, cx, y0, sh, 'high'); ctx.fillStyle = shade(P.base, 0.7); ctx.fill();
+    const rowW = sh * 0.68;
     for (let r = 0; r < 4; r++) {
       const y = y0 + 28 + r * 20;
       ctx.fillStyle = r % 2 ? P.base : shade(P.base, 1.12);
-      ctx.beginPath(); ctx.moveTo(cx - 48 + r * 2, y); ctx.lineTo(cx + 48 - r * 2, y); ctx.lineTo(cx + 50 - r * 2, y + 18); ctx.lineTo(cx - 50 + r * 2, y + 18); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - rowW + r * 2, y); ctx.lineTo(cx + rowW - r * 2, y); ctx.lineTo(cx + rowW + 2 - r * 2, y + 18); ctx.lineTo(cx - rowW - 2 + r * 2, y + 18); ctx.closePath(); ctx.fill();
       ctx.strokeStyle = P.trim; ctx.lineWidth = 1;                  // cord lacing
-      for (let x = cx - 44; x <= cx + 44; x += 8) { ctx.beginPath(); ctx.moveTo(x, y + 3); ctx.lineTo(x + 4, y + 15); ctx.moveTo(x + 4, y + 3); ctx.lineTo(x, y + 15); ctx.stroke(); }
+      for (let x = cx - rowW + 4; x <= cx + rowW - 4; x += 8) { ctx.beginPath(); ctx.moveTo(x, y + 3); ctx.lineTo(x + 4, y + 15); ctx.moveTo(x + 4, y + 3); ctx.lineTo(x, y + 15); ctx.stroke(); }
     }
-    // sode (square shoulder guards)
+    // sode (square shoulder guards) — hung from the shoulder, not mid-chest
     for (const s of [-1, 1]) {
       ctx.fillStyle = P.base;
-      ctx.beginPath(); ctx.moveTo(cx + s * (sh / 2 - 8), y0 + 2); ctx.lineTo(cx + s * (sh / 2 + 26), y0 + 8); ctx.lineTo(cx + s * (sh / 2 + 28), y0 + 40); ctx.lineTo(cx + s * (sh / 2 - 6), y0 + 34); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx + s * (sh - 14), y0 + 2); ctx.lineTo(cx + s * (sh + 8), y0 + 8); ctx.lineTo(cx + s * (sh + 10), y0 + 40); ctx.lineTo(cx + s * (sh - 12), y0 + 34); ctx.closePath(); ctx.fill();
       ctx.strokeStyle = P.trim; ctx.lineWidth = 1.2;
-      for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(cx + s * (sh / 2 - 7), y0 + 2 + i * 8); ctx.lineTo(cx + s * (sh / 2 + 27), y0 + 8 + i * 8); ctx.stroke(); }
+      for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(cx + s * (sh - 13), y0 + 2 + i * 8); ctx.lineTo(cx + s * (sh + 9), y0 + 8 + i * 8); ctx.stroke(); }
     }
     // collar + katana at the shoulder (§14a)
-    ctx.fillStyle = shade(P.base, 0.55); ctx.beginPath(); ctx.moveTo(cx - 18, y0 - 8); ctx.lineTo(cx - 22, y0 + 26); ctx.lineTo(cx + 22, y0 + 26); ctx.lineTo(cx + 18, y0 - 8); ctx.closePath(); ctx.fill();
+    const cw = fit(sh, 18);
+    ctx.fillStyle = shade(P.base, 0.55); ctx.beginPath(); ctx.moveTo(cx - cw, y0 - 8); ctx.lineTo(cx - cw - 4, y0 + 26); ctx.lineTo(cx + cw + 4, y0 + 26); ctx.lineTo(cx + cw, y0 - 8); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = '#1c1c22'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(cx + 40, y0 + 4); ctx.lineTo(cx + 88, y0 - 44); ctx.stroke();
     ctx.strokeStyle = P.trim; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx + 36, y0 + 8); ctx.lineTo(cx + 46, y0 - 2); ctx.stroke();
     for (let i = 0; i < 4; i++) { ctx.strokeStyle = '#1c1c22'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx + 37 + i * 2.4, y0 + 6 - i * 2.4); ctx.lineTo(cx + 39 + i * 2.4, y0 + 8 - i * 2.4); ctx.stroke(); }
@@ -250,11 +262,12 @@ const PATTERNS = {
   shinobi(ctx, o, cx, y0, sh, P) {
     garmentShape(ctx, cx, y0, sh, 'v'); ctx.fillStyle = P.base; ctx.fill();
     ctx.fillStyle = shade(P.base, 0.8);                               // under-layer in the V
-    ctx.beginPath(); ctx.moveTo(cx - 16, y0 + 2); ctx.lineTo(cx, y0 + 30); ctx.lineTo(cx + 16, y0 + 2); ctx.lineTo(cx + 12, y0 - 4); ctx.lineTo(cx - 12, y0 - 4); ctx.closePath(); ctx.fill();
+    const vw = fit(sh, 16);
+    ctx.beginPath(); ctx.moveTo(cx - vw, y0 + 2); ctx.lineTo(cx, y0 + 30); ctx.lineTo(cx + vw, y0 + 2); ctx.lineTo(cx + vw - 4, y0 - 4); ctx.lineTo(cx - vw + 4, y0 - 4); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = P.trim; ctx.lineWidth = 3;                      // crossed ties
-    ctx.beginPath(); ctx.moveTo(cx - 40, y0 + 22); ctx.lineTo(cx + 34, y0 + 78); ctx.moveTo(cx + 40, y0 + 22); ctx.lineTo(cx - 34, y0 + 78); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - sh * 0.55, y0 + 22); ctx.lineTo(cx + sh * 0.45, y0 + 78); ctx.moveTo(cx + sh * 0.55, y0 + 22); ctx.lineTo(cx - sh * 0.45, y0 + 78); ctx.stroke();
     ctx.strokeStyle = shade(P.base, 1.3); ctx.lineWidth = 1.2;        // wrap seams on the arms
-    for (const s of [-1, 1]) for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(cx + s * (sh / 2 + 4), y0 + 30 + i * 12); ctx.lineTo(cx + s * (sh + 2), y0 + 36 + i * 12); ctx.stroke(); }
+    for (const s of [-1, 1]) for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(cx + s * (sh * 0.55), y0 + 30 + i * 12); ctx.lineTo(cx + s * (sh + 2), y0 + 36 + i * 12); ctx.stroke(); }
     if (o.clanKnot) { ctx.fillStyle = P.trim; ctx.beginPath(); ctx.arc(cx, y0 + 30, 4, 0, Math.PI * 2); ctx.fill(); }
     garmentLight(ctx, cx, y0, sh);
   },
@@ -282,18 +295,21 @@ const PATTERNS = {
   navy(ctx, o, cx, y0, sh, P) {
     garmentShape(ctx, cx, y0, sh, 'high'); ctx.fillStyle = P.base; ctx.fill();
     ctx.fillStyle = '#e8e2d2';                                         // neck stock
-    ctx.beginPath(); ctx.moveTo(cx - 12, y0 - 8); ctx.lineTo(cx + 12, y0 - 8); ctx.lineTo(cx + 8, y0 + 12); ctx.lineTo(cx - 8, y0 + 12); ctx.closePath(); ctx.fill();
+    const sw = fit(sh, 12);
+    ctx.beginPath(); ctx.moveTo(cx - sw, y0 - 8); ctx.lineTo(cx + sw, y0 - 8); ctx.lineTo(cx + sw - 4, y0 + 12); ctx.lineTo(cx - sw + 4, y0 + 12); ctx.closePath(); ctx.fill();
     ctx.fillStyle = shade(P.base, 0.75);                               // double-breasted front panel
-    ctx.beginPath(); ctx.moveTo(cx - 30, y0 + 16); ctx.lineTo(cx + 30, y0 + 16); ctx.lineTo(cx + 26, H); ctx.lineTo(cx - 26, H); ctx.closePath(); ctx.fill();
+    const pw = fit(sh, 30);
+    ctx.beginPath(); ctx.moveTo(cx - pw, y0 + 16); ctx.lineTo(cx + pw, y0 + 16); ctx.lineTo(cx + pw - 4, H); ctx.lineTo(cx - pw + 4, H); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = P.trim; ctx.lineWidth = 5;                       // cross-belt
-    ctx.beginPath(); ctx.moveTo(cx - sh / 2 - 6, y0 + 10); ctx.lineTo(cx + 26, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - sh * 0.55, y0 + 10); ctx.lineTo(cx + 26, H); ctx.stroke();
     const btn = [];
-    for (let i = 0; i < 4; i++) { btn.push([cx - 12, y0 + 26 + i * 18]); btn.push([cx + 12, y0 + 26 + i * 18]); }
+    for (let i = 0; i < 4; i++) { btn.push([cx - fit(sh, 12), y0 + 26 + i * 18]); btn.push([cx + fit(sh, 12), y0 + 26 + i * 18]); }
     for (const [x, y] of btn) { ctx.fillStyle = GOLD; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = shade(GOLD, 1.3); ctx.beginPath(); ctx.arc(x - 1, y - 1, 1, 0, Math.PI * 2); ctx.fill(); }
     for (const s of [-1, 1]) {                                          // epaulettes with fringe
-      ctx.fillStyle = GOLD; ctx.beginPath(); ctx.ellipse(cx + s * (sh / 2 + 4), y0 + 6, 18, 8, s * 0.12, 0, Math.PI * 2); ctx.fill();
+      const ex = cx + s * (sh - 14);
+      ctx.fillStyle = GOLD; ctx.beginPath(); ctx.ellipse(ex, y0 + 6, fit(sh, 18), 8, s * 0.12, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = shade(GOLD, 0.8); ctx.lineWidth = 1.2;
-      for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(cx + s * (sh / 2 + 4) + i * 4, y0 + 12); ctx.lineTo(cx + s * (sh / 2 + 4) + i * 4 + s * 3, y0 + 24); ctx.stroke(); }
+      for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(ex + i * 4, y0 + 12); ctx.lineTo(ex + i * 4 + s * 3, y0 + 24); ctx.stroke(); }
     }
     garmentLight(ctx, cx, y0, sh);
   },
@@ -301,13 +317,14 @@ const PATTERNS = {
   robe(ctx, o, cx, y0, sh, P) {
     garmentShape(ctx, cx, y0, sh, 'high'); ctx.fillStyle = P.base; ctx.fill();
     ctx.fillStyle = shade(P.base, 1.12);
-    ctx.beginPath(); ctx.moveTo(cx - 16, y0 - 8); ctx.lineTo(cx + 16, y0 - 8); ctx.lineTo(cx + 22, H); ctx.lineTo(cx - 22, H); ctx.closePath(); ctx.fill();
+    const rw = fit(sh, 16);
+    ctx.beginPath(); ctx.moveTo(cx - rw, y0 - 8); ctx.lineTo(cx + rw, y0 - 8); ctx.lineTo(cx + rw + 6, H); ctx.lineTo(cx - rw - 6, H); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = P.trim; ctx.lineWidth = 1.6;                    // embroidered edges
-    ctx.beginPath(); ctx.moveTo(cx - 16, y0 - 8); ctx.lineTo(cx - 22, H); ctx.moveTo(cx + 16, y0 - 8); ctx.lineTo(cx + 22, H); ctx.stroke();
-    ctx.beginPath(); for (let y = y0 + 10; y < H; y += 10) { ctx.moveTo(cx - 20, y); ctx.lineTo(cx - 17, y + 4); ctx.moveTo(cx + 20, y); ctx.lineTo(cx + 17, y + 4); } ctx.stroke();
-    if (o.stole) { ctx.fillStyle = P.trim; ctx.beginPath(); ctx.moveTo(cx - 34, y0 + 2); ctx.lineTo(cx - 22, y0 + 4); ctx.lineTo(cx - 30, H); ctx.lineTo(cx - 44, H); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(cx + 34, y0 + 2); ctx.lineTo(cx + 22, y0 + 4); ctx.lineTo(cx + 30, H); ctx.lineTo(cx + 44, H); ctx.closePath(); ctx.fill(); }
+    ctx.beginPath(); ctx.moveTo(cx - rw, y0 - 8); ctx.lineTo(cx - rw - 6, H); ctx.moveTo(cx + rw, y0 - 8); ctx.lineTo(cx + rw + 6, H); ctx.stroke();
+    ctx.beginPath(); for (let y = y0 + 10; y < H; y += 10) { ctx.moveTo(cx - rw - 4, y); ctx.lineTo(cx - rw - 1, y + 4); ctx.moveTo(cx + rw + 4, y); ctx.lineTo(cx + rw + 1, y + 4); } ctx.stroke();
+    if (o.stole) { ctx.fillStyle = P.trim; ctx.beginPath(); ctx.moveTo(cx - sh * 0.48, y0 + 2); ctx.lineTo(cx - rw - 6, y0 + 4); ctx.lineTo(cx - sh * 0.42, H); ctx.lineTo(cx - sh * 0.62, H); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(cx + sh * 0.48, y0 + 2); ctx.lineTo(cx + rw + 6, y0 + 4); ctx.lineTo(cx + sh * 0.42, H); ctx.lineTo(cx + sh * 0.62, H); ctx.closePath(); ctx.fill(); }
     if (o.pendant) { ctx.strokeStyle = P.metal; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(cx, y0 - 2, 14, 0.2, Math.PI - 0.2); ctx.stroke(); ctx.fillStyle = P.metal; ctx.beginPath(); ctx.moveTo(cx, y0 + 10); ctx.lineTo(cx - 4, y0 + 16); ctx.lineTo(cx, y0 + 22); ctx.lineTo(cx + 4, y0 + 16); ctx.closePath(); ctx.fill(); }
-    if (o.gorget) { ctx.fillStyle = P.metal; ctx.beginPath(); ctx.moveTo(cx - 22, y0 - 6); ctx.lineTo(cx - 24, y0 + 18); ctx.quadraticCurveTo(cx, y0 + 26, cx + 24, y0 + 18); ctx.lineTo(cx + 22, y0 - 6); ctx.closePath(); ctx.fill(); }
+    if (o.gorget) { const gw = fit(sh, 22); ctx.fillStyle = P.metal; ctx.beginPath(); ctx.moveTo(cx - gw, y0 - 6); ctx.lineTo(cx - gw - 2, y0 + 18); ctx.quadraticCurveTo(cx, y0 + 26, cx + gw + 2, y0 + 18); ctx.lineTo(cx + gw, y0 - 6); ctx.closePath(); ctx.fill(); }
     folds(ctx, cx, y0, sh, '#000000', 4);
     garmentLight(ctx, cx, y0, sh);
   },
@@ -724,37 +741,38 @@ function hairFront(ctx, o, cx, headW) {
 }
 function drawExtras(kind, col) {
   return (ctx, cx, o) => {
+    const hw = headWOf(o), hr = hw / 2 + 16;
     if (kind === 'hood' || o.hairStyle === 'hood') {
       const hc = col || '#2a2d36';
       ctx.fillStyle = hc;
-      ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 12, 42, 52, 0, Math.PI, 0); ctx.fill();
-      ctx.beginPath(); ctx.moveTo(cx - 42, EYE_Y - 10); ctx.quadraticCurveTo(cx, EYE_Y - 70, cx + 42, EYE_Y - 10); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 12, hr, hr + 10, 0, Math.PI, 0); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(cx - hr, EYE_Y - 10); ctx.quadraticCurveTo(cx, EYE_Y - 70, cx + hr, EYE_Y - 10); ctx.fill();
     }
     if (kind === 'mask') {
       ctx.fillStyle = shade(col || '#2a2d36', 0.85);
-      ctx.beginPath(); ctx.rect(cx - 28, EYE_Y + 10, 56, 22); ctx.fill();
+      ctx.beginPath(); ctx.rect(cx - hw / 2 - 4, EYE_Y + 10, hw + 8, 22); ctx.fill();
     }
     if (kind === 'bandana') {
       ctx.fillStyle = col || '#8a3020';
       ctx.beginPath();
-      ctx.moveTo(cx - 40, EYE_Y - 8);
-      ctx.quadraticCurveTo(cx, EYE_Y - 52, cx + 40, EYE_Y - 8);
-      ctx.lineTo(cx + 36, EYE_Y + 4);
-      ctx.quadraticCurveTo(cx, EYE_Y - 18, cx - 36, EYE_Y + 4);
+      ctx.moveTo(cx - hr + 2, EYE_Y - 8);
+      ctx.quadraticCurveTo(cx, EYE_Y - 52, cx + hr - 2, EYE_Y - 8);
+      ctx.lineTo(cx + hr - 6, EYE_Y + 4);
+      ctx.quadraticCurveTo(cx, EYE_Y - 18, cx - hr + 6, EYE_Y + 4);
       ctx.closePath(); ctx.fill();
       ctx.beginPath();
-      ctx.moveTo(cx + 28, EYE_Y - 6);
-      ctx.lineTo(cx + 52, EYE_Y + 18);
-      ctx.lineTo(cx + 34, EYE_Y + 4);
+      ctx.moveTo(cx + hr - 14, EYE_Y - 6);
+      ctx.lineTo(cx + hr + 10, EYE_Y + 18);
+      ctx.lineTo(cx + hr - 8, EYE_Y + 4);
       ctx.closePath(); ctx.fill();
     }
     if (kind === 'tricorne') {
       ctx.fillStyle = '#1c1c22';
       ctx.beginPath();
-      ctx.moveTo(cx - 54, EYE_Y - 16);
-      ctx.quadraticCurveTo(cx, EYE_Y - 8, cx + 54, EYE_Y - 16);
+      ctx.moveTo(cx - hr - 12, EYE_Y - 16);
+      ctx.quadraticCurveTo(cx, EYE_Y - 8, cx + hr + 12, EYE_Y - 16);
       ctx.quadraticCurveTo(cx + 20, EYE_Y - 54, cx, EYE_Y - 58);
-      ctx.quadraticCurveTo(cx - 20, EYE_Y - 54, cx - 54, EYE_Y - 16);
+      ctx.quadraticCurveTo(cx - 20, EYE_Y - 54, cx - hr - 12, EYE_Y - 16);
       ctx.closePath(); ctx.fill();
       ctx.strokeStyle = '#d4a94e'; ctx.lineWidth = 2;
       ctx.stroke();
@@ -762,12 +780,12 @@ function drawExtras(kind, col) {
     if (kind === 'bicorne') {
       ctx.fillStyle = '#1a2030';
       ctx.beginPath();
-      ctx.ellipse(cx, EYE_Y - 36, 48, 16, 0, 0, Math.PI * 2);
+      ctx.ellipse(cx, EYE_Y - 36, hr + 6, 16, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.moveTo(cx - 48, EYE_Y - 36);
-      ctx.quadraticCurveTo(cx, EYE_Y - 72, cx + 48, EYE_Y - 36);
-      ctx.quadraticCurveTo(cx, EYE_Y - 44, cx - 48, EYE_Y - 36);
+      ctx.moveTo(cx - hr - 6, EYE_Y - 36);
+      ctx.quadraticCurveTo(cx, EYE_Y - 72, cx + hr + 6, EYE_Y - 36);
+      ctx.quadraticCurveTo(cx, EYE_Y - 44, cx - hr - 6, EYE_Y - 36);
       ctx.fill();
       ctx.fillStyle = '#d4a94e';
       ctx.beginPath(); ctx.arc(cx, EYE_Y - 40, 3, 0, Math.PI * 2); ctx.fill();
@@ -778,40 +796,41 @@ function drawHeadwear(ctx, o, cx) {
   const kind = o.headwear;
   const P = palette(o);
   const col = P.base;
+  const hw = headWOf(o), hr = hw / 2 + 14;
   if (kind === 'helm') {
     ctx.fillStyle = shade(col, 1.15);
-    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 18, 40, 36, 0, Math.PI, 0); ctx.fill();
-    ctx.fillRect(cx - 40, EYE_Y - 22, 80, 18);
+    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 18, hr, 36, 0, Math.PI, 0); ctx.fill();
+    ctx.fillRect(cx - hr, EYE_Y - 22, hr * 2, 18);
     ctx.fillStyle = shade(col, 0.7);
-    ctx.fillRect(cx - 36, EYE_Y - 8, 72, 10);
+    ctx.fillRect(cx - hr + 4, EYE_Y - 8, hr * 2 - 8, 10);
     ctx.fillStyle = shade(col, 1.35);
     ctx.fillRect(cx - 4, EYE_Y - 52, 8, 34);
-    rivets(ctx, [[cx - 30, EYE_Y - 14], [cx - 15, EYE_Y - 14], [cx, EYE_Y - 14], [cx + 15, EYE_Y - 14], [cx + 30, EYE_Y - 14]], P.metal);
+    rivets(ctx, [[cx - hr + 10, EYE_Y - 14], [cx - hr / 2, EYE_Y - 14], [cx, EYE_Y - 14], [cx + hr / 2, EYE_Y - 14], [cx + hr - 10, EYE_Y - 14]], P.metal);
     ctx.strokeStyle = rgba('#ffffff', 0.25); ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(cx, EYE_Y - 18, 36, Math.PI * 1.15, Math.PI * 1.45); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, EYE_Y - 18, hr - 4, Math.PI * 1.15, Math.PI * 1.45); ctx.stroke();
   } else if (kind === 'kabuto') {
     // samurai helm: bowl, neck guard flare, fukigaeshi turnbacks, maedate crest
     ctx.fillStyle = shade(col, 0.8);
-    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 20, 42, 34, 0, Math.PI, 0); ctx.fill();
-    ctx.fillRect(cx - 42, EYE_Y - 22, 84, 12);
-    for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(cx + s * 40, EYE_Y - 20); ctx.lineTo(cx + s * 56, EYE_Y - 30); ctx.lineTo(cx + s * 50, EYE_Y - 6); ctx.closePath(); ctx.fill(); }
+    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 20, hr + 2, 34, 0, Math.PI, 0); ctx.fill();
+    ctx.fillRect(cx - hr - 2, EYE_Y - 22, (hr + 2) * 2, 12);
+    for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(cx + s * hr, EYE_Y - 20); ctx.lineTo(cx + s * (hr + 16), EYE_Y - 30); ctx.lineTo(cx + s * (hr + 10), EYE_Y - 6); ctx.closePath(); ctx.fill(); }
     ctx.strokeStyle = P.trim; ctx.lineWidth = 1.2;
-    for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(cx + i * 14, EYE_Y - 52); ctx.lineTo(cx + i * 18, EYE_Y - 12); ctx.stroke(); }
+    for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(cx + i * (hr / 3), EYE_Y - 52); ctx.lineTo(cx + i * (hr / 2.4), EYE_Y - 12); ctx.stroke(); }
     ctx.fillStyle = GOLD;                                              // crescent crest
     ctx.beginPath(); ctx.arc(cx, EYE_Y - 52, 16, Math.PI * 1.15, Math.PI * 1.85); ctx.arc(cx, EYE_Y - 46, 12, Math.PI * 1.85, Math.PI * 1.15, true); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = shade(col, 0.6); ctx.fillRect(cx - 38, EYE_Y - 10, 76, 6);
+    ctx.fillStyle = shade(col, 0.6); ctx.fillRect(cx - hr + 2, EYE_Y - 10, hr * 2 - 4, 6);
   } else if (kind === 'cap') {
     ctx.fillStyle = shade(col, 0.85);
-    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 28, 36, 16, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 28, hr - 4, 16, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = shade(col, 0.65);
-    ctx.beginPath(); ctx.ellipse(cx + 6, EYE_Y - 18, 44, 8, 0.08, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = P.metal; ctx.beginPath(); ctx.arc(cx - 20, EYE_Y - 28, 2, 0, Math.PI * 2); ctx.fill();  // pin
+    ctx.beginPath(); ctx.ellipse(cx + 6, EYE_Y - 18, hr + 4, 8, 0.08, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = P.metal; ctx.beginPath(); ctx.arc(cx - hr + 16, EYE_Y - 28, 2, 0, Math.PI * 2); ctx.fill();  // pin
   } else if (kind === 'hood' && o.hairStyle !== 'hood') {
     ctx.fillStyle = shade(col, 0.85);
-    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 12, 42, 52, 0, Math.PI, 0); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(cx - 42, EYE_Y - 10); ctx.quadraticCurveTo(cx, EYE_Y - 70, cx + 42, EYE_Y - 10); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx, EYE_Y - 12, hr, hr + 10, 0, Math.PI, 0); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - hr, EYE_Y - 10); ctx.quadraticCurveTo(cx, EYE_Y - 70, cx + hr, EYE_Y - 10); ctx.fill();
     ctx.strokeStyle = rgba('#000000', 0.3); ctx.lineWidth = 1.2;
-    ctx.beginPath(); ctx.moveTo(cx - 36, EYE_Y - 12); ctx.quadraticCurveTo(cx, EYE_Y - 58, cx + 36, EYE_Y - 12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - hr + 6, EYE_Y - 12); ctx.quadraticCurveTo(cx, EYE_Y - 58, cx + hr - 6, EYE_Y - 12); ctx.stroke();
   } else if (kind === 'bicorne' || kind === 'tricorne' || kind === 'bandana') {
     drawExtras(kind, col)(ctx, cx, o);
   }

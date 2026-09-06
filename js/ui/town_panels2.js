@@ -864,6 +864,7 @@ Notices.custom = function (scene, build, box) {
   const objs = [];
   const keep = o => { objs.push(o); return o; };
   const D = 930;
+  if (ADV.Tooltip) ADV.Tooltip.hide();
   Notices.block(scene);
   keep(scene.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.75).setDepth(D - 2).setInteractive());
   keep(T().panel(scene, bx, by, bw, bh)).setDepth(D - 1);
@@ -872,8 +873,13 @@ Notices.custom = function (scene, build, box) {
     if (closed) return;
     closed = true;
     objs.forEach(o => { try { o.destroy(); } catch (e) {} });
+    if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('notice');
     Notices.unblock(scene);
   };
+  if (ADV.UI && ADV.UI.holdCard && !ADV.UI.holdCard('notice', close)) {
+    Notices.unblock(scene);
+    return function () {};
+  }
   build(keep, D, close);
   return close;
 };
