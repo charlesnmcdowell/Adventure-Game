@@ -62,12 +62,12 @@ function isGod(ch) {
   return !!(ch && (ch.isGod || ch.role === 'god' || ch.godLine));
 }
 function rankTurns(ch) {
-  const perkN = Math.max(perkVal(ch, 'lone_wolf', 'turnsPerRound') || 1,
-                         perkVal(ch, 'lightning_king', 'turnsPerRound') || 1);
-  const consecPerk = !!perkVal(ch, 'lightning_king', 'consecutive');
+  const perkN = Math.max(Sys().knownVal(ch, 'turnsPerRound') || 1, 1);
+  const consecPerk = !!Sys().knownVal(ch, 'consecutive');
+  const place = Sys().knownVal(ch, 'turnPlacement');
   if (isGod(ch)) return { n: Math.max(3, perkN), consecutive: true };
   if (ch && ch.boss) return { n: Math.max(2, perkN), consecutive: true };
-  return { n: perkN, consecutive: consecPerk };
+  return { n: perkN, consecutive: consecPerk && place !== 'distributed' };
 }
 
 function perkVal(ch, perkId, key) {
@@ -319,13 +319,12 @@ function buildTurnQueue(st) {
     if (u.downed || u.fled || u.reserved) continue;
     let spd = Ch().effStat(u.ch, 'spd') - (u.delayed || 0);
     // Naval Discipline: nothing puts this lane at the back of the round
-    const noDelay = livingUnits(st, u.side).some(x => x.lane === u.lane &&
-      x.ch.perks.some(e => { const sk = SK()[e.skillId]; return sk && sk.laneNoDelay; }));
+    const noDelay = livingUnits(st, u.side).some(x => x.lane === u.lane && Sys().knownVal(x.ch, 'laneNoDelay'));
     if (u.statuses.some(x => x.kind === 'shock') && !noDelay) spd -= 100;   // Shock: acts last
-    if (perkVal(u.ch, 'green_discipline', 'firstInRoundOne') && st.round === 1) spd += 1000;
+    if (Sys().knownVal(u.ch, 'firstInRoundOne') && st.round === 1) spd += 1000;
     const laneRank = { front: 0, mid: 1, back: 2 }[u.lane] || 0;
     const n = u.turnsPerRound;
-    const consecutive = !!(u.consecutiveTurns || perkVal(u.ch, 'lightning_king', 'consecutive'));
+    const consecutive = !!u.consecutiveTurns;
     for (let k = 0; k < n; k++) {
       // Lone Wolf distributed: spread extra turns through the round via phantom
       // speeds; Lightning King's extra turn comes straight after the first
@@ -338,7 +337,7 @@ function buildTurnQueue(st) {
     const e = q[i];
     if (!e.extra) continue;
     const u = st.units.find(x => x.uid === e.uid);
-    if (!u || !(u.consecutiveTurns || perkVal(u.ch, 'lightning_king', 'consecutive'))) continue;
+    if (!u || !u.consecutiveTurns) continue;
     q.splice(i, 1);
     const first = q.findIndex(x => x.uid === e.uid);
     q.splice(first + 1, 0, e);
@@ -551,7 +550,7 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
   if (!m) return [];
   const d = m.data;
   const foeSide = u.side === 'a' ? 'b' : 'a';
-  const seeInvis = !!perkVal(u.ch, 'see_invisibility', null);
+  const seeInvis = !!(perkVal(u.ch, 'see_invisibility', null) || Sys().knownVal(u.ch, 'seeInvis'));
   const foes = livingUnits(st, foeSide).filter(x => !x.untargetable && (!x.stealth || seeInvis));
   const allies = livingUnits(st, u.side);
   let target = d.target;
@@ -569,12 +568,6 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
     let pool2 = allies;
     if (d.healBehind) pool2 = allies.filter(x => canHealOther(u, x));
     else if (d.wardAhead) pool2 = allies.filter(x => canWard(u, x));
-    // Cleanse also reaches conscripts and the undead on EITHER side (§ request 7)
-    if (skillId === 'cleanse') {
-      const mercies = st.units.filter(x => !x.downed && !x.fled && !x.reserved &&
-        x !== u && (x.ch.isConscript || x.ch.isUndead) && !pool2.includes(x));
-      pool2 = pool2.concat(mercies);
-    }
     return pool2;
   }
   let pool = foes;
@@ -589,7 +582,8 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
     const mids = foes.filter(x => x.lane === 'mid');
     pool = backs.length ? backs : mids;
   } else if (d.reach === 'front') {
-    pool = foes.filter(x => canMelee(st, u, x));
+    if (d.laneShift || Sys().knownVal(u.ch, 'laneShift')) pool = foes;
+    else pool = foes.filter(x => canMelee(st, u, x));
   }
   // Hold the Road: a held lane cannot be flanked/bypassed — back-reach skills
   // can't single it out (front-reach and any-lane skills still can)
@@ -708,6 +702,7 @@ function autoUsable(st, u, r) {
   if (d.openerOnly && u.actedThisEncounter) return null;
   if (d.freeBuff) return null;
   if (d.freeAction && u.freeActionUsed) return null;
+  if (cooldownLeft(u, r.skillId) > 0) return null;
   if (d.selfRevive) return null;
   if (d.revive && !canSpendBattleUse(u, r.skillId, d)) return null;
   let pool = Combat.validTargets(st, u, r.skillId, r.off);
@@ -715,12 +710,6 @@ function autoUsable(st, u, r) {
   const off = r.off && d.offensive;
   if (!off && d.heal && (d.power || d.hotRounds || d.healFromTaken) && !d.shieldHits && !d.shieldRounds) {
     const needy = pool.filter(x => x.downed || x.chp < x.maxHp);
-    if (!needy.length) return null;
-    pool = needy;
-  }
-  if (!off && r.skillId === 'cleanse') {
-    const needy = pool.filter(x => x.ch.isConscript || x.ch.isUndead ||
-      x.statuses.some(s => NEG_STATUSES.includes(s.kind)));
     if (!needy.length) return null;
     pool = needy;
   }
@@ -1276,6 +1265,12 @@ function findGuard(st, tgt) {
     if (g.scope === 'party' && canWard(u, tgt)) return { owner: u };
     if (g.scope === 'lane' && u.lane === tgt.lane) return { owner: u };
   }
+  // Bulwark+ / Rampart: cover an ally in an adjacent lane with no extra stance
+  for (const u of livingUnits(st, tgt.side)) {
+    const bw = perkVal(u.ch, 'bulwark', null);
+    if (!bw || !bw.protectAdjacent || u === tgt) continue;
+    if (Math.abs((LANE_IDX[u.lane] || 0) - (LANE_IDX[tgt.lane] || 0)) === 1) return { owner: u };
+  }
   return null;
 }
 
@@ -1387,18 +1382,25 @@ function tickCooldowns(st) {
   }
 }
 
-// Poison & bleed pass (DOT_PROMPT.md §1–§3): a tick is a percentage of the
-// TARGET's max HP by the tier of the skill that applied it, spread over the
-// status's ticks. Nothing else computes a DoT number.
+// Poison & bleed: a tick is a percentage of the TARGET's max HP by the
+// applying skill's tier, spread over DOT_TICKS (6). Authoring that still
+// says rounds: 3 is the old window and stretches to 6; any other rounds
+// value is scaled the same way (4 → 8, 2 → 4) so the total % is unchanged.
 const DOT_PCT = { basic: 0.5, intermediate: 1.0, advanced: 2.0 };
+const DOT_TICKS = 6;
 Combat.DOT_PCT = DOT_PCT;
+Combat.DOT_TICKS = DOT_TICKS;
 function isPctDot(kind) { return kind === 'poison' || kind === 'bleed'; }
-// every poison/bleed carries tier, pct, ticks and a running total; rounds/fresh never touch it
+function dotWindow(rounds) {
+  if (rounds == null || rounds === 3) return DOT_TICKS;
+  return Math.max(1, Math.round(rounds * (DOT_TICKS / 3)));
+}
+Combat.dotWindow = dotWindow;
 function normaliseDot(status) {
   if (!isPctDot(status.kind)) return status;
   status.tier = DOT_PCT[status.tier] != null ? status.tier : 'basic';
   status.pct = DOT_PCT[status.tier];
-  if (status.ticks == null) status.ticks = status.rounds != null && status.rounds > 0 ? status.rounds : 3;
+  if (status.ticks == null) status.ticks = dotWindow(status.rounds);
   if (status.ticksTotal == null) status.ticksTotal = status.ticks;
   if (status.dealt == null) status.dealt = 0;
   delete status.rounds; delete status.fresh;
@@ -1520,7 +1522,13 @@ function endRoundTicks(st) {
       }
       if (s.rounds != null) {
         if (s.fresh) { s.fresh = false; }        // first end-of-round: still active next round
-        else { s.rounds--; if (s.rounds <= 0) removeStatus(u, s); }
+        else {
+          s.rounds--;
+          if (s.rounds <= 0) {
+            if (s.kind === 'share' && s.healAtEnd) healUnit(st, null, u, Math.max(1, Math.round(u.maxHp * s.healAtEnd)));
+            removeStatus(u, s);
+          }
+        }
       }
     }
     if (u.untargetable > 0) { u.untargetable--; if (u.untargetable <= 0 && u.stealthRounds <= 0) u.stealth = false; }
@@ -1608,6 +1616,10 @@ function spreadSeptic(st, origin, status) {
 Combat.act = function (st, u, action) {
   u.planned = null;
   if (action.kind === 'hold') { breakMomentum(u); ev(st, { t: 'hold', uid: u.uid }); return { ok: true }; }
+  if (action.kind === 'skill') {
+    const pre = manifestFor(u, action.skillId);
+    if (pre && pre.data && pre.data.passive) { ev(st, { t: 'use', uid: u.uid, skillId: action.skillId, tier: pre.tier, name: pre.data.name, target: u.uid }); return { ok: true }; }
+  }
   if (action.kind === 'flee') return doFlee(st, u);
   if (action.kind === 'bribe') return doBribe(st, u, action);
   const skillId = action.kind === 'attack' ? 'basic_attack' : action.skillId;
@@ -1625,10 +1637,13 @@ Combat.act = function (st, u, action) {
   const d = Object.assign({}, m.data);
   const off = action.offensiveMode && d.offensive;
   const tgt = st.units.find(x => x.uid === action.targetUid) || u;
+  if (d.freeAction && u.freeActionUsed) return { ok: false, error: 'already used a free action' };
+  if (cooldownLeft(u, skillId) > 0) return { ok: false, error: 'recovering (' + cooldownLeft(u, skillId) + ')' };
+  if (battleUseLimit(d) && !canSpendBattleUse(u, skillId, d)) return { ok: false, error: 'once per battle' };
   // Shock: cannot use interrupt skills
   if (d.interrupt && u.statuses.some(x => x.kind === 'shock')) return { ok: false, error: 'shocked' };
   // Flintlock Shot: you are holding an empty gun (Powder Discipline cancels it)
-  if (d.reload && u.reloadLock[skillId] && !perkVal(u.ch, 'powder_discipline', 'noReload')) {
+  if (d.reload && u.reloadLock[skillId] && !Sys().knownVal(u.ch, 'noReload')) {
     return { ok: false, error: 'needs reloading' };
   }
   // Iai Draw: one motion, sheath to sheath — the opening action only
@@ -1700,43 +1715,6 @@ Combat.act = function (st, u, action) {
     return finishAction(st, u, skillId);
   }
 
-  // ----- Cleanse family (request 7): cure-all / free conscripts / smite or
-  // restore the undead / grant negative-status immunity -----
-  if (skillId === 'cleanse' && !off) {
-    if (tgt.ch.isUndead) {
-      if (d.unraise && tgt.ch.trueRestImmune) { ev(st, { t: 'immune', uid: tgt.uid, kind: 'unraise' }); }
-      else if (d.unraise) {
-        // Absolution: turn the walking dead back to the living — undoing the
-        // true death of necromancy. Never a resurrection of the ordinary dead.
-        tgt.ch.__unraised = true;
-        ev(st, { t: 'unraise', uid: tgt.uid, by: u.uid });
-        if (tgt.side !== u.side) { tgt.fled = true; ev(st, { t: 'flee', uid: tgt.uid, success: true, chance: 1 }); }
-        else { try { removeStatus(tgt, tgt.statuses.find(x => x.kind === 'frozen') || {}); } catch (e) {} }
-        checkEnd(st);
-      } else {
-        const atk = Ch().effStat(u.ch, 'atk');
-        const dmg = Math.max(1, Math.round(atk * (d.undeadPower || 1.8) * C().TIER_MULT[m.tier] *
-          (1 + m.level * C().LEVEL_DAMAGE_SCALAR)) - Math.max(0, Ch().effStat(tgt.ch, 'def')));
-        dealDamage(st, u, tgt, dmg, 'spell', { element: 'holy' });
-      }
-      return finishAction(st, u, skillId);
-    }
-    if (tgt.ch.isConscript) {
-      tgt.ch.__freedByCleanse = true;
-      tgt.fled = true;
-      ev(st, { t: 'freed', uid: tgt.uid, by: u.uid });
-      checkEnd(st);
-      return finishAction(st, u, skillId);
-    }
-    let cured = 0;
-    for (const x of tgt.statuses.slice()) {
-      if (NEG_STATUSES.includes(x.kind)) { removeStatus(tgt, x); cured++; }
-    }
-    if (d.purifyRounds) addStatus(st, tgt, { kind: 'purified', rounds: d.purifyRounds });
-    ev(st, { t: 'cleansed', uid: tgt.uid, cured, purified: !!d.purifyRounds });
-    return finishAction(st, u, skillId);
-  }
-
   // ----- healing family -----
   if (d.heal && !off) {
     const atk = Ch().effStat(u.ch, 'atk');
@@ -1755,8 +1733,7 @@ Combat.act = function (st, u, action) {
       : (restores ? pickHealTargets(st, u, tgt, m.tier) : [tgt]);
     // Breath of the Bell: only those who have not moved yet this round
     if (d.unactedOnly) targets = targets.filter(x => !x.attackedThisRound);
-    // Clan Blood: the heal is a share of what you have already absorbed
-    if (d.healFromTaken) amount = Math.max(1, Math.round((u.damageTaken || 0) * d.healFromTaken));
+    // Clan Blood's share of damage-taken is applied inside pctOf
     if (d.healBehind) targets = targets.filter(x => canHealOther(u, x));
     else if (d.wardAhead) targets = targets.filter(x => canWard(u, x));
     if (d.revive && !d.selfRevive && (tgt.downed || downedAllies(st, u.side).length)) {
@@ -2016,6 +1993,10 @@ Combat.act = function (st, u, action) {
   for (let hi = 0; hi < hits + flareHits; hi++) for (const t of targets) {
     if (t.downed) continue;
     if (d.chainDecay && targets.indexOf(t) > 0) { /* decayed power handled below */ }
+    if (d.oneShotUndead && t.ch && (t.ch.isUndead || t.ch.isMonster && t.ch.undead)) {
+      applyRawDamage(st, u, t, Math.max(t.chp, 1), 'spell');
+      continue;
+    }
     if (d.instantKillIfMaxHp && (t.maxHp || 0) > d.instantKillIfMaxHp) {
       ev(st, { t: 'godJudgment', uid: t.uid, by: u.uid, who: u.ch.campaignId || u.ch.enemyTypeId, targetName: t.ch.name, skillId });
       t.chp = 0; t.tempHp = 0; t.downed = true;
@@ -2043,7 +2024,7 @@ Combat.act = function (st, u, action) {
       : (powerOverride != null ? { power: powerOverride } : undefined));
     if (hitScale > 1) dmg *= hitScale;
     const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
-      cannotMiss: !!d.cannotMiss, ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
+      cannotMiss: !!d.cannotMiss || !!(Sys().knownVal(u.ch, 'accuracy') && u.momentumArmed), ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
     if (isMelee && !t.downed) addExposed(st, t, 1);
     // ---- ninja/pirate on-hit riders (add-on §3) ----
     if (dealt > 0 && !t.downed) {
@@ -2085,7 +2066,7 @@ Combat.act = function (st, u, action) {
       let extra = computeDamage(st, u, t, m);
       if (hitScale > 1) extra *= hitScale;
       dealDamage(st, u, t, extra, tag, { element: d.element, melee: isMelee,
-        cannotMiss: !!d.cannotMiss, ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
+        cannotMiss: !!d.cannotMiss || !!(Sys().knownVal(u.ch, 'accuracy') && u.momentumArmed), ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
     }
     // riders
     if (d.status && dealt > 0) {
@@ -2137,6 +2118,10 @@ function finishAction(st, u, skillId) {
     breakMomentum(u);
   }
   applyFlareSelf(st, u, m);
+  if (m && m.data && m.data.cooldown) {
+    u.cooldowns = u.cooldowns || {};
+    u.cooldowns[skillId] = m.data.cooldown;
+  }
   const freeBuff = !!(m && m.data && m.data.freeBuff);
   const freeAction = !!(m && m.data && m.data.freeAction) && !u.freeActionUsed;
   if (freeAction) u.freeActionUsed = true;
@@ -2166,7 +2151,14 @@ function doBribe(st, u, action) {
   tgt.ch.inventory.gold = (tgt.ch.inventory.gold || 0) + fee;
   const success = st.rng.chance(action.chance || 0.5);
   ev(st, { t: 'bribe', uid: u.uid, target: tgt.uid, fee, success });
-  if (success) { tgt.fled = true; checkEnd(st); }
+  if (success) {
+    if (Sys().knownVal(u.ch, 'recruitForEncounter')) {
+      tgt.side = u.side;
+      tgt.ch.recruitedThisEncounter = true;
+      ev(st, { t: 'recruit', uid: tgt.uid, by: u.uid });
+    } else tgt.fled = true;
+    checkEnd(st);
+  }
   return { ok: true, success, fee };
 }
 
@@ -2175,7 +2167,8 @@ function doFlee(st, u) {
   const fastest = Math.max(...foes.map(f => Ch().effStat(f.ch, 'spd')), 0);
   let p = C().FLEE_BASE + (Ch().effStat(u.ch, 'spd') - fastest) * C().FLEE_PER_SPD;
   // rogues' instincts: Opportunist and Sneak make getting out drastically likelier
-  for (const id of ['opportunist', 'sneak']) { const pv = perkVal(u.ch, id, null); if (pv && pv.fleeBonus) p += pv.fleeBonus; }
+  const fleeB = Sys().knownSum(u.ch, 'fleeBonus');
+  if (fleeB) p += fleeB;
   p = Math.max(C().FLEE_MIN, Math.min(C().FLEE_MAX, p));
   // conscripts/undead/heroes cannot flee (§15a)
   if (u.ch.isConscript || u.ch.isUndead || (u.ch.status === 'hero' && u.ch.grantsHeld)) {
@@ -2183,7 +2176,7 @@ function doFlee(st, u) {
     return { ok: true, fled: false };
   }
   let success = st.rng.chance(p);
-  if (!success && perkVal(u.ch, 'fallback_point', null) && !u.ch.__fallbackUsed) { success = true; u.ch.__fallbackUsed = true; }
+  if (!success && Sys().knownVal(u.ch, 'autoFlee') && !u.ch.__fallbackUsed) { success = true; u.ch.__fallbackUsed = true; }
   ev(st, { t: 'flee', uid: u.uid, success, chance: p });
   if (success) { u.fled = true; noteLeaderOut(st, u, false); checkEnd(st); }
   return { ok: true, fled: success };

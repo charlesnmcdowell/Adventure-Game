@@ -53,7 +53,7 @@ function chooseAction(st, u) {
     if (!sk || sk.target === 'postVictory') continue;
     const m = manifestFor(u, e.skillId);
     const d = m.data;
-    if (d.freeBuff) continue;
+    if (d.freeBuff || d.passive) continue;
     if (d.selfRevive) continue;
     if (d.freeAction && u.freeActionUsed) continue;
     if (Combat.cooldownLeft && Combat.cooldownLeft(u, e.skillId) > 0) continue;
@@ -147,7 +147,7 @@ function chooseAction(st, u) {
 
 // Lookism: enemies would rather hit anyone else on the field (request 16)
 function avoidLookism(list) {
-  const rest = list.filter(x => !x.ch.perks.some(p => p.skillId === 'lookism'));
+  const rest = list.filter(x => !(ADV.SkillSys && ADV.SkillSys.knownVal(x.ch, 'targetedLast')));
   return rest.length ? rest : list;
 }
 

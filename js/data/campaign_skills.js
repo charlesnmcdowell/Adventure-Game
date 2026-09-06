@@ -31,14 +31,14 @@ def({ id: 'marked_for_the_knife', name: 'Marked for the Knife', kind: 'active', 
   power: 0, reach: 'any', target: 'enemy', effect: 'mark',
   desc: 'Mark one enemy; all your damage against it ignores 50% of its Defence.',
   tiers: tiers('Marked for the Knife', 'Named for the Knife', 'Death Sentence', { rounds: 3 }, { rounds: 4 }, { rounds: 6 }) });
-def({ id: 'ghoststep', name: 'Ghoststep', kind: 'active', archetype: 'rogue', faction: MAW,
+def({ id: 'ghoststep', name: 'Ghoststep', kind: 'active', noTierGrowth: true, archetype: 'rogue', faction: MAW,
   power: 0, reach: 'any', target: 'self', effect: 'ghoststep',
-  desc: 'Reposition to any lane for free; your next attack takes no reflect damage from any source.',
+  desc: 'Step into stealth and any lane for free; your next attack takes no reflect damage from any source.',
   tiers: tiers('Ghoststep', 'Shadow Step', 'Nowhere Step') });
 // Ranger
 def({ id: 'poisoned_quarrel', name: 'Poisoned Quarrel', kind: 'active', archetype: 'ranger', faction: MAW,
   power: 2.4, reach: 'any', target: 'enemy',
-  desc: 'Ranged hit applying stacking Poison — separate from Bleed, and it never expires until cleansed.',
+  desc: 'Ranged hit applying stacking Poison — a share of the target\'s health over six ticks, separate from Bleed.',
   tiers: tiers('Poisoned Quarrel', 'Venomed Quarrel', 'Weeping Shot',
     { status: { poison: { power: 0.7, stacks: true } } }, { status: { poison: { power: 0.9, stacks: true } } }, { status: { poison: { power: 1.1, stacks: true } }, multiTarget: 2 }) });
 def({ id: 'silent_loosing', name: 'Silent Loosing', kind: 'active', archetype: 'ranger', faction: MAW,
@@ -100,7 +100,7 @@ def({ id: 'serpent_form', name: 'Serpent Form', kind: 'active', archetype: 'drui
   desc: 'Self-buff: your attacks apply Poison and you evade more.',
   tiers: tiers('Serpent Form', 'Adder Form', 'Viper',
     { selfStatus: { kind: 'serpent', rounds: 3 } }, { selfStatus: { kind: 'serpent', rounds: 4 } }, { selfStatus: { kind: 'serpent', rounds: 5 } }) });
-def({ id: 'carrion_sense', name: 'Carrion Sense', kind: 'perk', archetype: 'druid', faction: MAW,
+def({ id: 'carrion_sense', name: 'Carrion Sense', kind: 'perk', noTierGrowth: true, archetype: 'druid', faction: MAW,
   desc: "Reveals every enemy's current HP and lowest defence for the whole battle.",
   revealHp: true,
   tiers: { advanced: { name: "Scavenger's Eye", revealHp: true } } });
@@ -122,13 +122,13 @@ def({ id: 'last_breath', name: 'Last Breath', kind: 'active', archetype: 'healer
   desc: 'A downed ally acts once more before falling.',
   tiers: tiers('Last Breath', 'Borrowed Breath', 'One More') });
 // Utility
-def({ id: 'case_the_room', name: 'Case the Room', kind: 'perk', archetype: null, faction: MAW,
+def({ id: 'case_the_room', name: 'Case the Room', kind: 'perk', noTierGrowth: true, archetype: null, faction: MAW,
   desc: 'See enemy skill loadouts before the encounter begins.', revealLoadouts: true,
   tiers: { advanced: { name: 'Full Ledger', revealLoadouts: true } } });
-def({ id: 'corpse_work', name: 'Corpse Work', kind: 'perk', archetype: null, faction: MAW,
+def({ id: 'corpse_work', name: 'Corpse Work', kind: 'perk', noTierGrowth: true, archetype: null, faction: MAW,
   desc: 'Killing an enemy yields additional gold and their carried items.', killGold: 6,
   tiers: { advanced: { name: 'Undertaker', killGold: 6 } } });
-def({ id: 'quiet_word', name: 'Quiet Word', kind: 'perk', archetype: null, faction: MAW, social: 'threaten',
+def({ id: 'quiet_word', name: 'Quiet Word', kind: 'perk', noTierGrowth: true, archetype: null, faction: MAW, social: 'threaten',
   desc: 'Encounter-resolution verb: Threaten — resolves against isolated targets.',
   tiers: { advanced: { name: 'Understanding', vs: 'isolated' } } });
 
@@ -213,7 +213,7 @@ def({ id: 'warhound_form', name: 'Warhound Form', kind: 'active', archetype: 'dr
   desc: 'Self-buff: more damage, and you intercept attacks aimed at your lane-mates.',
   tiers: tiers('Warhound Form', 'Mastiff Form', 'Kennel-Bred',
     { selfStatus: { kind: 'warhound', mult: 1.25, rounds: 3 } }, { selfStatus: { kind: 'warhound', mult: 1.35, rounds: 3 } }, { selfStatus: { kind: 'warhound', mult: 1.5, rounds: 4 } }) });
-def({ id: 'beast_handler', name: 'Beast Handler', kind: 'perk', archetype: 'druid', faction: ANT,
+def({ id: 'beast_handler', name: 'Beast Handler', kind: 'perk', noTierGrowth: true, archetype: 'druid', faction: ANT,
   desc: 'Conscripted and summoned allies gain your Defence bonus.', followerDef: 4,
   tiers: { advanced: { name: 'Master of Hounds', followerDef: 4 } } });
 def({ id: 'quartermasters_root', name: "Quartermaster's Root", kind: 'active', archetype: 'druid', faction: ANT,
@@ -234,13 +234,13 @@ def({ id: 'contract_bound', name: 'Contract Bound', kind: 'active', archetype: '
   desc: 'Bind yourself to an ally: damage they take is split with you.',
   tiers: tiers('Contract Bound', 'Oath Bound', 'Sworn Together', { rounds: 3 }, { rounds: 4 }, { rounds: 5 }) });
 // Utility
-def({ id: 'terms_of_engagement', name: 'Terms of Engagement', kind: 'perk', archetype: null, faction: ANT,
+def({ id: 'terms_of_engagement', name: 'Terms of Engagement', kind: 'perk', noTierGrowth: true, archetype: null, faction: ANT,
   desc: 'See the exact payout and every encounter\'s composition before accepting any contract.', revealContracts: true,
   tiers: { advanced: { name: 'Read the Paper', revealContracts: true } } });
-def({ id: 'fallback_point', name: 'Fallback Point', kind: 'perk', archetype: null, faction: ANT,
+def({ id: 'fallback_point', name: 'Fallback Point', kind: 'perk', noTierGrowth: true, archetype: null, faction: ANT,
   desc: 'Fleeing succeeds automatically once per quest.', autoFlee: true,
   tiers: { advanced: { name: 'Withdrawal', autoFlee: true } } });
-def({ id: 'muster', name: 'Muster', kind: 'perk', archetype: null, faction: ANT,
+def({ id: 'muster', name: 'Muster', kind: 'perk', noTierGrowth: true, archetype: null, faction: ANT,
   desc: 'Hired party members cost 25% less.', wageDiscount: 0.25,
   tiers: { advanced: { name: 'Standing Company', wageDiscount: 0.25 } } });
 
@@ -349,7 +349,7 @@ def({ id: 'vital_anchor', name: 'Vital Anchor', kind: 'active', archetype: 'heal
   tiers: tiers('Vital Anchor', 'Held Anchor', 'Held',
     { allyStatus: { kind: 'anchor', rounds: 2 } }, { allyStatus: { kind: 'anchor', rounds: 3 } }, { allyStatus: { kind: 'anchor', rounds: 4 } }) });
 // Utility
-def({ id: 'see_invisibility', name: 'See Invisibility', kind: 'perk', archetype: null, faction: VAR,
+def({ id: 'see_invisibility', name: 'See Invisibility', kind: 'perk', noTierGrowth: true, archetype: null, faction: VAR,
   desc: 'Reveals stealthed and hidden enemies and negates their stealth bonuses; also shows enemy equipped skills and perks.',
   seeInvis: true, revealLoadouts: true, revealPerks: true,
   tiers: { advanced: { name: 'Full Sight', seeInvis: true, revealLoadouts: true, revealPerks: true } } });
@@ -357,7 +357,7 @@ def({ id: 'dispel', name: 'Dispel', kind: 'active', archetype: null, faction: VA
   power: 0, reach: 'any', target: 'enemy', effect: 'dispel',
   desc: 'Remove all buffs and wards from one enemy.',
   tiers: tiers('Dispel', 'Unwrite', 'Struck From the Record') });
-def({ id: 'prodigy', name: 'Prodigy', kind: 'perk', archetype: null, faction: VAR,
+def({ id: 'prodigy', name: 'Prodigy', kind: 'perk', noTierGrowth: true, archetype: null, faction: VAR,
   desc: 'Every skill you own levels 5× faster.', levelMult: 5,
   tiers: { advanced: { name: 'Once In A Generation', levelMult: 5 } } });
 

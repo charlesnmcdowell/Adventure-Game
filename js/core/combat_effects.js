@@ -58,7 +58,7 @@ E.share = (I, st, u, tgt, d) => {
   if (d.shareWith === 'adjacent') {
     members = [u].concat(I.livingUnits(st, u.side).filter(x => x !== u && Math.abs(I.LANE_IDX[x.lane] - I.LANE_IDX[u.lane]) <= 1).slice(0, 2));
   } else members = [u, tgt.side === u.side && tgt !== u ? tgt : null].filter(Boolean);
-  for (const m of members) I.addStatus(st, m, { kind: 'share', group, rounds: d.rounds || 3 });
+  for (const m of members) I.addStatus(st, m, { kind: 'share', group, rounds: d.rounds || 3, healAtEnd: d.healAtEnd });
 };
 
 // Paid in Full: everything you prevented this battle, dealt to one enemy at once

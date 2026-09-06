@@ -61,6 +61,15 @@ class CombatScene extends Phaser.Scene {
     this.unitViews = new Map();
     for (const u of st.units) if (!u.reserved) this.makeUnitView(u);
     this.updateReserveCounters();
+    const p = ADV.Game.player(this.game_);
+    if (p && ADV.SkillSys && ADV.SkillSys.knownVal(p, 'revealLoadouts')) {
+      const bits = st.units.filter(u => u.side === 'b' && !u.reserved).map(u => {
+        const ids = (u.ch.actives || []).map(a => a.skillId);
+        const perks = ADV.SkillSys.knownVal(p, 'revealPerks') ? (u.ch.perks || []).map(a => a.skillId) : [];
+        return (u.ch.name || 'foe') + ': ' + ids.concat(perks).join(', ');
+      });
+      if (bits.length && ADV.Notices && ADV.Notices.toast) ADV.Notices.toast(this, bits.join(' · '));
+    }
 
     this.roundText = T().text(this, 56, 18, '', { size: 15, display: true, color: T().css.gold });
     this.paintHudChrome();
@@ -191,6 +200,11 @@ class CombatScene extends Phaser.Scene {
     if (u.tempHp > 0) {
       const tp = Math.min(1, u.tempHp / u.maxHp);
       v.hpBar.fillStyle(T().c.tempHp, 1); v.hpBar.fillRect(v.x - w / 2, by + 8, w * tp, 3);
+    }
+    const revealHp = this.game_ && ADV.SkillSys && ADV.SkillSys.knownVal(ADV.Game.player(this.game_), 'revealHp');
+    if (revealHp && u.side === 'b') {
+      if (!v.hpTxt) v.hpTxt = this.add.text(v.x, by + 12, '', { fontFamily: T().font, fontSize: '10px', color: '#e8dfc8' }).setOrigin(0.5, 0);
+      v.hpTxt.setText(Math.ceil(u.chp) + '/' + u.maxHp).setPosition(v.x, by + 12);
     }
     const PIP = {
       burn: 0xd8574a, bleed: 0xa8352c, poison: 0x5d8a4a, hot: 0x83b56b, thorns: 0x4a6a38,

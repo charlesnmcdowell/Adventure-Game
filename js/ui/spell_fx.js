@@ -552,19 +552,15 @@ function regenFx(scene, ctx, p) {
 }
 
 function cleanseFx(scene, ctx, p) {
-  const tgt = ctx.tgt, src = ctx.src, color = HOLY;
+  const tgt = ctx.tgt, src = ctx.src;
   const x = tx(tgt, src), y = ty(tgt, src);
-  const hot = !!(tgt && tgt.u && tgt.u.ch && (tgt.u.ch.isUndead || tgt.u.ch.isConscript));
-  V().ring(scene, x, y, hot ? 0xffffff : color, { r: 22, w: hot ? 4 : 3, scale: 2.4 * p.scale, dur: 320 });
-  // statuses fly off as grey motes
-  for (let i = 0; i < 6 + p.n; i++) {
-    const m = scene.add.circle(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 60, 3, 0x6a6a6a, 0.9).setDepth(FXD);
-    scene.tweens.add({ targets: m, x: m.x + (Math.random() - 0.5) * 140, y: m.y - 40 - Math.random() * 40, alpha: 0, duration: 420, onComplete: () => kill(m) });
-  }
-  V().lightField(scene, x, y, 0xfff0c0, 80 * p.scale, 300);
-  if (hot) { V().flashOverlay(scene, 0xffffff, 0.18); if (tgt.img && V().cine) V().cine.impactFrame(scene, tgt.img); V().burst(scene, x, y, 0xffffff, 8); }
-  else if (ctx.tier !== 'basic') V().flashOverlay(scene, color, 0.08);
-  if (tgt && tgt.pips) { try { tgt.pips.clear(); } catch (e) {} }
+  V().ring(scene, x, y, HOLY, { r: 24, w: 4, scale: 2.6 * p.scale, dur: 280 });
+  V().burst(scene, x, y, HOLY, 10 + p.n);
+  V().burst(scene, x, y, 0xe07030, 6);
+  V().lightField(scene, x, y, 0xfff0c0, 90 * p.scale, 280);
+  if (V().witherCrosses) V().witherCrosses(scene, x, y);
+  if (tgt.img && V().cine) V().cine.impactFrame(scene, tgt.img);
+  V().flashOverlay(scene, HOLY, 0.12);
   return p.wait;
 }
 

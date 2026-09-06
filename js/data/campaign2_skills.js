@@ -92,16 +92,16 @@ def({ id: 'breath_of_the_bell', name: 'Breath of the Bell', kind: 'active', arch
   desc: 'A held breath before the work: heals every ally who has not moved yet this round.',
   tiers: tiers('Breath of the Bell', 'Second Bell', 'Tolling', {}, { power: 2.2 }, { power: 2.6, cures: ['shock'] }) });
 // Perks
-def({ id: 'hollow_discipline', name: 'Hollow Discipline', kind: 'perk', archetype: null, faction: BELL,
+def({ id: 'hollow_discipline', name: 'Hollow Discipline', kind: 'perk', noTierGrowth: true, archetype: null, faction: BELL,
   desc: 'Being hit does not break your stealth. Only attacking does.', stealthKeepsOnHit: true,
   tiers: { advanced: { name: 'The Bell Is Empty', stealthKeepsOnHit: true } } });
-def({ id: 'fifty_names', name: 'Fifty Names', kind: 'perk', archetype: null, faction: BELL,
+def({ id: 'fifty_names', name: 'Fifty Names', kind: 'perk', noTierGrowth: true, archetype: null, faction: BELL,
   desc: 'The clan writes down every kill. Your damage rises with the tally, for life, without a cap.', lifeKillScale: 0.01,
   tiers: { advanced: { name: 'The Long Tally', lifeKillScale: 0.01 } } });
-def({ id: 'silent_trade', name: 'Silent Trade', kind: 'perk', archetype: null, faction: BELL, social: 'bribe',
+def({ id: 'silent_trade', name: 'Silent Trade', kind: 'perk', noTierGrowth: true, archetype: null, faction: BELL, social: 'bribe',
   desc: 'Encounter verb: Bribe — works on anyone carrying less gold than you.',
   tiers: { advanced: { name: 'Everyone Has A Price', vs: 'poorer' } } });
-def({ id: 'sixty_years', name: 'Sixty Years', kind: 'perk', archetype: null, faction: BELL,
+def({ id: 'sixty_years', name: 'Sixty Years', kind: 'perk', noTierGrowth: true, archetype: null, faction: BELL,
   desc: 'Obaa-San taught you how to watch. Skills you learn from witnessing start at level 5.', witnessStartLevel: 5,
   tiers: { advanced: { name: "Obaa-San's Lesson", witnessStartLevel: 5 } } });
 
@@ -172,16 +172,16 @@ def({ id: 'clan_blood', name: 'Clan Blood', kind: 'active', archetype: 'healer',
   desc: 'What the clan spends, the clan gets back: heals everyone for a share of the damage you have taken this battle.',
   tiers: tiers('Clan Blood', 'Clan Debt', 'Debt of Service', {}, { healFromTaken: 0.7 }, { healFromTaken: 1.0 }) });
 // Perks
-def({ id: 'unbroken_form', name: 'Unbroken Form', kind: 'perk', archetype: null, faction: GREEN,
+def({ id: 'unbroken_form', name: 'Unbroken Form', kind: 'perk', noTierGrowth: true, archetype: null, faction: GREEN,
   desc: 'Melee damage rises for every consecutive round you have held your lane.', laneStreakScale: 0.12,
   tiers: { advanced: { name: 'Rooted', laneStreakScale: 0.12 } } });
-def({ id: 'the_clan_watches', name: 'The Clan Watches', kind: 'perk', archetype: null, faction: GREEN,
+def({ id: 'the_clan_watches', name: 'The Clan Watches', kind: 'perk', noTierGrowth: true, archetype: null, faction: GREEN,
   desc: 'While you live, allies in your lane take less damage.', laneAllyGuard: 0.75,
   tiers: { advanced: { name: 'Their Shield', laneAllyGuard: 0.75 } } });
-def({ id: 'standing_order', name: 'Standing Order', kind: 'perk', archetype: null, faction: GREEN, social: 'command',
+def({ id: 'standing_order', name: 'Standing Order', kind: 'perk', noTierGrowth: true, archetype: null, faction: GREEN, social: 'command',
   desc: 'Encounter verb: Command — works on anyone lawfully aligned.',
   tiers: { advanced: { name: 'By Authority', vs: 'lawful' } } });
-def({ id: 'green_discipline', name: 'Green Discipline', kind: 'perk', archetype: null, faction: GREEN,
+def({ id: 'green_discipline', name: 'Green Discipline', kind: 'perk', noTierGrowth: true, archetype: null, faction: GREEN,
   desc: 'You act first in round one. Speed does not enter into it.', firstInRoundOne: true,
   tiers: { advanced: { name: 'First Blade', firstInRoundOne: true } } });
 
@@ -251,16 +251,16 @@ def({ id: 'surgeons_saw', name: "Surgeon's Saw", kind: 'active', archetype: 'hea
   tiers: tiers("Surgeon's Saw", 'Quick Saw', 'Rough Mercy',
     { selfBleedOnTarget: { power: 0.6, rounds: 2 } }, { power: 4.2, selfBleedOnTarget: { power: 0.6, rounds: 2 } }, { power: 4.8, selfBleedOnTarget: { power: 0.6, rounds: 2 }, revive: true, oncePerBattle: true }) });
 // Perks
-def({ id: 'shares_and_plunder', name: 'Shares and Plunder', kind: 'perk', archetype: null, faction: TALLY,
+def({ id: 'shares_and_plunder', name: 'Shares and Plunder', kind: 'perk', noTierGrowth: true, archetype: null, faction: TALLY,
   desc: 'Every share is recorded and yours is larger: all gold up 25%.', goldMult: 1.25,
   tiers: { advanced: { name: "Captain's Portion", goldMult: 1.25 } } });
-def({ id: 'powder_discipline', name: 'Powder Discipline', kind: 'perk', archetype: null, faction: TALLY,
+def({ id: 'powder_discipline', name: 'Powder Discipline', kind: 'perk', noTierGrowth: true, archetype: null, faction: TALLY,
   desc: 'You load while others are still looking for the ramrod: reload skills fire every round.', noReload: true,
   tiers: { advanced: { name: 'Never Empty', noReload: true } } });
-def({ id: 'sea_legs', name: 'Sea Legs', kind: 'perk', archetype: null, faction: TALLY,
+def({ id: 'sea_legs', name: 'Sea Legs', kind: 'perk', noTierGrowth: true, archetype: null, faction: TALLY,
   desc: 'Nothing pulls, pushes or drags you out of your lane. Ever.', immovable: true,
   tiers: { advanced: { name: 'Deck-Born', immovable: true } } });
-def({ id: 'black_flag', name: 'Black Flag', kind: 'perk', archetype: null, faction: TALLY, social: 'intimidate_sea',
+def({ id: 'black_flag', name: 'Black Flag', kind: 'perk', noTierGrowth: true, archetype: null, faction: TALLY, social: 'intimidate_sea',
   desc: 'Encounter verb: Intimidate at Sea — works on anyone carrying cargo or coin.',
   tiers: { advanced: { name: 'Colours Up', vs: 'carrying' } } });
 
@@ -331,16 +331,16 @@ def({ id: 'articles_of_war', name: 'Articles of War', kind: 'active', archetype:
   tiers: tiers('Articles of War', 'Under Articles', 'Sworn Under Articles',
     { shareWith: 'pair', rounds: 3, healAtEnd: 0.2 }, { shareWith: 'pair', rounds: 4, healAtEnd: 0.3 }, { shareWith: 'adjacent', rounds: 4, healAtEnd: 0.4 }) });
 // Perks
-def({ id: 'naval_discipline', name: 'Naval Discipline', kind: 'perk', archetype: null, faction: NAVY,
+def({ id: 'naval_discipline', name: 'Naval Discipline', kind: 'perk', noTierGrowth: true, archetype: null, faction: NAVY,
   desc: 'Nothing makes your lane act last — not Shock, not a shout, not anything.', laneNoDelay: true,
   tiers: { advanced: { name: 'Unshakeable', laneNoDelay: true } } });
-def({ id: 'kings_commission', name: "King's Commission", kind: 'perk', archetype: null, faction: NAVY,
+def({ id: 'kings_commission', name: "King's Commission", kind: 'perk', noTierGrowth: true, archetype: null, faction: NAVY,
   desc: 'You are paid out of the King\'s purse: lawful contracts pay 25% more.', lawfulPayMult: 1.25,
   tiers: { advanced: { name: 'Letters of Marque', lawfulPayMult: 1.25 } } });
-def({ id: 'broadside_doctrine', name: 'Broadside Doctrine', kind: 'perk', archetype: null, faction: NAVY,
+def({ id: 'broadside_doctrine', name: 'Broadside Doctrine', kind: 'perk', noTierGrowth: true, archetype: null, faction: NAVY,
   desc: 'Ranged skills take one additional target in the same lane.', rangedExtraTarget: 1,
   tiers: { advanced: { name: 'Full Battery', rangedExtraTarget: 1 } } });
-def({ id: 'colours_and_papers', name: 'Colours and Papers', kind: 'perk', archetype: null, faction: NAVY, social: 'requisition',
+def({ id: 'colours_and_papers', name: 'Colours and Papers', kind: 'perk', noTierGrowth: true, archetype: null, faction: NAVY, social: 'requisition',
   desc: 'Encounter verb: Requisition — works on anyone lawfully aligned or carrying cargo.',
   tiers: { advanced: { name: "By the King's Word", vs: 'lawfulOrCarrying' } } });
 

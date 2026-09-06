@@ -713,10 +713,10 @@ Game.finishCombat = function (game) {
     const newly = ADV.Combat.registerWitnesses(st);
     q.witnessedNew.push(...newly);
     // loot: monsters drop pocket gold; defeated NAMED characters await the choice screen
-    const corpseWork = p.perks.find(x => x.skillId === 'corpse_work');
+    const corpseGold = ADV.SkillSys.knownVal(p, 'killGold');
     const fallen = [];
     for (const u of st.units.filter(x => x.side === 'b' && x.downed)) {
-      if (corpseWork) q.lootGold += ADV.SkillSys.manifest(p, corpseWork).data.killGold || 0;   // Corpse Work (§13)
+      if (corpseGold) q.lootGold += corpseGold;
       if (u.ch.campaign) { u.ch.__fell = true; u.ch.combatHp = null; }                            // campaign fixtures resolve in story, not the choice screen
       else if (u.ch.isMonster) {
         q.lootGold += game.rng.int(4, 12) + (u.ch.enemyLevel || 1);
@@ -738,7 +738,7 @@ Game.finishCombat = function (game) {
     ADV.Combat.applyPostVictoryRecovery(roster);
     // Quartermaster's Root: the best root in the party heals everyone a little more between fights
     let rootPct = 0;
-    for (const c of roster) { const e = c.actives.find(x => x.skillId === 'quartermasters_root'); if (e) rootPct = Math.max(rootPct, ADV.SkillSys.manifest(c, e).data.betweenHealPct || 0); }
+    for (const c of roster) { const pct = ADV.SkillSys.knownVal(c, 'betweenHealPct'); if (pct) rootPct = Math.max(rootPct, pct); }
     if (rootPct) for (const c of roster) if (c.combatHp != null && c.combatHp > 0) c.combatHp = Math.min(ADV.Character.maxHp(c), c.combatHp + Math.round(ADV.Character.maxHp(c) * rootPct));
     if (st.revealNext) q.revealNext = true;                                   // Scout's Cut
     q.encIdx++; q.enemies = null; q.verbs = null; q.combat = null;
@@ -878,7 +878,9 @@ function applyQuestSuccess(game, q, out) {
   p.reputation = Math.min(20, p.reputation + C().REP_QUEST_WIN);
   p.rank = 1 + Math.floor(p.questsCompleted / 8);
   ADV.Quests.applyFactionShift(world, p, q.quest);
-  const goldMult = p.perks.some(x => x.skillId === 'rich') ? 10 : 1;
+  let goldMult = ADV.SkillSys.knownProduct(p, 'goldMult') || 1;
+  const lawPay = ADV.SkillSys.knownVal(p, 'lawfulPayMult');
+  if (lawPay && (q.quest.factionAlignment === 'law' || q.quest.alignment === 'law')) goldMult *= lawPay;
   if (stage === 'hireling' && party) {
     // flat wage; leader pockets the rest — show both (§5)
     const w = p.wage || C().GOLD.hirelingWage;

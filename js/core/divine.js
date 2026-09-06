@@ -30,7 +30,7 @@ Divine.resolveDefeated = function (world, rng, victor, defeated, choice, feedPus
     if (defeated.__purifiedAtEnd) return { error: 'their soul is warded — conscription fails' };
     const m = ADV.SkillSys.manifest(victor, entry);
     const cap = C().CONSCRIPT_CAP[tierIdx(m.tier)];
-    const dur = C().CONSCRIPT_DURATION[tierIdx(m.tier)];
+    const dur = m.data.duration || C().CONSCRIPT_DURATION[tierIdx(m.tier)];
     victor.conscriptIds = victor.conscriptIds || [];
     // Cap enforces itself: oldest escapes at Hatred (§3a)
     if (victor.conscriptIds.length >= cap) {
@@ -42,6 +42,8 @@ Divine.resolveDefeated = function (world, rng, victor, defeated, choice, feedPus
     }
     defeated.isConscript = true;
     defeated.conscriptQuestsLeft = dur;
+    const fDef = ADV.SkillSys.knownVal(victor, 'followerDef');
+    if (fDef) defeated.bonusStats.def = (defeated.bonusStats.def || 0) + fDef;
     defeated.conscriptorId = victor.id;
     defeated.combatHp = ADV.Character.maxHp(defeated);
     defeated.partyId = null; defeated.leaderId = null;

@@ -41,7 +41,7 @@ Court.onCooldown = function (world, fromId, toId) {
 function eligible(c) {
   return c.alive && !c.isMonster && (!c.registryId || c.hiroNpc) && !c.campaign && c.status === 'normal' && !c.isUndead && !c.isConscript;
 }
-function hasLookism(c) { return c.perks.some(p => p.skillId === 'lookism'); }
+function hasLookism(c) { return !!(ADV.SkillSys && ADV.SkillSys.knownVal(c, 'oppositeSexFriendly')); }
 
 // The five wealthiest men in town (vault + carried), the player included.
 // Cached per clock tick — Rel.score asks constantly.

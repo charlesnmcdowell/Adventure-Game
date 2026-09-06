@@ -219,7 +219,7 @@ SkillSys.knows = function (ch, skillId) {
 // A worn gear set parks matching skills in an unlimited armor slot.
 SkillSys.slotExempt = function (ch, sk) {
   if (!sk) return false;
-  if (sk.kind === 'active' && sk.katana && ch.perks.some(p => p.skillId === 'master_swordsman')) return true;
+  if (sk.kind === 'active' && sk.katana && SkillSys.knownVal(ch, 'katanaFreeSlots')) return true;
   return SkillSys.setMatchesSkill(ch, sk);
 };
 
@@ -256,6 +256,13 @@ SkillSys.learn = function (ch, skillId, opts) {
   // Levels survive drops (§3): restore prior level from the meta record if present.
   const prior = (ch.skillLevels && ch.skillLevels[skillId]) || { level: 1, uses: 0 };
   const entry = { skillId, level: prior.level, uses: prior.uses };
+  if (SkillSys.isWitnessed(ch, skillId) || opts.witnessed) {
+    const start = SkillSys.knownVal(ch, 'witnessStartLevel');
+    if (start && entry.level < start) {
+      entry.level = start;
+      entry.uses = Math.max(entry.uses, (start - 1) * C().USES_PER_LEVEL);
+    }
+  }
   if (prior.auto) entry.auto = true;
   if (prior.autoOff) entry.autoOff = true;
   SkillSys.slotList(ch, kind).push(entry);
@@ -318,8 +325,8 @@ SkillSys.recordUse = function (ch, skillId) {
   if (sk && sk.noTierGrowth) return null;
   let rate = 1;
   if (ADV.Campaign) rate *= ADV.Campaign.levelRate(ch, skillId);   // faction title 2x/3x
-  const prodigy = ch.perks.find(e => e.skillId === 'prodigy');
-  if (prodigy) rate *= 5;                              // Prodigy (advanced-only perk): 5x
+  const prodigy = SkillSys.knownVal(ch, 'levelMult');
+  if (prodigy) rate *= prodigy;
   entry.uses += rate;
   const newLevel = 1 + Math.floor(entry.uses / C().USES_PER_LEVEL);
   const leveled = newLevel > entry.level;
@@ -355,6 +362,40 @@ SkillSys.journalState = function (ch, skillId) {
 // Highest tier this character's version of the skill has reached (for enemy authoring).
 SkillSys.entryFor = function (ch, skillId) {
   return ch.perks.find(p => p.skillId === skillId) || ch.actives.find(a => a.skillId === skillId) || null;
+};
+
+// First matching data value across known perks and actives (SKILL_AUDIT §1).
+SkillSys.knownVal = function (ch, key) {
+  if (!ch) return null;
+  const lists = (ch.perks || []).concat(ch.actives || []);
+  let best = null;
+  for (const e of lists) {
+    const m = SkillSys.manifest(ch, e);
+    if (!m || !m.data || m.data[key] == null || m.data[key] === false) continue;
+    const v = m.data[key];
+    if (best == null) best = v;
+    else if (typeof v === 'number' && typeof best === 'number') best = v > best ? v : best;
+    else if (v) best = v;
+  }
+  return best;
+};
+SkillSys.knownSum = function (ch, key) {
+  if (!ch) return 0;
+  let n = 0;
+  for (const e of (ch.perks || []).concat(ch.actives || [])) {
+    const m = SkillSys.manifest(ch, e);
+    if (m && m.data && typeof m.data[key] === 'number') n += m.data[key];
+  }
+  return n;
+};
+SkillSys.knownProduct = function (ch, key) {
+  if (!ch) return 1;
+  let n = 1;
+  for (const e of (ch.perks || []).concat(ch.actives || [])) {
+    const m = SkillSys.manifest(ch, e);
+    if (m && m.data && typeof m.data[key] === 'number') n *= m.data[key];
+  }
+  return n;
 };
 
 ADV.SkillSys = SkillSys;

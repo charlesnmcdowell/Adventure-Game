@@ -114,7 +114,7 @@ const PARAM_LABEL = {
   wardPoison: () => 'anyone who strikes you is poisoned',
   exposedOnSecond: () => 'the second hit on the same target applies Exposed',
   selfBleedOnTarget: v => `costs you ${v} HP per use`,
-  healAtEnd: v => `heals ${v}× at the end of the round instead of now`,
+  healAtEnd: v => `when the share ends, each linked ally heals ${Math.round(v * 100)}% of their max HP`,
   healFromTaken: v => `heals ${Math.round(v * 100)}% of the damage you have taken this battle`,
   noReload: () => 'no reload lock: usable every round',
   rangedExtraTarget: () => 'ranged attacks strike one extra target',
@@ -146,7 +146,8 @@ const PARAM_LABEL = {
   status: (v, tier) => 'inflicts: ' + Object.entries(v).map(([k, s]) => {
     // poison & bleed are a percentage of the target's max HP by tier (DOT_PROMPT.md §1)
     if ((k === 'poison' || k === 'bleed') && ADV.Combat && ADV.Combat.DOT_PCT) {
-      const pct = ADV.Combat.DOT_PCT[tier || 'basic'] || 0.5, n = s.rounds || 3;
+      const pct = ADV.Combat.DOT_PCT[tier || 'basic'] || 0.5;
+      const n = ADV.Combat.dotWindow ? ADV.Combat.dotWindow(s.rounds) : (s.rounds || 6);
       return `${k}${s.stacks ? ' (STACKS)' : ''}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
     }
     return `${k}${s.stacks ? ' (STACKS)' : ''} ${s.power}× ATK/2 per round, ${s.rounds} rounds`;
@@ -175,6 +176,20 @@ const PARAM_LABEL = {
   lifeSteal: v => `heals ${Math.round(v * 100)}% of damage dealt`,
   surviveLethal: () => 'survives one lethal blow per battle at 1 HP',
   laneShift: () => 'may shift lanes freely',
+  accuracy: () => 'attacks cannot miss while Momentum is armed',
+  oneShotUndead: () => 'instantly ends undead',
+  turnPlacement: v => v === 'distributed' ? 'extra turns are spread through the round' : `turn placement: ${v}`,
+  noReload: () => 'reload skills fire every round',
+  buffRounds: v => `the rise buff lasts ${v} turn(s)`,
+  cannotMiss: () => 'this attack cannot miss',
+  cooldown: v => `cooldown ${v} round(s)`,
+  ignoreGuards: () => 'ignores guards',
+  openerOnly: () => 'usable only as the opening action of the encounter',
+  reflectImmuneNext: () => 'your next attack takes no reflect damage',
+  reload: () => 'must reload before firing again',
+  revealGold: () => 'shows enemy gold on the field',
+  unactedDouble: () => 'doubled against a target that has not acted yet',
+  unactedOnly: () => 'only heals allies who have not acted this round',
   dmgMult: v => `all damage dealt ×${v}`,
   healMult: v => `healing you perform ×${v}`,
   tempHpDouble: () => 'overheal converts to temp HP at DOUBLE value',

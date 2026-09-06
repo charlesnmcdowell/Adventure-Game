@@ -59,7 +59,7 @@ def({ id: 'ice_queen', name: 'Ice Queen', kind: 'perk', archetype: 'mage',
     intermediate: { name: 'Ice Queen+',   iceArmorPerHit: 0.15 },
     advanced:     { name: 'Winter Court', iceArmorPerHit: 0.25 },
   } });
-def({ id: 'lightning_king', name: 'Lightning King', kind: 'perk', archetype: 'mage',
+def({ id: 'lightning_king', name: 'Lightning King', kind: 'perk', noTierGrowth: true, archetype: 'mage',
   desc: 'You move at storm speed: two turns every round, back to back.',
   turnsPerRound: 2, consecutive: true,
   tiers: {
@@ -109,7 +109,7 @@ def({ id: 'opportunist', name: 'Opportunist', kind: 'perk', archetype: 'rogue',
     intermediate: { name: 'Opportunist+', executeThreshold: 0.50, bonusHpPct: 0.10 },
     advanced:     { name: 'Predator',     executeThreshold: 0.50, bonusHpPct: 0.10, killRefundsAction: true, fleeBonus: 0.35 },
   } });
-def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', archetype: 'fighter', survivalHp: 20,
+def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', noTierGrowth: true, archetype: 'fighter', survivalHp: 20,
   desc: 'Every enemy you put down restores half your health, stacks +10% damage for the battle, and taunts every enemy onto you for 2 rounds. Every battle you walk out of adds 20 max HP, permanently.',
   tiers: {
     basic:        { name: 'Arena Champion', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
@@ -123,7 +123,7 @@ def({ id: 'septic_sanguine', name: 'Septic Sanguine', kind: 'perk', archetype: '
     intermediate: { name: 'Septic Sanguine+', dotMult: 1.5, dotLeech: 1.0 },
     advanced:     { name: 'Blood Culture',   dotMult: 2.0, dotLeech: 2.0 },
   } });
-def({ id: 'lookism', name: 'Lookism', kind: 'perk', archetype: null,
+def({ id: 'lookism', name: 'Lookism', kind: 'perk', noTierGrowth: true, archetype: null,
   desc: 'A face that opens doors: hired for 10g over your price, your hires take 10g under theirs, the opposite sex starts out Friendly, the ones you leave stay Friendly, and enemies would rather hit anyone but you.',
   tiers: {
     basic:        { name: 'Lookism', wageEdge: 10, oppositeSexFriendly: true, softJilt: true, targetedLast: true },
@@ -132,18 +132,18 @@ def({ id: 'lookism', name: 'Lookism', kind: 'perk', archetype: null,
   } });
 def({ id: 'backstab', name: 'Backstab', kind: 'active', archetype: 'rogue',
   power: 6.0, reach: 'any', target: 'enemy', melee: true, openerOrStealth: true,
-  desc: 'A burst from nowhere: roughly double a standard attack, any lane — but ONLY as the opening action of an encounter or from stealth. Higher tiers cut one extra body, up to three at Advanced.',
+  desc: 'A burst from nowhere — any lane, but ONLY as the opening action of an encounter or from stealth. Basic hits like a standard attack; Throat Cut and Assassinate hit twice as hard.',
   tiers: {
-    basic:        { name: 'Backstab' },
+    basic:        { name: 'Backstab', power: 3.0 },
     intermediate: { name: 'Throat Cut', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
     advanced:     { name: 'Assassinate', executeBelow: 0.25 },
   } });
 def({ id: 'smoke_bomb', name: 'Smoke Bomb', kind: 'active', archetype: 'rogue',
   power: 0, target: 'self', reach: 'any', freeAction: true,
-  desc: 'A free action: evade, slip into stealth, and still take your turn — the way back to another Backstab.',
+  desc: 'A free action: evade, slip into stealth, and still take your turn — the way back to another Backstab. Basic once every three turns; Vanish every two; Shadowstep has no wait.',
   tiers: {
-    basic:        { name: 'Smoke Bomb', evadeNext: 1, stealthOnUse: true, stealthRounds: 2 },
-    intermediate: { name: 'Vanish', untargetableRounds: 2, stealthOnUse: true, stealthRounds: 2 },
+    basic:        { name: 'Smoke Bomb', evadeNext: 1, stealthOnUse: true, stealthRounds: 2, cooldown: 3 },
+    intermediate: { name: 'Vanish', untargetableRounds: 2, stealthOnUse: true, stealthRounds: 2, cooldown: 2 },
     advanced:     { name: 'Shadowstep', untargetableRounds: 3, freeStrike: true, stealthOnUse: true, stealthRounds: 3 },
   } });
 def({ id: 'shadow_rise', name: 'Shadow Rise', kind: 'active', archetype: 'rogue',
@@ -263,14 +263,13 @@ def({ id: 'mend', name: 'Mend', kind: 'active', archetype: 'healer',
     intermediate: { name: 'Restore', power: 2.6, cures: ['bleed'], target: 'party' },
     advanced:     { name: 'Renewal', target: 'party', power: 3.0 },
   } });
-def({ id: 'cleanse', name: 'Cleanse', kind: 'active', archetype: 'healer',
-  power: 0, target: 'ally', reach: 'any', heal: true,
-  offensive: { name: 'Afflict', statusTransfer: true, target: 'enemy' },
-  desc: 'Strips every negative status. Frees conscripts from compulsion, and burns the undead with holy force.',
+def({ id: 'cleanse', name: 'Holy Smite', kind: 'active', archetype: 'healer',
+  power: 2.2, reach: 'any', target: 'enemy', elemental: true, element: 'holy',
+  desc: 'A holy strike that burns and withers. The target cannot receive healing for two turns.',
   tiers: {
-    basic:        { name: 'Cleanse',    cureCount: 99, undeadPower: 1.8 },
-    intermediate: { name: 'Purify',     cureCount: 99, undeadPower: 1.8, purifyRounds: 3 },
-    advanced:     { name: 'Absolution', cureCount: 99, undeadPower: 2.2, purifyRounds: 6, unraise: true },
+    basic:        { name: 'Holy Smite',    status: { burn: { power: 0.8, rounds: 3 } }, withering: 2 },
+    intermediate: { name: 'Holy Brand',    power: 2.6, status: { burn: { power: 1.1, rounds: 3 } }, withering: 2 },
+    advanced:     { name: 'Holy Judgment', power: 3.0, status: { burn: { power: 1.4, rounds: 3 } }, withering: 2 },
   } });
 def({ id: 'regenerate', name: 'Regenerate', kind: 'active', archetype: 'healer',
   power: 1.0, hotRounds: 3, cooldown: 3, target: 'ally', reach: 'any', heal: true,
@@ -345,7 +344,7 @@ def({ id: 'persuade', name: 'Persuade', kind: 'perk', archetype: null, social: '
     advanced:     { name: 'Silver Tongue', vs: 'any', partyApplicationBonus: true },
   } });
 def({ id: 'charm', name: 'Charm', kind: 'perk', archetype: null, social: 'charm',
-  desc: 'Resolve encounters by charm. In battle, lets you bribe assassins and those who hate you into walking away — for a fee.',
+  desc: 'Resolve encounters by charm. In battle, bribe a named hater to walk — or, at Beguile, to fight for you this encounter.',
   tiers: {
     basic:        { name: 'Charm',      vs: 'oppositeSex', bribeChance: 0.4 },
     intermediate: { name: 'Charm+',     vs: 'any',         bribeChance: 0.6 },
@@ -373,34 +372,34 @@ def({ id: 'basic_attack', name: 'Attack', kind: 'active', universal: true,
   tiers: { basic: { name: 'Attack' }, intermediate: { name: 'Attack' }, advanced: { name: 'Attack' } } });
 
 // ============ UNIQUE TIER — divine grants & Hiro (§3a, §14a) ============
-def({ id: 'true_rest', name: 'True Rest', kind: 'active', unique: true, noSlot: true,
+def({ id: 'true_rest', name: 'True Rest', kind: 'active', unique: true, noSlot: true, noTierGrowth: true,
   power: 0, reach: 'any', target: 'enemy', oneShotUndead: true,
   desc: 'One-shot kills any undead.',
   tiers: { basic: { name: 'True Rest' }, intermediate: { name: 'True Rest' }, advanced: { name: 'True Rest' } } });
-def({ id: 'gods_edict', name: "God's Edict", kind: 'active', unique: true, noSlot: true,
+def({ id: 'gods_edict', name: "God's Edict", kind: 'active', unique: true, noSlot: true, noTierGrowth: true,
   power: 0, reach: 'any', target: 'enemy', instantKillIfMaxHp: 800,
   desc: 'Ends anyone whose health pool is over 800. The god names them first.',
   tiers: { basic: { name: "God's Edict" }, intermediate: { name: "God's Edict" }, advanced: { name: "God's Edict" } } });
-def({ id: 'hero', name: 'Hero', kind: 'perk', unique: true, noSlot: true,
+def({ id: 'hero', name: 'Hero', kind: 'perk', unique: true, noSlot: true, noTierGrowth: true,
   desc: 'Vastly increased base stats.',
   tiers: { basic: { name: 'Hero' }, intermediate: { name: 'Hero' }, advanced: { name: 'Hero' } } });
 
-def({ id: 'demigod', name: 'Demigod', kind: 'perk', unique: true, noSlot: true,
+def({ id: 'demigod', name: 'Demigod', kind: 'perk', unique: true, noSlot: true, noTierGrowth: true,
   desc: 'Healing received ×10. Overheal converts to temporary HP with no cap. Immune to all negative statuses.',
   healReceivedMult: 10, overhealUncapped: true, statusImmune: true,
   tiers: { basic: { name: 'Demigod' }, intermediate: { name: 'Demigod' }, advanced: { name: 'Demigod' } } });
-def({ id: 'master_swordsman', name: 'Master Swordsman', kind: 'perk', unique: true,
+def({ id: 'master_swordsman', name: 'Master Swordsman', kind: 'perk', unique: true, noTierGrowth: true,
   desc: 'Katana skills do not consume active skill slots.', katanaFreeSlots: true,
   tiers: { basic: { name: 'Master Swordsman' }, intermediate: { name: 'Master Swordsman' }, advanced: { name: 'Master Swordsman' } } });
-def({ id: 'lone_wolf', name: 'Lone Wolf', kind: 'perk', unique: true,
+def({ id: 'lone_wolf', name: 'Lone Wolf', kind: 'perk', unique: true, noTierGrowth: true,
   desc: 'Takes 3 turns per round instead of 1. Never applies to party members.',
   turnsPerRound: 3, turnPlacement: 'distributed',
   tiers: { basic: { name: 'Lone Wolf' }, intermediate: { name: 'Lone Wolf' }, advanced: { name: 'Lone Wolf' } } });
-def({ id: 'rich', name: 'Rich', kind: 'perk', unique: true,
+def({ id: 'rich', name: 'Rich', kind: 'perk', unique: true, noTierGrowth: true,
   desc: 'All gold earned ×10.', goldMult: 10,
   tiers: { basic: { name: 'Rich' }, intermediate: { name: 'Rich' }, advanced: { name: 'Rich' } } });
 
-def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, katana: true,
+def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, katana: true, noTierGrowth: true,
   power: 2.6, reach: 'front', target: 'enemy',
   desc: 'Basic katana attack. Inflicts stacking Bleed.',
   tiers: {
@@ -408,7 +407,7 @@ def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, ka
     intermediate: { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
     advanced:     { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
   } });
-def({ id: 'god_aura', name: 'God Aura', kind: 'active', unique: true,
+def({ id: 'god_aura', name: 'God Aura', kind: 'active', unique: true, noTierGrowth: true,
   power: 0, reach: 'any', target: 'party',
   desc: 'Team-wide buff: attack, evasion and defense.',
   tiers: {
@@ -416,7 +415,7 @@ def({ id: 'god_aura', name: 'God Aura', kind: 'active', unique: true,
     intermediate: { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3 },
     advanced:     { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3 },
   } });
-def({ id: 'counter_attack', name: 'Counter Attack', kind: 'active', unique: true, katana: true,
+def({ id: 'counter_attack', name: 'Counter Attack', kind: 'active', unique: true, katana: true, noTierGrowth: true,
   power: 0, reach: 'any', target: 'self',
   desc: 'Negates the next attack against you and reflects its damage.',
   tiers: {
@@ -424,7 +423,7 @@ def({ id: 'counter_attack', name: 'Counter Attack', kind: 'active', unique: true
     intermediate: { name: 'Counter Attack', counterNext: 1 },
     advanced:     { name: 'Counter Attack', counterNext: 1 },
   } });
-def({ id: 'finisher', name: 'Finisher', kind: 'active', unique: true, katana: true,
+def({ id: 'finisher', name: 'Finisher', kind: 'active', unique: true, katana: true, noTierGrowth: true,
   power: 0, reach: 'front', target: 'enemy',
   desc: 'Executes targets below 40%, heals Hiro, and permanently raises all his stats by 1. Lost on death.',
   tiers: {

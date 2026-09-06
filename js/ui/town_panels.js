@@ -93,7 +93,12 @@ function questRow(scene, r, q, y, enabled, note, scroll) {
   if (ADV.Campaign2UI) { try { extra = ADV.Campaign2UI.questNote(scene.g(), q); } catch (e) { extra = null; } }
   if (!extra && q.brief) extra = q.brief;
   const themeBit = q.theme ? ' · ' + q.theme : '';
-  const sub = `${tierLabel} · ${q.encounters.length} enc · ${q.payout}g · ${q.factionAlignment}${themeBit}${note ? ' · ' + note : ''}`;
+  let sub = `${tierLabel} · ${q.encounters.length} enc · ${q.payout}g · ${q.factionAlignment}${themeBit}${note ? ' · ' + note : ''}`;
+  const p = scene.g && ADV.Game.player(scene.g());
+  if (p && ADV.SkillSys && ADV.SkillSys.knownVal(p, 'revealContracts')) {
+    const types = (q.encounters || []).map(e => (e.enemyTypeIds || []).join('/') || (e.boss ? 'boss' : 'fight')).join(' → ');
+    if (types) extra = (extra ? extra + ' · ' : '') + types;
+  }
   const mk = scroll ? (b) => scroll.addBtn(b) : (b) => keepBtn(scene, b);
   const btnW = r.w - 48;
   const btn = mk(T().button(scene, r.x + 24, y, btnW, 42, label, () => {
