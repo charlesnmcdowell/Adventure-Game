@@ -112,6 +112,7 @@ const Music = {
       Music.unlocked = true;
       document.removeEventListener('pointerdown', unlock);
       document.removeEventListener('keydown', unlock);
+      if (Music.hidden && Music.pageVisible()) Music.hidden = false;
       if (Music.hidden || Music.muted) return;
       Music.resumeCurrent();
     };
@@ -120,16 +121,33 @@ const Music = {
     if (typeof window === 'undefined') return;
     // Soft halt when the tab is hidden so one track can resume. Hard halt
     // on real close — otherwise looped HTML5 Audio keeps playing with no UI.
+    // freeze/pagehide used to hard-kill and leave Music.hidden stuck with no
+    // matching resume, which muted every later voice line until reload.
     window.addEventListener('pagehide', (ev) => Music.halt(!ev.persisted));
+    window.addEventListener('pageshow', () => Music.wake());
     window.addEventListener('beforeunload', () => Music.halt(true));
-    window.addEventListener('freeze', () => Music.halt(true));
+    window.addEventListener('freeze', () => Music.halt(false));
+    window.addEventListener('resume', () => Music.wake());
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) Music.halt(false);
-      else { Music.hidden = false; Music.resumeCurrent(); }
+      else Music.wake();
     });
   },
 
+  pageVisible() {
+    return typeof document === 'undefined' || !document.hidden;
+  },
+
+  // Clear a stuck mute-from-background and start whatever should be playing.
+  wake() {
+    Music.hidden = false;
+    if (Music.muted) return;
+    Music.resumeCurrent();
+  },
+
   halt(hard) {
+    if (!hard && Music.voiceEl && !Music.voiceEl.paused && !Music.voiceEl.ended) Music._voiceHeld = true;
+    else Music._voiceHeld = false;
     Music.hidden = true;
     haltAll(!!hard);
   },
@@ -140,11 +158,13 @@ const Music = {
       pauseOthers(Music.homeEl);
       Music.el = Music.homeEl;
       playEl(Music.homeEl);
-      return;
-    }
-    if (Music.el && Music.el.src) {
+    } else if (Music.el && Music.el.src) {
       pauseOthers(Music.el);
       playEl(Music.el);
+    }
+    if (Music._voiceHeld && Music.voiceEl && Music.voiceEl.src) {
+      Music._voiceHeld = false;
+      playEl(Music.voiceEl);
     }
   },
 
@@ -271,8 +291,15 @@ const Music = {
   },
 
   // ---- voice channel --------------------------------------------------------
+  // If a freeze/pagehide left hidden=true while the tab is back, unstick so
+  // the new clip can actually play().
+  _readyVoice() {
+    Music._voiceHeld = false;
+    if (Music.hidden && Music.pageVisible()) Music.hidden = false;
+  },
   speakFile(personalityId, band, idx, tag) {
     if (!personalityId) return;
+    Music._readyVoice();
     Music.stopVoice();
     const plain = 'audio/vo/' + personalityId + '/' + band + '_' + idx + '.mp3';
     const src = tag ? 'audio/vo/' + tag + '/' + personalityId + '/' + band + '_' + idx + '.mp3' : plain;
@@ -285,25 +312,36 @@ const Music = {
         playEl(fb);
       }, { once: true });
     }
+    Music.voiceKind = 'dialogue';
     Music.voiceEl = el;
     playEl(el);
   },
   // campaign lines are name-free clips keyed by character, beat and index (§8)
   speakCampaign(who, key, idx) {
+    Music._readyVoice();
     Music.stopVoice();
     const el = watch(new Audio('audio/vo/campaign/' + who + '/' + key + '_' + idx + '.mp3'));
+    Music.voiceKind = 'campaign';
     Music.voiceEl = el;
     playEl(el);
   },
   speakTutorial(id) {
     if (!id) return;
+    Music._readyVoice();
     Music.stopVoice();
     const el = watch(new Audio('audio/vo/tutorial/' + id + '.mp3'));
+    Music.voiceKind = 'tutorial';
     Music.voiceEl = el;
     playEl(el);
   },
   stopVoice() {
-    if (Music.voiceEl) { pauseEl(Music.voiceEl); Music.voiceEl = null; }
+    Music._voiceHeld = false;
+    Music.voiceKind = null;
+    if (Music.voiceEl) { killEl(Music.voiceEl); Music.voiceEl = null; }
+  },
+  // Close a tutor card without killing an NPC / campaign line that just started.
+  stopTutorial() {
+    if (Music.voiceKind === 'tutorial') Music.stopVoice();
   },
 
   // small speaker toggle for a scene corner

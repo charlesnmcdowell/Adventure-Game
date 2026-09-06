@@ -1229,7 +1229,44 @@ function adoptMask(g, img) {
   const pc = img.parentContainer;
   if (pc && pc.mask && g.mask !== pc.mask) { try { g.setMask(pc.mask); } catch (e) {} }
 }
-function alphaOf(img) { return (img.alpha == null ? 1 : img.alpha) * (img.parentContainer ? (img.parentContainer.alpha == null ? 1 : img.parentContainer.alpha) : 1); }
+function worldAlpha(img) {
+  if (!img || img.visible === false || img.active === false) return 0;
+  let a = img.alpha == null ? 1 : img.alpha;
+  let p = img.parentContainer;
+  while (p) {
+    if (p.visible === false || p.active === false) return 0;
+    a *= (p.alpha == null ? 1 : p.alpha);
+    p = p.parentContainer;
+  }
+  return a;
+}
+function alphaOf(img) { return worldAlpha(img); }
+function hostLive(img) { return !!(img && img.scene && worldAlpha(img) > 0.02); }
+function syncOverlay(g, img) {
+  if (!g || !g.active) return false;
+  const on = hostLive(img);
+  try { g.__faceFx = true; } catch (e) {}
+  try { g.setVisible(!!on); } catch (e) {}
+  try { g.setAlpha(on ? worldAlpha(img) : 0); } catch (e) {}
+  return on;
+}
+function followHost(scene, g, img) {
+  if (!scene || !g || !img) return () => {};
+  try { g.__faceFx = true; } catch (e) {}
+  const tick = () => {
+    if (!g.active || !img.scene) {
+      try { scene.events.off('update', tick); } catch (e) {}
+      return;
+    }
+    syncOverlay(g, img);
+  };
+  scene.events.on('update', tick);
+  const stop = () => { try { scene.events.off('update', tick); } catch (e) {} };
+  try { img.once('destroy', stop); } catch (e) {}
+  try { g.once('destroy', stop); } catch (e) {}
+  tick();
+  return stop;
+}
 function lerp(a, b, t) { return a + (b - a) * t; }
 
 // Paint a mood at intensity onto Graphics g for the image. Pure function of
@@ -1461,12 +1498,14 @@ const Portraits = {
     const lids = [];
     const lidCol = meta.rig === 'wolf' ? (meta.furHex || 0x5a5a5f) : (meta.lid != null ? meta.lid : 0x8a5c3a);
     const drawLids = () => {
+      if (!hostLive(img)) return;
       const F = frame(img);
       const ey = F.y(meta.eyeY);
       const dx = meta.eyeDX * F.s;
       for (const sgn of [-1, 1]) {
-        const g = scene.add.graphics().setDepth(depthOf(img) + 1).setAlpha(alphaOf(img));
+        const g = scene.add.graphics().setDepth(depthOf(img) + 1);
         adoptMask(g, img);
+        followHost(scene, g, img);
         lids.push(g);
         g.fillStyle(lidCol, 1);
         g.fillEllipse(F.x(W / 2) + sgn * dx, ey + 1 * F.s, (meta.eyeW || 7.5) * 2.1 * F.s, (meta.eyeH || 5) * 2.2 * F.s);
@@ -1477,7 +1516,7 @@ const Portraits = {
     const schedule = () => {
       timer = scene.time.delayedCall(2600 + Math.random() * 4200, () => {
         if (!img.scene) return;
-        drawLids();
+        if (hostLive(img)) drawLids();
         scene.time.delayedCall(95, () => { clearLids(); if (img.scene) schedule(); });
       });
     };
@@ -1488,7 +1527,7 @@ const Portraits = {
       const sac = () => {
         gazeTimer = scene.time.delayedCall(1500 + Math.random() * 2500, () => {
           if (!img.scene) return;
-          if (!img.__gazeLock) Portraits.look(scene, img, ch, key, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1.2, 260);
+          if (!img.__gazeLock && hostLive(img)) Portraits.look(scene, img, ch, key, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 1.2, 260);
           sac();
         });
       };
@@ -1515,16 +1554,18 @@ const Portraits = {
     }
     const meta = metaFor(key, ch);
     const g = scene.add.graphics().setDepth(depthOf(img) + 3);
+    try { g.__faceFx = true; } catch (e) {}
     let last = null;
     const extra = { t: 0 };
     const tick = (t) => {
       if (!img.scene) return;
       STATS.ticks++;
       extra.t = t || 0;
+      if (!syncOverlay(g, img)) { last = null; try { g.clear(); } catch (e) {} return; }
       const sig = sigOf(img, mood, k, meta.rig === 'sentinel' && mood === 'dazed' ? extra : null);
       if (sig === last) return;
       last = sig;
-      g.setDepth(depthOf(img) + 3).setAlpha(alphaOf(img)); adoptMask(g, img);
+      g.setDepth(depthOf(img) + 3); adoptMask(g, img);
       timedPaint(g, img, meta, mood, k, extra);
     };
     tick(0);
@@ -1558,16 +1599,20 @@ const Portraits = {
     const r = q.shift();
     const meta = metaFor(key, ch);
     const g = scene.add.graphics().setDepth(depthOf(img) + 4).setAlpha(0);
+    try { g.__faceFx = true; } catch (e) {}
+    const fade = { a: 0 };
     const cur = { mood: r.mood, until: scene.time.now + r.ms, g };
     img.__reactCur = cur;
     let last = null;
     const tick = () => {
       if (!img.scene) return;
+      const host = worldAlpha(img);
+      try { g.setVisible(host > 0.02); g.setAlpha(host * fade.a); } catch (e) {}
       const sig = sigOf(img, r.mood, r.k, null);
       if (sig !== last) { last = sig; g.setDepth(depthOf(img) + 4); adoptMask(g, img); timedPaint(g, img, meta, r.mood, r.k, null); }
       if (scene.time.now >= cur.until && !cur.leaving) {
         cur.leaving = true;
-        scene.tweens.add({ targets: g, alpha: 0, duration: 200, onComplete: finish });
+        scene.tweens.add({ targets: fade, a: 0, duration: 200, onComplete: finish });
       }
     };
     const finish = () => {
@@ -1578,7 +1623,7 @@ const Portraits = {
       if (img.scene) Portraits._nextReact(scene, img, ch, key);
     };
     scene.events.on('update', tick);
-    scene.tweens.add({ targets: g, alpha: 1, duration: 80 });
+    scene.tweens.add({ targets: fade, a: 1, duration: 80 });
     try { img.once('destroy', finish); } catch (e) {}
   },
 
@@ -1591,9 +1636,11 @@ const Portraits = {
     if (img.__gazeG) { try { img.__gazeG.destroy(); } catch (e) {} img.__gazeG = null; }
     const g = scene.add.graphics().setDepth(depthOf(img) + 2);
     img.__gazeG = g;
+    followHost(scene, g, img);
     const st = { t: 0 };
     const paint = () => {
       if (!img.scene) return;
+      if (!syncOverlay(g, img)) { try { g.clear(); } catch (e) {} return; }
       g.clear(); adoptMask(g, img);
       const F = frame(img);
       const cx = F.x(W / 2), ey = F.y(meta.eyeY), edx = meta.eyeDX * F.s;
@@ -1637,12 +1684,14 @@ const Portraits = {
     const any = state && Object.keys(state).some(k => state[k]);
     if (!any || meta.rig !== 'human') { const noop = () => {}; img.__skinStop = noop; return noop; }
     const g = scene.add.graphics().setDepth(depthOf(img) + 2);
+    try { g.__faceFx = true; } catch (e) {}
     let last = null; let t0 = scene.time.now;
     const tick = (t) => {
       if (!img.scene) return;
+      if (!syncOverlay(g, img)) { last = null; try { g.clear(); } catch (e) {} return; }
       const sig = sigOf(img, 'skin', 1, state.burning ? { t } : null) + JSON.stringify(state);
       if (sig === last) return; last = sig;
-      g.clear(); g.setDepth(depthOf(img) + 2).setAlpha(alphaOf(img)); adoptMask(g, img);
+      g.clear(); g.setDepth(depthOf(img) + 2); adoptMask(g, img);
       const F = frame(img);
       const cx = F.x(W / 2), ey = F.y(meta.eyeY);
       const faceW = 52 * F.s, faceH = 70 * F.s;
@@ -1670,33 +1719,23 @@ const Portraits = {
     if (meta.rig !== 'human' || meta.masked) return () => {};
     opts = opts || {};
     const g = scene.add.graphics().setDepth(depthOf(img) + 2.5);
-    let analyser = null, data = null;
-    try {
-      if (audioEl && window.AudioContext && !opts.noAnalyser) {
-        const AC = Portraits._audioCtx || (Portraits._audioCtx = new window.AudioContext());
-        if (!audioEl.__advSrc) { audioEl.__advSrc = AC.createMediaElementSource(audioEl); audioEl.__advSrc.connect(AC.destination); }
-        analyser = AC.createAnalyser(); analyser.fftSize = 256; audioEl.__advSrc.connect(analyser);
-        data = new Uint8Array(analyser.fftSize);
-      }
-    } catch (e) { analyser = null; }
+    try { g.__faceFx = true; } catch (e) {}
+    // Timed flap only. Routing the clip through Web Audio
+    // (createMediaElementSource) takes exclusive output — a suspended
+    // AudioContext after a tab switch then mutes every later line.
     const words = Math.max(1, (opts.words || 6));
     const fallbackMs = opts.ms || Math.min(6000, 220 * words);
     const t0 = scene.time.now;
     let lastOpen = -1, acc = 0;
     const tick = (t, dt) => {
       if (!img.scene) return;
+      if (!syncOverlay(g, img)) { try { g.clear(); } catch (e) {} return; }
       acc += dt || 16; if (acc < 66) return; acc = 0;   // ~15 Hz
-      let open = 0;
-      if (analyser) {
-        analyser.getByteTimeDomainData(data);
-        let sum = 0; for (let i = 0; i < data.length; i++) { const v = (data[i] - 128) / 128; sum += v * v; }
-        open = Math.min(0.6, Math.sqrt(sum / data.length) * 3.2);
-        if (audioEl.paused || audioEl.ended) { stop(); return; }
-      } else {
-        const el = t - t0;
-        if (el > fallbackMs) { stop(); return; }
-        open = 0.15 + 0.3 * Math.abs(Math.sin(el / 110)) * (Math.sin(el / 370) > -0.3 ? 1 : 0);
-      }
+      const elapsed = t - t0;
+      const playing = audioEl && !audioEl.error && !audioEl.paused && !audioEl.ended;
+      if (audioEl && (audioEl.ended || (audioEl.paused && audioEl.currentTime > 0))) { stop(); return; }
+      if (!playing && elapsed > fallbackMs) { stop(); return; }
+      const open = 0.15 + 0.3 * Math.abs(Math.sin(elapsed / 110)) * (Math.sin(elapsed / 370) > -0.3 ? 1 : 0);
       if (Math.abs(open - lastOpen) < 0.03) return; lastOpen = open;
       g.clear();
       if (open < 0.05) return;

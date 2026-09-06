@@ -10,6 +10,8 @@ const DialogueBox = {
   show(scene, game, speaker, band, ctx, onDone) {
     const r = ADV.util.speakEx(game.world, speaker, band, ctx || {});
     if (!r) { if (onDone) onDone(); return null; }
+    // Cut the tutor clip first so an NPC join line can own the voice channel.
+    if (ADV.Music && ADV.Music.stopTutorial) ADV.Music.stopTutorial();
     // one personality, one voice — play this exact line's clip (§17a)
     if (ADV.Music && speaker.personalityId) {
       const world = game && game.world;

@@ -62,15 +62,14 @@ class CombatScene extends Phaser.Scene {
     for (const u of st.units) if (!u.reserved) this.makeUnitView(u);
     this.updateReserveCounters();
 
-    if (ADV.Display) ADV.Display.button(this, W - 16, 18);
-    this.turnStrip = T().text(this, W / 2, 32, '', { size: 13, ox: 0.5, color: T().css.inkDim });
-    this.roundText = T().text(this, 60, 32, '', { size: 15, display: true, color: T().css.gold });
-    this.paintEnemyHoldToggle();
-    this.paintAutoHaltToggle();
-    this.banner = T().text(this, W / 2, 80, this.mode === 'ambush' ? 'AMBUSHED — at your worst, as intended' :
+    this.roundText = T().text(this, 56, 18, '', { size: 15, display: true, color: T().css.gold });
+    this.paintHudChrome();
+    const box = this.hudChrome();
+    this.turnStrip = T().text(this, 56, 56, '', { size: 12, color: T().css.inkDim, wrap: box.left - 68 });
+    this.banner = T().text(this, W / 2, 96, this.mode === 'ambush' ? 'AMBUSHED — at your worst, as intended' :
       this.mode === 'rescue' ? 'You took a side.' :
       this.mode === 'assassination' ? 'Only one side walks away.' :
-      (st.ambushUid ? 'Your ambush — strike first, twice' : ''), { size: 16, display: true, ox: 0.5, color: T().css.blood });
+      (st.ambushUid ? 'Your ambush — strike first, twice' : ''), { size: 15, display: true, ox: 0.5, wrap: box.left - 80, align: 'center', color: T().css.blood });
 
     // an ambush opens on startled faces (Part B): the ambushed side, or the
     // victims of the player's own ambush
@@ -652,28 +651,42 @@ class CombatScene extends Phaser.Scene {
     return list.map(r => this.autoSkillName(u, { skillId: r.skillId, off: r.off, isAttack: r.skillId === 'basic_attack' })).join(' → ') || 'none';
   }
 
+  // One reserved top-right column for fight options. Fullscreen used to sit
+  // on the same origin as Enemy turn, so the button ate the label.
+  hudChrome() {
+    const w = 188, h = 34, gap = 8, y0 = 10;
+    const x = T().W - w - 12;
+    return { x, w, h, gap, y0, left: x - gap - w };
+  }
+
+  paintHudChrome() {
+    this.paintEnemyHoldToggle();
+    this.paintAutoHaltToggle();
+    this.paintFullscreenToggle();
+  }
+
   paintEnemyHoldToggle() {
-    const W = T().W;
+    const box = this.hudChrome();
     if (this._enemyHoldBtn) {
       try { this._enemyHoldBtn.destroy(); } catch (e) {}
       this._enemyHoldBtn = null;
     }
     const on = !!(ADV.Prefs && ADV.Prefs.pauseEnemy());
-    const b = T().button(this, W - 210, 20, 170, 36, on ? 'Enemy turn: hold' : 'Enemy turn: auto', () => {
+    const b = T().button(this, box.x, box.y0, box.w, box.h, on ? 'Enemy turn: hold' : 'Enemy turn: auto', () => {
       ADV.Prefs.setPauseEnemy(!on);
       this.paintEnemyHoldToggle();
     }, { size: 12, fill: on ? 0x2a3a22 : undefined, color: on ? T().css.gold : T().css.inkDim, edge: on ? T().c.gold : undefined });
-    this._enemyHoldBtn = { destroy() { b.destroy(); } };
+    this._enemyHoldBtn = b;
   }
 
   paintAutoHaltToggle() {
-    const W = T().W;
+    const box = this.hudChrome();
     if (this._autoHaltBtn) {
       try { this._autoHaltBtn.destroy(); } catch (e) {}
       this._autoHaltBtn = null;
     }
     const halted = !!this._autoHalted;
-    const b = T().button(this, W - 210, 62, 170, 36, halted ? 'Skills auto: off' : 'Skills auto: on', () => {
+    const b = T().button(this, box.x, box.y0 + box.h + box.gap, box.w, box.h, halted ? 'Skills auto: off' : 'Skills auto: on', () => {
       this._autoHalted = !this._autoHalted;
       if (this._autoHalted && this.autoTimer) {
         try { this.autoTimer.remove(false); } catch (e) {}
@@ -683,7 +696,22 @@ class CombatScene extends Phaser.Scene {
       }
       this.paintAutoHaltToggle();
     }, { size: 12, fill: halted ? 0x3a2218 : 0x2a3a22, color: halted ? T().css.blood : T().css.green, edge: halted ? T().c.blood : T().c.green });
-    this._autoHaltBtn = { destroy() { b.destroy(); } };
+    this._autoHaltBtn = b;
+  }
+
+  paintFullscreenToggle() {
+    if (this._fsBtn) {
+      try { this._fsBtn.destroy(); } catch (e) {}
+      this._fsBtn = null;
+    }
+    if (!ADV.Display) return;
+    const box = this.hudChrome();
+    const full = !!ADV.Display.active();
+    const b = T().button(this, box.left, box.y0, box.w, box.h, ADV.Display.label(), () => {
+      ADV.Display.toggle();
+    }, { size: 12, bold: true, color: T().css.gold, edge: T().c.gold, fill: full ? 0x2a3a22 : 0x2b261f });
+    ADV.Display.watch((s) => { try { if (b.txt && b.txt.active) b.txt.setText(s); } catch (e) {} });
+    this._fsBtn = b;
   }
 
   showEnemyHold(u, go) {
@@ -897,7 +925,13 @@ class CombatScene extends Phaser.Scene {
       : action.isAttack ? { kind: 'attack', targetUid: tgt.uid }
       : { kind: 'skill', skillId: action.skillId, targetUid: tgt.uid, offensiveMode: action.off };
     const res = ADV.Combat.act(st, u, act);
-    if (res && res.refund) { this.drainEvents(() => this.showActionBar(u)); return; }
+    if (res && res.refund) {
+      this.drainEvents(() => {
+        if (!this._autoHalted && this.queuePlayerAuto(u)) return;
+        this.showActionBar(u);
+      });
+      return;
+    }
     ADV.Combat.advance(st);
     this.loop();
   }

@@ -109,11 +109,11 @@ def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', archetype: 'fi
     advanced:     { name: 'Crowd Favourite', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
   } });
 def({ id: 'septic_sanguine', name: 'Septic Sanguine', kind: 'perk', archetype: 'rogue',
-  desc: 'Your bleeds and poisons bite 35% harder, every tick of them feeds you, and they leap to everyone within two rows of the first victim.',
+  desc: 'Your bleeds and poisons hit harder and feed you, and they leap to everyone within two rows of the first victim. Advanced doubles the ticks and triples the feast; Intermediate and Basic are half of the tier above.',
   tiers: {
-    basic:        { name: 'Septic Sanguine', dotMult: 1.35, dotLeech: 0.5 },
-    intermediate: { name: 'Septic Sanguine', dotMult: 1.35, dotLeech: 0.5 },
-    advanced:     { name: 'Blood Culture',   dotMult: 1.35, dotLeech: 0.5 },
+    basic:        { name: 'Septic Sanguine', dotMult: 1.25, dotLeech: 0.5 },
+    intermediate: { name: 'Septic Sanguine+', dotMult: 1.5, dotLeech: 1.0 },
+    advanced:     { name: 'Blood Culture',   dotMult: 2.0, dotLeech: 2.0 },
   } });
 def({ id: 'lookism', name: 'Lookism', kind: 'perk', archetype: null,
   desc: 'A face that opens doors: hired for 10g over your price, your hires take 10g under theirs, the opposite sex starts out Friendly, the ones you leave stay Friendly, and enemies would rather hit anyone but you.',
@@ -131,8 +131,8 @@ def({ id: 'backstab', name: 'Backstab', kind: 'active', archetype: 'rogue',
     advanced:     { name: 'Assassinate', executeBelow: 0.25 },
   } });
 def({ id: 'smoke_bomb', name: 'Smoke Bomb', kind: 'active', archetype: 'rogue',
-  power: 0, target: 'self', reach: 'any',
-  desc: 'Evade the next attack and slip into stealth — the way back to another Backstab.',
+  power: 0, target: 'self', reach: 'any', freeAction: true,
+  desc: 'A free action: evade, slip into stealth, and still take your turn — the way back to another Backstab.',
   tiers: {
     basic:        { name: 'Smoke Bomb', evadeNext: 1, stealthOnUse: true, stealthRounds: 2 },
     intermediate: { name: 'Vanish', untargetableRounds: 2, stealthOnUse: true, stealthRounds: 2 },
@@ -398,8 +398,8 @@ ADV.DATA.SKILLS = S;
 // Skill sets by archetype for seeding / trainer grouping
 // ---- Debuff kit (request 14): the four things the new contracts throw at you
 def({ id: 'venom_fang', name: 'Venom Fang', kind: 'active', archetype: 'rogue',
-  power: 1.6, reach: 'front', target: 'enemy', melee: true,
-  desc: 'A shallow, dirty cut: Poison and Bleed in one stab, both stacking with every bite.',
+  power: 1.6, reach: 'front', target: 'enemy', melee: true, fullHpBackstabPct: 0.8,
+  desc: 'A shallow, dirty cut: Poison and Bleed in one stab, both stacking. Against a target at full health it hits like most of a Backstab.',
   tiers: {
     basic:        { name: 'Venom Fang',  status: { poison: { power: 0.6, rounds: 3, stacks: true }, bleed: { power: 0.6, rounds: 3, stacks: true } } },
     intermediate: { name: 'Black Fang',  status: { poison: { power: 0.8, rounds: 3, stacks: true }, bleed: { power: 0.8, rounds: 3, stacks: true } } },
@@ -441,11 +441,12 @@ ADV.DATA.ARCHETYPE_SKILLS = {
 };
 
 // Gear sets (§10) — floor matching-archetype skills at level 10.
+// 800g sets also advance those skills one manifestation tier.
 ADV.DATA.GEAR_SETS = {
-  warrior: { name: 'Warrior Set', archetypes: ['tank', 'fighter'], cost: 800 },
-  ranger:  { name: 'Ranger Set',  archetypes: ['ranger', 'rogue'], cost: 800 },
-  mage:    { name: 'Mage Set',    archetypes: ['mage', 'druid'],   cost: 800 },
-  healer:  { name: 'Healer Set',  archetypes: ['healer'],          cost: 800 },
+  warrior: { name: 'Warrior Set', archetypes: ['tank', 'fighter'], cost: 800, advanceTier: true },
+  ranger:  { name: 'Ranger Set',  archetypes: ['ranger', 'rogue'], cost: 800, advanceTier: true },
+  mage:    { name: 'Mage Set',    archetypes: ['mage', 'druid'],   cost: 800, advanceTier: true },
+  healer:  { name: 'Healer Set',  archetypes: ['healer'],          cost: 800, advanceTier: true },
   // Single-class: cheaper, one silhouette. Cross-class: you pay for breadth.
   plate:      { name: 'Plate Harness',   archetypes: ['tank'],            cost: 400 },
   duelist:    { name: "Duelist's Kit",   archetypes: ['fighter'],         cost: 400 },

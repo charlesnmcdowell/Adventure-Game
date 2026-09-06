@@ -113,9 +113,10 @@ class TownScene extends Phaser.Scene {
       }
     }
     yy += T().gap(8);
-    const perkH = put(T().text(this, x + 16, yy, `Perks (${p.perks.filter(e => !ADV.DATA.SKILLS[e.skillId].noSlot).length}/${ADV.SkillSys.capFor(p, 'perk')})`, { size: 13, color: T().css.inkDim }));
+    const perkH = put(T().text(this, x + 16, yy, `Perks (${ADV.SkillSys.slottedCount(p, 'perk')}/${ADV.SkillSys.capFor(p, 'perk')})`, { size: 13, color: T().css.inkDim }));
     yy += after(perkH, 4);
     for (const e of p.perks) {
+      if (ADV.SkillSys.inArmorSlot(p, e.skillId)) continue;
       const m = ADV.SkillSys.manifest(p, e);
       const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: w - 80 }));
       t.setInteractive({ useHandCursor: true });
@@ -123,10 +124,10 @@ class TownScene extends Phaser.Scene {
       yy += after(t, 4);
     }
     yy += T().gap(6);
-    const actH = put(T().text(this, x + 16, yy, `Actives (${p.actives.filter(e => !ADV.DATA.SKILLS[e.skillId].noSlot).length}/${ADV.SkillSys.capFor(p, 'active')})`, { size: 13, color: T().css.inkDim }));
+    const actH = put(T().text(this, x + 16, yy, `Actives (${ADV.SkillSys.slottedCount(p, 'active')}/${ADV.SkillSys.capFor(p, 'active')})`, { size: 13, color: T().css.inkDim }));
     yy += after(actH, 4);
     const autoH = T().gap(18);
-    for (const e of p.actives) {
+    const paintActive = (e) => {
       const m = ADV.SkillSys.manifest(p, e);
       const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: w - 90 }));
       t.setInteractive({ useHandCursor: true });
@@ -144,6 +145,10 @@ class TownScene extends Phaser.Scene {
         scroll.addBtn(b);
       }
       yy += Math.max(after(t, 6), autoH + T().gap(6));
+    };
+    for (const e of p.actives) {
+      if (ADV.SkillSys.inArmorSlot(p, e.skillId)) continue;
+      paintActive(e);
     }
     {
       const on = ADV.Combat.skillAutoOn(p, 'basic_attack', false);
@@ -157,6 +162,24 @@ class TownScene extends Phaser.Scene {
       }, { size: 10, color: on ? T().css.green : T().css.inkFaint, fill: on ? 0x2a3a22 : 0x211d18 });
       scroll.addBtn(b);
       yy += autoH + T().gap(8);
+    }
+    const armorSkills = p.perks.concat(p.actives).filter(e => ADV.SkillSys.inArmorSlot(p, e.skillId));
+    if (armorSkills.length) {
+      const set = ADV.DATA.GEAR_SETS[p.equippedSet];
+      const armH = put(T().text(this, x + 16, yy, `Armor skills (${set ? set.name : 'set'}) · unlimited`, { size: 13, color: T().css.gold }));
+      yy += after(armH, 4);
+      for (const e of armorSkills) {
+        const sk = ADV.DATA.SKILLS[e.skillId];
+        if (sk && sk.kind === 'active') paintActive(e);
+        else {
+          const m = ADV.SkillSys.manifest(p, e);
+          const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: T().css.gold, wrap: w - 80 }));
+          t.setInteractive({ useHandCursor: true });
+          ADV.Tooltip.attach(this, t, () => ADV.SkillInfo.describe(p, e.skillId));
+          yy += after(t, 4);
+        }
+      }
+      yy += T().gap(6);
     }
     const home = ADV.Housing.of(p);
     const homeT = put(T().text(this, x + 16, yy, home.id === 'camp' ? 'No home — sleeping outside the walls' : home.name, { size: 12, color: home.id === 'camp' ? T().css.inkFaint : T().css.gold, wrap: w - 36 }));
@@ -305,6 +328,19 @@ class TownScene extends Phaser.Scene {
         try { if (o.setAlpha) o.setAlpha(0); } catch (e) {}
         try { if (o.setVisible) o.setVisible(false); else o.visible = false; } catch (e) {}
       }
+    }
+    this.hideFaceFx();
+  }
+
+  // Eyes / lids / lips are Graphics painted beside the bust, not in charObjs.
+  // Hide them with the panel or they float over the house during a cutscene.
+  hideFaceFx() {
+    const list = (this.children && this.children.list) || [];
+    for (const o of list) {
+      if (!o || !o.__faceFx) continue;
+      try { if (o.setAlpha) o.setAlpha(0); } catch (e) {}
+      try { if (o.setVisible) o.setVisible(false); } catch (e) {}
+      try { if (o.clear) o.clear(); } catch (e) {}
     }
   }
 

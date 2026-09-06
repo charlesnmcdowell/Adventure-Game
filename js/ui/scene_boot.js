@@ -103,6 +103,7 @@ class TitleScene extends Phaser.Scene {
       if (ADV.Music && ADV.Music.speakTutorial) ADV.Music.speakTutorial('card_' + (idx + 1));
     };
     const finish = () => {
+      if (ADV.Music && ADV.Music.stopTutorial) ADV.Music.stopTutorial();
       [dim, panel, num, txt, hint].forEach(x => x.destroy()); skip.destroy();
       this.scene.start('Creation', { password: this.password });
     };

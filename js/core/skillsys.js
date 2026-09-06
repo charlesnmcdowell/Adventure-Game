@@ -23,24 +23,53 @@ SkillSys.effectiveLevel = function (ch, skillId, level) {
   return Math.max(level, floor);
 };
 
+SkillSys.setOf = function (ch) {
+  if (!ch || !ch.equippedSet) return null;
+  return ADV.DATA.GEAR_SETS[ch.equippedSet] || null;
+};
+
+SkillSys.setMatchesSkill = function (ch, sk) {
+  const set = SkillSys.setOf(ch);
+  if (!set || !sk) return false;
+  if (sk.archetype && set.archetypes && set.archetypes.includes(sk.archetype)) return true;
+  if (set.extraSkills && set.extraSkills.includes(sk.id)) return true;
+  return false;
+};
+
 SkillSys.gearFloor = function (ch, sk) {
   if (!ch || !ch.equippedSet) return 0;
-  const set = ADV.DATA.GEAR_SETS[ch.equippedSet];
+  const set = SkillSys.setOf(ch);
   if (!set) return 0;
   const floor = set.floor || C().GEAR_SET_FLOOR_LEVEL;
   if (!sk) return floor;                                   // the set's own floor
-  if (sk.archetype && set.archetypes.includes(sk.archetype)) return floor;
-  if (set.extraSkills && set.extraSkills.includes(sk.id)) return floor;   // faction sets name extra skills (§10)
+  if (SkillSys.setMatchesSkill(ch, sk)) return floor;
   return 0;
+};
+
+SkillSys.gearAdvances = function (ch, sk) {
+  const set = SkillSys.setOf(ch);
+  if (!set || !sk) return false;
+  if (!(set.advanceTier || set.cost >= (C().GOLD.gearSet || 800))) return false;
+  return SkillSys.setMatchesSkill(ch, sk);
 };
 
 // Tier data (name + params) as it manifests in this character's hands.
 // Perks and actives both tier by level. An advanced faction title (§10)
-// lifts the manifestation one tier above actual level.
+// lifts the manifestation one tier above actual level. An 800g set
+// advances matching skills one tier from their natural level (so a
+// basic skill floored to Intermediate does not also jump to Advanced).
 SkillSys.tierFor = function (ch, skillId, level) {
   let tier = SkillSys.tierForLevel(level);
   if (ch && ADV.Campaign && ADV.Campaign.titleLifts(ch, skillId)) {
     tier = tier === 'basic' ? 'intermediate' : 'advanced';
+  }
+  const sk = SK()[skillId];
+  if (ch && SkillSys.gearAdvances(ch, sk)) {
+    const entry = SkillSys.entryFor(ch, skillId);
+    const natural = SkillSys.tierForLevel((entry && entry.level) || level);
+    const lifted = natural === 'basic' ? 'intermediate' : 'advanced';
+    const order = { basic: 0, intermediate: 1, advanced: 2 };
+    if (order[lifted] > order[tier]) tier = lifted;
   }
   return tier;
 };
@@ -187,18 +216,30 @@ SkillSys.knows = function (ch, skillId) {
 };
 
 // Master Swordsman: katana skills don't consume active slots.
+// A worn gear set parks matching skills in an unlimited armor slot.
 SkillSys.slotExempt = function (ch, sk) {
-  if (sk.kind !== 'active' || !sk.katana) return false;
-  return ch.perks.some(p => p.skillId === 'master_swordsman');
+  if (!sk) return false;
+  if (sk.kind === 'active' && sk.katana && ch.perks.some(p => p.skillId === 'master_swordsman')) return true;
+  return SkillSys.setMatchesSkill(ch, sk);
+};
+
+SkillSys.inArmorSlot = function (ch, skillId) {
+  const sk = SK()[skillId];
+  return !!(sk && !sk.noSlot && SkillSys.setMatchesSkill(ch, sk));
+};
+
+SkillSys.countsTowardCap = function (ch, skillId) {
+  const sk = SK()[skillId];
+  if (!sk || sk.noSlot || SkillSys.slotExempt(ch, sk)) return false;
+  return true;
+};
+
+SkillSys.slottedCount = function (ch, kind) {
+  return SkillSys.slotList(ch, kind).filter(e => SkillSys.countsTowardCap(ch, e.skillId)).length;
 };
 
 SkillSys.atCapacity = function (ch, kind) {
-  const list = SkillSys.slotList(ch, kind);
-  const counted = list.filter(e => {
-    const sk = SK()[e.skillId];
-    return !(sk && (sk.noSlot || SkillSys.slotExempt(ch, sk)));
-  });
-  return counted.length >= SkillSys.capFor(ch, kind);
+  return SkillSys.slottedCount(ch, kind) >= SkillSys.capFor(ch, kind);
 };
 
 // Learn a basic skill. Returns {ok, cost, error}. Caller pays gold beforehand via canLearn.

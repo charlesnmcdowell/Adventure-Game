@@ -200,7 +200,7 @@ Panels.grocer = function (scene, r) {
 Panels.store = function (scene, r) { return Panels.grocer(scene, r); };
 
 Panels.blacksmith = function (scene, r) {
-  header(scene, r, 'Blacksmith', 'A set floors matching skills at Intermediate. One set at a time — sell the one you wear for what you paid.');
+  header(scene, r, 'Blacksmith', 'Matching skills sit in free armor slots. An 800g set also advances those skills a whole tier. One set at a time — sell the one you wear for what you paid.');
   Panels.storeGear(scene, r);
 };
 
@@ -272,16 +272,20 @@ Panels.storeGear = function (scene, r) {
   for (const [id, set] of Object.entries(ADV.DATA.GEAR_SETS)) {
     if (set.campaign) continue;   // faction sets are issued by their halls, never sold
     // show which of the player's skills the set would actually raise (§20)
+    const advances = !!(set.advanceTier || set.cost >= (C().GOLD.gearSet || 800));
     const affected = p.perks.concat(p.actives).filter(e => {
       const sk = ADV.DATA.SKILLS[e.skillId];
-      return sk && sk.archetype && set.archetypes.includes(sk.archetype) && e.level < C().GEAR_SET_FLOOR_LEVEL;
+      if (!sk || !sk.archetype || !set.archetypes.includes(sk.archetype)) return false;
+      if (advances) return e.level < C().TIER_THRESHOLDS.advanced;
+      return e.level < (set.floor || C().GEAR_SET_FLOOR_LEVEL);
     }).map(e => ADV.DATA.SKILLS[e.skillId].name);
     const owned = p.equippedSet === id;
     const floor = set.floor || C().GEAR_SET_FLOOR_LEVEL;
     const arch = (set.archetypes || []).join(' / ');
-    const sub = owned ? 'worn now'
+    const lift = advances ? `advances ${arch || 'matching'} skills one tier` : `floors ${arch || 'matching'} skills at ${floor}`;
+    const sub = owned ? 'worn now — matching skills use armor slots'
       : p.equippedSet ? 'sell your current set first — one set at a time'
-      : `floors ${arch || 'matching'} skills at ${floor}${affected.length ? ' · you carry: ' + affected.join(', ') : ''}`;
+      : `${lift} · matching skills take no slot${affected.length ? ' · you carry: ' + affected.join(', ') : ''}`;
     const b = T().button(scene, r.x + 24, y, r.w - 320, 46, `${set.name} — ${set.cost}g`, () => {
       if (owned || p.equippedSet) return;
       if (p.inventory.gold < set.cost) { ADV.Notices.toast(scene, 'You cannot afford it.'); return; }
@@ -308,7 +312,7 @@ Panels.storeGear = function (scene, r) {
     const cur = ADV.DATA.GEAR_SETS[p.equippedSet];
     const back = (cur && cur.cost) || C().GOLD.gearSet;
     scroll.addBtn(T().button(scene, r.x + 24, y, r.w - 320, 40, `Sell the ${cur.name} — ${back}g back`, () => {
-      ADV.Notices.confirm(scene, 'Sell ' + cur.name + '?', `You get ${back}g and lose the level-${cur.floor || C().GEAR_SET_FLOOR_LEVEL} floor it gave your skills.`, 'Sell it', () => {
+      ADV.Notices.confirm(scene, 'Sell ' + cur.name + '?', `You get ${back}g and lose the floor, tier lift, and free armor slots that set gave your skills.`, 'Sell it', () => {
         p.equippedSet = null; p.inventory.gold += back;
         ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel(scene.currentPanel || 'blacksmith');
       });
@@ -424,7 +428,10 @@ Panels.trainer = function (scene, r) {
     const locked = !known && !ADV.SkillSys.purchasable(p, id, game.meta);
     let label = sk.name + (sk.kind === 'perk' ? ' ◆' : '');
     let sub, subColor = T().css.inkFaint;
-    if (known) { sub = 'known'; subColor = T().css.green; }
+    if (known) {
+      sub = ADV.SkillSys.inArmorSlot(p, id) ? 'armor skill — no slot' : 'known';
+      subColor = T().css.green;
+    }
     else if (locked) { sub = sk.kind === 'perk' ? 'join the faction' : 'witness it in their campaign'; subColor = T().css.inkFaint; }
     else if (sk.forbidden) { sub = sk.warning; subColor = T().css.blood; }
     else if (cost === 0) {
@@ -457,9 +464,11 @@ Panels.learnDialog = function (scene, id, cost) {
   const p = scene.player();
   const sk = ADV.DATA.SKILLS[id];
   const kind = sk.kind === 'perk' ? 'perk' : 'active';
-  const atCap = ADV.SkillSys.atCapacity(p, kind);
+  const armorFree = ADV.SkillSys.slotExempt(p, sk);
+  const atCap = !armorFree && ADV.SkillSys.atCapacity(p, kind);
   const je = p.journal[id];
   const lines = [sk.desc];
+  if (armorFree) lines.push('Your worn set parks this as an armor skill — it will not use a perk or active slot.');
   if (je && je.sawTier && je.sawTier !== 'basic') {
     lines.push(`You saw it become ${sk.tiers[je.sawTier].name}. This is what it grows into.`);
   }
@@ -477,7 +486,7 @@ Panels.learnDialog = function (scene, id, cost) {
 Panels.forgetToLearn = function (scene, newId, cost, kind) {
   const game = scene.g();
   const p = scene.player();
-  const list = (kind === 'perk' ? p.perks : p.actives).filter(e => !ADV.DATA.SKILLS[e.skillId].noSlot);
+  const list = (kind === 'perk' ? p.perks : p.actives).filter(e => ADV.SkillSys.countsTowardCap(p, e.skillId));
   ADV.Notices.pickOne(scene, 'Let something go', 'A dropped skill returns to your journal, and keeps its level forever.',
     list.map(e => ({ label: `${ADV.DATA.SKILLS[e.skillId].name} · L${e.level}`, value: e.skillId })),
     (skillId) => {

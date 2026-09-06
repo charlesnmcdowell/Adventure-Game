@@ -13,7 +13,7 @@ const TUTORIAL_WAGE = 45;
 const TOUR = [
   ['board',    'Quest Board',     'Contracts are posted here. Solo work pays less; party work pays full. The contract IS the difficulty — nothing scales to you.'],
   ['store',    'Grocer',          'Eat before every contract. Skip a meal and you come back Hungry; four Hungry nights kill you. One meal wipes the stack.'],
-  ['blacksmith','Blacksmith',     'A set floors matching skills at Intermediate. One set at a time; sell the one you wear for what you paid.'],
+  ['blacksmith','Blacksmith',     'A set parks its skills in free armor slots. The 800g sets also advance those skills a whole tier. One set at a time; sell the one you wear for what you paid.'],
   ['insurance','Insurance',       'Fifty gold now. If you or your spouse dies, the survivor is paid five hundred, and the policy is gone.'],
   ['trainer',  'Trainer',         'Every skill lives here. Your first three were free; witnessed skills are free; the rest cost gold. Tutoring lifts a skill a whole tier for gold.'],
   ['apply',    'Apply for Party', 'Hire on with an existing party. Name your wage first — reputation opens 30g to 200g. The leader picks the contracts and keeps the take.'],
@@ -98,6 +98,7 @@ Tutor.callout = function (scene, rect, title, body, opts) {
     objs.forEach(o => { try { o.destroy(); } catch (e) {} });
     scene.tutorObjs = (scene.tutorObjs || []).filter(o => objs.indexOf(o) < 0);
     if (!(scene.tutorObjs && scene.tutorObjs.length) && ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('tutor');
+    if (ADV.Music && ADV.Music.stopTutorial) ADV.Music.stopTutorial();
   };
   if (!opts.pass) {
     const b = T().button(scene, px + pw - 160, py + ph - 54, 146, 44, opts.label || 'Next', () => { close(); if (opts.onNext) opts.onNext(); }, { size: 13, bold: true, color: T().css.gold });
@@ -108,7 +109,9 @@ Tutor.callout = function (scene, rect, title, body, opts) {
   scene.tutorObjs = (scene.tutorObjs || []).concat(objs);
   // Wage +/- rebuilds the apply panel and would restart the same clip.
   // Speak a line once until the callout itself changes (ask_join → try_another).
-  if (opts.vo && ADV.Music && ADV.Music.speakTutorial && scene._tutorVo !== opts.vo) {
+  // Never talk over an NPC dialogue box — that is how join lines went silent.
+  const dialogueUp = ADV.UI && ADV.UI.cardIs && ADV.UI.cardIs('dialogue');
+  if (opts.vo && ADV.Music && ADV.Music.speakTutorial && scene._tutorVo !== opts.vo && !dialogueUp) {
     scene._tutorVo = opts.vo;
     ADV.Music.speakTutorial(opts.vo);
   }
@@ -118,6 +121,7 @@ Tutor.clear = function (scene) {
   for (const o of (scene.tutorObjs || [])) { try { o.destroy(); } catch (e) {} }
   scene.tutorObjs = [];
   if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('tutor');
+  if (ADV.Music && ADV.Music.stopTutorial) ADV.Music.stopTutorial();
 };
 
 // ---------------------------------------------------------------- town hooks
@@ -197,7 +201,9 @@ Tutor.panel = function (scene, game, id, r) {
 Tutor.application = function (game, party, ask) {
   const s = Tutor.state(game);
   if (s.step !== 'party') return null;
-  if (!s.declined) { s.declined = true; ADV.Save.saveGame(game); return { accepted: false }; }
+  // Do not flip declined until the leader finishes speaking — otherwise the
+  // apply panel can rebuild mid-line and start try_another over their VO.
+  if (!s.declined) return { accepted: false };
   const world = game.world;
   const cap = ADV.Party.maxAffordableWage(world, party, game.board);
   const named = ask != null ? ask : TUTORIAL_WAGE;

@@ -155,6 +155,10 @@ const PARAM_LABEL = {
   evadeNext: v => `evades the next ${v} attack(s)`,
   untargetableRounds: v => `untargetable for ${v} round(s)`,
   freeStrike: () => 'plus a free 2.0-power strike',
+  freeAction: () => 'free action — does not end your turn; you may still use another skill',
+  fullHpBackstabPct: v => `against a target at full health, deals ${Math.round(v * 100)}% of a Backstab`,
+  dotMult: v => `bleed and poison damage ×${v}`,
+  dotLeech: v => `heal ${Math.round(v * 100)}% of the bleed and poison damage you deal`,
   counterNext: v => `negates the next ${v} attack(s) and reflects the damage`,
   thornPct: v => `reflects ${Math.round(v * 100)}% of damage taken`,
   thornScope: v => `thorns cover: ${v}`,
@@ -387,7 +391,12 @@ const GearSetInfo = {
     const floor = set.floor || C().GEAR_SET_FLOOR_LEVEL;
     const L = [];
     L.push(set.name);
-    L.push(`Floors matching skills at level ${floor} (Intermediate if they were lower).`);
+    if (set.advanceTier || set.cost >= (C().GOLD.gearSet || 800)) {
+      L.push(`Advances matching skills one tier (Intermediate skills become Advanced). Floors the rest at level ${floor}.`);
+    } else {
+      L.push(`Floors matching skills at level ${floor} (Intermediate if they were lower).`);
+    }
+    L.push('Matching skills and perks use an unlimited armor slot while you wear this — they do not spend your skill or perk slots.');
     L.push('Archetypes: ' + (set.archetypes || []).join(', '));
     if (set.extraSkills && set.extraSkills.length) {
       L.push('Also floors: ' + set.extraSkills.map(id => (ADV.DATA.SKILLS[id] && ADV.DATA.SKILLS[id].name) || id).join(', '));

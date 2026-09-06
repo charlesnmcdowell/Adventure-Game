@@ -146,6 +146,10 @@ Panels.applyParty = function (scene, r) {
             if (ADV.Tutor && ADV.Tutor.active(game)) { scene.buildMenu(); scene.openPanel('apply'); ADV.Tutor.town(scene, game); }
             else scene.openPanel('apply');
           } else {
+            if (scripted && ADV.Tutor) {
+              const s = ADV.Tutor.state(game);
+              s.declined = true;
+            }
             ADV.Notices.toast(scene, scripted ? 'Turned away. It happens — ask another party.' : 'Turned away. Reputation opens this door.');
             ADV.Save.saveGame(game);
             scene.refreshAll(); scene.openPanel('apply');

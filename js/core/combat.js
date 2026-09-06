@@ -54,6 +54,7 @@ function makeUnit(ch, side, idx) {
     laneFocus: { lane: null, n: 0 },  // Ranging Cannon: consecutive rounds on a lane
     damageTaken: 0,            // Clan Blood heals from this
     grantedTurns: 0,
+    freeActionUsed: false,
   };
 }
 
@@ -376,7 +377,14 @@ function tickHatredClock(st) {
   st.turnsSinceHatred = (st.turnsSinceHatred == null ? 99 : st.turnsSinceHatred) + 1;
 }
 
-Combat.advance = function (st) { st.turnIdx++; tickHatredClock(st); checkEnd(st); };
+Combat.advance = function (st) {
+  const entry = st.turnQueue[st.turnIdx];
+  const u = entry && st.units.find(x => x.uid === entry.uid);
+  if (u) u.freeActionUsed = false;
+  st.turnIdx++;
+  tickHatredClock(st);
+  checkEnd(st);
+};
 
 // Named guild foes (assassination, ambush, rival intercept) each get one
 // hatred line. After anyone speaks, the next speaker waits two turns.
@@ -587,6 +595,7 @@ function autoUsable(st, u, r) {
   if (d.reload && u.reloadLock[r.skillId] && !perkVal(u.ch, 'powder_discipline', 'noReload')) return null;
   if (d.openerOnly && u.actedThisEncounter) return null;
   if (d.freeBuff) return null;
+  if (d.freeAction && u.freeActionUsed) return null;
   if (d.revive && u.usedOncePerBattle[r.skillId]) return null;
   let pool = Combat.validTargets(st, u, r.skillId, r.off);
   if (!pool.length) return null;
@@ -681,6 +690,10 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   const ch = atkUnit.ch;
   const atk = Ch().effStat(ch, 'atk');
   let power = opts.power != null ? opts.power : (m.data.power || 0);
+  if (opts.power == null && m.data.fullHpBackstabPct && defUnit && defUnit.chp >= defUnit.maxHp) {
+    const bs = SK().backstab;
+    if (bs && bs.power) power = bs.power * m.data.fullHpBackstabPct;
+  }
   if (power <= 0) return 0;
   const tierMult = m.data.noTierGrowth ? 1.0 : C().TIER_MULT[m.tier];
   const lvl = m.level;
@@ -1818,9 +1831,12 @@ function finishAction(st, u, skillId) {
     breakMomentum(u);
   }
   applyFlareSelf(st, u, m);
-  const free = !!(m && m.data && m.data.freeBuff);
+  const freeBuff = !!(m && m.data && m.data.freeBuff);
+  const freeAction = !!(m && m.data && m.data.freeAction) && !u.freeActionUsed;
+  if (freeAction) u.freeActionUsed = true;
+  const free = freeBuff || freeAction;
   if (!free) u.actedThisEncounter = true;
-  if (!free) {
+  if (!freeBuff && skillId && skillId !== 'basic_attack') {
     const lv = Sys().recordUse(u.ch, skillId);
     if (lv) ev(st, { t: 'levelUp', uid: u.uid, skillId, level: lv.level, tier: lv.tier });
   }
