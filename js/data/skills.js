@@ -1,4 +1,4 @@
-// The 31-skill pool (§3a) + universal moves + unique-tier registry skills.
+// The core skill pool (§3a) + universal moves + unique-tier registry skills.
 // One entry, three manifestations by level. Enemies, NPCs and the player all
 // draw from this identical pool. Handlers live in js/core/combat.js keyed by id.
 (function () {
@@ -92,14 +92,22 @@ def({ id: 'taunt', name: 'Taunt', kind: 'active', archetype: 'tank',
     intermediate: { name: 'Provoke',   marks: 2, markRounds: 3 },
     advanced:     { name: 'Challenge', marks: 'lane', markRounds: 4 },
   } });
+def({ id: 'stand_fast', name: 'Stand Fast', kind: 'active', archetype: 'tank',
+  power: 0, target: 'self', reach: 'any', selfRevive: true,
+  desc: 'When you fall, you stand back up. Once per battle at first; more charges and a fuller return as the skill grows.',
+  tiers: {
+    basic:        { name: 'Stand Fast',  reviveHp: 0.25, reviveUses: 1 },
+    intermediate: { name: 'Rise Again',  reviveHp: 0.50, reviveUses: 2 },
+    advanced:     { name: 'Undying',     reviveHp: 0.80, reviveUses: 3 },
+  } });
 
 // ============ ROGUE ============
 def({ id: 'opportunist', name: 'Opportunist', kind: 'perk', archetype: 'rogue',
-  desc: 'Bonus damage to wounded targets.',
+  desc: 'When a foe is below half health, every wound you deal — strikes, bleed, and poison — hits for an extra 10% of their max HP.',
   tiers: {
-    basic:        { name: 'Opportunist',  executeThreshold: 0.30, bonusMult: 1.5 },
-    intermediate: { name: 'Opportunist+', executeThreshold: 0.50, bonusMult: 1.5 },
-    advanced:     { name: 'Predator',     executeThreshold: 0.50, bonusMult: 1.5, killRefundsAction: true, fleeBonus: 0.35 },
+    basic:        { name: 'Opportunist',  executeThreshold: 0.50, bonusHpPct: 0.10 },
+    intermediate: { name: 'Opportunist+', executeThreshold: 0.50, bonusHpPct: 0.10 },
+    advanced:     { name: 'Predator',     executeThreshold: 0.50, bonusHpPct: 0.10, killRefundsAction: true, fleeBonus: 0.35 },
   } });
 def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', archetype: 'fighter', survivalHp: 20,
   desc: 'Every enemy you put down restores half your health, stacks +10% damage for the battle, and taunts every enemy onto you for 2 rounds. Every battle you walk out of adds 20 max HP, permanently.',
@@ -137,6 +145,14 @@ def({ id: 'smoke_bomb', name: 'Smoke Bomb', kind: 'active', archetype: 'rogue',
     basic:        { name: 'Smoke Bomb', evadeNext: 1, stealthOnUse: true, stealthRounds: 2 },
     intermediate: { name: 'Vanish', untargetableRounds: 2, stealthOnUse: true, stealthRounds: 2 },
     advanced:     { name: 'Shadowstep', untargetableRounds: 3, freeStrike: true, stealthOnUse: true, stealthRounds: 3 },
+  } });
+def({ id: 'shadow_rise', name: 'Shadow Rise', kind: 'active', archetype: 'rogue',
+  power: 0, target: 'self', reach: 'any', selfRevive: true,
+  desc: 'Death is a vanishing act. You come back thin, unseen, and hard to hit. Advanced can pull the same trick twice.',
+  tiers: {
+    basic:        { name: 'Shadow Rise', reviveHp: 0.05, reviveUses: 1, reviveStealthRounds: 2, reviveEvade: 2 },
+    intermediate: { name: 'Fade Back',   reviveHp: 0.25, reviveUses: 1, reviveStealthRounds: 3, reviveEvade: 3 },
+    advanced:     { name: 'Cheat Death', reviveHp: 0.50, reviveUses: 2, reviveStealthRounds: 3, reviveEvade: 3 },
   } });
 
 // ============ RANGER ============
@@ -188,6 +204,14 @@ def({ id: 'sunder', name: 'Sunder', kind: 'active', archetype: 'fighter',
     intermediate: { name: 'Rend', defStrip: 12, status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
     advanced:     { name: 'Shatter', defStripAll: true },
   } });
+def({ id: 'defiant_stand', name: 'Defiant Stand', kind: 'active', archetype: 'fighter',
+  power: 0, target: 'self', reach: 'any', selfRevive: true,
+  desc: 'You refuse the ground. You rise with 15% less health than a tank would, but double damage for two turns and an extra action.',
+  tiers: {
+    basic:        { name: 'Defiant Stand', reviveHp: 0.2125, reviveUses: 1, reviveAtkMult: 2, reviveBuffRounds: 2, grantSelfTurn: 1 },
+    intermediate: { name: 'Deathwish',     reviveHp: 0.425,  reviveUses: 2, reviveAtkMult: 2, reviveBuffRounds: 2, grantSelfTurn: 1 },
+    advanced:     { name: 'Blood Rise',    reviveHp: 0.68,   reviveUses: 3, reviveAtkMult: 2, reviveBuffRounds: 2, grantSelfTurn: 1 },
+  } });
 
 // ============ DRUID / SHAPESHIFTER ============
 def({ id: 'wild_form', name: 'Wild Form', kind: 'perk', archetype: 'druid',
@@ -212,6 +236,14 @@ def({ id: 'beast_shape', name: 'Beast Shape', kind: 'active', archetype: 'druid'
     basic:        { name: 'Beast Shape', atkMult: 1.5, rounds: 3 },
     intermediate: { name: 'Greater Beast', atkMult: 1.5, rounds: 3, lifeSteal: 0.3 },
     advanced:     { name: 'Primal Form', atkMult: 1.5, rounds: 3, lifeSteal: 0.3, splashAdjacent: true },
+  } });
+def({ id: 'grove_raise', name: 'Grove Rise', kind: 'active', archetype: 'druid',
+  power: 0, target: 'ally', reach: 'any', heal: true, revive: true, oncePerBattle: true,
+  desc: 'Calls fallen allies back through the green. Restores 15% less health than a healer\'s Raise, but each risen body wears a two-hit ward.',
+  tiers: {
+    basic:        { name: 'Grove Rise',        reviveHp: 0.2125, reviveCount: 1, shieldHits: 2 },
+    intermediate: { name: 'Grove Call',        reviveHp: 0.425,  reviveCount: 2, shieldHits: 2 },
+    advanced:     { name: 'Wild Resurrection', reviveHp: 0.68,   reviveCount: 3, shieldHits: 2 },
   } });
 
 // ============ HEALING — each with an offensive mode ============
@@ -265,7 +297,15 @@ def({ id: 'triage', name: 'Triage', kind: 'active', archetype: 'healer',
   tiers: {
     basic:        { name: 'Triage' },
     intermediate: { name: 'Field Surgery', fullHealBelow: 0.25, target: 'party' },
-    advanced:     { name: 'Resurrection', revive: true, oncePerBattle: true, target: 'party', fullHealBelow: 0.25 },
+    advanced:     { name: 'Mass Triage', fullHealBelow: 0.35, target: 'party', power: 1.8 },
+  } });
+def({ id: 'raise', name: 'Raise', kind: 'active', archetype: 'healer',
+  power: 0, target: 'ally', reach: 'any', heal: true, revive: true, oncePerBattle: true,
+  desc: 'Lifts fallen allies. One body at a quarter of their health; more souls, and a fuller return, as the working deepens.',
+  tiers: {
+    basic:        { name: 'Raise',         reviveHp: 0.25, reviveCount: 1 },
+    intermediate: { name: 'Mass Raise',    reviveHp: 0.50, reviveCount: 2 },
+    advanced:     { name: 'Resurrection',  reviveHp: 0.80, reviveCount: 3 },
   } });
 def({ id: 'blood_pact', name: 'Blood Pact', kind: 'active', archetype: 'healer',
   power: 2.5, target: 'enemy', reach: 'any', dualHeal: true,
@@ -432,12 +472,12 @@ def({ id: 'wither_touch', name: 'Wither Touch', kind: 'active', archetype: 'drui
 
 ADV.DATA.ARCHETYPE_SKILLS = {
   mage:    { perk: 'arcane_focus', actives: ['fire_bolt', 'frost_touch', 'spark'] },
-  tank:    { perk: 'bulwark',      actives: ['shield_wall', 'taunt'] },
-  rogue:   { perk: 'opportunist',  actives: ['backstab', 'smoke_bomb'] },
+  tank:    { perk: 'bulwark',      actives: ['shield_wall', 'taunt', 'stand_fast'] },
+  rogue:   { perk: 'opportunist',  actives: ['backstab', 'smoke_bomb', 'shadow_rise'] },
   ranger:  { perk: 'marksman',     actives: ['aimed_shot', 'snare'] },
-  fighter: { perk: 'momentum',     actives: ['cleave', 'sunder'] },
-  druid:   { perk: 'wild_form',    actives: ['thorn_skin', 'beast_shape'] },
-  healer:  { perk: 'devoted',      actives: ['mend', 'cleanse', 'regenerate', 'guardian_ward', 'triage', 'blood_pact'] },
+  fighter: { perk: 'momentum',     actives: ['cleave', 'sunder', 'defiant_stand'] },
+  druid:   { perk: 'wild_form',    actives: ['thorn_skin', 'beast_shape', 'grove_raise'] },
+  healer:  { perk: 'devoted',      actives: ['mend', 'cleanse', 'regenerate', 'guardian_ward', 'triage', 'blood_pact', 'raise'] },
 };
 
 // Gear sets (§10) — floor matching-archetype skills at level 10.

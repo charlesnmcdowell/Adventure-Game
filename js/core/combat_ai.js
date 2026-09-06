@@ -54,6 +54,7 @@ function chooseAction(st, u) {
     const m = manifestFor(u, e.skillId);
     const d = m.data;
     if (d.freeBuff) continue;
+    if (d.selfRevive) continue;
     if (d.freeAction && u.freeActionUsed) continue;
     const seal = u.statuses.find(x => x.kind === 'sealed');
     if (seal && (seal.tiers || []).includes(m.tier)) continue;
@@ -62,7 +63,7 @@ function chooseAction(st, u) {
     if (d.heal) {
       const hurt = allies.filter(a => a.chp / a.maxHp < 0.7).sort((x, y) => x.chp / x.maxHp - y.chp / y.maxHp);
       const downed = st.units.filter(x => x.side === u.side && x.downed && !x.fled && !x.reserved);
-      if (d.revive && downed.length && !u.usedOncePerBattle[e.skillId]) {
+      if (d.revive && downed.length && ADV.Combat.canSpendBattleUse(u, e.skillId, d)) {
         candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: downed[0].uid, weight: 50 });
         continue;
       }

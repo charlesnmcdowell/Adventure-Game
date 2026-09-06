@@ -793,6 +793,7 @@ class CombatScene extends Phaser.Scene {
       const sk = ADV.DATA.SKILLS[e.skillId];
       if (!sk || sk.target === 'postVictory') continue;
       const m = ADV.Combat.manifestFor(u, e.skillId);
+      if (m && m.data.selfRevive) continue;
       const sealed = !!(seal && (seal.tiers || []).includes(m.tier));
       const pool = sealed ? [] : ADV.Combat.validTargets(st, u, e.skillId, false);
       const stance = m.data.freeBuff
