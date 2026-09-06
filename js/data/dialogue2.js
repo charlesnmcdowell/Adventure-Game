@@ -106,7 +106,7 @@ p('M24', 'Watchful', 'm', {
     '[quietly] You check the exits when you sit down. Nobody taught you that — you worked it out.',
     '[calm] There was a man following you on the east road. There is not one now.',
     '[thoughtful] I watch everyone. I have stopped watching you the same way, {target}.',
-    '[quietly] Your hands are steadier than they were a month ago. I keep count of that sort of thing.',
+    '[quietly] Your hands are steadier than they were a month ago. I noticed. I usually do.',
   ],
   hatred: [
     '[quietly] I know which house. I know which window. I have known for a while.',
@@ -225,7 +225,7 @@ p('M28', 'Commanding', 'm', {
   romantic: [
     '[quietly] I give orders all day. You are the only person I ask.',
     '[calm] Come back to me. Consider that the standing order.',
-    '[warmly] I have commanded four hundred people and never once been steadier than I am beside you.',
+    '[warmly] I have commanded a lot of people and never once been steadier than I am beside you.',
     '[softly] Put it down, {target}. Whatever it is, put it down and come here.',
   ],
 });
@@ -376,7 +376,7 @@ p('F24', 'Grave', 'f', {
   ],
   friendly: [
     '[softly] You have never once flinched when I speak. Do you know how rare that is?',
-    '[quietly] I would send you and no one else. That is not kindness, it is arithmetic.',
+    '[quietly] I would send you and no one else. I do not say that lightly.',
     '[calm] Sit with me a while. You do not have to fill it, {target}.',
     '[softly] Whatever you need said to whoever needs to hear it — I will say it.',
   ],
@@ -523,7 +523,7 @@ p('F29', 'Exacting', 'f', {
   ],
   romantic: [
     '[softly] I have no correction for you. Do you understand how strange that is for me?',
-    '[calm] I have counted the days. That is not romantic, it is simply what I do, and it was ninety-one.',
+    '[calm] I know exactly how long you have been gone. I will not pretend I did not notice.',
     '[warmly] You get it wrong constantly and I have stopped minding, which frightens me.',
     '[softly] Be exact about one thing, {target}: come back.',
   ],

@@ -48,12 +48,12 @@ Object.assign(ADV.DATA.FACTIONS, {
 });
 ADV.DATA.CAMPAIGN2_FACTION_IDS = ['bell', 'green', 'tally', 'navy'];
 
-// Gear sets (§5): floor 15, two archetypes each, issued not sold.
+// Gear sets (§5): floor 15, advance three archetypes, issued not sold.
 Object.assign(ADV.DATA.GEAR_SETS, {
-  shinobi_gear:      { name: 'Shinobi Gear',       archetypes: ['rogue', 'ranger'],  cost: 0, floor: 15, campaign: 'bell' },
-  green_eyed_armour: { name: 'Green-Eyed Armour',  archetypes: ['fighter', 'tank'],  cost: 0, floor: 15, campaign: 'green' },
-  privateers_kit:    { name: "Privateer's Kit",    archetypes: ['ranger', 'rogue'],  cost: 0, floor: 15, campaign: 'tally' },
-  kings_uniform:     { name: "King's Uniform",     archetypes: ['fighter', 'mage'],  cost: 0, floor: 15, campaign: 'navy' },
+  shinobi_gear:      { name: 'Shinobi Gear',       archetypes: ['rogue', 'druid', 'mage'],     cost: 0, floor: 15, advanceTier: true, campaign: 'bell' },
+  green_eyed_armour: { name: 'Green-Eyed Armour',  archetypes: ['fighter', 'tank', 'ranger'],  cost: 0, floor: 15, advanceTier: true, campaign: 'green' },
+  privateers_kit:    { name: "Privateer's Kit",    archetypes: ['rogue', 'fighter', 'druid'],  cost: 0, floor: 15, advanceTier: true, campaign: 'tally' },
+  kings_uniform:     { name: "King's Uniform",     archetypes: ['ranger', 'tank', 'healer'],   cost: 0, floor: 15, advanceTier: true, campaign: 'navy' },
 });
 
 // ---------------------------------------------------------------- characters (§2)
@@ -275,7 +275,7 @@ Object.assign(ADV.DATA.CAMPAIGN_QUESTS, {
   tally: [
     { n: 1, name: 'Full Share', tier: 1, brief: "Somebody's been skimming the tally. Find him and make an example.",
       enc: [{ types: ['tally_hand', 'tally_hand'] }, { mini: 'bosun_teague', with: ['tally_hand'] }] },
-    { n: 2, name: 'The Factor', tier: 1, brief: 'A merchant hired guns instead of paying us. Go and correct his arithmetic.',
+    { n: 2, name: 'The Factor', tier: 1, brief: 'A merchant hired guns instead of paying us. Go and collect.',
       enc: [{ types: ['powder_monkey', 'tally_hand'] }, { mini: 'the_factor', with: ['powder_monkey', 'tally_hand'] }] },
     { n: 3, name: 'Two Fleets', tier: 2, rival: true, brief: "Another fleet wants the same prize. {they} is going. Try to keep up with him — he'll say that anyway.",
       enc: [{ types: ['tally_hand', 'gun_captain', 'powder_monkey'] }, { types: ['sea_dog', 'tally_hand', 'gun_captain'] }, { mini: 'captain_ordell', with: ['gun_captain', 'ships_surgeon'] }] },
@@ -293,7 +293,7 @@ Object.assign(ADV.DATA.CAMPAIGN_QUESTS, {
       enc: [{ types: ['pressed_hand', 'marine_of_the_line', 'signal_officer'] }, { types: ['marine_of_the_line', 'gunnery_officer', 'pressed_hand'] }, { mini: 'commander_nairn', with: ['gunnery_officer', 'ships_master'] }] },
     { n: 4, name: 'Nine Engagements', tier: 2, rival: true, rivalDies: true, brief: "Patrol. Routine. Nobody's seen Ash in the shallows for a month.",
       enc: [{ types: ['tally_hand', 'tally_hand', 'powder_monkey'] }, { types: ['sea_dog', 'gun_captain', 'tally_hand'] }, { mini: 'ashs_boarders', with: ['sea_dog'] }] },
-    { n: 5, name: 'The Tenth', tier: 3, bossAlly: true, brief: 'Nine engagements, nine losses. I have read every report and I know exactly what he does. Come with me.',
+    { n: 5, name: 'The Tenth', tier: 3, bossAlly: true, brief: 'He has beaten us every time we have met. I have read every report. Come with me.',
       enc: [{ types: ['tally_hand', 'sea_dog', 'powder_monkey'] }, { types: ['gun_captain', 'ships_surgeon', 'tally_hand'] }, { types: ['sea_dog', 'gun_captain', 'tally_hand', 'powder_monkey'] }, { boss: 'ash', with: ['sea_dog', 'sea_dog', 'gun_captain'] }] },
   ],
 });

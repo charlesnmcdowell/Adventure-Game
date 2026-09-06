@@ -174,7 +174,7 @@ Panels.campaign = function (scene, r) {
     y += 46;
   }
   if (v.completed) {
-    scene.keep(T().text(scene, r.x + 24, y, `Campaign complete. ${D().GEAR_SETS[f.gearSet].name} issued — it floors ${D().GEAR_SETS[f.gearSet].archetypes.join('/')} skills at 15.`, { size: 12, color: T().css.green, wrap: r.w - 220 })); y += 24;
+    scene.keep(T().text(scene, r.x + 24, y, `Campaign complete. ${D().GEAR_SETS[f.gearSet].name} issued — it advances ${D().GEAR_SETS[f.gearSet].archetypes.join('/')} skills one tier.`, { size: 12, color: T().css.green, wrap: r.w - 220 })); y += 24;
     if (v.canReissue) { keepBtn(scene, T().button(scene, r.x + 24, y, 300, 34, 'Quartermaster: re-issue the set', () => { ADV.Campaign.reissue(game); scene.refreshAll(); scene.openPanel('campaign'); }, { size: 12 })); y += 42; }
     scene.keep(T().text(scene, r.x + 24, y, 'STANDING CONTRACTS', { size: 12, color: T().css.inkDim })); y += 20;
     for (const q of v.repeatables) {

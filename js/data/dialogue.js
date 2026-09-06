@@ -957,7 +957,7 @@ ADV.DATA.DIALOGUE = {
   "romantic": [
    "[softly] I've priced everything I've ever touched. Never you.",
    "[warmly] Take it all, {target}. I'll make more.",
-   "[thoughtful] I've counted everything I own. You're the good part.",
+   "[thoughtful] I know what every coin I have is for. You're the part I didn't plan.",
    "[quietly] I've never given anything away. Take this."
   ]
  },

@@ -191,7 +191,7 @@ Panels.campaign2 = function (scene, r) {
     y += 46;
   }
   if (v.completed) {
-    scene.keep(T().text(scene, r.x + 24, y, `Complete. ${D().GEAR_SETS[f.gearSet].name} issued — it floors ${D().GEAR_SETS[f.gearSet].archetypes.join('/')} skills at 15.`,
+    scene.keep(T().text(scene, r.x + 24, y, `Complete. ${D().GEAR_SETS[f.gearSet].name} issued — it advances ${D().GEAR_SETS[f.gearSet].archetypes.join('/')} skills one tier.`,
       { size: 12, color: T().css.green, wrap: r.w - 220 })); y += 24;
     scene.keep(T().text(scene, r.x + 24, y, 'All sixty-four from these four houses are on the trainer\'s board now — including the houses that will not have you. The Maw, the Antler, and Varenholm are a separate seventy-two.',
       { size: 12, color: T().css.gold, wrap: r.w - 220 })); y += 26;

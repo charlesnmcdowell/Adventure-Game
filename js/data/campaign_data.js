@@ -34,11 +34,11 @@ ADV.DATA.FACTIONS = {
   },
 };
 
-// Faction gear sets (§10): floor at 15, span two archetypes, never sold.
+// Faction gear sets (§10): floor at 15, advance three archetypes, never sold.
 Object.assign(ADV.DATA.GEAR_SETS, {
-  assassins_gear:    { name: "Assassin's Gear",    archetypes: ['rogue'], extraSkills: ['sneak'], cost: 0, floor: 15, campaign: 'maw' },
-  mercenarys_gear:   { name: "Mercenary's Gear",   archetypes: ['fighter', 'tank'], cost: 0, floor: 15, campaign: 'antler' },
-  battle_mages_gear: { name: "Battle Mage's Gear", archetypes: ['mage', 'healer'], cost: 0, floor: 15, campaign: 'varenholm' },
+  assassins_gear:    { name: "Assassin's Gear",    archetypes: ['rogue', 'ranger', 'fighter'], extraSkills: ['sneak'], cost: 0, floor: 15, advanceTier: true, campaign: 'maw' },
+  mercenarys_gear:   { name: "Mercenary's Gear",   archetypes: ['tank', 'ranger', 'fighter'], cost: 0, floor: 15, advanceTier: true, campaign: 'antler' },
+  battle_mages_gear: { name: "Battle Mage's Gear", archetypes: ['druid', 'mage', 'healer'], cost: 0, floor: 15, advanceTier: true, campaign: 'varenholm' },
 });
 
 // ---------------------------------------------------------------- characters (§6, §6a)
