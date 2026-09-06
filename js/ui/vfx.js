@@ -703,6 +703,263 @@ cine.chargeUp = function (scene, src, color) {
   return 280;
 };
 
+// ============================================================================
+// Healer & druid pass (HEALER_DRUID_PROMPT.md Parts B–C): crosses, wings, the
+// tree of life, the grove, and the transformation beat. Everything is drawn;
+// nothing loads. Marks that persist return { objs, tweens, timers, onKill } so
+// spell_fx's killMark can clean them up.
+// ============================================================================
+function crossTex(scene) {
+  return fxTex(scene, 'fx_cross', 24, 24, (ctx, w, h) => {
+    ctx.fillStyle = 'rgba(200,255,192,0.95)';
+    ctx.fillRect(w / 2 - 3, 2, 6, h - 4); ctx.fillRect(2, h / 2 - 3, w - 4, 6);
+    ctx.fillStyle = 'rgba(127,224,122,1)';
+    ctx.fillRect(w / 2 - 2, 4, 4, h - 8); ctx.fillRect(4, h / 2 - 2, w - 8, 4);
+  });
+}
+function leafTex(scene) {
+  return fxTex(scene, 'fx_leaf', 16, 10, (ctx, w, h) => {
+    ctx.fillStyle = 'rgba(93,138,74,1)';
+    ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.quadraticCurveTo(w / 2, -2, w, h / 2); ctx.quadraticCurveTo(w / 2, h + 2, 0, h / 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(40,70,30,0.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(1, h / 2); ctx.lineTo(w - 1, h / 2); ctx.stroke();
+  });
+}
+function featherTex(scene) {
+  return fxTex(scene, 'fx_feather', 12, 28, (ctx, w, h) => {
+    ctx.fillStyle = 'rgba(244,238,224,0.95)';
+    ctx.beginPath(); ctx.moveTo(w / 2, 0); ctx.quadraticCurveTo(w, h * 0.4, w / 2, h); ctx.quadraticCurveTo(0, h * 0.4, w / 2, 0); ctx.fill();
+    ctx.strokeStyle = 'rgba(212,169,78,0.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(w / 2, 1); ctx.lineTo(w / 2, h - 1); ctx.stroke();
+  });
+}
+VFX.crossKey = (scene) => crossTex(scene);
+VFX.leafKey = (scene) => leafTex(scene);
+const CROSS_TIER = { basic: { n: 5, sizes: [14], ms: 500 }, intermediate: { n: 9, sizes: [14, 20], ms: 650 }, advanced: { n: 14, sizes: [12, 18, 26], ms: 800 } };
+VFX.CROSS_TIER = CROSS_TIER;
+
+// B1. Green plus signs rising from a unit's frame. Returns ms until the number should land.
+VFX.healCrosses = function (scene, x, y, tier, opts) {
+  opts = opts || {};
+  const T = CROSS_TIER[tier] || CROSS_TIER.basic;
+  const key = crossTex(scene);
+  const w = opts.w || 92, h = opts.h || 116;
+  const tint = opts.druid ? 0xa8e08a : 0xffffff;
+  for (let i = 0; i < T.n; i++) {
+    const size = T.sizes[i % T.sizes.length];
+    const cx = x + (Math.random() - 0.5) * w * 0.9, cy = y + h * 0.45 - Math.random() * h * 0.7;
+    const c = scene.add.image(cx, cy, key).setDisplaySize(size, size).setDepth(FXD + 1).setAlpha(0).setAngle((Math.random() - 0.5) * 24).setTint(tint).setBlendMode(Phaser.BlendModes.ADD);
+    c.__cross = true;
+    const delay = (i / T.n) * T.ms * 0.5;
+    scene.tweens.add({ targets: c, alpha: 1, duration: 120, delay });
+    scene.tweens.add({ targets: c, y: cy - 40 - Math.random() * 30, angle: c.angle + (Math.random() - 0.5) * 24, duration: T.ms, delay, ease: 'Sine.easeOut', onComplete: () => kill(c) });
+    scene.tweens.add({ targets: c, alpha: 0, duration: T.ms * 0.4, delay: delay + T.ms * 0.6 });
+  }
+  if (opts.druid) {
+    const lk = leafTex(scene);
+    for (let i = 0; i < 2 + T.sizes.length; i++) {
+      const l = scene.add.image(x + (Math.random() - 0.5) * w, y - h * 0.3, lk).setDepth(FXD + 1).setAlpha(0.9).setAngle(Math.random() * 360);
+      l.__cross = true;
+      scene.tweens.add({ targets: l, y: l.y + 60, x: l.x + (Math.random() - 0.5) * 40, angle: l.angle + 180, alpha: 0, duration: T.ms + 300, ease: 'Sine.easeIn', onComplete: () => kill(l) });
+    }
+  }
+  if (tier === 'advanced') VFX.lightField(scene, x, y, opts.druid ? 0x7fd070 : 0x7fe07a, 90, T.ms);
+  return T.ms;
+};
+
+// B3. Angelic wings unfold behind a unit's frame and beat once; returns a mark.
+VFX.wings = function (scene, view, opts) {
+  opts = opts || {};
+  if (!view || !view.img) return null;
+  const x = view.x, y = view.y, w = view.img.displayWidth, h = view.img.displayHeight;
+  const depth = (view.img.depth || 10) - 1;
+  const c = scene.add.container(x, y).setDepth(depth);
+  const fk = featherTex(scene);
+  const glow = scene.add.image(0, -h * 0.15, glowKey(scene)).setTint(0xfff0c0).setAlpha(0.35).setDisplaySize(w * 2.6, h * 1.4).setBlendMode(Phaser.BlendModes.ADD);
+  c.add(glow);
+  const sides = [];
+  for (const s of [-1, 1]) {
+    const wing = scene.add.container(s * w * 0.42, -h * 0.28);
+    for (let row = 0; row < 3; row++) {
+      const n = 6 - row;
+      for (let i = 0; i < n; i++) {
+        const t = i / (n - 1);
+        const fx = s * (10 + t * (w * 0.9 - row * 12)), fy = -8 + row * 14 + Math.sin(t * Math.PI) * -26 + t * 18;
+        const f = scene.add.image(fx, fy, fk).setDisplaySize(10 - row, 26 + (1 - t) * 10).setAngle(s * (-50 + t * 95 + row * 6)).setAlpha(0.95 - row * 0.15);
+        wing.add(f);
+      }
+    }
+    wing.setScale(0.1, 0.6).setAlpha(0);
+    scene.tweens.add({ targets: wing, scaleX: 1, scaleY: 1, alpha: 1, duration: 400, ease: 'Back.easeOut' });
+    c.add(wing); sides.push(wing);
+  }
+  const tweens = [];
+  const beat = () => { for (const wg of sides) { tweens.push(scene.tweens.add({ targets: wg, scaleX: 0.86, angle: wg.angle, duration: 220, yoyo: true, ease: 'Sine.easeInOut', delay: 450 })); } };
+  beat();
+  const timer = scene.time.addEvent({ delay: 2400, loop: true, callback: () => { for (const wg of sides) scene.tweens.add({ targets: wg, scaleX: 0.86, duration: 220, yoyo: true, ease: 'Sine.easeInOut' }); } });
+  const halo = VFX.glowStatic ? null : null;
+  return { objs: [c], tweens, timer, onKill: () => {
+    // dissolve into white motes
+    try { for (let i = 0; i < 10; i++) { const m = scene.add.circle(x + (Math.random() - 0.5) * w * 1.6, y + (Math.random() - 0.5) * h, 2.5, 0xf4eee0, 0.9).setDepth(FXD); scene.tweens.add({ targets: m, y: m.y - 40, alpha: 0, duration: 500 + Math.random() * 300, onComplete: () => kill(m) }); } } catch (e) {}
+  } };
+};
+
+// C2. The tree of life behind a portrait: trunk, canopy by tier, running water, thorn ring.
+VFX.lifeTree = function (scene, view, tier, opts) {
+  opts = opts || {};
+  if (!view || !view.img) return null;
+  const x = view.x, y = view.y, w = view.img.displayWidth, h = view.img.displayHeight;
+  const depth = (view.img.depth || 10) - 1;
+  const boughs = tier === 'advanced' ? 6 : tier === 'intermediate' ? 4 : 2;
+  const c = scene.add.container(x, y).setDepth(depth);
+  // water: a masked column of streaks scrolling down
+  const water = scene.add.container(0, 0);
+  const wg = scene.add.graphics();
+  for (let i = 0; i < 26; i++) { const sx = (Math.random() - 0.5) * w * 0.9; wg.lineStyle(1 + Math.random() * 1.5, 0x6fc0e8, 0.35 + Math.random() * 0.4); wg.lineBetween(sx, -h + Math.random() * h * 2, sx, -h + Math.random() * h * 2 + 18 + Math.random() * 20); }
+  water.add(wg);
+  const wg2 = scene.add.graphics(); wg2.fillStyle(0x6fc0e8, 0.12); wg2.fillRect(-w * 0.5, -h * 0.6, w, h * 1.2); water.add(wg2);
+  const maskShape = scene.add.rectangle(x, y - h * 0.05, w * 0.92, h * 1.05, 0xffffff).setVisible(false);
+  water.setMask(maskShape.createGeometryMask());
+  water.setBlendMode(Phaser.BlendModes.ADD);
+  c.add(water);
+  const scroll = scene.tweens.add({ targets: wg, y: h, duration: 1400, repeat: -1, ease: 'Linear' });
+  // trunk + boughs
+  const tree = scene.add.graphics();
+  const brown = 0x4a3020, leaf = 0x3a7a3a, leaf2 = 0x5d9a4a;
+  tree.fillStyle(brown, 1);
+  tree.fillRect(-7, -h * 0.1, 14, h * 0.62);
+  tree.fillStyle(0x3a2418, 1); tree.fillRect(-3, -h * 0.1, 3, h * 0.6);
+  tree.fillStyle(brown, 1);
+  const rootY = h * 0.52;
+  for (let i = -2; i <= 2; i++) tree.fillTriangle(i * 6, rootY, i * 22 - 6, rootY + 14, i * 22 + 8, rootY + 14);
+  for (let i = 0; i < boughs; i++) {
+    const s = i % 2 ? 1 : -1, t = i / boughs;
+    const bx = s * (18 + t * w * 0.42), by = -h * 0.1 - t * h * 0.32;
+    tree.lineStyle(5 - t * 2, brown, 1); tree.lineBetween(0, -h * 0.05 - t * h * 0.2, bx, by);
+    tree.fillStyle(t % 2 ? leaf : leaf2, 1); tree.fillCircle(bx, by - 8, 18 - t * 4);
+    tree.fillStyle(leaf2, 0.9); tree.fillCircle(bx + s * 8, by - 14, 12 - t * 3);
+  }
+  // canopy over the top edge
+  const cw = w * (0.5 + boughs * 0.09), ch2 = 22 + boughs * 4;
+  tree.fillStyle(leaf, 1); tree.fillEllipse(0, -h * 0.5, cw, ch2);
+  tree.fillStyle(leaf2, 0.9); tree.fillEllipse(-cw * 0.2, -h * 0.5 - 6, cw * 0.5, ch2 * 0.7); tree.fillEllipse(cw * 0.22, -h * 0.5 - 4, cw * 0.45, ch2 * 0.6);
+  tree.setScale(1, 0.01); tree.setAlpha(0.95);
+  c.add(tree);
+  scene.tweens.add({ targets: tree, scaleY: 1, duration: 400, ease: 'Back.easeOut' });
+  // thorn ring, drawn last
+  const thorns = scene.add.graphics().setAlpha(0);
+  const thick = tier === 'advanced' ? 3.5 : tier === 'intermediate' ? 2.5 : 1.8;
+  thorns.lineStyle(thick, 0x24401c, 1);
+  const rx = w / 2 + 6, ry = h / 2 + 6;
+  const pts = 44;
+  for (let i = 0; i < pts; i++) {
+    const a0 = (i / pts) * Math.PI * 2, a1 = ((i + 1) / pts) * Math.PI * 2;
+    const jx = (Math.random() - 0.5) * 4, jy = (Math.random() - 0.5) * 4;
+    thorns.lineBetween(Math.cos(a0) * rx + jx, Math.sin(a0) * ry + jy, Math.cos(a1) * rx, Math.sin(a1) * ry);
+    if (i % 3 === 0) { const mx = Math.cos(a0) * rx, my = Math.sin(a0) * ry; thorns.lineBetween(mx, my, mx + Math.cos(a0 + 0.6) * 9, my + Math.sin(a0 + 0.6) * 9); }
+  }
+  c.add(thorns);
+  scene.tweens.add({ targets: thorns, alpha: 1, duration: 300, delay: 300 });
+  // leaves drifting off the canopy
+  const lk = leafTex(scene);
+  const leaves = scene.add.particles(0, 0, lk, {
+    x: { min: x - cw / 2, max: x + cw / 2 }, y: y - h * 0.5, speedY: { min: 20, max: 45 }, speedX: { min: -15, max: 15 },
+    lifespan: 1800, scale: { min: 0.5, max: 0.9 }, rotate: { min: 0, max: 360 }, alpha: { start: 0.9, end: 0 }, frequency: 340, quantity: 1,
+  }).setDepth(depth + 2);
+  const mark = { objs: [c, maskShape, leaves], tweens: [scroll], view, tier,
+    flash: (dir) => {   // reflected hit: the thorns go red and shards fly at the attacker
+      scene.tweens.add({ targets: thorns, alpha: 0.4, duration: 60, yoyo: true, repeat: 2 });
+      thorns.setTint && thorns.setTint(0xff4040);
+      const shards = 5;
+      for (let i = 0; i < shards; i++) { const sh = scene.add.triangle(x, y, 0, -7, 3, 5, -3, 5, 0x3a6a2a).setDepth(FXD + 1); scene.tweens.add({ targets: sh, x: x + (dir || 1) * (120 + Math.random() * 80), y: y + (Math.random() - 0.5) * 60, angle: 200, alpha: 0, duration: 320, onComplete: () => kill(sh) }); }
+    },
+    onKill: () => { try { const g = scene.add.graphics().setDepth(FXD); g.lineStyle(2, 0x5d8a4a, 0.9); for (let i = 0; i < 8; i++) { const a = Math.random() * Math.PI * 2; g.lineBetween(x + Math.cos(a) * 30, y + Math.sin(a) * 30, x + Math.cos(a) * 60, y + Math.sin(a) * 60); } scene.tweens.add({ targets: g, alpha: 0, duration: 400, onComplete: () => kill(g) }); } catch (e) {} },
+  };
+  return mark;
+};
+
+// C3. The emerald grove: saplings around the risen, a canopy, fireflies.
+VFX.grove = function (scene, view, rounds, opts) {
+  opts = opts || {};
+  if (!view || !view.img) return null;
+  const x = view.x, y = view.y, w = view.img.displayWidth, h = view.img.displayHeight;
+  const depth = (view.img.depth || 10) - 1;
+  const c = scene.add.container(x, y).setDepth(depth);
+  VFX.groundCrack(scene, x, y, 0x2fbf71, { n: 5, dur: 900 });
+  const saplings = [];
+  const n = 5 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1), sx = -w * 0.6 + t * w * 1.2, sy = h * 0.52 - Math.abs(t - 0.5) * 10;
+    const sp = scene.add.container(sx, sy);
+    const g = scene.add.graphics();
+    const hh = 28 + Math.random() * 22;
+    g.fillStyle(0x4a3020, 1); g.fillRect(-2, -hh, 4, hh);
+    g.fillStyle(0x2fbf71, 1); g.fillCircle(0, -hh, 9 + Math.random() * 4); g.fillCircle(-6, -hh + 6, 7); g.fillCircle(6, -hh + 5, 7);
+    sp.add(g); sp.setScale(0.01); c.add(sp); saplings.push(sp);
+    scene.tweens.add({ targets: sp, scaleX: 1, scaleY: 1, duration: 360, delay: i * 50, ease: 'Back.easeOut' });
+  }
+  const canopy = scene.add.image(0, -h * 0.55, glowKey(scene)).setTint(0x2fbf71).setAlpha(0).setDisplaySize(w * 2.2, h * 0.9).setBlendMode(Phaser.BlendModes.ADD);
+  c.add(canopy);
+  scene.tweens.add({ targets: canopy, alpha: 0.5, duration: 500, delay: 300 });
+  const cg = scene.add.graphics().setAlpha(0);
+  cg.fillStyle(0x2a8a50, 0.95); cg.fillEllipse(0, -h * 0.55, w * 1.5, 30); cg.fillStyle(0x3fbf71, 0.9); cg.fillEllipse(-w * 0.3, -h * 0.58, w * 0.7, 24); cg.fillEllipse(w * 0.3, -h * 0.57, w * 0.7, 22);
+  c.add(cg);
+  scene.tweens.add({ targets: cg, alpha: 1, duration: 400, delay: 350 });
+  const fireflies = scene.add.particles(0, 0, glowKey(scene), {
+    x: { min: x - w * 0.7, max: x + w * 0.7 }, y: { min: y - h * 0.5, max: y + h * 0.4 },
+    speedX: { min: -12, max: 12 }, speedY: { min: -12, max: 12 }, lifespan: { min: 1500, max: 3000 },
+    scale: { min: 0.03, max: 0.06 }, alpha: { onEmit: () => 0, onUpdate: (p, k, t) => Math.sin(Math.PI * t) * 0.9 }, tint: 0xbfff8a, frequency: 260, quantity: 1, blendMode: 'ADD',
+  }).setDepth(depth + 2);
+  const light = scene.add.image(x, y + h * 0.4, glowKey(scene)).setTint(0x2fbf71).setAlpha(0.3).setDisplaySize(w * 2, h * 0.8).setBlendMode(Phaser.BlendModes.ADD).setDepth(-2);
+  const mark = { objs: [c, fireflies, light], tweens: [], view, saplings,
+    shed: () => { const sp = saplings.pop(); if (!sp) return; scene.tweens.add({ targets: sp, scaleY: 0.01, alpha: 0, duration: 400, onComplete: () => kill(sp) }); },
+    onKill: () => { try { const lk = leafTex(scene); for (let i = 0; i < 12; i++) { const l = scene.add.image(x + (Math.random() - 0.5) * w * 1.4, y + (Math.random() - 0.5) * h, lk).setDepth(FXD).setAngle(Math.random() * 360); scene.tweens.add({ targets: l, y: l.y + 50, alpha: 0, angle: l.angle + 120, duration: 600 + Math.random() * 400, onComplete: () => kill(l) }); } } catch (e) {} },
+  };
+  return mark;
+};
+
+// C1. Transformation beat: shake, stretch and snap twice, swap the texture at the second snap.
+VFX.transform = function (scene, view, beastKey, opts) {
+  opts = opts || {};
+  if (!view || !view.img) return 0;
+  const img = view.img, x = view.x, y = view.y;
+  const w0 = img.displayWidth, h0 = img.displayHeight;
+  const lk = leafTex(scene);
+  VFX.shake(scene, img);
+  const snap = (delay, swap) => {
+    scene.time.delayedCall(delay, () => {
+      scene.tweens.add({ targets: img, displayHeight: h0 * 1.15, displayWidth: w0 * 0.92, duration: 90, yoyo: true, ease: 'Quad.easeOut',
+        onYoyo: () => {
+          if (swap) {
+            try { img.setTexture(beastKey); img.setDisplaySize(w0, h0); } catch (e) {}
+            if (VFX.cine && VFX.cine.impactFrame) VFX.cine.impactFrame(scene, img);
+            VFX.ring(scene, x, y + h0 / 2, 0x5d8a4a, { r: 24, w: 3, scale: 2.4, dur: 360 });
+            VFX.lightField(scene, x, y, 0x5d8a4a, 90, 300);
+          }
+        } });
+      for (let i = 0; i < 8; i++) { const l = scene.add.image(x + (Math.random() - 0.5) * w0, y + (Math.random() - 0.5) * h0, lk).setDepth(FXD + 1).setAngle(Math.random() * 360); scene.tweens.add({ targets: l, x: l.x + (Math.random() - 0.5) * 90, y: l.y - 30 - Math.random() * 40, alpha: 0, duration: 400, onComplete: () => kill(l) }); }
+      for (let i = 0; i < 6; i++) { const f = scene.add.rectangle(x + (Math.random() - 0.5) * w0, y + (Math.random() - 0.5) * h0, 3, 7, 0x2a1c12, 0.9).setDepth(FXD + 1).setAngle(Math.random() * 360); scene.tweens.add({ targets: f, x: f.x + (Math.random() - 0.5) * 70, y: f.y + 20, alpha: 0, duration: 380, onComplete: () => kill(f) }); }
+    });
+  };
+  snap(120, false); snap(340, true);
+  return 520;
+};
+// reverse beat: the human face comes back
+VFX.revertForm = function (scene, view, humanKey) {
+  if (!view || !view.img) return 0;
+  const img = view.img, w0 = img.displayWidth, h0 = img.displayHeight;
+  scene.tweens.add({ targets: img, displayHeight: h0 * 1.1, duration: 120, yoyo: true, onYoyo: () => { try { img.setTexture(humanKey); img.setDisplaySize(w0, h0); } catch (e) {} } });
+  VFX.motes(scene, view.x, view.y, 0x5d8a4a, 6);
+  return 300;
+};
+// a downward grey cross: healing refused (wither)
+VFX.witherCrosses = function (scene, x, y) {
+  const key = crossTex(scene);
+  for (let i = 0; i < 4; i++) {
+    const c = scene.add.image(x + (Math.random() - 0.5) * 60, y - 30 - Math.random() * 30, key).setDisplaySize(14, 14).setTint(0x6a6a6a).setDepth(FXD + 1).setAngle(45);
+    scene.tweens.add({ targets: c, y: c.y + 60, alpha: 0, duration: 600 + i * 60, ease: 'Quad.easeIn', onComplete: () => kill(c) });
+  }
+  return 400;
+};
+
 VFX.cine = cine;
 VFX.STATS = { lastMs: 0, avgMs: 0, n: 0 };
 VFX._tex = { emberKey, snowKey, glowKey, fxTex };

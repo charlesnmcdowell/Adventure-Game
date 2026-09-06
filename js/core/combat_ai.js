@@ -56,6 +56,7 @@ function chooseAction(st, u) {
     if (d.freeBuff) continue;
     if (d.selfRevive) continue;
     if (d.freeAction && u.freeActionUsed) continue;
+    if (Combat.cooldownLeft && Combat.cooldownLeft(u, e.skillId) > 0) continue;
     const seal = u.statuses.find(x => x.kind === 'sealed');
     if (seal && (seal.tiers || []).includes(m.tier)) continue;
     let offensiveMode = false;

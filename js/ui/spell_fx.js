@@ -430,13 +430,56 @@ function snareFx(scene, ctx, p) {
   return p.wait;
 }
 
+// ---- druid (Part C5) ---------------------------------------------------------
+function thornRing(scene, v, scale, dur) {
+  const g = scene.add.graphics().setDepth(FXD);
+  const rx = (v.img ? v.img.displayWidth : 92) / 2 * scale + 4, ry = (v.img ? v.img.displayHeight : 116) / 2 * scale + 4;
+  g.lineStyle(2.2, 0x24401c, 1);
+  for (let i = 0; i < 40; i++) {
+    const a0 = (i / 40) * Math.PI * 2, a1 = ((i + 1) / 40) * Math.PI * 2;
+    g.lineBetween(v.x + Math.cos(a0) * rx, v.y + Math.sin(a0) * ry, v.x + Math.cos(a1) * rx, v.y + Math.sin(a1) * ry);
+    if (i % 3 === 0) g.lineBetween(v.x + Math.cos(a0) * rx, v.y + Math.sin(a0) * ry, v.x + Math.cos(a0 + 0.5) * (rx + 9), v.y + Math.sin(a0 + 0.5) * (ry + 9));
+  }
+  g.setAlpha(0); scene.tweens.add({ targets: g, alpha: 1, duration: 160, yoyo: true, hold: dur || 400, onComplete: () => kill(g) });
+  return g;
+}
 function thornSkin(scene, ctx, p) {
   const src = ctx.src, color = NAT;
   const cover = ctx.tier === 'advanced' ? alliesOf(scene, src) : ctx.tier === 'intermediate' ? laneOf(scene, src) : (src ? [src] : []);
-  cover.forEach(v => {
-    V().frostSpikes(scene, v.x, v.y, color, { n: 7, r: 36 * p.scale, scale: 0.7 * p.scale });
-    V().ring(scene, v.x, v.y, color, { r: 28, scale: 1.3, dur: 280 });
+  cover.forEach((v, i) => scene.time.delayedCall(i * 40, () => { thornRing(scene, v, p.scale, 500); V().ring(scene, v.x, v.y, color, { r: 28, scale: 1.3, dur: 280 }); }));
+  return p.wait;
+}
+function thornLash(scene, ctx, p) {
+  const src = ctx.src, tgt = ctx.tgt, dir = ctx.dir || 1;
+  const x1 = sx(src), y1 = sy(src), x2 = tx(tgt, src), y2 = ty(tgt, src);
+  let ms = 260;
+  if (V().comet) ms = V().comet(scene, x1, y1, x2, y2, { r: 6 * p.scale, color: 0x3a7a3a, trail: 1, arc: 40, boom: 0 }) || 260;
+  scene.time.delayedCall(ms, () => {
+    V().groundCrack(scene, x2, y2, 0x24401c, { n: 5, dur: 600 });
+    V().frostSpikes(scene, x2, y2 + 20, 0x3a7a3a, { n: 6, r: 34 * p.scale, scale: p.scale });
+    V().spray(scene, x2, y2, dir, POI, { n: 4, scale: p.scale });
+    if (tgt && tgt.img && V().cine) V().cine.impactFrame(scene, tgt.img);
   });
+  return p.wait;
+}
+function growthField(scene, ctx, p) {
+  const src = ctx.src, tgt = ctx.tgt;
+  const lane = tgt && tgt.u ? laneOf(scene, tgt) : (src ? [src] : []);
+  lane.forEach((v, i) => scene.time.delayedCall(i * 50, () => {
+    // grass tufts stay as terrain marks for the fight
+    const g = scene.add.graphics().setDepth(-3);
+    g.lineStyle(2, 0x5d9a4a, 0.9);
+    for (let k = 0; k < 9; k++) { const gx = v.x - 40 + k * 10, gy = v.y + 58; g.lineBetween(gx, gy, gx + (k % 2 ? 3 : -3), gy - 8 - (k % 3) * 3); }
+    scene.__terrain = scene.__terrain || []; scene.__terrain.push(g);
+    V().motes(scene, v.x, v.y, NAT, 5);
+  }));
+  V().lightField(scene, tx(tgt, src), ty(tgt, src) + 30, 0x5d9a4a, 120 * p.scale, 500);
+  return p.wait;
+}
+function stormShape(scene, ctx, p) {
+  const src = ctx.src;
+  if (src && V().lightningStreak) { for (let i = 0; i < 3; i++) scene.time.delayedCall(i * 90, () => V().lightningStreak(scene, src.x - 40 + i * 40, src.y - 120, src.x, src.y - 50, { scale: 0.6 })); }
+  V().ring(scene, sx(src), sy(src), LIT, { r: 24, scale: 2 * p.scale, dur: 300 });
   return p.wait;
 }
 
@@ -462,6 +505,7 @@ function witherTouch(scene, ctx, p) {
     seen.push(v);
     V().cloud(scene, v.x, v.y, color, { r: 20 * p.scale, a: 0.55, scale: 1.8, dur: 320 });
     V().motes(scene, v.x, v.y, POI, 3);
+    if (V().witherCrosses) V().witherCrosses(scene, v.x, v.y);
     if (v.img) {
       try { v.img.setTint(0x555555); } catch (e) {}
       scene.time.delayedCall(360, () => { try { v.img.clearTint(); } catch (e) {} });
@@ -470,69 +514,120 @@ function witherTouch(scene, ctx, p) {
   return p.wait;
 }
 
+// ---- healer (HEALER_DRUID_PROMPT.md Part B) --------------------------------
+// The crosses and the number land on the `heal` event (scene_combat), so the
+// cast recipes here are the DELIVERY: the beam, the ring, the flash.
+function healTargets(scene, ctx) {
+  const src = ctx.src, tgt = ctx.tgt;
+  if (ctx.tier === 'basic') return tgt ? [tgt] : (src ? [src] : []);
+  const all = alliesOf(scene, src).filter(v => v !== tgt).sort((a, b) => (a.u ? a.u.chp / a.u.maxHp : 1) - (b.u ? b.u.chp / b.u.maxHp : 1));
+  return (tgt ? [tgt] : []).concat(all).slice(0, ctx.tier === 'advanced' ? 4 : 2);
+}
 function mendFx(scene, ctx, p) {
-  const src = ctx.src, tgt = ctx.tgt, color = HOLY;
-  const hits = ctx.tier === 'basic' ? (tgt ? [tgt] : [src]) : alliesOf(scene, src);
+  const src = ctx.src, color = HOLY;
+  const hits = healTargets(scene, ctx);
   hits.forEach((v, i) => {
     const go = () => {
-      V().healSparkle(scene, v.x, v.y);
-      V().ring(scene, v.x, v.y, color, { r: 18, scale: 1.6 * p.scale, dur: 240 });
+      if (src && v !== src) V().beam(scene, sx(src), sy(src), v.x, v.y, 0xfff0c0, { w: 3 + p.scale, dur: 220 });
+      V().ring(scene, v.x, v.y, color, { r: 18, scale: 1.6 * p.scale, dur: 260 });
+      V().lightField(scene, v.x, v.y, 0xfff0c0, 70 * p.scale, 320);
     };
-    if (i) scene.time.delayedCall(i * 30, go); else go();
+    if (i) scene.time.delayedCall(i * 60, go); else go();
   });
   return p.wait;
 }
 
 function regenFx(scene, ctx, p) {
-  const src = ctx.src, tgt = ctx.tgt, color = NAT;
-  const hits = ctx.tier === 'basic' ? (tgt ? [tgt] : [src]) : alliesOf(scene, src);
-  hits.forEach(v => {
-    V().motes(scene, v.x, v.y, color, 4);
-    V().ring(scene, v.x, v.y, color, { r: 16, scale: 1.4, dur: 400 });
-    scene.time.delayedCall(180, () => V().motes(scene, v.x, v.y, 0x83b56b, 3));
+  const src = ctx.src, color = 0x83b56b;
+  const hits = healTargets(scene, ctx);
+  hits.forEach((v, i) => {
+    const go = () => {
+      V().motes(scene, v.x, v.y, color, 4 + p.n);
+      V().ring(scene, v.x, v.y, color, { r: 16, scale: 1.6 * p.scale, dur: 400 });
+      if (V().healCrosses) V().healCrosses(scene, v.x, v.y, 'basic', { w: v.img ? v.img.displayWidth : 92, h: v.img ? v.img.displayHeight : 116 });
+    };
+    if (i) scene.time.delayedCall(i * 60, go); else go();
   });
   return p.wait;
 }
 
 function cleanseFx(scene, ctx, p) {
   const tgt = ctx.tgt, src = ctx.src, color = HOLY;
-  V().ring(scene, tx(tgt, src), ty(tgt, src), color, { r: 22, scale: 2.2 * p.scale, dur: 280 });
-  V().motes(scene, tx(tgt, src), ty(tgt, src), color, 5);
-  if (ctx.tier !== 'basic') V().flashOverlay(scene, color, 0.08);
+  const x = tx(tgt, src), y = ty(tgt, src);
+  const hot = !!(tgt && tgt.u && tgt.u.ch && (tgt.u.ch.isUndead || tgt.u.ch.isConscript));
+  V().ring(scene, x, y, hot ? 0xffffff : color, { r: 22, w: hot ? 4 : 3, scale: 2.4 * p.scale, dur: 320 });
+  // statuses fly off as grey motes
+  for (let i = 0; i < 6 + p.n; i++) {
+    const m = scene.add.circle(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 60, 3, 0x6a6a6a, 0.9).setDepth(FXD);
+    scene.tweens.add({ targets: m, x: m.x + (Math.random() - 0.5) * 140, y: m.y - 40 - Math.random() * 40, alpha: 0, duration: 420, onComplete: () => kill(m) });
+  }
+  V().lightField(scene, x, y, 0xfff0c0, 80 * p.scale, 300);
+  if (hot) { V().flashOverlay(scene, 0xffffff, 0.18); if (tgt.img && V().cine) V().cine.impactFrame(scene, tgt.img); V().burst(scene, x, y, 0xffffff, 8); }
+  else if (ctx.tier !== 'basic') V().flashOverlay(scene, color, 0.08);
   if (tgt && tgt.pips) { try { tgt.pips.clear(); } catch (e) {} }
   return p.wait;
+}
+
+function hexShell(scene, v, color, scale, dur) {
+  const g = scene.add.graphics().setDepth(FXD);
+  const w = (v.img ? v.img.displayWidth : 92) * 0.55 * scale, h = (v.img ? v.img.displayHeight : 116) * 0.55 * scale;
+  g.lineStyle(3, color, 0.95); g.fillStyle(color, 0.12);
+  g.beginPath();
+  for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + (i / 6) * Math.PI * 2; const px = v.x + Math.cos(a) * w, py = v.y + Math.sin(a) * h; if (i) g.lineTo(px, py); else g.moveTo(px, py); }
+  g.closePath(); g.fillPath(); g.strokePath();
+  g.lineStyle(1, 0xffffff, 0.5);
+  for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + (i / 6) * Math.PI * 2; g.lineBetween(v.x, v.y, v.x + Math.cos(a) * w, v.y + Math.sin(a) * h); }
+  if (dur) scene.tweens.add({ targets: g, alpha: 0, duration: dur, onComplete: () => kill(g) });
+  return g;
 }
 
 function wardFx(scene, ctx, p) {
   const src = ctx.src, tgt = ctx.tgt, color = GOLD;
   const hits = ctx.tier === 'advanced' ? (tgt && tgt.u ? laneOf(scene, tgt) : alliesOf(scene, src)) : (tgt ? [tgt] : [src]);
-  hits.forEach(v => {
-    const g = scene.add.graphics().setDepth(FXD);
-    g.lineStyle(3, color, 0.95);
-    g.strokeRoundedRect(v.x - 36 * p.scale, v.y - 46 * p.scale, 72 * p.scale, 92 * p.scale, 8);
-    scene.tweens.add({ targets: g, alpha: 0, duration: ctx.tier === 'advanced' ? 700 : 320, onComplete: () => kill(g) });
-  });
+  hits.forEach((v, i) => scene.time.delayedCall(i * 50, () => {
+    const g = hexShell(scene, v, color, 1.0 * p.scale, ctx.tier === 'advanced' ? 700 : 420);
+    g.setScale(0.6); g.setPosition(v.x * 0.4, v.y * 0.4);
+    scene.tweens.add({ targets: g, scale: 1, x: 0, y: 0, duration: 200, ease: 'Back.easeOut' });
+    V().lightField(scene, v.x, v.y, 0xffd070, 70, 300);
+  }));
   return p.wait;
 }
 
 function triageFx(scene, ctx, p) {
   const src = ctx.src, tgt = ctx.tgt, color = HOLY;
-  if (ctx.tier === 'advanced') {
-    const hits = alliesOf(scene, src);
-    hits.forEach(v => {
-      V().healSparkle(scene, v.x, v.y);
-      V().ring(scene, v.x, v.y, color, { r: 28, scale: 2.4, dur: 400 });
-    });
-    V().flashOverlay(scene, color, 0.16);
-    if (V().camShake) V().camShake(scene, 0.004);
-    V().motes(scene, sx(src), sy(src) - 20, GOLD, 8);
-    return p.wait;
-  }
-  const hits = ctx.tier === 'intermediate' ? alliesOf(scene, src) : (tgt ? [tgt] : [src]);
-  hits.forEach(v => {
-    V().healSparkle(scene, v.x, v.y);
-    V().ring(scene, v.x, v.y, 0x83b56b, { r: 16, scale: 1.5, dur: 220 });
+  const hits = healTargets(scene, ctx);
+  hits.forEach((v, i) => {
+    const low = v.u && (v.u.chp / v.u.maxHp) < 0.25;
+    const go = () => {
+      V().ring(scene, v.x, v.y, low ? 0xffffff : 0x83b56b, { r: 16, scale: 1.6, dur: 200 });
+      scene.time.delayedCall(90, () => V().ring(scene, v.x, v.y, color, { r: 20, scale: 1.4, dur: 200 }));
+      if (low) { const f = scene.add.rectangle(v.x, v.y, (v.img ? v.img.displayWidth : 92) + 8, (v.img ? v.img.displayHeight : 116) + 8, 0xffffff, 0).setStrokeStyle(3, 0xffffff, 0.9).setDepth(FXD); scene.tweens.add({ targets: f, alpha: 0, duration: 260, onComplete: () => kill(f) }); }
+    };
+    if (i) scene.time.delayedCall(i * 50, go); else go();
   });
+  if (ctx.tier === 'advanced') { V().flashOverlay(scene, color, 0.14); if (V().camShake) V().camShake(scene, 0.004); }
+  return p.wait;
+}
+
+// a healer's revive cast: a column of light comes down on the fallen
+function raiseHoly(scene, ctx, p) {
+  const tgt = ctx.tgt, src = ctx.src;
+  const x = tx(tgt, src), y = ty(tgt, src);
+  const g = V().glow ? null : null;
+  const col = scene.add.rectangle(x, y - 200, 40 * p.scale, 400, 0xfff0c0, 0.35).setDepth(FXD).setBlendMode(Phaser.BlendModes.ADD).setScale(0.2, 1);
+  scene.tweens.add({ targets: col, scaleX: 1, duration: 200, yoyo: true, hold: 200, onComplete: () => kill(col) });
+  V().ring(scene, x, y, HOLY, { r: 24, scale: 2.4 * p.scale, dur: 400 });
+  V().lightField(scene, x, y, 0xfff0c0, 110 * p.scale, 500);
+  return p.wait;
+}
+// a druid's revive cast: green cracks, then the grove takes it from the `revive` event
+function raiseGreen(scene, ctx, p) {
+  const tgt = ctx.tgt, src = ctx.src;
+  const x = tx(tgt, src), y = ty(tgt, src);
+  V().groundCrack(scene, x, y, 0x2fbf71, { n: 5, dur: 700 });
+  V().motes(scene, x, y, 0x2fbf71, 6 + p.n);
+  V().ring(scene, x, y + 28, 0x2fbf71, { r: 20, scale: 2.2 * p.scale, dur: 380 });
+  V().lightField(scene, x, y, 0x2fbf71, 100 * p.scale, 500);
   return p.wait;
 }
 
@@ -636,6 +731,15 @@ const RECIPES = {
   taunt:         tierChain(tauntFx),
   necromancy:    tierChain(raiseFx),
   conscript:     tierChain(raiseFx),
+  raise:         tierChain(raiseHoly),
+  last_breath:   tierChain(raiseHoly),
+  grove_raise:   tierChain(raiseGreen),
+  thorn_lash:    tierChain(thornLash),
+  growth_field:  tierChain(growthField),
+  storm_shape:   tierChain(stormShape),
+  stitch_and_run: tierChain(mendFx), field_suture: tierChain(mendFx), stanch: tierChain(mendFx), surgeons_saw: tierChain(mendFx),
+  company_medic: tierChain(triageFx), restorative_circle: tierChain(triageFx), sick_bay: tierChain(triageFx), breath_of_the_bell: tierChain(triageFx), rum_ration: tierChain(triageFx), clan_blood: tierChain(triageFx), field_honour: tierChain(mendFx),
+  purge_ward:    tierChain(wardFx), vital_anchor: tierChain(wardFx), aegis_protocol: tierChain(wardFx),
   true_rest:     { basic: trueRest, intermediate: trueRest, advanced: trueRest },
   god_aura:      { basic: godAura, intermediate: godAura, advanced: godAura },
 };
@@ -826,11 +930,53 @@ function idleConscript(scene, v) {
   return { objs: [g] };
 }
 
+// healer & druid marks: the hot pulses a cross, the ward is a gold shell, the
+// druid shield is the tree of life, the risen wear wings or a grove
+function idleHot(scene, v) {
+  const pulse = () => {
+    if (!v.img || !v.img.active || !V().healCrosses) return;
+    const c = scene.add.image(v.x + (Math.random() - 0.5) * 40, v.y + 20, V().crossKey(scene)).setDisplaySize(10, 10).setTint(0xa8e08a).setDepth(520).setAlpha(0.9).setBlendMode(Phaser.BlendModes.ADD);
+    scene.tweens.add({ targets: c, y: c.y - 36, alpha: 0, duration: 650, onComplete: () => kill(c) });
+  };
+  const timer = scene.time.addEvent({ delay: 700, loop: true, callback: pulse });
+  return { objs: [], timer };
+}
+function idleWardShell(scene, v) {
+  const g = hexShell(scene, v, GOLD, 1.0, 0);
+  g.setDepth(520).setAlpha(0.75);
+  const tw = scene.tweens.add({ targets: g, alpha: 0.5, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+  return { objs: [g], tweens: [tw] };
+}
+function idleThornShield(scene, v) {
+  const s = (v.u.statuses || []).find(x => x.kind === 'thornShield');
+  const m = V().lifeTree ? V().lifeTree(scene, v, (s && s.tier) || 'basic') : null;
+  if (!m) return { objs: [] };
+  v.__lifeTree = m;
+  const onKill = m.onKill;
+  m.onKill = () => { v.__lifeTree = null; if (onKill) onKill(); };
+  return m;
+}
+function idleGrove(scene, v) {
+  const s = (v.u.statuses || []).find(x => x.kind === 'grove');
+  const m = V().grove ? V().grove(scene, v, (s && s.rounds) || 3) : null;
+  if (!m) return { objs: [] };
+  m.rounds = s ? s.rounds : 3;
+  m.timer = scene.time.addEvent({ delay: 800, loop: true, callback: () => { const st = (v.u.statuses || []).find(x => x.kind === 'grove'); if (st && st.rounds < m.rounds) { m.rounds = st.rounds; m.shed(); } } });
+  return m;
+}
+function idleWings(scene, v) {
+  const m = V().wings ? V().wings(scene, v, {}) : null;
+  if (!m) return { objs: [] };
+  const halo = scene.add.image(v.x, v.y, V()._tex.glowKey(scene)).setTint(0xfff0c0).setAlpha(0.25).setDisplaySize(140, 140).setBlendMode(Phaser.BlendModes.ADD).setDepth((v.img.depth || 10) - 2);
+  m.objs.push(halo);
+  return m;
+}
 const STATUS = {
   burn: idleBurn, poison: idlePoison, bleed: idleBleed,
   frozen: idleFrozen, shocked: idleShock,
-  guard: idleGuard, ward: idleWard, rooted: idleRoot, taunted: idleTaunt,
+  guard: idleGuard, ward: idleWardShell, rooted: idleRoot, taunted: idleTaunt,
   conscript: idleConscript,
+  hot: idleHot, thornShield: idleThornShield, grove: idleGrove, wings: idleWings,
 };
 
 function clearStatus(v) {
@@ -847,7 +993,7 @@ function syncStatus(scene, v) {
       if (STATUS[s.kind] && kinds.indexOf(s.kind) < 0) kinds.push(s.kind);
     }
     if (v.u.ch && v.u.ch.isConscript && kinds.indexOf('conscript') < 0) kinds.push('conscript');
-    const keep = kinds.slice(0, 3);
+    const keep = kinds.slice(0, 4);
     v._fxMarks = v._fxMarks || {};
     for (const k of Object.keys(v._fxMarks)) {
       if (keep.indexOf(k) < 0) { killMark(v._fxMarks[k]); delete v._fxMarks[k]; }

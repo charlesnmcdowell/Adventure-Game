@@ -192,3 +192,36 @@ ADV.DATA.CONST = {
   ],
 };
 })();
+
+// Healer & druid pass: what a reviver says over the one they brought back.
+// Healers are warm; the green does not care. Original lines, no quoting.
+ADV.DATA.REVIVE_LINES = {
+  healer: [
+    'Back with us. Breathe.',
+    'I have you. I have you.',
+    'Not today. Not while I am standing.',
+    'There you are. Stay with me now.',
+    'Easy. The worst of it is behind you.',
+    'Open your eyes. Good. Now the other one.',
+    'You are heavier than you look. Up.',
+    'I was not finished with you.',
+    'Lean on me until your legs remember.',
+    'Welcome back. Try to keep it this time.',
+    'Someone still needs you. Get up.',
+    'Breathe in. That is the whole job for now.',
+  ],
+  druid: [
+    'The ground gives back what it took.',
+    'Up. The roots have you.',
+    'Nothing stays down long here.',
+    'The green does not ask. It grows.',
+    'Sap in the veins. Stand.',
+    'The soil was not ready for you.',
+    'Grow. The rest is your business.',
+    'Roots hold. Roots always hold.',
+    'It is only weather. It passes.',
+    'You fell where the seed was. Convenient.',
+    'The grove keeps its own.',
+    'Breathe like a tree does. Slowly.',
+  ],
+};

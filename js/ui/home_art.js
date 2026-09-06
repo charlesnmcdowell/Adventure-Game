@@ -151,18 +151,26 @@ HousingArt.paint = function (scene, homeId) {
     ? ADV.Weather.at(world || { seed: 1, questClock: clock }, { phase })
     : { kind: HousingArt.weatherKind(clock, world), intensity: 0.6, wind: 0.3 };
   let mask = null;
-  if (id === 'inn' && scene.makeGeometryMask) {
+  if (id === 'inn') {
     const mg = scene.add.graphics();
-    mg.fillStyle(0xffffff, 1); mg.fillRect(980, 140, 160, 200);
+    mg.fillStyle(0xffffff, 1);
+    for (const wdw of INN_WINDOWS) mg.fillRect(wdw.x + 4, wdw.y + 4, wdw.w - 8, wdw.h - 8);
     mask = mg.createGeometryMask();
     mg.setVisible(false);
+    scene.homeMaskShape = mg;
   }
   if (ADV.WeatherFX) {
-    ADV.WeatherFX.attach(scene, weather, phase, { x: 0, y: 0, w: W, h: H }, {
+    const wx = ADV.WeatherFX.attach(scene, weather, phase, { x: 0, y: 0, w: W, h: H }, {
       depth: -5, town: true, sunX: 1080, sunY: phase === 'evening' ? 118 : 70,
-      tintScale: id === 'inn' ? 0.5 : 1,
-      mask: (weather.kind === 'rain' || weather.kind === 'snow' || weather.kind === 'storm') ? mask : null,
+      tintScale: id === 'inn' ? 0 : 1,
+      mask: mask,
     });
+    // inside the inn the weather exists only in the window panes: mask EVERY layer to them
+    if (id === 'inn' && mask && wx) {
+      const objs = (wx._objs || []).concat(wx.container ? [wx.container] : []);
+      for (const o of objs) { try { if (o && o.setMask) o.setMask(mask); } catch (e) {} }
+      if (scene.weatherFx) scene.weatherFx.__masked = true;
+    }
   }
   scene.homePost = vignette(scene, 0.18);
   return planes;
@@ -228,38 +236,59 @@ function shadeHex(hex, f) {
   return (r << 16) | (g << 8) | b;
 }
 
+// The common room, seen from inside (Part D): the long table in front, the bar
+// along the back wall, a hearth to the right, beams overhead, and two windows
+// through which — and only through which — the weather shows.
+const INN_WINDOWS = [{ x: 380, y: 130, w: 150, h: 190 }, { x: 760, y: 130, w: 150, h: 190 }];
+HousingArt.INN_WINDOWS = INN_WINDOWS;
 function inn(g, W, H, phase) {
-  const wall = phase === 'day' ? 0x6a4a32 : phase === 'evening' ? 0x4a3020 : 0x3a281c;
+  const wall = phase === 'day' ? 0x6a4a32 : phase === 'evening' ? 0x4e3422 : 0x3a281c;
   const beam = phase === 'day' ? 0x8a6a48 : phase === 'evening' ? 0x5a4030 : 0x4a3424;
-  const roof = phase === 'day' ? 0x4a3020 : 0x2a1c14;
+  const dark = phase === 'day' ? 0x4a3020 : 0x2a1c14;
   g.fillStyle(wall, 1); g.fillRect(0, 0, W, H);
-  g.fillStyle(beam, 1);
-  for (let y = 80; y < H; y += 28) g.fillRect(0, y, W, 3);
-  g.fillStyle(roof, 1); g.fillRect(0, 0, W, 70);
-  g.fillTriangle(0, 70, 80, 0, 160, 70);
-  g.fillTriangle(W, 70, W - 80, 0, W - 160, 70);
-  g.fillRect(W / 2 - 20, 0, 40, 80);
-  // window onto the yard
-  if (phase === 'day') {
-    g.fillStyle(0x6fa0bf, 1); g.fillRect(980, 140, 160, 200);
-    g.fillStyle(0xd8c48a, 0.35); g.fillRect(980, 240, 160, 100);
-  } else if (phase === 'evening') {
-    g.fillStyle(0xc06038, 1); g.fillRect(980, 140, 160, 200);
-    g.fillStyle(0xe8a050, 0.35); g.fillRect(980, 140, 160, 200);
-  } else {
-    g.fillStyle(0x1a2838, 1); g.fillRect(980, 140, 160, 200);
-    g.fillStyle(0xd4a94e, 0.15); g.fillRect(980, 140, 160, 200);
+  // plank wall
+  g.fillStyle(beam, 0.5); for (let y = 60; y < 420; y += 26) g.fillRect(0, y, W, 2);
+  // ceiling beams
+  g.fillStyle(dark, 1); g.fillRect(0, 0, W, 60);
+  for (const x of [120, 400, 640, 880, 1160]) g.fillRect(x - 12, 0, 24, 60);
+  g.fillStyle(dark, 0.6); for (let i = 0; i < 6; i++) g.fillRect(0, 60 + i * 2, W, 1);
+  // windows (weather draws in these panes)
+  for (const wdw of INN_WINDOWS) {
+    if (phase === 'day') { g.fillStyle(0x6fa0bf, 1); g.fillRect(wdw.x, wdw.y, wdw.w, wdw.h); g.fillStyle(0xd8c48a, 0.35); g.fillRect(wdw.x, wdw.y + wdw.h * 0.55, wdw.w, wdw.h * 0.45); }
+    else if (phase === 'evening') { g.fillStyle(0xc06038, 1); g.fillRect(wdw.x, wdw.y, wdw.w, wdw.h); g.fillStyle(0x5a3020, 0.5); g.fillRect(wdw.x, wdw.y + wdw.h * 0.6, wdw.w, wdw.h * 0.4); }
+    else { g.fillStyle(0x0e1420, 1); g.fillRect(wdw.x, wdw.y, wdw.w, wdw.h); g.fillStyle(0xf4eee0, 0.9); for (let i = 0; i < 8; i++) g.fillCircle(wdw.x + 10 + ((i * 37) % (wdw.w - 20)), wdw.y + 10 + ((i * 53) % 60), 1); }
   }
-  g.lineStyle(8, 0x5a4030, 1); g.strokeRect(980, 140, 160, 200);
-  g.lineBetween(1060, 140, 1060, 340); g.lineBetween(980, 240, 1140, 240);
-  g.fillStyle(0x5a4030, 1); g.fillRoundedRect(80, 480, 340, 160, 8);
-  g.fillStyle(0x8a6a4a, 1); g.fillRoundedRect(96, 460, 308, 90, 10);
-  g.fillStyle(0xe8dfc8, 1); g.fillRoundedRect(110, 470, 80, 48, 12);
+  if (phase === 'night') { g.fillStyle(0xe8eef4, 1); g.fillCircle(INN_WINDOWS[1].x + 100, INN_WINDOWS[1].y + 44, 16); g.fillStyle(0x0e1420, 1); g.fillCircle(INN_WINDOWS[1].x + 108, INN_WINDOWS[1].y + 38, 13); }
+  g.lineStyle(8, 0x3a2418, 1);
+  for (const wdw of INN_WINDOWS) { g.strokeRect(wdw.x, wdw.y, wdw.w, wdw.h); g.lineBetween(wdw.x + wdw.w / 2, wdw.y, wdw.x + wdw.w / 2, wdw.y + wdw.h); g.lineBetween(wdw.x, wdw.y + wdw.h / 2, wdw.x + wdw.w, wdw.y + wdw.h / 2); }
+  // the bar along the back wall, between the windows
+  g.fillStyle(dark, 1); g.fillRect(540, 300, 220, 120);
+  g.fillStyle(0x5a4030, 1); g.fillRect(540, 296, 220, 8);
+  g.fillStyle(0x3a2418, 1); g.fillRect(548, 200, 204, 8); g.fillRect(548, 250, 204, 8);   // shelves
+  const bottles = [0x6a2030, 0x2a5a3a, 0x8a6a2a, 0x3a3a6a, 0x6a2030, 0x8a4a20, 0x2a5a3a];
+  bottles.forEach((c, i) => { g.fillStyle(c, 1); g.fillRect(560 + i * 27, 176, 9, 24); g.fillRect(563 + i * 27, 168, 3, 8); });
+  bottles.forEach((c, i) => { g.fillStyle(c, 0.9); g.fillRect(574 + i * 25, 230, 8, 20); });
+  for (const kx of [180, 240, 1080]) { g.fillStyle(0x5a4030, 1); g.fillRoundedRect(kx, 330, 44, 70, 8); g.fillStyle(0x2a2420, 1); g.fillRect(kx, 348, 44, 4); g.fillRect(kx, 380, 44, 4); }   // kegs
+  // hearth on the right
+  g.fillStyle(0x4a4a48, 1); g.fillRect(1020, 300, 170, 130);
+  g.fillStyle(0x2a2a28, 1); for (let y = 304; y < 430; y += 14) for (let x = 1024 + ((y / 14) % 2) * 12; x < 1186; x += 24) g.fillRect(x, y, 20, 10);
+  g.fillStyle(0x0c0a08, 1); g.fillRect(1050, 340, 110, 90);
+  g.fillStyle(0xd8574a, 0.9); g.fillEllipse(1105, 420, 70, 26); g.fillStyle(0xf4d78a, 0.9); g.fillEllipse(1105, 416, 34, 18);
+  g.fillStyle(0x2a1c12, 1); g.fillRect(1060, 420, 90, 8);
+  // hanging lamp
   const lamp = phase === 'day' ? 0.15 : phase === 'evening' ? 0.7 : 0.9;
-  g.fillStyle(0xd4a94e, lamp * 0.6); g.fillCircle(640, 200, 50);
-  g.fillStyle(0xf4eee0, lamp); g.fillCircle(640, 200, 16);
-  g.fillStyle(0x3a2a20, 1); g.fillRect(632, 80, 16, 90);
-  g.fillStyle(roof, 1); g.fillRect(0, 640, W, 120);
+  g.fillStyle(0x3a2a20, 1); g.fillRect(636, 60, 8, 60);
+  g.fillStyle(0xd4a94e, lamp * 0.6); g.fillCircle(640, 130, 44); g.fillStyle(0xf4eee0, lamp); g.fillCircle(640, 130, 12);
+  // floor
+  g.fillStyle(dark, 1); g.fillRect(0, 430, W, H - 430);
+  g.fillStyle(0x2a1c14, 0.6); for (let x = 0; x < W; x += 60) g.fillRect(x, 430, 2, H - 430);
+  // the long table in the foreground: benches, tankards, bowls, a candle
+  g.fillStyle(0x5a4030, 1); g.fillRoundedRect(140, 560, 1000, 30, 6); g.fillRect(180, 590, 20, 70); g.fillRect(1080, 590, 20, 70);
+  g.fillStyle(0x6a4a34, 1); g.fillRect(140, 556, 1000, 6);
+  g.fillStyle(0x3a2418, 1); g.fillRoundedRect(100, 640, 1080, 18, 4);   // bench
+  for (const tx of [260, 420, 600, 800, 960]) { g.fillStyle(0x8a6a48, 1); g.fillRect(tx, 534, 18, 24); g.fillStyle(0x6a4a30, 1); g.fillRect(tx + 18, 540, 5, 12); }
+  for (const bx of [340, 700, 880]) { g.fillStyle(0x8a8a82, 1); g.fillEllipse(bx, 552, 40, 12); g.fillStyle(0xc8a050, 1); g.fillEllipse(bx, 548, 26, 6); }
+  g.fillStyle(0xe8dfc8, 1); g.fillRect(636, 528, 8, 28); g.fillStyle(0xf4d78a, 0.9); g.fillCircle(640, 522, 5); g.fillStyle(0xd4a94e, 0.25); g.fillCircle(640, 522, 30);
 }
 
 function cottage(g, W, H, phase) {
@@ -369,6 +398,8 @@ function paintLife(scene, id, phase, clock) {
   }
   smokeStacks(scene, life, id);
   flickerLamps(scene, life, id, phase);
+  if (scene.homeLifeActors) { try { scene.homeLifeActors.destroy(); } catch (e) {} scene.homeLifeActors = null; }
+  if (ADV.HomeLife) { try { ADV.HomeLife.attach(scene, id, phase, clock, life); } catch (e) { try { console.warn('HomeLife failed', e); } catch (e2) {} } }
   if (id === 'camp') {
     const fireA = phase === 'day' ? 0.12 : phase === 'evening' ? 0.4 : 0.7;
     const pool = lightPool(scene, 720, 600, 0xe87840, 90, fireA);

@@ -238,7 +238,7 @@ def({ id: 'beast_shape', name: 'Beast Shape', kind: 'active', archetype: 'druid'
     advanced:     { name: 'Primal Form', atkMult: 1.5, rounds: 3, lifeSteal: 0.3, splashAdjacent: true },
   } });
 def({ id: 'grove_raise', name: 'Grove Rise', kind: 'active', archetype: 'druid',
-  power: 0, target: 'ally', reach: 'any', heal: true, revive: true, oncePerBattle: true,
+  power: 0, target: 'ally', reach: 'any', heal: true, revive: true, oncePerBattle: true, buffRounds: 3,
   desc: 'Calls fallen allies back through the green. Restores 15% less health than a healer\'s Raise, but each risen body wears a two-hit ward.',
   tiers: {
     basic:        { name: 'Grove Rise',        reviveHp: 0.2125, reviveCount: 1, shieldHits: 2 },
@@ -273,9 +273,9 @@ def({ id: 'cleanse', name: 'Cleanse', kind: 'active', archetype: 'healer',
     advanced:     { name: 'Absolution', cureCount: 99, undeadPower: 2.2, purifyRounds: 6, unraise: true },
   } });
 def({ id: 'regenerate', name: 'Regenerate', kind: 'active', archetype: 'healer',
-  power: 1.0, hotRounds: 3, target: 'ally', reach: 'any', heal: true,
+  power: 1.0, hotRounds: 3, cooldown: 3, target: 'ally', reach: 'any', heal: true,
   offensive: { name: 'Poison', power: 1.2, dotRounds: 3, target: 'enemy' },
-  desc: 'Heal over time. Offensive: damage over time instead.',
+  desc: 'Heal over time: double a heal, spread over five turns. Castable every three turns. Offensive: damage over time instead.',
   tiers: {
     basic:        { name: 'Regenerate' },
     intermediate: { name: 'Sustain', power: 1.2, hotRounds: 4, target: 'party' },
@@ -291,7 +291,7 @@ def({ id: 'guardian_ward', name: 'Guardian Ward', kind: 'active', archetype: 'he
     advanced:     { name: 'Divine Aegis', shieldRounds: 1, target: 'allyLane' },
   } });
 def({ id: 'triage', name: 'Triage', kind: 'active', archetype: 'healer',
-  power: 1.5, target: 'ally', reach: 'any', heal: true, doubleBelow: 0.25,
+  power: 1.5, healMult: 1.5, target: 'ally', reach: 'any', heal: true, doubleBelow: 0.25,
   offensive: { name: 'Open Wounds', healReduction: 0.5, power: 1.0, target: 'enemy' },
   desc: 'Small heal, doubled under 25%. Offensive: the target receives reduced healing.',
   tiers: {

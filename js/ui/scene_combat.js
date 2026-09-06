@@ -87,9 +87,14 @@ class CombatScene extends Phaser.Scene {
   }
 
   // ------------------------------------------------------------ unit views
+  // C1: on the field the portrait is the beast while a form holds
+  unitKey(u) {
+    if (u.form && ADV.Portraits.beastKey) { try { return ADV.Portraits.beastKey(this, u.ch, u.form); } catch (e) {} }
+    return ADV.Portraits.key(this, u.ch);
+  }
   makeUnitView(u) {
     const x = LANE_X[u.side][u.lane], y = SLOT_Y[u.slot] || SLOT_Y[0];
-    const key = ADV.Portraits.key(this, u.ch);
+    const key = this.unitKey(u);
     const laneScale = u.lane === 'back' ? 0.9 : u.lane === 'mid' ? 0.95 : 1;
     const img = this.add.image(x, y, key).setDisplaySize((u.ch.boss ? 112 : 92) * laneScale, (u.ch.boss ? 142 : 116) * laneScale).setDepth(10);
     if (u.ch.isConscript) { img.setTint(ADV.CONSCRIPT_TINT || 0x9a8ab0); img.__baseTint = ADV.CONSCRIPT_TINT || 0x9a8ab0; }
@@ -136,6 +141,11 @@ class CombatScene extends Phaser.Scene {
     if (!v || !v.img || !ADV.Portraits.react) return;
     ADV.Portraits.react(this, v.img, v.u.ch, v.img.texture && v.img.texture.key, mood, opts);
   }
+  isDruidUnit(u) {
+    if (!u || !u.ch) return false;
+    const has = (id) => (u.ch.actives || []).some(a => a.skillId === id) || (u.ch.perks || []).some(a => a.skillId === id);
+    return (u.ch.actives || []).concat(u.ch.perks || []).some(a => { const d = ADV.DATA.SKILLS[a.skillId]; return d && d.archetype === 'druid'; }) || has('wild_form');
+  }
   cameraPunch() {
     const now = this.time.now;
     if (this.__lastPunch && now - this.__lastPunch < 1500) return;
@@ -158,6 +168,13 @@ class CombatScene extends Phaser.Scene {
 
   redrawUnit(v) {
     const u = v.u;
+    // the form dropped without a beat (status expired at round end): bring the face back
+    if (v.img && !u.form && v.img.texture && /^pb1_/.test(v.img.texture.key) && !v.__reverting) {
+      v.__reverting = true;
+      const human = ADV.Portraits.key(this, u.ch);
+      const done = () => { v.__reverting = false; };
+      if (ADV.VFX.revertForm) { this.time.delayedCall(ADV.VFX.revertForm(this, v, human), done); } else { try { v.img.setTexture(human); } catch (e) {} done(); }
+    }
     if (ADV.Portraits.express && v.img) {
       const m = this.combatMood(u);
       if (v.img.__expressMood !== m.mood || Math.abs((v.img.__expressK == null ? 1 : v.img.__expressK) - m.intensity) > 0.05) ADV.Portraits.express(this, v.img, u.ch, v.img.texture && v.img.texture.key, m.mood, m.intensity);
@@ -465,12 +482,25 @@ class CombatScene extends Phaser.Scene {
         return heavy ? 210 : 150;
       }
       case 'heal': {
+        if (v && e.tick) {
+          // a regeneration / druid tick: a couple of crosses and the number, no ceremony
+          if (V.healCrosses) V.healCrosses(this, v.x, v.y, 'basic', { w: v.img.displayWidth * 0.6, h: v.img.displayHeight * 0.6, druid: !!(e.by && this.view(e.by) && this.isDruidUnit(this.view(e.by).u)) });
+          V.damageNumber(this, v.x, v.y - 20, '+' + e.amount, '#83b56b');
+          this.redrawUnit(v);
+          return 120;
+        }
         if (v) {
-          V.healSparkle(this, v.x, v.y); V.damageNumber(this, v.x, v.y - 20, '+' + e.amount, '#83b56b');
-          this.reactAt(v, 'content', { ms: 600, intensity: 0.9 });
+          const frac = e.amount / Math.max(1, v.u.maxHp || 40);
+          const tier = frac >= 1.2 ? 'advanced' : frac >= 0.8 ? 'intermediate' : 'basic';
           const by = e.by ? this.view(e.by) : null;
+          const druid = !!(by && this.isDruidUnit(by.u));
+          const ms = V.healCrosses ? V.healCrosses(this, v.x, v.y, tier, { w: v.img.displayWidth, h: v.img.displayHeight, druid }) : 0;
+          this.time.delayedCall(ms, () => { if (v.img && v.img.active) V.damageNumber(this, v.x, v.y - 20, '+' + e.amount, '#83b56b'); });
+          if (!V.healCrosses) { V.healSparkle(this, v.x, v.y); V.damageNumber(this, v.x, v.y - 20, '+' + e.amount, '#83b56b'); }
+          this.reactAt(v, 'content', { ms: 600, intensity: 0.9 });
           if (by && by !== v && this.isKin(by.u.ch, v.u.ch)) { this.reactAt(by, 'tender', { ms: 700, intensity: 0.8 }); this.reactAt(v, 'tender', { ms: 700, intensity: 0.6 }); }
           this.redrawUnit(v);
+          return tier === 'advanced' ? 260 : 180;
         }
         return 140;
       }
@@ -580,7 +610,61 @@ class CombatScene extends Phaser.Scene {
         if (u && !this.unitViews.has(e.uid)) this.makeUnitView(u);
         return 160;
       }
-      case 'revive': { if (v) { v.img.clearTint(); v.frame.setAlpha(1); v.name.setAlpha(1); ADV.VFX.healSparkle(this, v.x, v.y); this.redrawUnit(v); } return 200; }
+      case 'revive': {
+        if (!v) return 200;
+        v.img.clearTint(); v.frame.setAlpha(1); v.name.setAlpha(1);
+        const by = e.by ? this.view(e.by) : null;
+        if (e.arch === 'healer') {
+          // white flash, the wings unfold (the `wings` status mark draws them), crosses, faces
+          V.flashOverlay(this, 0xffffff, 0.25);
+          if (V.hitStop) V.hitStop(this, 40);
+          if (V.healCrosses) V.healCrosses(this, v.x, v.y, 'advanced', { w: v.img.displayWidth, h: v.img.displayHeight });
+          this.reactAt(v, 'surprised', { ms: 400, intensity: 1 });
+          this.time.delayedCall(450, () => this.reactAt(v, 'content', { ms: 900, intensity: 0.9 }));
+          if (by) this.reactAt(by, 'tender', { ms: 900, intensity: 1 });
+        } else if (e.arch === 'druid') {
+          // the grove grows (the `grove` status mark), the risen comes round slowly
+          if (V.lightField) V.lightField(this, v.x, v.y, 0x2fbf71, 120, 600);
+          this.reactAt(v, 'dazed', { ms: 500, intensity: 1 });
+          this.time.delayedCall(550, () => this.reactAt(v, 'content', { ms: 800, intensity: 0.7 }));
+          if (by) this.reactAt(by, 'resolve', { ms: 900, intensity: 0.9 });
+        } else ADV.VFX.healSparkle(this, v.x, v.y);
+        this.redrawUnit(v);
+        return e.arch ? 520 : 200;
+      }
+      // the reviver's word over the one they brought back (B4 / C4): a short, blocking beat
+      case 'line': {
+        if (!v || !ADV.DialogueBox || !ADV.DialogueBox.showText) return 10;
+        const raw = e.tag ? '[' + e.tag + '] ' + e.text : e.text;
+        return (next) => {
+          let done = false; const go = () => { if (!done) { done = true; next(); } };
+          try {
+            const closer = ADV.DialogueBox.showText(this, this.game_, v.u.ch, e.text, go, { raw });
+            this.time.delayedCall(1600, () => { try { if (closer && closer.close) closer.close(); } catch (err) {} go(); });
+          } catch (err) { go(); }
+        };
+      }
+      // C1: the beast where the portrait was, then whatever the skill does
+      case 'shapeshift': {
+        if (!v) return 10;
+        const key = this.unitKey(v.u);
+        const ms = V.transform ? V.transform(this, v, key) : 0;
+        if (!V.transform) { try { v.img.setTexture(key); } catch (err) {} }
+        this.reactAt(v, 'furious', { ms: 900, intensity: 1 });
+        for (const o of this.unitViews.values()) if (o !== v && !o.u.downed && o.u.side !== v.u.side) this.reactAt(o, 'afraid', { ms: 700, intensity: 0.6 });
+        if (V.camShake) V.camShake(this, 0.004);
+        return ms || 300;
+      }
+      case 'thornShield': { if (v) this.redrawUnit(v); return 120; }
+      case 'shieldAbsorb': {
+        if (v) {
+          V.damageNumber(this, v.x + 20, v.y - 40, 'absorbed ' + e.absorbed, '#5d9a4a');
+          const by = e.by ? this.view(e.by) : null;
+          if (v.__lifeTree && v.__lifeTree.flash) v.__lifeTree.flash(by ? Math.sign(by.x - v.x) : (v.u.side === 'a' ? 1 : -1));
+        }
+        return 120;
+      }
+      case 'shieldBreak': { if (v) { V.damageNumber(this, v.x, v.y - 40, 'shield broken', '#a8352c'); this.redrawUnit(v); } return 150; }
       case 'trueRest': { if (v) { ADV.VFX.flashOverlay(this, 0xf4eee0, 0.35); this.redrawUnit(v); } return 300; }
       case 'surviveLethal': { if (v) ADV.VFX.damageNumber(this, v.x, v.y - 30, 'refuses to fall', '#83b56b'); return 200; }
       case 'permGain': { if (v) ADV.VFX.damageNumber(this, v.x, v.y - 40, '+1 ALL', '#9a70c0'); return 160; }
@@ -795,11 +879,12 @@ class CombatScene extends Phaser.Scene {
       const m = ADV.Combat.manifestFor(u, e.skillId);
       if (m && m.data.selfRevive) continue;
       const sealed = !!(seal && (seal.tiers || []).includes(m.tier));
-      const pool = sealed ? [] : ADV.Combat.validTargets(st, u, e.skillId, false);
+      const cd = ADV.Combat.cooldownLeft ? ADV.Combat.cooldownLeft(u, e.skillId) : 0;
+      const pool = sealed || cd > 0 ? [] : ADV.Combat.validTargets(st, u, e.skillId, false);
       const stance = m.data.freeBuff
         ? (u.statuses.some(s => s.kind === 'beastShape') ? 'UP · free' : 'free')
         : ('L' + e.level);
-      actions.push({ label: m.data.name, sub: sealed ? 'SEALED' : stance, skillId: e.skillId, off: false, pool });
+      actions.push({ label: m.data.name, sub: sealed ? 'SEALED' : cd > 0 ? ('recovering · ' + cd) : stance, skillId: e.skillId, off: false, pool });
       if (m.data.offensive) {
         const opool = sealed ? [] : ADV.Combat.validTargets(st, u, e.skillId, true);
         actions.push({ label: m.data.offensive.name, sub: sealed ? 'SEALED' : 'hostile', skillId: e.skillId, off: true, pool: opool });
