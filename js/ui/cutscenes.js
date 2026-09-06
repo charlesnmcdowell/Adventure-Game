@@ -352,7 +352,10 @@ Cut.conscription = function (scene, game, victor, c, done, extra) {
       }
       scene.tweens.add({ targets: g, alpha: 0.35, duration: 400 });
       const n = c.conscriptQuestsLeft || 3;
-      st.say(`${c.name} is yours for ${n} quest${n === 1 ? '' : 's'}.`);
+      const count = extra.count | 0;
+      st.say(count > 1
+        ? `${count} of them are yours for ${n} quest${n === 1 ? '' : 's'}.`
+        : `${c.name} is yours for ${n} quest${n === 1 ? '' : 's'}.`);
       if (extra.townRemember !== false) {
         scene.time.delayedCall(700, () => st.say('The town will remember.'));
       }
@@ -394,7 +397,7 @@ Cut.raising = function (scene, game, victor, c, done, extra) {
   extra = extra || {};
   if (!c) { if (done) done(); return; }
   const W = T().W;
-  const st = stage(scene, { caption: `${c.name} stands again.`, gloom: 0.6 });
+  const st = stage(scene, { caption: (extra.count | 0) > 1 ? 'They stand again.' : `${c.name} stands again.`, gloom: 0.6 });
   if (ADV.VFX && ADV.VFX.cine) { ADV.VFX.cine.letterbox(scene, true); ADV.VFX.cine.camMove(scene, 'drift', { ms: 4200 }); }
   const vCard = card(scene, st, victor, 220, 340, { lead: true, z: 2 });
   const nCard = card(scene, st, c, W - 220, 340, { lead: true, z: 3, tint: 0x9aa0aa, mood: 'neutral', moodK: 0.2 });

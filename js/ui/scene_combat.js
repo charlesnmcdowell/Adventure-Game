@@ -966,45 +966,55 @@ class CombatScene extends Phaser.Scene {
   }
 
   // Post-battle choices for defeated named characters (§3a): kill / KO /
-  // conscript / necromancy.
+  // conscript / necromancy. Conscript and raise take the whole beaten
+  // field at once — one hatred line, then the next fight.
   namedChoices(list, done) {
     const game = this.game_;
     const p = ADV.Game.player(game);
+    const queue = (list || []).slice();
     const next = () => {
-      const c = list.shift();
+      const c = queue.shift();
       if (!c) { ADV.Save.saveGame(game); done(); return; }
       if (!c.alive) return next();
+      const many = queue.some(x => x && x.alive);
       const opts = [
         { label: 'Kill — take what they carry', value: 'kill' },
         { label: 'Knock out — hospitalized 3 quests', value: 'knockout' },
       ];
-      if (ADV.SkillSys.entryFor(p, 'conscript')) opts.push({ label: 'Conscript them', value: 'conscript' });
-      if (ADV.SkillSys.entryFor(p, 'necromancy')) opts.push({ label: 'Raise them', value: 'necromancy' });
+      if (ADV.SkillSys.entryFor(p, 'conscript')) opts.push({ label: many ? 'Conscript them all' : 'Conscript them', value: 'conscript' });
+      if (ADV.SkillSys.entryFor(p, 'necromancy')) opts.push({ label: many ? 'Raise them all' : 'Raise them', value: 'necromancy' });
       ADV.DialogueBox.show(this, game, c, 'general', ADV.DialogueBox.ctxFor(game, c), () => {
         ADV.Notices.pickOne(this, c.name + ' is beaten', 'The choice is the victor\'s.', opts, (v) => {
-          const before = (p.conscriptIds || []).slice();
+          if (v === 'conscript' || v === 'necromancy') {
+            const batch = [c].concat(queue.splice(0, queue.length));
+            const before = (p.conscriptIds || []).slice();
+            const bound = ADV.Game.resolveDefeatedNamedAll(game, batch, v);
+            const speaker = bound[0] || null;
+            const releasedId = v === 'conscript' ? before.find(id => (p.conscriptIds || []).indexOf(id) < 0) : null;
+            const released = releasedId ? ADV.World.byId(game.world, releasedId) : null;
+            if (v === 'conscript' && speaker && ADV.Cutscenes && ADV.Cutscenes.conscription) {
+              ADV.Cutscenes.conscription(this, game, p, speaker, next, { released, townRemember: true, count: bound.length });
+              return;
+            }
+            if (v === 'necromancy' && speaker && ADV.Cutscenes && ADV.Cutscenes.raising) {
+              const mourners = [];
+              for (const o of this.unitViews.values()) {
+                if (!o.u || o.u.downed || o.u.ch === speaker) continue;
+                if (this.isKin(o.u.ch, speaker)) mourners.push({ img: o.img, ch: o.u.ch });
+              }
+              ADV.Cutscenes.raising(this, game, p, speaker, next, { mourners, count: bound.length });
+              return;
+            }
+            next();
+            return;
+          }
           const r = ADV.Game.resolveDefeatedNamed(game, c, v || 'knockout');
           if (r && r.error) { ADV.Notices.toast(this, r.error); next(); return; }
-          if (v === 'conscript' && c.isConscript && ADV.Cutscenes && ADV.Cutscenes.conscription) {
-            const releasedId = before.find(id => (p.conscriptIds || []).indexOf(id) < 0);
-            const released = releasedId ? ADV.World.byId(game.world, releasedId) : null;
-            ADV.Cutscenes.conscription(this, game, p, c, next, { released, townRemember: true });
-            return;
-          }
-          if (v === 'necromancy' && c.isUndead && ADV.Cutscenes && ADV.Cutscenes.raising) {
-            const mourners = [];
-            for (const o of this.unitViews.values()) {
-              if (!o.u || o.u.downed || o.u.ch === c) continue;
-              if (this.isKin(o.u.ch, c)) mourners.push({ img: o.img, ch: o.u.ch });
-            }
-            ADV.Cutscenes.raising(this, game, p, c, next, { mourners });
-            return;
-          }
           next();
         });
       });
     };
-    if (!list.length) { done(); return; }
+    if (!queue.length) { done(); return; }
     next();
   }
 }

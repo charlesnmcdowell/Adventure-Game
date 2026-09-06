@@ -786,6 +786,21 @@ Game.resolveDefeatedNamed = function (game, defeated, choice) {
   return out;
 };
 
+// Conscript / raise the whole beaten field in one go. Anyone the art
+// cannot take is knocked out so they do not linger at 0 HP.
+Game.resolveDefeatedNamedAll = function (game, defeatedList, choice) {
+  const batch = (defeatedList || []).filter(d => d && d.alive);
+  for (const d of batch) {
+    const r = Game.resolveDefeatedNamed(game, d, choice);
+    if (r && r.error && (choice === 'conscript' || choice === 'necromancy')) {
+      Game.resolveDefeatedNamed(game, d, 'knockout');
+    }
+  }
+  if (choice === 'conscript') return batch.filter(d => d.isConscript);
+  if (choice === 'necromancy') return batch.filter(d => d.isUndead);
+  return batch;
+};
+
 // Complete the quest: payouts, reputation, world tick, ambush queue (§6).
 // Decomposed into the success (payout) and failure paths; this function owns
 // only the sequencing that runs on EVERY resolution.

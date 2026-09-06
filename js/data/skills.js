@@ -320,7 +320,7 @@ def({ id: 'blood_pact', name: 'Blood Pact', kind: 'active', archetype: 'healer',
 def({ id: 'conscript', name: 'Conscript', kind: 'active', archetype: null, forbidden: true,
   power: 0, target: 'postVictory', reach: 'any',
   warning: 'This skill will cost you. Not today.',
-  desc: 'Take a defeated named opponent into your service.',
+  desc: 'Take every defeated named opponent into your service.',
   tiers: {
     basic:        { name: 'Conscript',   duration: 3, cap: 2 },
     intermediate: { name: 'Conscript+',  duration: 4, cap: 3 },
@@ -329,7 +329,7 @@ def({ id: 'conscript', name: 'Conscript', kind: 'active', archetype: null, forbi
 def({ id: 'necromancy', name: 'Necromancy', kind: 'active', archetype: null, forbidden: true,
   power: 0, target: 'postVictory', reach: 'any',
   warning: 'This skill will cost you. Not today.',
-  desc: 'Raise the fallen to fight the rest of this contract. They crumble when the quest ends — they do not walk to the next one.',
+  desc: 'Raise every fallen foe to fight the rest of this contract. They crumble when the quest ends — they do not walk to the next one.',
   tiers: {
     basic:        { name: 'Necromancy',    cap: 1, risenPower: 1.5 },
     intermediate: { name: 'Necromancy+',   cap: 2, risenPower: 2.0 },
