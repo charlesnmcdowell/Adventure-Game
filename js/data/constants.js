@@ -139,8 +139,9 @@ ADV.DATA.CONST = {
   // ---- Forbidden skills & Divine Intervention (§3a) ---------------------- LB
   CONSCRIPT_DURATION: [3, 3, 3],     // quests, by tier (every timer caps at 3 — request 13)
   CONSCRIPT_CAP: [2, 3, 4],
-  NECRO_DURATION: [3, 3, 3],
+  NECRO_DURATION: [0, 0, 0],         // risen last the rest of this quest only
   NECRO_CAP: [1, 2, 3],
+  NECRO_STRENGTH: [1.5, 2.0, 2.6],
   CONSCRIPT_POP_ADD: 3,              // lives added, 3 quests later, mature hostile
   CONSCRIPT_POP_DELAY: 3,
   NECRO_MARK_THRESHOLD: 5,           // fifth raise marks the target

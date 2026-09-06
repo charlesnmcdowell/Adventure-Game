@@ -289,11 +289,11 @@ def({ id: 'conscript', name: 'Conscript', kind: 'active', archetype: null, forbi
 def({ id: 'necromancy', name: 'Necromancy', kind: 'active', archetype: null, forbidden: true,
   power: 0, target: 'postVictory', reach: 'any',
   warning: 'This skill will cost you. Not today.',
-  desc: 'Raise a defeated named opponent as undead.',
+  desc: 'Raise the fallen to fight the rest of this contract. They crumble when the quest ends — they do not walk to the next one.',
   tiers: {
-    basic:        { name: 'Necromancy',   duration: 3, cap: 1 },
-    intermediate: { name: 'Necromancy+',  duration: 3, cap: 2 },
-    advanced:     { name: 'Dread Calling', duration: 3, cap: 3, undeadKeepSkills: true },
+    basic:        { name: 'Necromancy',    cap: 1, risenPower: 1.5 },
+    intermediate: { name: 'Necromancy+',   cap: 2, risenPower: 2.0 },
+    advanced:     { name: 'Dread Calling', cap: 3, risenPower: 2.6 },
   } });
 
 // ============ SOCIAL & STEALTH PERKS (§3a) ============

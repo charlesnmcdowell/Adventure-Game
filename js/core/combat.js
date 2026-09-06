@@ -142,6 +142,7 @@ function mainArchetype(ch) {
 // sideA/sideB: arrays of characters. opts: {ambushBy: characterId, rng}
 Combat.create = function (charsA, charsB, opts) {
   opts = opts || {};
+  if (ADV.Character.syncNpcHeroFloor) ADV.Character.syncNpcHeroFloor((charsA || []).concat(charsB || []));
   const rng = opts.rng || new ADV.RNG(12345);
   const st = {
     rng, round: 0, events: [], over: false, winner: null,
@@ -501,13 +502,12 @@ Combat.skillNeedsAuto = function (ch, skillId, offensiveMode) {
   if (skillId === 'basic_attack') return true;
   const sk = SK()[skillId];
   if (!sk || sk.target === 'postVictory') return false;
-  let tgt = sk.target;
   const entry = ch && Sys().entryFor(ch, skillId);
   const data = entry ? Sys().manifest(ch, entry).data : sk;
-  tgt = data.target;
+  let tgt = data.target;
   if (offensiveMode && data.offensive) tgt = data.offensive.target || 'enemy';
   if (data.freeBuff) return false;
-  return tgt !== 'self';
+  return !!tgt;
 };
 
 Combat.clearAutoFlags = function (ch) {
@@ -609,6 +609,29 @@ function autoUsable(st, u, r) {
     tgt,
   };
 }
+
+// NPC heroes and villains (never the player) smite the healthiest foe once
+// per battle: leave them at 10% of the HP they had, after a hatred line.
+Combat.tryNpcSmite = function (st, u) {
+  if (!u || !u.ch || u.ch.isPlayer) return false;
+  if (u.ch.status !== 'hero' && u.ch.status !== 'villain') return false;
+  if (u.usedOncePerBattle && u.usedOncePerBattle.npcSmite) return false;
+  const foes = livingUnits(st, u.side === 'a' ? 'b' : 'a').filter(x => !x.untargetable);
+  if (!foes.length) return false;
+  let tgt = foes[0];
+  let best = tgt.chp + (tgt.tempHp || 0);
+  for (let i = 1; i < foes.length; i++) {
+    const hp = foes[i].chp + (foes[i].tempHp || 0);
+    if (hp > best) { tgt = foes[i]; best = hp; }
+  }
+  u.usedOncePerBattle = u.usedOncePerBattle || {};
+  u.usedOncePerBattle.npcSmite = true;
+  const leave = Math.max(1, Math.ceil(best * 0.1));
+  const dmg = Math.max(0, best - leave);
+  ev(st, { t: 'npcSmite', uid: tgt.uid, by: u.uid, dmg });
+  if (dmg > 0) applyRawDamage(st, u, tgt, dmg, 'smite');
+  return true;
+};
 
 // Ready-to-fire player auto: the next skill in the rotation that has a target.
 Combat.autoReadyAction = function (st, u) {

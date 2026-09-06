@@ -515,7 +515,7 @@ Panels.forgetDialog = function (scene, id) {
 Panels.journal = function (scene, r) {
   const p = scene.player();
   header(scene, r, 'Skill Journal', 'Every sighting is permanent, across every life. The journal is the real save file.');
-  const listTop = r.y + 88;
+  const listTop = r.y + T().gap(88);
   const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: listTop, w: r.w - 16, h: r.y + r.h - listTop - 8 });
   const states = { Mastered: T().css.purple, Learned: T().css.green, Eligible: T().css.gold, Witnessed: T().css.blue };
   const all = ADV.DATA.TRAINER_POOL;
@@ -531,11 +531,12 @@ Panels.journal = function (scene, r) {
     const lvl = (p.skillLevels[id] || {}).level || (ADV.SkillSys.entryFor(p, id) || {}).level || 0;
     let line = `${sk.name}`;
     if (je.sawTier && je.sawTier !== 'basic') line = `${sk.tiers[je.sawTier].name} → ${sk.name} (root)`;
-    scroll.add(T().text(scene, cols[col], colY[col], line, { size: 14 }));
+    const row1 = scroll.add(T().text(scene, cols[col], colY[col], line, { size: 14, wrap: Math.floor(r.w / 2) - 48 }));
     const seenFrom = je.from ? ' · seen at ' + je.from : '';
-    scroll.add(T().text(scene, cols[col], colY[col] + 17, `${st}${lvl ? ' · L' + lvl : ''}${seenFrom}`, { size: 11, color: states[st] }));
-    scroll.add(ADV.Tooltip.attachZone(scene, cols[col], colY[col], Math.floor(r.w / 2) - 40, 36, () => ADV.SkillInfo.describe(p, id)));
-    colY[col] += 42;
+    const row2 = scroll.add(T().text(scene, cols[col], colY[col] + (row1.height || T().gap(16)) + 2, `${st}${lvl ? ' · L' + lvl : ''}${seenFrom}`, { size: 11, color: states[st] }));
+    const rowH = (row1.height || T().gap(16)) + (row2.height || T().gap(14)) + T().gap(12);
+    scroll.add(ADV.Tooltip.attachZone(scene, cols[col], colY[col], Math.floor(r.w / 2) - 40, rowH, () => ADV.SkillInfo.describe(p, id)));
+    colY[col] += rowH;
     col = colY[0] <= colY[1] ? 0 : 1;
   }
   if (!shown) scroll.add(T().text(scene, r.x + 24, listTop, 'Nothing witnessed yet. Fight things, and watch what they do.', { size: 14, italic: true, color: T().css.inkFaint }));
@@ -546,20 +547,20 @@ Panels.journal = function (scene, r) {
 Panels.codex = function (scene, r) {
   const game = scene.g();
   header(scene, r, 'Codex', 'Everything the world has taught you so far.');
-  const listTop = r.y + 84;
+  const listTop = r.y + T().gap(84);
   const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: listTop, w: r.w - 16, h: r.h - 84 - 64 });
   let y = listTop;
   for (const c of ADV.DATA.PREGAME_CARDS) {
-    scroll.add(T().text(scene, r.x + 24, y, '· ' + c, { size: 13, wrap: r.w - 60 }));
-    y += 24;
+    const line = scroll.add(T().text(scene, r.x + 24, y, '· ' + c, { size: 13, wrap: r.w - 60 }));
+    y += (line.height || T().gap(16)) + T().gap(8);
   }
   y += 8;
   const unlocked = game.meta.codexUnlocked || [];
   if (unlocked.length) {
     scroll.add(T().text(scene, r.x + 24, y, 'LEARNED THE HARD WAY', { size: 12, color: T().css.inkDim })); y += 22;
     for (const id of unlocked) {
-      scroll.add(T().text(scene, r.x + 24, y, '· ' + ADV.DATA.PROMPTS[id], { size: 13, wrap: r.w - 60, color: T().css.gold }));
-      y += 24;
+      const learned = scroll.add(T().text(scene, r.x + 24, y, '· ' + ADV.DATA.PROMPTS[id], { size: 13, wrap: r.w - 60, color: T().css.gold }));
+      y += (learned.height || T().gap(16)) + T().gap(8);
     }
   }
   scroll.extend(y);

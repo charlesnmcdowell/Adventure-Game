@@ -68,58 +68,71 @@ class TownScene extends Phaser.Scene {
     }
     const fg = add(this.add.graphics());
     fg.lineStyle(2, T().c.gold, 0.7); fg.strokeRect(x + w / 2 - 70, y + 8, 140, 168);
-    add(T().text(this, x + w / 2, y + 186, p.name, { size: 19, display: true, ox: 0.5, color: T().css.gold, bold: true }));
+    const listTop = y + 182;
+    const scroll = ADV.UI.scrollArea(this, { x: x + 4, y: listTop, w: w - 8, h: T().H - 24 - listTop }, { keep: add });
+    const put = (o) => scroll.add(o);
+    const after = (obj, extra) => (obj && (obj.height || obj.displayHeight) || T().gap(14)) + T().gap(extra == null ? 4 : extra);
+    let yy = listTop + 4;
+    const nameT = put(T().text(this, x + w / 2, yy, p.name, { size: 19, display: true, ox: 0.5, color: T().css.gold, bold: true }));
+    yy += after(nameT, 2);
     const ft = ADV.Campaign ? ADV.Campaign.titleName(p) : null;
     const titleLine = [p.title, ft].filter(Boolean).join(' · ');
-    if (titleLine) add(T().text(this, x + w / 2, y + 208, titleLine, { size: 12, ox: 0.5, italic: true, color: T().css.purple, wrap: w - 16, align: 'center' }));
+    if (titleLine) {
+      const tt = put(T().text(this, x + w / 2, yy, titleLine, { size: 12, ox: 0.5, italic: true, color: T().css.purple, wrap: w - 24, align: 'center' }));
+      yy += after(tt, 2);
+    }
     const stage = ADV.Game.careerStage(this.game_);
     const wr = p.sex === 'm' && ADV.Courtship ? ADV.Courtship.wealthRank(this.game_.world, p) : 0;
     const gender = p.sex === 'f' ? 'woman' : 'man';
-    let infoY = y + (titleLine ? 226 : 210);
-    add(T().text(this, x + w / 2, infoY, `${gender} · ${stage} · rank ${p.rank} · rep ${p.reputation}`, { size: 12, ox: 0.5, color: T().css.inkDim, wrap: w - 20, align: 'center' }));
+    const info = put(T().text(this, x + w / 2, yy, `${gender} · ${stage} · rank ${p.rank} · rep ${p.reputation}`, { size: 12, ox: 0.5, color: T().css.inkDim, wrap: w - 24, align: 'center' }));
+    yy += after(info, 2);
     if (wr) {
-      infoY += 16;
-      add(T().text(this, x + w / 2, infoY, 'wealth #' + wr, { size: 12, ox: 0.5, color: wr <= C().COURT.wealthTop ? T().css.gold : T().css.inkDim }));
+      const wt = put(T().text(this, x + w / 2, yy, 'wealth #' + wr, { size: 12, ox: 0.5, color: wr <= C().COURT.wealthTop ? T().css.gold : T().css.inkDim }));
+      yy += after(wt, 2);
     }
 
-    let yy = infoY + 22;
     const S = (k) => ADV.Character.effStat(p, k);
-    add(T().text(this, x + 16, yy, `HP ${S('hp')}   ATK ${S('atk')}   DEF ${S('def')}   SPD ${S('spd')}`, { size: 13 }));
-    yy += 24;
-    add(T().text(this, x + 16, yy, `Gold carried: ${p.inventory.gold}`, { size: 13, color: T().css.gold }));
+    const stats = put(T().text(this, x + 16, yy, `HP ${S('hp')}   ATK ${S('atk')}   DEF ${S('def')}   SPD ${S('spd')}`, { size: 13, wrap: w - 36 }));
+    yy += after(stats, 6);
+    const goldT = put(T().text(this, x + 16, yy, `Gold carried: ${p.inventory.gold}`, { size: 13, color: T().css.gold }));
+    yy += after(goldT, 4);
     const v = ADV.Vault.of(this.game_.world, p);
-    yy += 20;
-    add(T().text(this, x + 16, yy, v ? `Vault: ${v.gold}${v.sharedWithId || (v.holderId !== p.id) ? ' (shared)' : ''}` : 'Vault: none yet', { size: 13, color: T().css.inkDim }));
-    yy += 20;
-    add(T().text(this, x + 16, yy, p.equippedSet ? `Set: ${ADV.DATA.GEAR_SETS[p.equippedSet].name}` : 'No gear set', { size: 13, color: p.equippedSet ? T().css.green : T().css.inkFaint }));
-    if (p.meal) { yy += 20; add(T().text(this, x + 16, yy, `Fed: ${p.meal.name} (${Object.entries(p.meal.bonus).map(([k, v]) => '+' + v + ' ' + k.toUpperCase()).join(', ')})`, { size: 12, color: T().css.green, wrap: w - 32 })); }
+    const vaultT = put(T().text(this, x + 16, yy, v ? `Vault: ${v.gold}${v.sharedWithId || (v.holderId !== p.id) ? ' (shared)' : ''}` : 'Vault: none yet', { size: 13, color: T().css.inkDim }));
+    yy += after(vaultT, 4);
+    const setT = put(T().text(this, x + 16, yy, p.equippedSet ? `Set: ${ADV.DATA.GEAR_SETS[p.equippedSet].name}` : 'No gear set', { size: 13, color: p.equippedSet ? T().css.green : T().css.inkFaint, wrap: w - 36 }));
+    yy += after(setT, 4);
+    if (p.meal) {
+      const mealT = put(T().text(this, x + 16, yy, `Fed: ${p.meal.name} (${Object.entries(p.meal.bonus).map(([k, v]) => '+' + v + ' ' + k.toUpperCase()).join(', ')})`, { size: 12, color: T().css.green, wrap: w - 36 }));
+      yy += after(mealT, 4);
+    }
     if (ADV.Survival) {
       for (const wln of ADV.Survival.warnings(this.game_)) {
-        yy += 18;
-        add(T().text(this, x + 16, yy, wln.text, { size: 11, color: T().css.blood, wrap: w - 32 }));
+        const wt = put(T().text(this, x + 16, yy, wln.text, { size: 11, color: T().css.blood, wrap: w - 36 }));
+        yy += after(wt, 4);
       }
     }
-    yy += 28;
-    add(T().text(this, x + 16, yy, `Perks (${p.perks.filter(e => !ADV.DATA.SKILLS[e.skillId].noSlot).length}/${ADV.SkillSys.capFor(p, 'perk')})`, { size: 13, color: T().css.inkDim }));
-    yy += 20;
+    yy += T().gap(8);
+    const perkH = put(T().text(this, x + 16, yy, `Perks (${p.perks.filter(e => !ADV.DATA.SKILLS[e.skillId].noSlot).length}/${ADV.SkillSys.capFor(p, 'perk')})`, { size: 13, color: T().css.inkDim }));
+    yy += after(perkH, 4);
     for (const e of p.perks) {
       const m = ADV.SkillSys.manifest(p, e);
-      const t = add(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink }));
+      const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: w - 80 }));
       t.setInteractive({ useHandCursor: true });
       ADV.Tooltip.attach(this, t, () => ADV.SkillInfo.describe(p, e.skillId));
-      yy += 17;
+      yy += after(t, 4);
     }
-    yy += 8;
-    add(T().text(this, x + 16, yy, `Actives (${p.actives.filter(e => !ADV.DATA.SKILLS[e.skillId].noSlot).length}/${ADV.SkillSys.capFor(p, 'active')})`, { size: 13, color: T().css.inkDim }));
-    yy += 20;
+    yy += T().gap(6);
+    const actH = put(T().text(this, x + 16, yy, `Actives (${p.actives.filter(e => !ADV.DATA.SKILLS[e.skillId].noSlot).length}/${ADV.SkillSys.capFor(p, 'active')})`, { size: 13, color: T().css.inkDim }));
+    yy += after(actH, 4);
+    const autoH = T().gap(18);
     for (const e of p.actives) {
       const m = ADV.SkillSys.manifest(p, e);
-      const t = add(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink }));
+      const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: w - 90 }));
       t.setInteractive({ useHandCursor: true });
       ADV.Tooltip.attach(this, t, () => ADV.SkillInfo.describe(p, e.skillId));
       if (ADV.Combat.skillNeedsAuto(p, e.skillId, false)) {
         const on = ADV.Combat.skillAutoOn(p, e.skillId, false);
-        const b = T().button(this, x + 186, yy - 1, 52, 16, on ? 'AUTO' : 'auto', () => {
+        const b = T().button(this, x + 186, yy, 52, autoH, on ? 'AUTO' : 'auto', () => {
           const next = !on;
           ADV.Combat.setSkillAuto(p, e.skillId, next, false);
           const line = ADV.Game.prompt(this.game_, 'firstSkillAuto');
@@ -127,40 +140,41 @@ class TownScene extends Phaser.Scene {
           ADV.Save.saveGame(this.game_);
           this.buildCharacterPanel();
         }, { size: 10, color: on ? T().css.green : T().css.inkFaint, fill: on ? 0x2a3a22 : 0x211d18 });
-        add(b.g); add(b.txt); add(b.zone);
+        scroll.addBtn(b);
       }
-      yy += 17;
+      yy += Math.max(after(t, 6), autoH + T().gap(6));
     }
     {
       const on = ADV.Combat.skillAutoOn(p, 'basic_attack', false);
-      add(T().text(this, x + 22, yy, 'Attack', { size: 12, color: T().css.inkDim }));
-      const b = T().button(this, x + 186, yy - 1, 52, 16, on ? 'AUTO' : 'auto', () => {
+      put(T().text(this, x + 22, yy, 'Attack', { size: 12, color: T().css.inkDim }));
+      const b = T().button(this, x + 186, yy, 52, autoH, on ? 'AUTO' : 'auto', () => {
         ADV.Combat.setSkillAuto(p, 'basic_attack', !on, false);
         const line = ADV.Game.prompt(this.game_, 'firstSkillAuto');
         if (line) ADV.Notices.toast(this, line);
         ADV.Save.saveGame(this.game_);
         this.buildCharacterPanel();
       }, { size: 10, color: on ? T().css.green : T().css.inkFaint, fill: on ? 0x2a3a22 : 0x211d18 });
-      add(b.g); add(b.txt); add(b.zone);
-      yy += 17;
+      scroll.addBtn(b);
+      yy += autoH + T().gap(8);
     }
     const home = ADV.Housing.of(p);
-    yy += 20;
-    add(T().text(this, x + 16, yy, home.id === 'camp' ? 'No home — sleeping outside the walls' : home.name, { size: 12, color: home.id === 'camp' ? T().css.inkFaint : T().css.gold, wrap: w - 32 }));
+    const homeT = put(T().text(this, x + 16, yy, home.id === 'camp' ? 'No home — sleeping outside the walls' : home.name, { size: 12, color: home.id === 'camp' ? T().css.inkFaint : T().css.gold, wrap: w - 36 }));
+    yy += after(homeT, 6);
     const family = ADV.Rel.familyOf(this.game_.world, p);
     if (family.length) {
-      yy += 18;
-      add(T().text(this, x + 16, yy, 'Family', { size: 11, color: T().css.gold }));
+      const famH = put(T().text(this, x + 16, yy, 'Family', { size: 11, color: T().css.gold }));
+      yy += after(famH, 2);
       for (const f of family) {
-        yy += 15;
         const age = f.young && f.age != null ? ` · ${f.age}` : '';
         const mark = f.alive ? '' : ' · deceased';
-        add(T().text(this, x + 16, yy, `${f.name} · ${f.role}${age}${mark}`, {
-          size: 12, color: f.alive ? T().css.purple : T().css.inkFaint, wrap: w - 32,
+        const ft2 = put(T().text(this, x + 16, yy, `${f.name} · ${f.role}${age}${mark}`, {
+          size: 12, color: f.alive ? T().css.purple : T().css.inkFaint, wrap: w - 36,
         }));
+        yy += after(ft2, 2);
       }
     }
-    add(T().text(this, x + 16, T().H - 44, `world clock: quest ${this.game_.world.questClock} · life ${this.game_.life}`, { size: 11, color: T().css.inkFaint }));
+    put(T().text(this, x + 16, yy, `world clock: quest ${this.game_.world.questClock} · life ${this.game_.life}`, { size: 11, color: T().css.inkFaint, wrap: w - 36 }));
+    scroll.extend(yy + T().gap(28));
     if (this._chromeHidden) this.applyChromeHidden(false);
   }
 
@@ -208,13 +222,14 @@ class TownScene extends Phaser.Scene {
     for (const [id, label, lock] of items) {
       const tutLocked = tut && !ADV.Tutor.allowed(this.game_, id);
       const locked = !!lock || tutLocked;
-      const b = T().button(this, x + 10, yy, w - 20, 38, label, () => {
+      const rowH = lock ? T().gap(44) : T().gap(40);
+      const b = T().button(this, x + 10, yy, w - 20, rowH, label, () => {
         if (locked) return;
         this.openPanel(id);
       }, { size: 14, disabled: locked, sub: lock ? 'needs ' + lock : null, subColor: T().css.blood });
       menuScroll.addBtn(b);
       this.menuButtons[id] = b;
-      yy += locked ? 44 : 40;
+      yy += rowH + T().gap(4);
     }
     menuScroll.extend(yy);
     // notices badge

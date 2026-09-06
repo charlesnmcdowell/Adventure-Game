@@ -93,13 +93,31 @@ Character.effStat = function (ch, key) {
   if (ch.meal && ch.meal.bonus && ch.meal.bonus[key]) v += ch.meal.bonus[key];   // a meal lasts one quest
   if (ch.status === 'hero' && ch.heroPowerMult > 0 && ch.grantsHeld) v = Math.round(v * ch.heroPowerMult);
   if (ch.status === 'villain' && ch.heroPowerMult > 0) v = Math.round(v * ch.heroPowerMult);
-  if (ch.isUndead) v = Math.round(v * C().UNDEAD_STAT_MULT);
+  if (ch.isUndead) v = Math.round(v * (ch.risenPower || C().UNDEAD_STAT_MULT));
   const m = ADV.Survival ? ADV.Survival.statMult(ch) : 1;
   if (m !== 1) v = Math.max(0, Math.round(v * m));
   return v;
 };
 
-Character.maxHp = function (ch) { return Character.effStat(ch, 'hp'); };
+Character.maxHp = function (ch) {
+  let v = Character.effStat(ch, 'hp');
+  if (ch && !ch.isPlayer && (ch.status === 'hero' || ch.status === 'villain')) {
+    v = Math.max(v, ch.npcHpFloor || 0);
+  }
+  return v;
+};
+
+// NPC heroes and villains never sit below the living player's HP. The player
+// does not receive this floor, even if they hold the same title.
+Character.syncNpcHeroFloor = function (list) {
+  const chars = (list && list.characters) ? list.characters : (list || []);
+  const player = chars.find(c => c && c.isPlayer && c.alive !== false);
+  if (!player) return;
+  const floor = Character.effStat(player, 'hp');
+  for (const c of chars) {
+    if (c && !c.isPlayer && (c.status === 'hero' || c.status === 'villain')) c.npcHpFloor = floor;
+  }
+};
 
 // ---- Voice routing for special speakers (add-on §0a) ------------------------
 // A demigod keeps their rolled personality's LINES and only changes VOICE, so

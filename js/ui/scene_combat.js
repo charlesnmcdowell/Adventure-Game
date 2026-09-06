@@ -32,6 +32,7 @@ class CombatScene extends Phaser.Scene {
     this.actionObjs = [];
     this.autoTimer = null;
     this._autoPaused = false;
+    this._autoHalted = false;
     const W = T().W, H = T().H;
     // A roadside mugging and a drowned king used to share one flat rectangle.
     if (ADV.BattleArt) {
@@ -64,6 +65,7 @@ class CombatScene extends Phaser.Scene {
     this.turnStrip = T().text(this, W / 2, 32, '', { size: 13, ox: 0.5, color: T().css.inkDim });
     this.roundText = T().text(this, 60, 32, '', { size: 15, display: true, color: T().css.gold });
     this.paintEnemyHoldToggle();
+    this.paintAutoHaltToggle();
     this.banner = T().text(this, W / 2, 80, this.mode === 'ambush' ? 'AMBUSHED — at your worst, as intended' :
       this.mode === 'rescue' ? 'You took a side.' :
       this.mode === 'assassination' ? 'Only one side walks away.' :
@@ -249,7 +251,7 @@ class CombatScene extends Phaser.Scene {
       const takeTurn = () => {
         if (this.ended) return;
         if (t.isPlayer) {
-          if (this.queuePlayerAuto(t.unit)) return;
+          if (!this._autoHalted && this.queuePlayerAuto(t.unit)) return;
           this.showActionBar(t.unit);
         } else {
           const go = () => {
@@ -486,6 +488,26 @@ class CombatScene extends Phaser.Scene {
         }
         return 220;
       }
+      case 'npcSmite': {
+        const by = e.by ? this.view(e.by) : null;
+        const speakerCh = by && by.u ? by.u.ch : null;
+        const victim = (this.view(e.uid) && this.view(e.uid).u && this.view(e.uid).u.ch.name) || 'you';
+        return (next) => {
+          if (speakerCh && ADV.DialogueBox) {
+            const ctx = ADV.DialogueBox.ctxFor
+              ? ADV.DialogueBox.ctxFor(this.game_, speakerCh, { target: victim })
+              : { target: victim };
+            let started = false;
+            const done = () => { if (started) return; started = true; next(); };
+            const box = ADV.DialogueBox.show(this, this.game_, speakerCh, 'hatred', ctx, done);
+            if (!box) {
+              ADV.DialogueBox.showText(this, this.game_, speakerCh, 'Judgment.', done);
+            }
+            return;
+          }
+          next();
+        };
+      }
       case 'godJudgment': {
         const victim = e.targetName || 'you';
         const godId = e.who;
@@ -641,6 +663,26 @@ class CombatScene extends Phaser.Scene {
       this.paintEnemyHoldToggle();
     }, { size: 12, fill: on ? 0x2a3a22 : undefined, color: on ? T().css.gold : T().css.inkDim, edge: on ? T().c.gold : undefined });
     this._enemyHoldBtn = { destroy() { b.destroy(); } };
+  }
+
+  paintAutoHaltToggle() {
+    const W = T().W;
+    if (this._autoHaltBtn) {
+      try { this._autoHaltBtn.destroy(); } catch (e) {}
+      this._autoHaltBtn = null;
+    }
+    const halted = !!this._autoHalted;
+    const b = T().button(this, W - 210, 62, 170, 36, halted ? 'Skills auto: off' : 'Skills auto: on', () => {
+      this._autoHalted = !this._autoHalted;
+      if (this._autoHalted && this.autoTimer) {
+        try { this.autoTimer.remove(false); } catch (e) {}
+        this.autoTimer = null;
+        const t = ADV.Combat.currentTurn(this.st());
+        if (t && t.isPlayer) this.showActionBar(t.unit);
+      }
+      this.paintAutoHaltToggle();
+    }, { size: 12, fill: halted ? 0x3a2218 : 0x2a3a22, color: halted ? T().css.blood : T().css.green, edge: halted ? T().c.blood : T().c.green });
+    this._autoHaltBtn = { destroy() { b.destroy(); } };
   }
 
   showEnemyHold(u, go) {

@@ -36,10 +36,13 @@ const T = {
   // day read through the chrome, opaque enough to keep body text legible.
   chromeAlpha: 0.78,
 
+  scale() { return (ADV.Prefs && ADV.Prefs.textScale()) || 1; },
+  gap(n) { return Math.round((n == null ? 8 : n) * T.scale()); },
+
   text(scene, x, y, str, opts) {
     opts = opts || {};
-    const scale = (ADV.Prefs && ADV.Prefs.textScale()) || 1;
-    const size = Math.round((opts.size || 15) * (opts.noscale ? 1 : scale));
+    const scale = opts.noscale ? 1 : T.scale();
+    const size = Math.round((opts.size || 15) * scale);
     return scene.add.text(x, y, str, {
       fontFamily: opts.display ? T.font.display : T.font.body,
       fontSize: size + 'px',
@@ -80,8 +83,9 @@ const T = {
     });
     let sub = null;
     if (opts.sub) {
-      txt.setY(y + h / 2 - 8);
-      sub = T.text(scene, x + w / 2, y + h / 2 + 11, opts.sub, { size: 11, ox: 0.5, oy: 0.5, color: opts.subColor || T.css.inkDim });
+      const lift = T.gap(8);
+      txt.setY(y + h / 2 - lift);
+      sub = T.text(scene, x + w / 2, y + h / 2 + Math.round(lift * 1.35), opts.sub, { size: 11, ox: 0.5, oy: 0.5, color: opts.subColor || T.css.inkDim });
     }
     // Touch devices (mobile pass): pad the invisible hit area by 4px a side —
     // the tightest stacked buttons sit 4-6px apart, so this never overlaps a

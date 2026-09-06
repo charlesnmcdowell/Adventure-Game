@@ -25,7 +25,10 @@ const DialogueBox = {
   showText(scene, game, speaker, line, onDone, opts) {
     opts = opts || {};
     const W = T().W, H = T().H;
-    const bh = 132, y = H - bh - 12;
+    const probe = T().text(scene, -800, -800, line || ' ', { size: 17, wrap: W - 220, display: true });
+    const bh = Math.max(132, Math.round(48 + (probe.height || 24) + T().gap(28)));
+    try { probe.destroy(); } catch (e) {}
+    const y = H - bh - 12;
     const group = [];
     const dim = scene.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.001).setDepth(900).setInteractive();
     const panel = scene.add.graphics().setDepth(901);

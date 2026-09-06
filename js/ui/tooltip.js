@@ -183,6 +183,7 @@ const PARAM_LABEL = {
   healTargets: v => `heals ${v === 'party' ? 'the whole party' : v + ' most-wounded ally(s)'}`,
   duration: v => `holds ${v} quests, then they escape at permanent Hatred`,
   cap: v => `cap ${v} — exceeding it releases/kills the oldest`,
+  risenPower: v => `the risen fight at ${v}× strength for the rest of this contract`,
   undeadKeepSkills: () => 'raised undead keep their skills',
   vs: v => `works against: ${v}`,
   partyApplicationBonus: () => 'bonus to party application odds',

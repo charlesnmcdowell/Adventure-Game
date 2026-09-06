@@ -28,8 +28,11 @@ const UI = {
   },
 
   header(scene, r, title, sub) {
-    scene.keep(T().text(scene, r.x + 24, r.y + 18, title, { size: 24, display: true, color: T().css.gold }));
-    if (sub) scene.keep(T().text(scene, r.x + 24, r.y + 50, sub, { size: 13, color: T().css.inkDim, wrap: r.w - 48 }));
+    const titleT = scene.keep(T().text(scene, r.x + 24, r.y + 18, title, { size: 24, display: true, color: T().css.gold, wrap: r.w - 48 }));
+    if (sub) {
+      const subY = r.y + 18 + (titleT.height || T().gap(28)) + T().gap(6);
+      scene.keep(T().text(scene, r.x + 24, subY, sub, { size: 13, color: T().css.inkDim, wrap: r.w - 48 }));
+    }
   },
 
   // For Notices.custom-style modals: raise a button above the dim layer and

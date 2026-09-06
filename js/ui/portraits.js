@@ -471,19 +471,22 @@ function drawFace(ctx, o, cx, skin, headW) {
   ctx.beginPath(); ctx.ellipse(cx + 3.6, EYE_Y + 20.5, 1.7, 1.1, 0, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.beginPath(); ctx.arc(cx - 0.5, EYE_Y + 17, 1.3, 0, Math.PI * 2); ctx.fill();
   // mouth: two-tone lips the expression curve later deforms; philtrum shadow above
-  const my = EYE_Y + 30, curve = o.mouth;
-  softEllipse(ctx, cx, my - 5, 2.2, 3, '#000000', 0.12);
-  const lipDark = o.sex === 'f' ? '#7a3a34' : shade(skin, 0.6);
-  const lipLight = o.sex === 'f' ? '#a85a50' : shade(skin, 0.8);
-  ctx.fillStyle = lipDark;                                             // upper lip
-  ctx.beginPath(); ctx.moveTo(cx - 8, my); ctx.quadraticCurveTo(cx - 3, my - 2.6, cx, my - 1.4); ctx.quadraticCurveTo(cx + 3, my - 2.6, cx + 8, my); ctx.quadraticCurveTo(cx, my + curve * 0.4 + 0.6, cx - 8, my); ctx.fill();
-  ctx.fillStyle = lipLight;                                            // lower lip
-  ctx.beginPath(); ctx.moveTo(cx - 7, my + 0.6); ctx.quadraticCurveTo(cx, my + 4.4 + curve * 0.5, cx + 7, my + 0.6); ctx.quadraticCurveTo(cx, my + 1.4 + curve * 0.4, cx - 7, my + 0.6); ctx.fill();
-  ctx.strokeStyle = shade(lipDark, 0.7); ctx.lineWidth = o.sex === 'f' ? 1.4 : 1.1;  // parting line
-  ctx.beginPath(); ctx.moveTo(cx - 8, my); ctx.quadraticCurveTo(cx, my + curve, cx + 8, my); ctx.stroke();
-  ctx.fillStyle = rgba(shade(skin, 0.5), 0.5);                        // corner dots
-  ctx.beginPath(); ctx.arc(cx - 8.4, my + curve * 0.15, 0.9, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(cx + 8.4, my + curve * 0.15, 0.9, 0, Math.PI * 2); ctx.fill();
+  // A ninja mask covers this — do not bake lips under cloth or they show through.
+  if (!o.masked) {
+    const my = EYE_Y + 30, curve = o.mouth;
+    softEllipse(ctx, cx, my - 5, 2.2, 3, '#000000', 0.12);
+    const lipDark = o.sex === 'f' ? '#7a3a34' : shade(skin, 0.6);
+    const lipLight = o.sex === 'f' ? '#a85a50' : shade(skin, 0.8);
+    ctx.fillStyle = lipDark;                                             // upper lip
+    ctx.beginPath(); ctx.moveTo(cx - 8, my); ctx.quadraticCurveTo(cx - 3, my - 2.6, cx, my - 1.4); ctx.quadraticCurveTo(cx + 3, my - 2.6, cx + 8, my); ctx.quadraticCurveTo(cx, my + curve * 0.4 + 0.6, cx - 8, my); ctx.fill();
+    ctx.fillStyle = lipLight;                                            // lower lip
+    ctx.beginPath(); ctx.moveTo(cx - 7, my + 0.6); ctx.quadraticCurveTo(cx, my + 4.4 + curve * 0.5, cx + 7, my + 0.6); ctx.quadraticCurveTo(cx, my + 1.4 + curve * 0.4, cx - 7, my + 0.6); ctx.fill();
+    ctx.strokeStyle = shade(lipDark, 0.7); ctx.lineWidth = o.sex === 'f' ? 1.4 : 1.1;  // parting line
+    ctx.beginPath(); ctx.moveTo(cx - 8, my); ctx.quadraticCurveTo(cx, my + curve, cx + 8, my); ctx.stroke();
+    ctx.fillStyle = rgba(shade(skin, 0.5), 0.5);                        // corner dots
+    ctx.beginPath(); ctx.arc(cx - 8.4, my + curve * 0.15, 0.9, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + 8.4, my + curve * 0.15, 0.9, 0, Math.PI * 2); ctx.fill();
+  }
   // skin variety: freckles (30% of seeds), undertone already applied in recipe
   if (o.freckles) {
     ctx.fillStyle = rgba(shade(skin, 0.6), 0.55);
@@ -605,6 +608,11 @@ function drawBust(ctx, o) {
     ctx.globalAlpha = 1;
   }
   if (o.extras) o.extras(ctx, cx, o);
+  if (o.masked) {
+    const hw = headWOf(o);
+    ctx.fillStyle = shade(o.wardrobeColor || (o.palette && o.palette.base) || '#2a2d36', 0.85);
+    ctx.beginPath(); ctx.rect(cx - hw / 2 - 6, EYE_Y + 8, hw + 12, 34); ctx.fill();
+  }
   drawHeadwear(ctx, o, cx);
   return { headW, hairBox: hairFrontBox(o, headW) };
 }
@@ -750,7 +758,7 @@ function drawExtras(kind, col) {
     }
     if (kind === 'mask') {
       ctx.fillStyle = shade(col || '#2a2d36', 0.85);
-      ctx.beginPath(); ctx.rect(cx - hw / 2 - 4, EYE_Y + 10, hw + 8, 22); ctx.fill();
+      ctx.beginPath(); ctx.rect(cx - hw / 2 - 6, EYE_Y + 8, hw + 12, 34); ctx.fill();
     }
     if (kind === 'bandana') {
       ctx.fillStyle = col || '#8a3020';
@@ -886,6 +894,8 @@ function finishRecipe(rec) {
   if (!rec.pattern) rec.pattern = KIND_PATTERN[rec.wardrobe] || 'ranger';
   if (!rec.palette) rec.palette = Object.assign({}, KIND_PALETTE[rec.wardrobe] || {});
   if (rec.pattern === 'pirate') rec.pistol = rec.sex === 'm';
+  const ninja = rec.pattern === 'shinobi' || rec.wardrobe === 'ninja' || rec.extrasKind === 'mask';
+  if (ninja && rec.headwear !== 'helm' && rec.headwear !== 'kabuto') rec.masked = true;
   return rec;
 }
 
@@ -904,6 +914,7 @@ function recipePlayer(slot, sex, seed) {
     eyes: r.pick(['#4a3520', '#2f4a2a', '#2a3a55', '#4a2a20']),
     jaw: sex === 'f' ? 0 : 1.5, brow: r.int(0, 2), mouth: r.int(0, 3), fringe: r.int(-6, 6),
     beard: sex === 'm' && !!v.beard,
+    extrasKind: extraKind,
     extras: extraKind ? drawExtras(extraKind, v.wardrobeColor || rec.wardrobeColor) : null,
   }, varietyFrom(r, sex));
   if (v.wardrobe === 'samurai' && !extraKind) out.headwear = null;
@@ -970,7 +981,12 @@ function applySetLook(rec, setId) {
   if (L.headwear) rec.headwear = L.headwear;
   if (L.cloak) rec.cloak = true;
   for (const k of ['centreRidge', 'sunEmblem', 'clanKnot', 'pistol', 'gorget', 'stole', 'pendant']) if (L[k]) rec[k] = true;
-  if (L.extras) rec.extras = typeof L.extras === 'function' ? L.extras : drawExtras(L.extras, L.palette.base);
+  if (L.extras) {
+    rec.extrasKind = typeof L.extras === 'string' ? L.extras : rec.extrasKind;
+    rec.extras = typeof L.extras === 'function' ? L.extras : drawExtras(L.extras, L.palette.base);
+    if (L.extras === 'mask') rec.masked = true;
+  }
+  if (L.pattern === 'shinobi' && L.headwear !== 'helm' && L.headwear !== 'kabuto') rec.masked = true;
   return rec;
 }
 
@@ -1235,46 +1251,42 @@ function paintMood(g, img, meta, moodId, k, extra) {
   const mouthY = F.y(meta.mouthY);
   const skin = meta.lid != null ? meta.lid : 0x8a5c3a;
   const hair = meta.hair != null ? meta.hair : skin;
-  // ---- brows: cover the resting brow, draw the moved one as a 3-point curve
   const moved = M.brow.some(b => b.some(v => Math.abs(v * k) > 0.6));
-  if (moved && !meta.masked) {
+  // ---- lids first so a later brow stroke cannot be wiped by skin fill
+  const lid = lerp(1, M.lid, k);
+  if (lid < 0.98) {
     g.fillStyle(skin, 1);
-    for (const sgn of [-1, 1]) g.fillEllipse(cx + sgn * dx, browY + 0.5 * F.s, 20 * F.s, 9 * F.s);
+    const drop = (1 - lid) * eyeH * 2;
+    const hh = eyeH + 1.2;
+    for (const sgn of [-1, 1]) {
+      const ex = cx + sgn * dx;
+      const yc = ey - eyeH + drop - hh;
+      g.fillEllipse(ex, yc, (eyeW + 1.2) * 2, hh * 2);
+    }
+  } else if (lid > 1.02) {
+    g.fillStyle(0xf2ede2, Math.min(1, (lid - 1) * 4));
+    for (const sgn of [-1, 1]) g.fillEllipse(cx + sgn * dx + 1 * F.s, ey - eyeH * 0.55, eyeW * 1.2, eyeH * 0.7);
+  }
+  if (!meta.masked && (moved || lid < 0.98)) {
+    if (moved) {
+      g.fillStyle(skin, 1);
+      for (const sgn of [-1, 1]) g.fillEllipse(cx + sgn * dx, browY + 0.5 * F.s, 20 * F.s, 7 * F.s);
+    }
     const browCol = Phaser.Display.Color.IntegerToColor(hair).darken(25).color;
     g.lineStyle(Math.max(2, lw * (meta.sex === 'f' ? 1.0 : 1.3)), browCol, 0.95);
     for (let i = 0; i < 2; i++) {
       const sgn = i === 0 ? -1 : 1;
-      const [bin, barch, bout] = M.brow[i];
+      const [bin, barch, bout] = moved ? M.brow[i] : [0, 0, 0];
       const x0 = cx + sgn * (dx - 8 * F.s), x1 = cx + sgn * dx, x2 = cx + sgn * (dx + 8 * F.s);
       const y0 = browY + (1 + bin * k) * F.s, y1 = browY + (-3 + barch * k) * F.s, y2 = browY + (2 + bout * k) * F.s;
-      const p = new Phaser.Curves.QuadraticBezier(new Phaser.Math.Vector2(x0, y0), new Phaser.Math.Vector2(x1, y1), new Phaser.Math.Vector2(x2, y2));
-      p.draw(g, 8);
+      new Phaser.Curves.QuadraticBezier(new Phaser.Math.Vector2(x0, y0), new Phaser.Math.Vector2(x1, y1), new Phaser.Math.Vector2(x2, y2)).draw(g, 8);
     }
-    if (M.accent === 'crease' && !small) { g.lineStyle(lw * 0.6, skin, 0.9); g.lineBetween(cx - 2 * F.s, browY - 2 * F.s, cx - 1 * F.s, browY + 6 * F.s); g.lineBetween(cx + 2 * F.s, browY - 2 * F.s, cx + 1 * F.s, browY + 6 * F.s); }
-  }
-  // ---- lids
-  const lid = lerp(1, M.lid, k);
-  if (lid < 0.98) {
-    g.fillStyle(skin, 1);
-    const drop = (1 - lid) * eyeH * 2;          // how far the upper lid has come down
-    const hh = eyeH + 1.5;                       // lid ellipse half-height (matches the eye's curve)
-    for (const sgn of [-1, 1]) {
-      const ex = cx + sgn * dx;
-      // an ellipse the width of the eye whose BOTTOM edge sits at eye-top + drop,
-      // plus a strip above it so no sliver of white shows between lid and brow
-      const yc = ey - eyeH + drop - hh;
-      g.fillEllipse(ex, yc, (eyeW + 1.5) * 2, hh * 2);
-      g.fillRect(ex - eyeW - 1.5, yc - hh - 1, (eyeW + 1.5) * 2, hh + 1);
-    }
-  } else if (lid > 1.02) {
-    // wide eyes: a white sliver above the iris
-    g.fillStyle(0xf2ede2, Math.min(1, (lid - 1) * 4));
-    for (const sgn of [-1, 1]) g.fillEllipse(cx + sgn * dx + 1 * F.s, ey - eyeH * 0.55, eyeW * 1.2, eyeH * 0.7);
+    if (moved && M.accent === 'crease' && !small) { g.lineStyle(lw * 0.6, skin, 0.9); g.lineBetween(cx - 2 * F.s, browY - 2 * F.s, cx - 1 * F.s, browY + 6 * F.s); g.lineBetween(cx + 2 * F.s, browY - 2 * F.s, cx + 1 * F.s, browY + 6 * F.s); }
   }
   // ---- mouth: cover the resting mouth, draw curve + opening
   const mc = M.mouth;
   const curve = mc.curve * k * F.s, open = mc.open * k, side = mc.side * k;
-  if (Math.abs(curve) > 0.4 || open > 0.02) {
+  if (!meta.masked && (Math.abs(curve) > 0.4 || open > 0.02)) {
     g.fillStyle(skin, 1);
     g.fillEllipse(cx, mouthY + 1 * F.s, 22 * F.s, 11 * F.s);
     const halfW = 8 * F.s;
@@ -1426,7 +1438,7 @@ const Portraits = {
         lid: skinHex ? hexInt(shade(skinHex, 0.97)) : null,
         hair: hairHex ? hexInt(hairHex) : null,
         skinHex, hairBox: { x: W / 2 - 40, y: EYE_Y - 52, w: 80, h: 36 },
-        masked: !!(rig && rig.masked),
+        masked: !!(rec && rec.masked) || !!(rig && rig.masked),
       }, rig || {});
       if (rig && rig.fur) META[key].furHex = hexInt(rig.fur);
     }
@@ -1457,7 +1469,7 @@ const Portraits = {
         adoptMask(g, img);
         lids.push(g);
         g.fillStyle(lidCol, 1);
-        g.fillEllipse(F.x(W / 2) + sgn * dx, ey, 17 * F.s, 12 * F.s);
+        g.fillEllipse(F.x(W / 2) + sgn * dx, ey + 1 * F.s, (meta.eyeW || 7.5) * 2.1 * F.s, (meta.eyeH || 5) * 2.2 * F.s);
       }
     };
     const clearLids = () => { for (const g of lids.splice(0)) { try { g.destroy(); } catch (e) {} } };
@@ -1655,7 +1667,7 @@ const Portraits = {
   lipFlap(scene, img, ch, key, audioEl, opts) {
     if (!scene || !img || !img.scene) return () => {};
     const meta = metaFor(key, ch);
-    if (meta.rig !== 'human') return () => {};
+    if (meta.rig !== 'human' || meta.masked) return () => {};
     opts = opts || {};
     const g = scene.add.graphics().setDepth(depthOf(img) + 2.5);
     let analyser = null, data = null;

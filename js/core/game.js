@@ -447,9 +447,41 @@ Game.necroCaster = function (game) {
     roster.find(c => ADV.SkillSys.entryFor(c, 'necromancy')) || null;
 };
 
+Game.necroPower = function (caster) {
+  const e = caster && ADV.SkillSys.entryFor(caster, 'necromancy');
+  if (!e) return (ADV.DATA.CONST.UNDEAD_STAT_MULT || 1.5);
+  const m = ADV.SkillSys.manifest(caster, e);
+  if (m && m.data && m.data.risenPower) return m.data.risenPower;
+  const idx = { basic: 0, intermediate: 1, advanced: 2 }[m && m.tier] || 0;
+  return (ADV.DATA.CONST.NECRO_STRENGTH || [1.5, 2.0, 2.6])[idx] || 1.5;
+};
+
+Game.conscriptEligible = function (ch) {
+  if (!ch || ch.isPlayer || ch.isQuestThrall || ch.isUndead || ch.isConscript) return false;
+  if (ch.campaign) return false;
+  return ch.species === 'human' || !ch.isMonster;
+};
+
+Game.adoptBattlefieldNpc = function (game, ch) {
+  if (!game || !ch || !game.world) return ch;
+  if (ADV.World.byId(game.world, ch.id)) return ch;
+  if (!ch.personalityId) {
+    const pool = Object.values(ADV.DATA.DIALOGUE || {}).filter(p => p.sex === (ch.sex || 'm') && !p.hidden);
+    if (pool.length) ch.personalityId = game.rng.pick(pool).id;
+  }
+  if (ch.isMonster && ch.species === 'human') {
+    const used = new Set((game.world.characters || []).map(c => c && c.name).filter(Boolean));
+    const names = (ADV.DATA.NAMES && ADV.DATA.NAMES[ch.sex || 'm']) || [];
+    const free = names.filter(n => !used.has(n));
+    if (free.length) ch.name = game.rng.pick(free);
+    ch.isMonster = false;
+  }
+  game.world.characters.push(ch);
+  return ch;
+};
+
 Game.makeQuestThrall = function (src, caster) {
-  const keep = !!(ADV.SkillSys.entryFor(caster, 'necromancy') &&
-    ADV.SkillSys.manifest(caster, ADV.SkillSys.entryFor(caster, 'necromancy')).data.undeadKeepSkills);
+  const power = Game.necroPower(caster);
   const ch = ADV.Character.base({
     name: (src.name || 'Thrall') + ' (risen)',
     sex: src.sex || 'm',
@@ -457,9 +489,9 @@ Game.makeQuestThrall = function (src, caster) {
     stats: Object.assign({}, src.stats),
     portraitSeed: src.portraitSeed, portraitKind: src.portraitKind, portraitId: src.portraitId,
     enemyTypeId: src.enemyTypeId, isMonster: true, isUndead: true, isQuestThrall: true,
-    raisedById: caster.id, organic: false,
-    actives: keep ? (src.actives || []).map(a => Object.assign({}, a)) : [],
-    perks: keep ? (src.perks || []).map(p => Object.assign({}, p)) : [],
+    raisedById: caster.id, organic: false, risenPower: power,
+    actives: (src.actives || []).map(a => Object.assign({}, a)),
+    perks: (src.perks || []).map(p => Object.assign({}, p)),
     personality: { aggression: 80, greed: 10, caution: 10, loyalty: 90, pride: 10 },
   });
   ch.combatHp = ADV.Character.maxHp(ch);
@@ -476,7 +508,7 @@ Game.autoRaiseFallen = function (game, fallen) {
   for (const src of fallen) {
     if (!src || src.isPlayer || src.isQuestThrall) continue;
     if (!ADV.Character.isOrganic(src)) continue;
-    if (!src.isMonster && ADV.Divine && ADV.Divine.guildNpc(game.world, src)) {
+    if (Game.conscriptEligible(src)) {
       const player = Game.player(game);
       if (player && ADV.SkillSys.entryFor(player, 'conscript')) continue;
     }
@@ -493,6 +525,7 @@ Game.autoRaiseFallen = function (game, fallen) {
       }
       src.isUndead = true;
       src.isQuestThrall = true;
+      src.risenPower = Game.necroPower(caster);
       src.raisedById = caster.id;
       src.combatHp = ADV.Character.maxHp(src);
       src.hasFled = false;
@@ -689,6 +722,10 @@ Game.finishCombat = function (game) {
         q.lootGold += game.rng.int(4, 12) + (u.ch.enemyLevel || 1);
         if (u.ch.boss) q.lootGold += 60;
         fallen.push(u.ch);
+        if (Game.conscriptEligible(u.ch) && ADV.SkillSys.entryFor(p, 'conscript')) {
+          u.ch.alive = true;
+          q.defeatedNamed.push(u.ch);
+        }
       } else {
         fallen.push(u.ch);
         q.defeatedNamed.push(u.ch);
@@ -740,7 +777,13 @@ Game.finishCombat = function (game) {
 // Post-victory choice for one defeated named NPC (§3a).
 Game.resolveDefeatedNamed = function (game, defeated, choice) {
   const feed = ADV.World.feeder(game.world);
-  return ADV.Divine.resolveDefeated(game.world, game.rng, Game.player(game), defeated, choice, feed);
+  if (choice === 'conscript' || choice === 'necromancy') Game.adoptBattlefieldNpc(game, defeated);
+  const out = ADV.Divine.resolveDefeated(game.world, game.rng, Game.player(game), defeated, choice, feed);
+  if (choice === 'necromancy' && defeated && defeated.isUndead && game.quest) {
+    game.quest.thralls = game.quest.thralls || [];
+    if (game.quest.thralls.indexOf(defeated) < 0) game.quest.thralls.push(defeated);
+  }
+  return out;
 };
 
 // Complete the quest: payouts, reputation, world tick, ambush queue (§6).

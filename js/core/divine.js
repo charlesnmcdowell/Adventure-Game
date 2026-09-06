@@ -9,6 +9,10 @@ const Divine = {};
 
 function tierIdx(tier) { return { basic: 0, intermediate: 1, advanced: 2 }[tier] || 0; }
 
+Divine.guildNpc = function (world, ch) {
+  return !!(ch && !ch.isMonster && !ch.isPlayer && world && ADV.World.byId(world, ch.id));
+};
+
 // ---- Post-victory outcomes vs a named NPC (§3a) -----------------------------
 // choice: 'kill' | 'knockout' | 'conscript' | 'necromancy'
 // The player is immune: a defeated player always dies (handled by caller).
@@ -39,7 +43,10 @@ Divine.resolveDefeated = function (world, rng, victor, defeated, choice, feedPus
     defeated.isConscript = true;
     defeated.conscriptQuestsLeft = dur;
     defeated.conscriptorId = victor.id;
-    defeated.combatHp = null; defeated.partyId = null; defeated.leaderId = null;
+    defeated.combatHp = ADV.Character.maxHp(defeated);
+    defeated.partyId = null; defeated.leaderId = null;
+    defeated.wasDowned = false;
+    defeated.hasFled = false;
     victor.conscriptIds.push(defeated.id);
     victor.usedForbidden = true;
     // population debt: +3 lives, 3 quests later, hostile to the conscriptor (§3a)
@@ -55,7 +62,6 @@ Divine.resolveDefeated = function (world, rng, victor, defeated, choice, feedPus
     if (ADV.Character && !ADV.Character.isOrganic(defeated)) return { error: 'nothing left to raise' };
     const m = ADV.SkillSys.manifest(victor, entry);
     const cap = C().NECRO_CAP[tierIdx(m.tier)];
-    const dur = C().NECRO_DURATION[tierIdx(m.tier)];
     victor.undeadIds = victor.undeadIds || [];
     // Cap: raising past it collapses the oldest into permanent death (§3a)
     if (victor.undeadIds.length >= cap) {
@@ -68,13 +74,12 @@ Divine.resolveDefeated = function (world, rng, victor, defeated, choice, feedPus
     }
     defeated.isUndead = true;
     if (ADV.Character.applyNonOrganic) ADV.Character.applyNonOrganic(defeated);
-    defeated.undeadQuestsLeft = dur;
+    defeated.undeadQuestsLeft = 0;
+    defeated.isQuestThrall = true;
+    defeated.risenPower = (m.data && m.data.risenPower) || C().NECRO_STRENGTH[tierIdx(m.tier)] || C().UNDEAD_STAT_MULT;
     defeated.raisedById = victor.id;
-    defeated.combatHp = null; defeated.partyId = null; defeated.leaderId = null;
-    if (!m.data.undeadKeepSkills) {
-      // lower tiers: the undead fights on stats alone (keeps basic attack)
-      defeated.suppressedSkills = true;
-    }
+    defeated.combatHp = ADV.Character.maxHp(defeated);
+    defeated.partyId = null; defeated.leaderId = null;
     victor.undeadIds.push(defeated.id);
     victor.usedForbidden = true;
     victor.necromancyRaises = (victor.necromancyRaises || 0) + 1;
@@ -196,6 +201,7 @@ Divine.acceptDivineQuest = function (world, hero, target, powerMult, feedPush) {
   world.activeHeroes.push({ heroId: hero.id, targetId: target.id, powerMultiplier: powerMult });
   // remove the pending offer if any
   world.divineOffers = (world.divineOffers || []).filter(o => o.targetId !== target.id);
+  if (ADV.Character.syncNpcHeroFloor) ADV.Character.syncNpcHeroFloor(world);
   if (feedPush) feedPush(`${hero.isPlayer ? 'You have' : hero.name + ' has'} been made a hero. The target: ${target.name}.`, [hero.id, target.id]);
   // Help requests: a hero above Neutral with someone sends one per divine quest (§3a/§6)
   Divine.sendHeroHelpRequests(world, hero, target, feedPush);
@@ -234,6 +240,7 @@ Divine.onHeroKilled = function (world, hero, killerIds, feedPush) {
     const k = ADV.World.byId(world, id);
     if (!k || !k.alive || k.isMonster || k.campaign) continue;
     k.status = 'villain';
+    if (ADV.Character.syncNpcHeroFloor) ADV.Character.syncNpcHeroFloor(world);
     k.villainLevel = (k.villainLevel || 0) + 1;
     k.heroPowerMult = Math.max(k.heroPowerMult || 0, hero.heroPowerMult || C().HERO_POWER_BASE);
     k.grantsHeld = true;
@@ -273,6 +280,7 @@ Divine.revokeGrants = function (world, hero) {
 // becomes a permanent target (§3a).
 Divine.spare = function (world, hero, target, feedPush) {
   hero.status = 'villain';
+  if (ADV.Character.syncNpcHeroFloor) ADV.Character.syncNpcHeroFloor(world);
   hero.heroTargetId = null;
   // keeps True Rest + Hero permanently; heroPowerMult stays
   world.activeHeroes = world.activeHeroes.filter(h => h.heroId !== hero.id);
@@ -286,6 +294,7 @@ Divine.spare = function (world, hero, target, feedPush) {
 Divine.vendettaKill = function (world, hero, feedPush) {
   if (hero.status !== 'hero') return;
   hero.status = 'villain';
+  if (ADV.Character.syncNpcHeroFloor) ADV.Character.syncNpcHeroFloor(world);
   hero.heroTargetId = null;
   world.activeHeroes = world.activeHeroes.filter(h => h.heroId !== hero.id);
   Divine.mark(world, hero, 'villainy', feedPush);

@@ -178,6 +178,20 @@ Panels.createParty = function (scene, r) {
   let y = listTop;
   if (!isLeader) {
     if (party) { scroll.add(T().text(scene, r.x + 24, y, 'You already serve in someone else\'s party.', { size: 14 })); return; }
+    const boundSolo = ADV.Party.followers(world, p);
+    if (boundSolo.length) {
+      scroll.add(T().text(scene, r.x + 24, y, 'BOUND TO YOU', { size: 12, color: T().css.purple })); y += T().gap(20);
+      for (const f of boundSolo) {
+        const left = f.isConscript ? (f.conscriptQuestsLeft || 0) + ' quests left' : 'risen this contract';
+        scroll.addBtn(T().button(scene, r.x + 24, y, 320, T().gap(44), f.name, () => {}, {
+          size: 14, sub: (f.isConscript ? 'conscript' : 'undead') + ' · ' + left, subColor: T().css.purple, disabled: true,
+        }));
+        y += T().gap(50);
+        y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, f);
+        y += T().gap(10);
+      }
+      y += T().gap(8);
+    }
     scroll.addBtn(T().button(scene, r.x + 24, y, 280, 44, `Found a party — ${C().GOLD.partyStartupCapital}g`, () => {
       if (p.inventory.gold < C().GOLD.partyStartupCapital) { ADV.Notices.toast(scene, 'Not enough capital.'); return; }
       const before = world.parties.length;
@@ -188,14 +202,15 @@ Panels.createParty = function (scene, r) {
       scene.buildMenu();
       scene.refreshAll(); scene.openPanel('create');
     }, { size: 15, display: true, disabled: p.inventory.gold < C().GOLD.partyStartupCapital }));
+    scroll.extend(y + T().gap(56));
     return;
   }
   // roster
   const members = ADV.Party.members(world, party);
   const seats = (party.memberIds || []).map(id => ADV.World.byId(world, id)).filter(Boolean);
-  const bound = ADV.Party.followers(world, party).length;
+  const boundList = ADV.Party.followers(world, party);
   const extra = C().FORBIDDEN_EXTRA_SLOTS || 3;
-  scroll.add(T().text(scene, r.x + 24, y, `Payroll: ${ADV.Party.payroll(world, party)}g per quest · ${members.length + 1}/${C().PARTY_MAX}` + (bound ? ` + ${bound} bound (up to ${extra} extra)` : ` · ${extra} extra seats for the bound`), { size: 14, color: T().css.gold }));
+  scroll.add(T().text(scene, r.x + 24, y, `Payroll: ${ADV.Party.payroll(world, party)}g per quest · ${members.length + 1}/${C().PARTY_MAX}` + (boundList.length ? ` + ${boundList.length} bound (up to ${extra} extra)` : ` · ${extra} extra seats for the bound`), { size: 14, color: T().css.gold }));
   y += 28;
   scroll.addBtn(T().button(scene, r.x + 24, y, 300, 38, `Disband — ${C().GOLD.partyStartupCapital}g back`, () => Panels.foldParty(scene), { size: 14 }));
   y += 48;
@@ -216,12 +231,25 @@ Panels.createParty = function (scene, r) {
         scene.refreshAll(); scene.openPanel('create');
       });
     }, { size: 14, sub, subColor: T().relColor(relTier) }));
-    y += 50;
+    y += T().gap(50);
     y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, m);
-    y += 10;
+    y += T().gap(10);
   }
-  y += 8;
-  scroll.add(T().text(scene, r.x + 24, y, 'FOR HIRE', { size: 12, color: T().css.inkDim })); y += 24;
+  if (boundList.length) {
+    y += T().gap(8);
+    scroll.add(T().text(scene, r.x + 24, y, 'BOUND', { size: 12, color: T().css.purple })); y += T().gap(20);
+    for (const f of boundList) {
+      const left = f.isConscript ? (f.conscriptQuestsLeft || 0) + ' quests left' : 'risen this contract';
+      scroll.addBtn(T().button(scene, r.x + 24, y, 320, T().gap(44), f.name, () => {}, {
+        size: 14, sub: (f.isConscript ? 'conscript' : 'undead') + ' · ' + left, subColor: T().css.purple, disabled: true,
+      }));
+      y += T().gap(50);
+      y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, f);
+      y += T().gap(10);
+    }
+  }
+  y += T().gap(8);
+  scroll.add(T().text(scene, r.x + 24, y, 'FOR HIRE', { size: 12, color: T().css.inkDim })); y += T().gap(24);
   const taken = ADV.Party.takenIds(world);
   const cands = world.characters.filter(c => c.alive && !c.isPlayer && !c.isMonster && !taken.has(c.id) &&
     !c.registryId && c.status === 'normal' && !c.isConscript && !c.isUndead && c.hospitalizedQuestsLeft <= 0);
@@ -235,7 +263,7 @@ Panels.createParty = function (scene, r) {
       if (bond) ADV.Notices.toast(scene, `${cand.name} is ${bond.label}.`);
       Panels.wageDialog(scene, party, cand);
     }, { size: 14, sub, subColor: blocked ? T().css.blood : (bond ? bond.color : (knowsForbidden ? T().css.purple : T().css.inkDim)), disabled: members.length + 1 >= C().PARTY_MAX }));
-    y += 50;
+    y += T().gap(50);
     y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, cand);
     y += 10;
   }
@@ -472,7 +500,7 @@ Panels.roster = function (scene, r) {
       guildHead = true;
     }
     const tier = ADV.Rel.tierBetween(world, c.id, p.id);
-    const status = !c.alive ? 'dead' : c.isUndead ? 'undead' : c.isConscript ? 'conscripted' :
+    const status = !c.alive ? 'dead' : c.isUndead ? 'undead' : c.isConscript ? (c.conscriptorId === p.id ? 'in your service' : 'conscripted') :
       c.status === 'hero' ? 'HERO' : c.status === 'villain' ? 'VILLAIN' :
       c.hospitalizedQuestsLeft > 0 ? 'hospitalized' : c.partyId ? 'in a party' : 'active';
     const trend = c.reputation >= 10 ? 'famous' : c.reputation <= -10 ? 'infamous' : c.reputation >= 3 ? 'rising' : c.reputation <= -3 ? 'falling' : 'steady';

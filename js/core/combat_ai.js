@@ -141,6 +141,7 @@ function avoidLookism(list) {
 }
 
 Combat.aiTakeTurn = function (st, u) {
+  if (Combat.tryNpcSmite && Combat.tryNpcSmite(st, u)) return { ok: true };
   const act = u.planned || chooseAction(st, u);
   u.planned = null;
   if (!act || act.kind === 'hold') { ev(st, { t: 'hold', uid: u.uid }); return { ok: true }; }
