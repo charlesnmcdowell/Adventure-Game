@@ -228,22 +228,32 @@ C2.spawnEnemy = function (rng, typeId, level, opts) {
 
 C2.spawnEncounter = function (game, quest, encIdx) {
   const rng = game.rng.fork('c2q' + quest.id + ':' + encIdx);
-  const spec = quest.cEnc[encIdx];
+  const spec = (quest.cEnc && quest.cEnc[encIdx]) || {};
   const [lo, hi] = quest.enemyLevels;
   const lvl = Math.round(lo + (hi - lo) * (encIdx / Math.max(1, quest.cEnc.length - 1)));
   const out = [];
-  for (const t of spec.types || []) out.push(C2.spawnEnemy(rng, t, lvl));
+  for (const t of spec.types || []) {
+    if (D().CAMPAIGN_ENEMIES[t]) out.push(C2.spawnEnemy(rng, t, lvl));
+    else out.push(ADV.Character.makeEnemy(rng, t, { level: lvl }));
+  }
   if (spec.mini) {
     const mbd = D().CAMPAIGN_MINIBOSSES[spec.mini];
-    const count = mbd.count || 1;
-    for (let i = 0; i < count; i++) {
-      out.push(C2.spawnEnemy(rng, mbd.base, hi, {
-        boss: count === 1, name: mbd.name + (count > 1 ? ' ' + (i + 1) : ''),
-        signature: mbd.signature, equips: mbd.equips, undead: mbd.undead,
-      }));
+    if (mbd) {
+      const count = mbd.count || 1;
+      for (let i = 0; i < count; i++) {
+        out.push(C2.spawnEnemy(rng, mbd.base, hi, {
+          boss: count === 1, name: mbd.name + (count > 1 ? ' ' + (i + 1) : ''),
+          signature: mbd.signature, equips: mbd.equips, undead: mbd.undead,
+        }));
+      }
     }
   }
   for (const t of spec.with || []) out.push(C2.spawnEnemy(rng, t, lvl));
+  if (spec.boardBoss) {
+    const bb = ADV.Character.makeEnemy(rng, spec.boardBoss, { level: hi });
+    if (quest.godLine) { bb.godLineBoss = true; ADV.Campaign.grantGodsEdict(bb); }
+    out.unshift(bb);
+  }
   if (spec.boss) {
     const boss = C2.actor(game, spec.boss);
     boss.combatHp = null; boss.campaignExit = false; boss.boss = true; boss.isBossFight = true;

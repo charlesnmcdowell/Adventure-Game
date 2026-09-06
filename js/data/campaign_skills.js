@@ -11,11 +11,6 @@ const S = ADV.DATA.SKILLS;
 
 function def(o) {
   o.campaign = true;
-  if (o.kind === 'perk') {
-    // one cumulative effect; the Advanced column is the perk's name only
-    const adv = o.tiers.advanced;
-    o.tiers = { basic: adv, intermediate: adv, advanced: adv };
-  }
   S[o.id] = o;
 }
 // three-tier helper for actives: b/i/a names + optional per-tier overrides

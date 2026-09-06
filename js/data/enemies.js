@@ -72,26 +72,31 @@ ADV.DATA.BOSSES = {
     id: 'bandit_king', name: 'Bandit King', species: 'human', portrait: 'bandit', boss: true, camp: 'criminal',
     perks: ['opportunist', 'momentum'], actives: ['backstab', 'smoke_bomb', 'cleave', 'sunder'],
     levels: [25, 32],
+    hitStatus: { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
   },
   archmagister: {
     id: 'archmagister', name: 'Archmagister', species: 'human', portrait: 'hedge_mage', boss: true, camp: 'law',
     perks: ['arcane_focus', 'bulwark'], actives: ['fire_bolt', 'frost_touch', 'shield_wall', 'taunt'],
     levels: [25, 32],
+    hitStatus: { kind: 'burn', power: 0.8, rounds: 2 },
   },
   alpha: {
     id: 'alpha', name: 'Alpha', species: 'beast', portrait: 'dire_wolf', boss: true, camp: 'wild',
     perks: ['momentum', 'wild_form'], actives: ['cleave', 'beast_shape', 'thorn_skin'],
     levels: [25, 32],
+    hitStatus: { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
   },
   sentinel_prime: {
     id: 'sentinel_prime', name: 'Sentinel Prime', species: 'construct', portrait: 'plated_sentinel', boss: true, camp: 'law',
     perks: ['bulwark', 'momentum'], actives: ['cleave', 'taunt', 'shield_wall', 'sunder'],
     levels: [25, 32], armored: true,
+    hitStatus: { kind: 'poison', power: 0.5, rounds: 3, stacks: true },
   },
   grave_bishop: {
     id: 'grave_bishop', name: 'Grave Bishop', species: 'human', portrait: 'grave_acolyte', boss: true, camp: 'criminal',
     perks: ['devoted', 'arcane_focus'], actives: ['regenerate', 'blood_pact', 'necromancy', 'conscript'],
     levels: [25, 32], usesOffensiveModes: true,
+    hitStatus: { kind: 'poison', power: 0.7, rounds: 3, stacks: true },
   },
 };
 

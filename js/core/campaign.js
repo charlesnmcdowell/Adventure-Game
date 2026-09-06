@@ -149,6 +149,11 @@ Campaign.menuVisible = function (game) {
 };
 
 // ---------------------------------------------------------------- actors (§1, §6a)
+Campaign.grantGodsEdict = function (ch) {
+  if (!ch || !ch.actives) return;
+  if (ch.actives.some(e => e.skillId === 'gods_edict')) return;
+  ch.actives.push({ skillId: 'gods_edict', level: 1, uses: 0 });
+};
 Campaign.makeActor = function (def) {
   const rng = ADV.rngFromString('campaign:' + def.id);
   const ch = ADV.Character.base({
@@ -169,6 +174,22 @@ Campaign.makeActor = function (def) {
     ch.perks.push({ skillId: 'hero', level: 1, uses: 0 });
   }
   if (def.backLaneOnly) ch.archetypeInclination = ['ranger'];
+  if (def.role === 'god' || def.godLine) {
+    ch.isGod = true; ch.role = 'god'; ch.godLine = true; ch.boss = true;
+    ch.godDomain = def.domain || null;
+    ch.raisesTheDead = !!def.raisesTheDead;
+    ch.personalityId = def.sex === 'f' ? 'F01' : 'M01';
+    if (def.statMult) for (const k of ['hp', 'atk', 'def', 'spd']) ch.stats[k] = Math.round(ch.stats[k] * def.statMult);
+    const DOT = {
+      bleed: { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
+      poison: { kind: 'poison', power: 0.6, rounds: 3, stacks: true },
+      burn: { kind: 'burn', power: 0.8, rounds: 2 },
+    };
+    ch.hitStatuses = [DOT.bleed, DOT.poison, DOT.burn];
+    Campaign.grantGodsEdict(ch);
+  }
+  if (def.hitStatus) ch.hitStatus = def.hitStatus;
+  if (def.hitStatuses) ch.hitStatuses = def.hitStatuses;
   ch.freeSkillsUsed = 3;
   return ch;
 };
@@ -206,6 +227,15 @@ Campaign.spawnEnemy = function (rng, typeId, level, opts) {
   if (!opts.boss) { ch.stats.hp = Math.round(ch.stats.hp * 0.7); ch.stats.atk = Math.max(8, ch.stats.atk - 1); }
   else ch.stats.hp = Math.round(ch.stats.hp * 1.4);
   if (t.statMult) for (const k of ['hp', 'atk', 'def', 'spd']) ch.stats[k] = Math.round(ch.stats[k] * t.statMult);
+  if (opts.boss) {
+    ch.personalityId = 'M01';
+    const riders = [
+      { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
+      { kind: 'poison', power: 0.5, rounds: 3, stacks: true },
+      { kind: 'burn', power: 0.8, rounds: 2 },
+    ];
+    ch.hitStatus = rng.pick(riders);
+  }
   if (t.undead || opts.undead) { ch.isUndead = true; ch.statusImmunities = t.statusImmunities || []; }
   if (t.statusImmunities) ch.statusImmunities = t.statusImmunities;
   if (opts.conscript) ch.isConscript = true;
@@ -233,7 +263,10 @@ Campaign.spawnEncounter = function (game, quest, encIdx) {
   const lo = quest.enemyLevels[0], hi = quest.enemyLevels[1];
   const lvl = Math.round(lo + (hi - lo) * (encIdx / Math.max(1, quest.cEnc.length - 1)));
   const out = [];
-  for (const t of spec.types || []) out.push(Campaign.spawnEnemy(rng, t, lvl));
+  for (const t of spec.types || []) {
+    if (D().CAMPAIGN_ENEMIES[t]) out.push(Campaign.spawnEnemy(rng, t, lvl));
+    else out.push(ADV.Character.makeEnemy(rng, t, { level: lvl }));
+  }
   if (spec.mini) {
     const mb = D().CAMPAIGN_MINIBOSSES[spec.mini];
     const count = mb.count || (mb.pair ? 2 : 1);
@@ -242,6 +275,11 @@ Campaign.spawnEncounter = function (game, quest, encIdx) {
     }
   }
   for (const t of spec.with || []) out.push(Campaign.spawnEnemy(rng, t, lvl));
+  if (spec.boardBoss) {
+    const bb = ADV.Character.makeEnemy(rng, spec.boardBoss, { level: hi });
+    if (quest.godLine) { bb.godLineBoss = true; Campaign.grantGodsEdict(bb); }
+    out.unshift(bb);
+  }
   if (spec.boss) {
     let bossId = spec.boss;
     if (bossId === 'branch') bossId = s.branch === 'holloway' ? 'crane' : 'holloway';

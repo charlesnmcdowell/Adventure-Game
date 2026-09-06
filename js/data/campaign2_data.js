@@ -121,16 +121,21 @@ chr({ id: 'ash', name: 'Dorian Ash', epithet: 'the Tide-Taker', faction: 'navy',
   portrait: { skin: 'tan', hair: 'long', wardrobe: 'suit', color: '#3a2a4a' } });
 
 // God line (§7) — not faction characters; they speak once and fight once.
-chr({ id: 'pale_mother', name: 'The Pale Mother', faction: 'god', role: 'god', sex: 'f', level: 34, godLine: true,
+chr({ id: 'pale_mother', name: 'The Pale Mother', faction: 'god', role: 'god', sex: 'f', level: 34, godLine: true, domain: 'death',
   perks: ['devoted', 'bulwark', 'see_invisibility'],
   actives: ['necromancy', 'whisper_of_ending', 'blood_pact', 'mend', 'blood_lotus', 'vital_anchor'],
   raisesTheDead: true, statMult: 1.6,
   portrait: { skin: 'ashen', hair: 'long', wardrobe: 'dress', color: '#d8d4cc' } });
-chr({ id: 'drowned_king', name: 'The Drowned King', faction: 'god', role: 'god', sex: 'm', level: 34, godLine: true,
+chr({ id: 'drowned_king', name: 'The Drowned King', faction: 'god', role: 'god', sex: 'm', level: 34, godLine: true, domain: 'chaos',
   perks: ['bulwark', 'momentum', 'sea_legs'],
   actives: ['riposte_line', 'stone_stance', 'paid_in_full', 'chain_and_bar', 'boarding_hook', 'grapeshot'],
   statMult: 1.6,
   portrait: { skin: 'ashen', hair: 'long', wardrobe: 'armor', color: '#1f3a44' } });
+chr({ id: 'first_bloom', name: 'The First Bloom', faction: 'god', role: 'god', sex: 'f', level: 34, godLine: true, domain: 'life',
+  perks: ['devoted', 'wild_form', 'see_invisibility'],
+  actives: ['mend', 'regenerate', 'thorn_skin', 'beast_shape', 'blood_pact', 'guardian_ward'],
+  statMult: 1.6,
+  portrait: { skin: 'fair', hair: 'long', wardrobe: 'dress', color: '#5d8a4a' } });
 
 // ---------------------------------------------------------------- enemies (§4)
 // Three skins each: a name + palette variant chosen at spawn.
@@ -296,37 +301,53 @@ Object.assign(ADV.DATA.CAMPAIGN_QUESTS, {
 // ---------------------------------------------------------------- the god line (§7)
 // Two bosses, two routes each, party-only, 1000g halving on repeat.
 ADV.DATA.GOD_LINE = {
-  gateQuests: 25, basePay: 1000, minPay: 125,
+  gateQuests: 0, basePay: 1000, minPay: 125,
   routes: [
-    { id: 'ossuary', boss: 'pale_mother', name: 'The Ossuary',
-      brief: 'The bonehouse beneath the old quarter has been sealed since the last plague. Something inside has started moving.',
-      enc: [{ types: ['grave_touched', 'risen', 'risen'] }, { types: ['the_refused', 'risen', 'grave_touched'] },
-            { types: ['risen', 'risen', 'the_refused', 'grave_touched'] }, { types: ['grave_touched', 'grave_touched', 'the_refused', 'risen'] }] },
-    { id: 'birthing_house', boss: 'pale_mother', name: 'The Birthing House',
-      brief: 'Every woman who has died in childbirth in this district for six years is standing in one room. They are not hostile. They are waiting for someone.',
-      enc: [{ types: ['house_guard_terrified', 'house_guard_terrified'] }, { types: ['house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified'] },
-            { types: ['house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified'] }, { types: ['house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified', 'house_guard_terrified'] }] },
-    { id: 'low_tide', boss: 'drowned_king', name: 'The Low Tide',
-      brief: 'The water has gone out four hundred yards and has not come back for a week. People have started walking out to see why.',
-      enc: [{ types: ['drowned_hand', 'drowned_hand'] }, { types: ['drowned_hand', 'drowned_hand', 'drowned_hand'] },
-            { types: ['drowned_hand', 'drowned_hand', 'drowned_hand'] }, { types: ['drowned_hand', 'drowned_hand', 'drowned_hand', 'drowned_hand'] }] },
-    { id: 'salt_court', boss: 'drowned_king', name: 'The Salt Court',
-      brief: 'A ship came in with no crew, no cargo, and a throne bolted to the deck. The harbourmaster wants it gone and will pay anything.',
-      enc: [{ types: ['drowned_hand', 'drowned_hand'] }, { types: ['drowned_hand', 'drowned_hand', 'the_refused'] },
-            { types: ['drowned_hand', 'drowned_hand', 'drowned_hand'] }, { types: ['drowned_hand', 'drowned_hand', 'drowned_hand', 'the_refused'] }] },
+    { id: 'ossuary', boss: 'pale_mother', domain: 'death', escortBoss: 'grave_bishop',
+      name: 'The Ossuary',
+      brief: 'Death has a name in this city, and she is counting. The bonehouse is open. Every fight on the way down has a warden. At the bottom she waits with one of her bishops.',
+      enc: [
+        { types: ['grave_touched', 'risen'], boardBoss: 'grave_bishop' },
+        { types: ['the_refused', 'risen', 'grave_touched'], boardBoss: 'grave_bishop' },
+        { types: ['risen', 'grave_touched'], boardBoss: 'grave_bishop', boss: 'pale_mother' },
+      ] },
+    { id: 'salt_court', boss: 'drowned_king', domain: 'chaos', escortBoss: 'bandit_king',
+      name: 'The Salt Court',
+      brief: 'The sea took a kingdom and left the king. Order drowned; what walks the wrecks answers to no banner. A crowned outlaw holds each hall. The last room is his.',
+      enc: [
+        { types: ['drowned_hand', 'drowned_hand'], boardBoss: 'bandit_king' },
+        { types: ['drowned_hand', 'the_refused'], boardBoss: 'bandit_king' },
+        { types: ['drowned_hand', 'drowned_hand'], boardBoss: 'bandit_king', boss: 'drowned_king' },
+      ] },
+    { id: 'green_altar', boss: 'first_bloom', domain: 'life', escortBoss: 'alpha',
+      name: 'The Green Altar',
+      brief: 'Life will not take no. The woods have started growing through the walls, and something old is blessing it. An alpha leads every pack. She stands at the altar with one of them.',
+      enc: [
+        { types: ['dire_wolf', 'dire_wolf'], boardBoss: 'alpha' },
+        { types: ['dire_wolf', 'shadow_beast', 'frost_hag'], boardBoss: 'alpha' },
+        { types: ['dire_wolf', 'shadow_beast'], boardBoss: 'alpha', boss: 'first_bloom' },
+      ] },
   ],
 };
 
 // ---------------------------------------------------------------- faction war (§6)
 // Ordinary board contracts against a faction. Available to everyone.
 ADV.DATA.FACTION_WAR = {
-  bell:  { id: 'bell',  quest: 'Clan Suppression',      shift: 'law',      types: ['bell_initiate', 'clan_watcher', 'chain_hand', 'poison_sister', 'the_refused'],
-           brief: 'The city wants a ninja clan reminded that it is a city. Nobody expects you to find all of them.' },
-  green: { id: 'green', quest: 'Bandit-Blade Contract', shift: 'criminal', types: ['green_recruit', 'clan_archer', 'sworn_blade', 'stone_bannerman', 'clan_physician'],
-           brief: 'A samurai clan is enforcing a law somebody paid to have written. Somebody else is paying you.' },
-  tally: { id: 'tally', quest: 'Anti-Piracy Patrol',    shift: 'law',      types: ['tally_hand', 'gun_captain', 'sea_dog', 'powder_monkey', 'ships_surgeon'],
-           brief: 'A fleet has been taking cargo out of the shallows. Take some of it back and leave a message.' },
-  navy:  { id: 'navy',  quest: 'Blockade Running',      shift: 'criminal', types: ['pressed_hand', 'marine_of_the_line', 'gunnery_officer', 'ships_master', 'signal_officer'],
-           brief: 'The navy has closed a channel that a lot of people need open. Run it, and fight what stops you.' },
+  bell:  { id: 'bell',  quest: 'Clan Suppression',      shift: 'law',      speaker: 'jiro',
+           bosses: ['paper_keeper', 'the_left_hand'],
+           types: ['bell_initiate', 'clan_watcher', 'chain_hand', 'poison_sister', 'the_refused'],
+           brief: 'The city wants the Hollow Bell reminded it is a city. Two of their named hands are on the street. Find them.' },
+  green: { id: 'green', quest: 'Bandit-Blade Contract', shift: 'criminal', speaker: 'kira',
+           bosses: ['instructor_sagara', 'blade_captain_doi'],
+           types: ['green_recruit', 'clan_archer', 'sworn_blade', 'stone_bannerman', 'clan_physician'],
+           brief: 'The Green-Eyed are enforcing a law somebody paid for. Two of their blades are the problem. Cut them down.' },
+  tally: { id: 'tally', quest: 'Anti-Piracy Patrol',    shift: 'law',      speaker: 'vanekessler',
+           bosses: ['bosun_teague', 'captain_ordell'],
+           types: ['tally_hand', 'gun_captain', 'sea_dog', 'powder_monkey', 'ships_surgeon'],
+           brief: 'The Red Tally has been lifting cargo from the shallows. A bosun and a captain are running the take. Leave a message.' },
+  navy:  { id: 'navy',  quest: 'Blockade Running',      shift: 'criminal', speaker: 'ash',
+           bosses: ['masters_mate_holt', 'commander_nairn'],
+           types: ['pressed_hand', 'marine_of_the_line', 'gunnery_officer', 'ships_master', 'signal_officer'],
+           brief: 'The Admiralty closed a channel people need open. A mate and a commander hold the line. Run it.' },
 };
 })();

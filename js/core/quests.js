@@ -42,9 +42,7 @@ Quests.generateBoard = function (world, rng, game) {
   // the faction war (add-on §6): two rotating contracts against the four
   // ninja/pirate factions — the only place most players ever see them
   for (const q of Quests.makeWarBoard(world, rng)) board.push(q);
-  // the god line (add-on §7): one route offered at a time, from rank 25
-  const god = Quests.makeGodQuest(world, rng);
-  if (god) board.push(god);
+  for (const q of Quests.makeGodBoard(world, rng)) board.push(q);
   if (forceTutNeutral) Quests.forceTutorialNeutrals(board, rng);
   return board;
 };
@@ -135,29 +133,34 @@ Quests.makeWarBoard = function (world, rng) {
   const player = ADV.World.byId(world, world.playerId);
   const joined = (player && player.factionTitles || []).map(t => t.factionId);
   const open = Object.keys(W).filter(fid => !joined.includes(fid));
-  if (!open.length) return [];
-  const pick = rng.shuffle(open).slice(0, 2);
-  return pick.map(fid => Quests.makeWarQuest(rng, fid, rng.chance(0.5) ? 1 : 2));
+  const pool = open.length >= 2 ? open : Object.keys(W);
+  const pick = rng.shuffle(pool.slice()).slice(0, 2);
+  return pick.map(fid => Quests.makeWarQuest(rng, fid, 2));
 };
 Quests.makeWarQuest = function (rng, fid, tier) {
   const w = ADV.DATA.FACTION_WAR[fid];
-  const T = C().QUEST_TIERS[tier];
-  const track = rng.chance(0.4) ? 'solo' : 'party';
-  const encN = track === 'solo' ? rng.int(2, 3) : rng.int(3, 4);
-  const encounters = [];
-  for (let i = 0; i < encN; i++) {
-    const n = track === 'solo' ? (i === encN - 1 && tier > 1 ? 2 : 1) : rng.int(2, 3);
+  const T = C().QUEST_TIERS[tier] || C().QUEST_TIERS[2];
+  const bosses = (w.bosses || []).slice(0, 2);
+  while (bosses.length < 2 && w.types.length) bosses.push(null);
+  const pack = (n) => {
     const ids = [];
     for (let k = 0; k < n; k++) ids.push(rng.pick(w.types));
-    encounters.push({ enemyTypeIds: ids, boss: false, campaign: true });
-  }
+    return ids;
+  };
+  const cEnc = [
+    { types: pack(3) },
+    { types: pack(2), mini: bosses[0] || undefined },
+    { types: pack(2), mini: bosses[1] || undefined },
+  ];
+  const encounters = cEnc.map((e, i) => ({
+    enemyTypeIds: (e.types || []).slice(), boss: i > 0, campaign: true,
+  }));
   return {
-    id: 'war' + (QID++), tier, track, factionAlignment: w.shift,
-    warAgainst: fid, campaign: true, campaign2: true, war: true,
-    name: w.quest, brief: w.brief,
-    payout: track === 'solo' ? T.soloPay : T.partyPay,
-    enemyLevels: T.enemyLevels,
-    encounters, cEnc: encounters.map(e => ({ types: e.enemyTypeIds })), isBoss: false,
+    id: 'war' + (QID++), tier, track: 'party', factionAlignment: w.shift,
+    warAgainst: fid, campaign: true, campaign2: true, war: true, special: true,
+    name: w.quest, brief: w.brief, speaker: w.speaker || null,
+    payout: T.partyPay, enemyLevels: T.enemyLevels,
+    encounters, cEnc, isBoss: true,
   };
 };
 
@@ -169,21 +172,39 @@ Quests.godPayout = function (game) {
   const runs = (game.campaign2 && game.campaign2.godRuns) || 0;
   return Math.max(G.minPay, Math.round(G.basePay / Math.pow(2, runs)));
 };
-Quests.makeGodQuest = function (world, rng) {
+Quests.makeGodBoard = function (world, rng) {
+  const G = ADV.DATA.GOD_LINE;
+  if (!G || !G.routes) return [];
+  const seen = {};
+  const out = [];
+  for (const route of G.routes) {
+    if (!route || seen[route.boss]) continue;
+    seen[route.boss] = true;
+    out.push(Quests.makeGodQuest(world, rng, route));
+  }
+  return out;
+};
+Quests.makeGodQuest = function (world, rng, route) {
   const G = ADV.DATA.GOD_LINE;
   if (!G) return null;
-  const player = ADV.World.byId(world, world.playerId);
-  if (!player || player.questsCompleted < G.gateQuests) return null;
-  const route = rng.pick(G.routes);
+  route = route || (rng && rng.pick(G.routes));
+  if (!route) return null;
   const T = C().QUEST_TIERS.boss;
-  const encounters = route.enc.map(e => ({ enemyTypeIds: e.types.slice(), boss: false, campaign: true }));
-  encounters.push({ enemyTypeIds: [], boss: true, campaign: true });
+  const cEnc = (route.enc || []).map(e => Object.assign({}, e));
+  const last = cEnc[cEnc.length - 1] || {};
+  if (!last.boss) cEnc.push({ types: (route.adds || []).slice(), boardBoss: route.escortBoss, boss: route.boss });
+  const encounters = cEnc.map((e, i) => ({
+    enemyTypeIds: (e.types || []).slice(),
+    boss: !!(e.boss || e.boardBoss || e.mini || i === cEnc.length - 1),
+    campaign: true,
+  }));
   return {
     id: 'god_' + route.id, tier: 'boss', track: 'party', factionAlignment: 'neutral',
-    campaign: true, campaign2: true, godLine: true, routeId: route.id, godBoss: route.boss,
+    campaign: true, campaign2: true, godLine: true, special: true,
+    routeId: route.id, godBoss: route.boss, godDomain: route.domain,
     name: route.name, brief: route.brief, isBoss: true,
     payout: G.basePay, enemyLevels: T.enemyLevels,
-    encounters, cEnc: route.enc.concat([{ boss: route.boss }]),
+    encounters, cEnc,
   };
 };
 

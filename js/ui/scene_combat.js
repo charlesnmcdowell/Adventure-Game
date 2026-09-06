@@ -278,15 +278,25 @@ class CombatScene extends Phaser.Scene {
   wantsCombatHatred() {
     if (this.mode === 'assassination' || this.mode === 'ambush') return true;
     const q = this.game_ && this.game_.quest;
-    return !!(q && q.rivalFight);
+    if (!q) return false;
+    if (q.rivalFight) return true;
+    const quest = q.quest;
+    return !!(quest && (quest.godLine || quest.war || quest.isBoss || quest.special));
   }
 
   tryHatredRemark(acting, then) {
-    if (!this.wantsCombatHatred() || !ADV.DialogueBox) { then(); return; }
+    if (!this.wantsCombatHatred()) { then(); return; }
     const st = this.st();
     const speaker = ADV.Combat.hatredRemarkDue(st, { acting, foeSide: 'b' });
     if (!speaker) { then(); return; }
     ADV.Combat.noteHatredRemark(st, speaker.ch);
+    const godId = speaker.ch.campaignId;
+    const godLines = godId && ADV.DATA.GOD_LINE_HATRED && ADV.DATA.GOD_LINE_HATRED[godId];
+    if (godLines && ADV.CampaignUI && ADV.CampaignUI.playBeats) {
+      ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'open', lines: godLines.slice(0, 1) }], then);
+      return;
+    }
+    if (!ADV.DialogueBox) { then(); return; }
     const ctx = ADV.DialogueBox.ctxFor
       ? ADV.DialogueBox.ctxFor(this.game_, speaker.ch, { target: ADV.Game.player(this.game_).name })
       : {};
@@ -461,6 +471,33 @@ class CombatScene extends Phaser.Scene {
           if (by && by.u.side !== v.u.side) this.reactAt(by, this.laughsAtKills(by.u.ch) ? 'laughing' : 'smug', { ms: 900, intensity: 0.9 });
         }
         return 220;
+      }
+      case 'godJudgment': {
+        const victim = e.targetName || 'you';
+        const godId = e.who;
+        const smite = godId && ADV.DATA.GOD_LINE_SMITE && ADV.DATA.GOD_LINE_SMITE[godId];
+        const by = e.by ? this.view(e.by) : null;
+        const speakerCh = by && by.u ? by.u.ch : null;
+        return (next) => {
+          if (smite && ADV.CampaignUI && ADV.CampaignUI.playBeats) {
+            const lines = smite.slice(0, 1).map(line => Object.assign({}, line, {
+              t: String(line.t).replace(/\{target\}/g, victim),
+            }));
+            ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'open', lines }], next);
+            return;
+          }
+          if (speakerCh && ADV.DialogueBox) {
+            const ctx = ADV.DialogueBox.ctxFor
+              ? ADV.DialogueBox.ctxFor(this.game_, speakerCh, { target: victim })
+              : { target: victim };
+            let started = false;
+            const done = () => { if (started) return; started = true; next(); };
+            const box = ADV.DialogueBox.show(this, this.game_, speakerCh, 'hatred', ctx, done);
+            if (!box) done();
+            return;
+          }
+          next();
+        };
       }
       case 'execute': {
         if (v) {

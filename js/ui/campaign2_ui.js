@@ -41,8 +41,7 @@ const UI2 = ADV.Campaign2UI = {};
   CU.speaker = function (game, who) {
     const ch = D().CAMPAIGN_CHARS[who];
     if (!ch || !C2().isC2(ch.faction)) {
-      // the god line's cast belongs to no faction; make a display actor for it
-      if (ch && !ch.faction) return C2().actor(game, who);
+      if (ch && (ch.faction === 'god' || ch.godLine || ch.role === 'god')) return C2().actor(game, who);
       return speaker(game, who);
     }
     return C2().actor(game, who);
@@ -310,7 +309,7 @@ UI2.questNote = function (game, q) {
     bits.push(`${other} notices this sort of work.`);
     return bits.join(' ');
   }
-  if (q.godLine) return `Party only. Rank ${D().GOD_LINE.gateQuests}+. Pays ${ADV.Quests.godPayout(game)}g — half again next time.`;
+  if (q.godLine) return q.brief || 'God-tier. A boss in every fight; the last room is the god.';
   return null;
 };
 })();

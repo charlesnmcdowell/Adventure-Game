@@ -23,6 +23,12 @@ class TitleScene extends Phaser.Scene {
 
     const hasSave = ADV.Save.hasSave();
     let y = 340;
+    if (ADV.TitleNotice && ADV.TitleNotice.visible()) {
+      T().text(this, W / 2, 318, ADV.TitleNotice.text, {
+        size: 14, ox: 0.5, oy: 0.5, wrap: 620, align: 'center', color: T().css.gold,
+      });
+      y = 400;
+    }
     if (hasSave) {
       T().button(this, W / 2 - 130, y, 260, 46, 'Continue', () => {
         const game = ADV.Game.load();

@@ -112,7 +112,9 @@ Character.VOICE_TAGS = {
   matriarch: '0KlQKzxy6Oee2hYOyHII',   // high-rank mothers holding an estate
 };
 Character.voiceTagFor = function (world, ch) {
-  if (!ch || ch.isPlayer || !ch.personalityId) return null;
+  if (!ch || ch.isPlayer) return null;
+  if (ch.isGod || ch.role === 'god' || ch.godLine) return ch.sex === 'f' ? 'godf' : 'godm';
+  if (!ch.personalityId) return null;
   if (ch.bloodline && ch.bloodline.demigod) return ch.sex === 'f' ? 'godf' : 'godm';
   // §0a matriarch: a high-rank woman who has borne children and holds an estate
   if (ch.sex === 'f' && (ch.childIds || []).length && ch.rank >= 3 &&
@@ -247,10 +249,13 @@ Character.makeEnemy = function (rng, typeId, opts) {
   });
   if (t.boss) { // palette shift + scale handled by UI; stats get a bump via species roll high end
     ch.stats.hp = Math.round(ch.stats.hp * 1.6);
+    const pers = pickPersonality(rng, ch.sex || 'm');
+    if (pers) ch.personalityId = pers.id;
   }
-  // Perks are advanced-only now (campaign §13d-2), so a nameless mook's perk
-  // is a veteran's perk. Tier-1 mooks (level < 10) don't carry one — the
-  // first two minutes stay survivable (§11a); bosses always do.
+  if (t.hitStatus) ch.hitStatus = t.hitStatus;
+  if (t.hitStatuses) ch.hitStatuses = t.hitStatuses;
+  // Tier-1 mooks (level < 10) don't carry a perk — the first two minutes
+  // stay survivable (§11a); bosses always do. Perk level follows enemy level.
   for (const p of t.perks) {
     if (!t.boss && lvl < 10) break;
     ch.perks.push({ skillId: p, level: lvl, uses: lvl * C().USES_PER_LEVEL });

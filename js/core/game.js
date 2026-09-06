@@ -409,9 +409,13 @@ Game.currentEncounter = function (game) {
     if (q.quest.campaign) {
       const onBoss = !!q.quest.encounters[q.encIdx].boss;
       if (q.quest.godLine) {
-        // §7: the god speaks once, when you finally reach the room.
-        const lines = onBoss ? (ADV.DATA.GOD_LINE_DIALOGUE || {})[q.quest.godBoss] : null;
+        const spec = (q.quest.cEnc && q.quest.cEnc[q.encIdx]) || {};
+        const lines = spec.boss ? (ADV.DATA.GOD_LINE_DIALOGUE || {})[q.quest.godBoss] : null;
         q.openerBeats = lines ? [{ who: q.quest.godBoss, key: 'open', lines }] : [];
+      } else if (q.quest.war) {
+        const pack = (ADV.DATA.FACTION_WAR_DIALOGUE || {})[q.quest.warAgainst];
+        const lines = pack ? (onBoss ? pack.boss : (q.encIdx === 0 ? pack.open : null)) : null;
+        q.openerBeats = (lines && pack) ? [{ who: pack.who, key: 'war', lines }] : [];
       } else if (q.quest.campaign2) {
         q.openerBeats = (onBoss && q.quest.n === 5) ? ADV.Campaign.finalOpener(game, q.quest.factionId) : [];
       } else {

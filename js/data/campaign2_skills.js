@@ -12,10 +12,6 @@ const S = ADV.DATA.SKILLS;
 
 function def(o) {
   o.campaign = true; o.campaign2 = true;
-  if (o.kind === 'perk') {
-    const adv = o.tiers.advanced;
-    o.tiers = { basic: adv, intermediate: adv, advanced: adv };
-  }
   S[o.id] = o;
 }
 function tiers(b, i, a, ob, oi, oa) {

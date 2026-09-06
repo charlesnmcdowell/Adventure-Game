@@ -337,6 +337,10 @@ def({ id: 'true_rest', name: 'True Rest', kind: 'active', unique: true, noSlot: 
   power: 0, reach: 'any', target: 'enemy', oneShotUndead: true,
   desc: 'One-shot kills any undead.',
   tiers: { basic: { name: 'True Rest' }, intermediate: { name: 'True Rest' }, advanced: { name: 'True Rest' } } });
+def({ id: 'gods_edict', name: "God's Edict", kind: 'active', unique: true, noSlot: true,
+  power: 0, reach: 'any', target: 'enemy', instantKillIfMaxHp: 800,
+  desc: 'Ends anyone whose health pool is over 800. The god names them first.',
+  tiers: { basic: { name: "God's Edict" }, intermediate: { name: "God's Edict" }, advanced: { name: "God's Edict" } } });
 def({ id: 'hero', name: 'Hero', kind: 'perk', unique: true, noSlot: true,
   desc: 'Vastly increased base stats.',
   tiers: { basic: { name: 'Hero' }, intermediate: { name: 'Hero' }, advanced: { name: 'Hero' } } });

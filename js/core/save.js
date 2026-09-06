@@ -93,6 +93,11 @@ Save.loadGame = function () {
 
 Save.hasSave = function () { return !!get('adv:world'); };
 
+ADV.TitleNotice = {
+  text: 'All characters and data will be wiped at 8 PM CST. Sorry for the inconvenience — a new expansion has released. Create a new character and let me know if you like it.',
+  visible: () => !Save.hasSave(),
+};
+
 Save.reset = function () {
   for (const k of KEYS) { try { backend().removeItem(k); } catch (e) {} }
 };

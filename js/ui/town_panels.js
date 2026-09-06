@@ -40,20 +40,33 @@ Panels.questBoard = function (scene, r) {
       : 'Solo contracts pay 40% for lighter work. Party contracts need bodies and pay full. The contract is the difficulty.');
     const tutOk = (q) => !ADV.Tutor || ADV.Tutor.questAllowed(game, q);
     scene.tutorFirstQuestBtn = null;
+    const special = (game.board || []).filter(q => q.war || q.godLine || q.special);
+    if (special.length) {
+      scroll.add(T().text(scene, r.x + 24, y, 'FACTION & GOD CONTRACTS', { size: 13, color: T().css.gold }));
+      y += 22;
+      for (const q of special) {
+        const covers = !party || ADV.Game.contractCoversPayroll(game, q);
+        const needParty = q.track === 'party' && roster.length < 2;
+        const note = needParty ? 'you need a party'
+          : (party && !covers ? 'cannot cover payroll' : (q.godLine ? 'god-tier' : (q.war ? 'faction war' : null)));
+        y = questRow(scene, r, q, y, tutOk(q) && covers && !needParty, note, scroll).y;
+      }
+      y += 10;
+    }
     // two columns: solo work on the left, party work on the right
     const colW = Math.floor((r.w - 56) / 2);
     const left = { x: r.x, w: colW + 24 }, right = { x: r.x + colW + 32, w: colW + 24 };
     let yl = y, yr = y;
     if (!party) {
       scroll.add(T().text(scene, left.x + 24, yl, 'SOLO CONTRACTS', { size: 13, color: T().css.inkDim })); yl += 24;
-      const solo = game.board.filter(q => q.track === 'solo');
+      const solo = game.board.filter(q => q.track === 'solo' && !q.war && !q.godLine && !q.special);
       for (const q of solo) { const b = questRow(scene, left, q, yl, tutOk(q), null, scroll); if (!scene.tutorFirstQuestBtn && tutOk(q) && q.tier === 1) scene.tutorFirstQuestBtn = b.btn; yl = b.y; }
     } else {
       scroll.add(T().text(scene, left.x + 24, yl, 'SOLO CONTRACTS', { size: 13, color: T().css.inkDim })); yl += 24;
       scroll.add(T().text(scene, left.x + 24, yl, 'A party does not take solo work.', { size: 12, italic: true, color: T().css.inkFaint, wrap: colW })); yl += 30;
     }
     scroll.add(T().text(scene, right.x + 24, yr, `PARTY CONTRACTS${roster.length < 2 ? ' (you need a party)' : ''}`, { size: 13, color: T().css.inkDim })); yr += 24;
-    for (const q of game.board.filter(x => x.track === 'party')) {
+    for (const q of game.board.filter(x => x.track === 'party' && !x.war && !x.godLine && !x.special)) {
       const covers = ADV.Game.contractCoversPayroll(game, q);
       yr = questRow(scene, right, q, yr, roster.length >= 2 && covers && tutOk(q), covers ? null : 'cannot cover payroll', scroll).y;
     }
@@ -73,7 +86,7 @@ Panels.questBoard = function (scene, r) {
 };
 
 function questRow(scene, r, q, y, enabled, note, scroll) {
-  const tierLabel = q.isBoss ? 'BOSS' : 'Tier ' + q.tier;
+  const tierLabel = q.godLine ? 'GOD' : q.war ? 'WAR' : q.isBoss ? 'BOSS' : 'Tier ' + q.tier;
   const fColor = note ? T().css.blood : { law: T().css.blue, criminal: T().css.purple, neutral: T().css.green }[q.factionAlignment];
   const label = `${q.name}`;
   let extra = null;
@@ -264,7 +277,11 @@ Panels.storeGear = function (scene, r) {
       return sk && sk.archetype && set.archetypes.includes(sk.archetype) && e.level < C().GEAR_SET_FLOOR_LEVEL;
     }).map(e => ADV.DATA.SKILLS[e.skillId].name);
     const owned = p.equippedSet === id;
-    const sub = owned ? 'worn now' : p.equippedSet ? 'sell your current set first — one set at a time' : affected.length ? 'would raise: ' + affected.join(', ') : 'raises nothing you carry — ' + set.cost + 'g wasted';
+    const floor = set.floor || C().GEAR_SET_FLOOR_LEVEL;
+    const arch = (set.archetypes || []).join(' / ');
+    const sub = owned ? 'worn now'
+      : p.equippedSet ? 'sell your current set first — one set at a time'
+      : `floors ${arch || 'matching'} skills at ${floor}${affected.length ? ' · you carry: ' + affected.join(', ') : ''}`;
     const b = T().button(scene, r.x + 24, y, r.w - 320, 46, `${set.name} — ${set.cost}g`, () => {
       if (owned || p.equippedSet) return;
       if (p.inventory.gold < set.cost) { ADV.Notices.toast(scene, 'You cannot afford it.'); return; }
@@ -273,7 +290,8 @@ Panels.storeGear = function (scene, r) {
       ADV.Save.saveGame(game);
       scene.promptOnce('firstAffordableSet');
       scene.refreshAll(); scene.openPanel(scene.currentPanel || 'blacksmith');
-    }, { size: 15, sub, subColor: affected.length && !owned && !p.equippedSet ? T().css.green : T().css.inkFaint, disabled: owned || !!p.equippedSet, display: true });
+    }, { size: 15, sub, subColor: !owned && !p.equippedSet ? T().css.green : T().css.inkFaint, disabled: owned || !!p.equippedSet, display: true });
+    if (ADV.Tooltip && ADV.GearSetInfo) ADV.Tooltip.attach(scene, b.zone, () => ADV.GearSetInfo.describe(id, p));
     scroll.addBtn(b);
     // the spouse shops with their own purse (request 10)
     if (spouse && spouse.alive && !spouse.equippedSet) {

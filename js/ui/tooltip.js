@@ -188,6 +188,7 @@ const PARAM_LABEL = {
   fleersDropLoot: () => 'frightened enemies drop loot',
   stealAll: () => 'steals from EVERY enemy in the encounter',
   executeBelow: v => `EXECUTES targets under ${Math.round(v * 100)}% HP (not bosses)`,
+  instantKillIfMaxHp: v => `instantly kills anyone whose max HP exceeds ${v}`,
   healOnKillPct: v => `heals ${Math.round(v * 100)}% max HP on kill`,
   permStatGain: v => `+${v} to ALL stats permanently per kill (lost on death)`,
   turnsPerRound: v => `${v} turns per round (never shared with allies)`,
@@ -306,7 +307,7 @@ const SkillInfo = {
     const rec = ch && !entry ? (ch.skillLevels || {})[skillId] : null;
     const level = entry ? entry.level : rec ? rec.level : 1;
     const effLevel = ch ? ADV.SkillSys.effectiveLevel(ch, skillId, level) : level;
-    const tier = ADV.SkillSys.tierForLevel(effLevel);
+    const tier = ADV.SkillSys.tierFor(ch, skillId, effLevel);
     const tierMult = sk.noTierGrowth ? 1.0 : C().TIER_MULT[tier];
     const data = Object.assign({}, sk, sk.tiers[tier]);
 
@@ -376,6 +377,46 @@ const SkillInfo = {
   },
 };
 
+const GearSetInfo = {
+  describe(setId, ch) {
+    const set = ADV.DATA.GEAR_SETS[setId];
+    if (!set) return null;
+    const floor = set.floor || C().GEAR_SET_FLOOR_LEVEL;
+    const L = [];
+    L.push(set.name);
+    L.push(`Floors matching skills at level ${floor} (Intermediate if they were lower).`);
+    L.push('Archetypes: ' + (set.archetypes || []).join(', '));
+    if (set.extraSkills && set.extraSkills.length) {
+      L.push('Also floors: ' + set.extraSkills.map(id => (ADV.DATA.SKILLS[id] && ADV.DATA.SKILLS[id].name) || id).join(', '));
+    }
+    L.push('');
+    L.push('Skills this set enhances (you do not need to know them yet):');
+    const names = [];
+    const seen = {};
+    for (const [id, sk] of Object.entries(ADV.DATA.SKILLS || {})) {
+      if (!sk || sk.noSlot || sk.universal) continue;
+      const hit = (sk.archetype && set.archetypes && set.archetypes.includes(sk.archetype))
+        || (set.extraSkills && set.extraSkills.includes(id));
+      if (!hit || seen[sk.name]) continue;
+      seen[sk.name] = true;
+      names.push(sk.name + (sk.kind === 'perk' ? ' ◆' : ''));
+    }
+    if (!names.length) L.push('  (no listed skills)');
+    else for (const n of names.slice(0, 24)) L.push('  · ' + n);
+    if (names.length > 24) L.push('  · …');
+    if (ch) {
+      const mine = (ch.perks || []).concat(ch.actives || []).filter(e => {
+        const sk = ADV.DATA.SKILLS[e.skillId];
+        return sk && ((sk.archetype && set.archetypes.includes(sk.archetype)) || (set.extraSkills && set.extraSkills.includes(e.skillId)));
+      }).map(e => ADV.DATA.SKILLS[e.skillId].name);
+      L.push('');
+      L.push(mine.length ? 'You already carry: ' + mine.join(', ') : 'You carry none of these yet — the floor still applies when you learn them.');
+    }
+    return L.join('\n');
+  },
+};
+
 ADV.Tooltip = Tooltip;
 ADV.SkillInfo = SkillInfo;
+ADV.GearSetInfo = GearSetInfo;
 })();

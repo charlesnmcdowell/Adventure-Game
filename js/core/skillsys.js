@@ -35,12 +35,9 @@ SkillSys.gearFloor = function (ch, sk) {
 };
 
 // Tier data (name + params) as it manifests in this character's hands.
-// Campaign §13d-2: perks exist only in their advanced form — bought whole, at
-// full strength, never levelled. Actives tier by level, then an advanced
-// faction title (§10) lifts the manifestation one tier above actual level.
+// Perks and actives both tier by level. An advanced faction title (§10)
+// lifts the manifestation one tier above actual level.
 SkillSys.tierFor = function (ch, skillId, level) {
-  const sk = SK()[skillId];
-  if (sk && sk.kind === 'perk') return 'advanced';
   let tier = SkillSys.tierForLevel(level);
   if (ch && ADV.Campaign && ADV.Campaign.titleLifts(ch, skillId)) {
     tier = tier === 'basic' ? 'intermediate' : 'advanced';
@@ -53,7 +50,8 @@ SkillSys.manifest = function (ch, entry) {
   const lvl = SkillSys.effectiveLevel(ch, entry.skillId, entry.level);
   const tier = SkillSys.tierFor(ch, entry.skillId, lvl);
   const flare = SkillSys.classFlare(sk, ch);
-  return { skill: sk, tier, level: lvl, data: Object.assign({}, sk, sk.tiers[tier]), flare };
+  const slice = (sk.tiers && sk.tiers[tier]) || {};
+  return { skill: sk, tier, level: lvl, data: Object.assign({}, sk, slice), flare };
 };
 
 // Same role / target / reach / power — the campaign kits reprint a core
@@ -245,13 +243,15 @@ SkillSys.forget = function (ch, skillId) {
   return { ok: false, error: 'not known' };
 };
 
-// Paid tutoring (request): the trainer lifts a known active straight to a
-// tier's threshold — 300g to Intermediate, 600g to Advanced. Perks are
-// advanced-only already, so there is nothing to buy for them.
+// Paid tutoring: the trainer lifts a known perk or active to a tier threshold.
+SkillSys.knownEntry = function (ch, skillId) {
+  if (!ch) return null;
+  return (ch.actives || []).find(a => a.skillId === skillId) || (ch.perks || []).find(p => p.skillId === skillId) || null;
+};
 SkillSys.tutorOffers = function (ch, skillId) {
-  const entry = ch.actives.find(a => a.skillId === skillId);
+  const entry = SkillSys.knownEntry(ch, skillId);
   const sk = SK()[skillId];
-  if (!entry || !sk || sk.kind === 'perk' || sk.noTierGrowth) return [];
+  if (!entry || !sk || sk.noTierGrowth) return [];
   const T = C().TIER_THRESHOLDS, G = C().GOLD;
   const out = [];
   if (entry.level < T.intermediate) out.push({ tier: 'intermediate', level: T.intermediate, cost: G.tutorIntermediate });
@@ -262,7 +262,7 @@ SkillSys.tutor = function (ch, skillId, tier) {
   const offer = SkillSys.tutorOffers(ch, skillId).find(o => o.tier === tier);
   if (!offer) return { ok: false, error: 'nothing to teach' };
   if (ch.inventory.gold < offer.cost) return { ok: false, error: 'not enough gold' };
-  const entry = ch.actives.find(a => a.skillId === skillId);
+  const entry = SkillSys.knownEntry(ch, skillId);
   ch.inventory.gold -= offer.cost;
   entry.level = offer.level; entry.uses = Math.max(entry.uses, (offer.level - 1) * C().USES_PER_LEVEL);
   SkillSys.storeProgress(ch, entry);
@@ -275,7 +275,6 @@ SkillSys.recordUse = function (ch, skillId) {
   if (!entry) return null;
   const sk = SK()[skillId];
   if (sk && sk.noTierGrowth) return null;
-  if (sk && sk.kind === 'perk') return null;          // perks never level (§13d-2)
   let rate = 1;
   if (ADV.Campaign) rate *= ADV.Campaign.levelRate(ch, skillId);   // faction title 2x/3x
   const prodigy = ch.perks.find(e => e.skillId === 'prodigy');

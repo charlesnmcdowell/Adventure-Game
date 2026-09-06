@@ -21,6 +21,7 @@ const POS_STATUSES = ['guard', 'ward', 'atkBuff', 'thorns', 'aura', 'hot', 'iceA
   'elemGuard', 'volley', 'closed', 'laneGuard', 'immovable', 'charmWard', 'railGuard',
   'venomTouch', 'openingTouch', 'beastShape'];
 Combat.NEG_STATUSES = NEG_STATUSES; Combat.POS_STATUSES = POS_STATUSES;
+Combat.isGod = isGod;
 
 // ---------------------------------------------------------------- unit wrap
 function makeUnit(ch, side, idx) {
@@ -39,8 +40,8 @@ function makeUnit(ch, side, idx) {
     usedOncePerBattle: {},
     planned: null,          // intent {skillId, targetUid, label}
     witnessedHere: [],      // [{skillId, tier}] skills seen this battle
-    turnsPerRound: Math.max(perkVal(ch, 'lone_wolf', 'turnsPerRound') || 1,
-                            perkVal(ch, 'lightning_king', 'turnsPerRound') || 1),
+    turnsPerRound: rankTurns(ch).n,
+    consecutiveTurns: rankTurns(ch).consecutive,
     delayed: 0,             // frost/snare turn-order penalty (acts later)
     loseNextAction: false,
     survivedLethal: false,  // wild form advanced once/battle
@@ -56,11 +57,25 @@ function makeUnit(ch, side, idx) {
   };
 }
 
+function isGod(ch) {
+  return !!(ch && (ch.isGod || ch.role === 'god' || ch.godLine));
+}
+function rankTurns(ch) {
+  const perkN = Math.max(perkVal(ch, 'lone_wolf', 'turnsPerRound') || 1,
+                         perkVal(ch, 'lightning_king', 'turnsPerRound') || 1);
+  const consecPerk = !!perkVal(ch, 'lightning_king', 'consecutive');
+  if (isGod(ch)) return { n: Math.max(3, perkN), consecutive: true };
+  if (ch && ch.boss) return { n: Math.max(2, perkN), consecutive: true };
+  return { n: perkN, consecutive: consecPerk };
+}
+
 function perkVal(ch, perkId, key) {
   const p = ch.perks.find(e => e.skillId === perkId);
   if (!p) return null;
   const sk = SK()[perkId];
-  const data = Object.assign({}, sk, sk.tiers.advanced); // perks are advanced-only (§13d-2)
+  if (!sk) return null;
+  const m = Sys().manifest(ch, p);
+  const data = m ? m.data : Object.assign({}, sk, (sk.tiers && (sk.tiers.basic || sk.tiers.advanced)) || {});
   return key ? data[key] : data;
 }
 
@@ -220,7 +235,7 @@ function buildTurnQueue(st) {
     if (perkVal(u.ch, 'green_discipline', 'firstInRoundOne') && st.round === 1) spd += 1000;
     const laneRank = { front: 0, mid: 1, back: 2 }[u.lane] || 0;
     const n = u.turnsPerRound;
-    const consecutive = !!perkVal(u.ch, 'lightning_king', 'consecutive');
+    const consecutive = !!(u.consecutiveTurns || perkVal(u.ch, 'lightning_king', 'consecutive'));
     for (let k = 0; k < n; k++) {
       // Lone Wolf distributed: spread extra turns through the round via phantom
       // speeds; Lightning King's extra turn comes straight after the first
@@ -233,7 +248,7 @@ function buildTurnQueue(st) {
     const e = q[i];
     if (!e.extra) continue;
     const u = st.units.find(x => x.uid === e.uid);
-    if (!u || !perkVal(u.ch, 'lightning_king', 'consecutive')) continue;
+    if (!u || !(u.consecutiveTurns || perkVal(u.ch, 'lightning_king', 'consecutive'))) continue;
     q.splice(i, 1);
     const first = q.findIndex(x => x.uid === e.uid);
     q.splice(first + 1, 0, e);
@@ -372,7 +387,9 @@ Combat.hatredRemarkDue = function (st, opts) {
     const ch = u.ch;
     if (!ch || u.downed || u.fled || u.reserved) return false;
     if (u.side !== foeSide) return false;
-    if (ch.isMonster || ch.isPlayer || ch.isQuestThrall || ch.isUndead) return false;
+    if (ch.isPlayer || ch.isQuestThrall) return false;
+    if (ch.isUndead && !ch.boss && !isGod(ch)) return false;
+    if (ch.isMonster && !ch.boss && !isGod(ch)) return false;
     if (spoken[ch.id]) return false;
     return true;
   });
@@ -455,6 +472,7 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
   // Hold the Road: a held lane cannot be flanked/bypassed — back-reach skills
   // can't single it out (front-reach and any-lane skills still can)
   if (d.reach === 'back') pool = pool.filter(x => !x.statuses.some(s => s.kind === 'holdRoad'));
+  if (d.instantKillIfMaxHp) pool = pool.filter(x => (x.maxHp || 0) > d.instantKillIfMaxHp);
   // Taunt marks force targeting (§3a)
   if (u.marksBy.length) {
     const forced = pool.filter(x => u.marksBy.includes(x.uid));
@@ -720,6 +738,10 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   // Contract Mark: every ally deals bonus damage to the marked target
   if (defUnit && defUnit.statuses.some(x => x.kind === 'contractMark' && x.side === atkUnit.side)) dmg *= 1.25;
   dmg = Math.round(dmg);
+  if (defUnit && atkUnit && atkUnit.ch) {
+    if (isGod(atkUnit.ch)) dmg += Math.round((defUnit.maxHp || 0) * 0.5);
+    else if (atkUnit.ch.boss) dmg += Math.round((defUnit.maxHp || 0) * 0.2);
+  }
   let def = defUnit ? Ch().effStat(defUnit.ch, 'def') + (defUnit.armorBonus || 0) - (defUnit.defStripped || 0) : 0;
   if (defUnit) {
     // Marked for the Knife: the marker ignores 50% of the target's Defence
@@ -915,6 +937,18 @@ function addExposed(st, tgt, n) {
 }
 Combat.addExposed = addExposed;
 
+function applyRankRiders(st, src, tgt) {
+  if (!src || !tgt || tgt.downed) return;
+  const list = [];
+  if (src.ch.hitStatus) list.push(src.ch.hitStatus);
+  for (const s of (src.ch.hitStatuses || [])) list.push(s);
+  const atk = Ch().effStat(src.ch, 'atk');
+  for (const s of list) {
+    if (!s || !s.kind) continue;
+    addStatus(st, tgt, Object.assign({ srcAtk: atk, srcUid: src.uid, srcLevel: src.ch.enemyLevel || 1 }, s));
+  }
+}
+
 function applyRawDamage(st, src, tgt, dmg, tag) {
   // Hollow Discipline: being hit does not break stealth. Only attacking does.
   if (tgt.stealth && !perkVal(tgt.ch, 'hollow_discipline', 'stealthKeepsOnHit')) { /* base rules elsewhere */ }
@@ -936,6 +970,7 @@ function applyRawDamage(st, src, tgt, dmg, tag) {
   // Come Aboard: the next one to swing at you comes over the rail
   const bp = tgt.statuses.find(x => x.kind === 'railGuard');
   if (bp && src && tag === 'attack') { removeStatus(tgt, bp); Combat.moveLane(st, src, tgt.lane); }
+  if (src && src.ch && tag !== 'dot' && tag !== 'reflect' && tag !== 'retaliation') applyRankRiders(st, src, tgt);
   ev(st, { t: 'damage', uid: tgt.uid, by: src ? src.uid : null, dmg, tag });
   if (tgt.chp <= 0) {
     // Vital Anchor: cannot drop below 1 HP
@@ -1565,6 +1600,13 @@ Combat.act = function (st, u, action) {
   for (let hi = 0; hi < hits + flareHits; hi++) for (const t of targets) {
     if (t.downed) continue;
     if (d.chainDecay && targets.indexOf(t) > 0) { /* decayed power handled below */ }
+    if (d.instantKillIfMaxHp && (t.maxHp || 0) > d.instantKillIfMaxHp) {
+      ev(st, { t: 'godJudgment', uid: t.uid, by: u.uid, who: u.ch.campaignId || u.ch.enemyTypeId, targetName: t.ch.name, skillId });
+      t.chp = 0; t.tempHp = 0; t.downed = true;
+      ev(st, { t: 'execute', uid: t.uid, by: u.uid, skillId });
+      onUnitDown(st, t); checkEnd(st);
+      continue;
+    }
     // Executes
     if (d.executeBelow && (t.chp + t.tempHp) / t.maxHp < d.executeBelow && !t.ch.boss) {
       t.chp = 0; t.tempHp = 0; t.downed = true;

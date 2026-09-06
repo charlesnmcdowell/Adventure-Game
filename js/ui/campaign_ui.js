@@ -15,15 +15,16 @@ const CampaignUI = {};
 // (the name plate and the text box carry the names).
 CampaignUI.fill = function (game, text, who) {
   const p = ADV.Game.player(game);
-  const f = ADV.Campaign.faction(game) || D().FACTIONS[D().CAMPAIGN_CHARS[who].faction];
-  const rival = D().CAMPAIGN_CHARS[f.rival];
+  const ch = who && D().CAMPAIGN_CHARS[who];
+  const f = ADV.Campaign.faction(game) || (ch && D().FACTIONS[ch.faction]) || {};
+  const rival = (f.rival && D().CAMPAIGN_CHARS[f.rival]) || { name: 'that one' };
   // third-person tokens name the rival on screen — unless the rival is the one
   // speaking (banter about an enemy), where a plain pronoun reads right
-  const self = who === f.rival;
-  const first = rival.name.split(' ')[0];
+  const self = who && who === f.rival;
+  const first = (rival.name || 'that one').split(' ')[0];
   const they = self ? 'that one' : first;
   const their = self ? 'their' : first + "'s";
-  return text.replace(/\{target\}/g, p.name).replace(/\{they\}/g, they).replace(/\{them\}/g, they).replace(/\{their\}/g, their)
+  return String(text || '').replace(/\{target\}/g, (p && p.name) || 'you').replace(/\{they\}/g, they).replace(/\{them\}/g, they).replace(/\{their\}/g, their)
     .replace(/\[[a-z ]+\]\s*/gi, '')                       // delivery cues are for the voice
     .replace(/\s+([,.!?])/g, '$1').replace(/^\s+/, '');
 };

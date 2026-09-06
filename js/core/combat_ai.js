@@ -32,9 +32,17 @@ function chooseAction(st, u) {
   const foes = livingUnits(st, u.side === 'a' ? 'b' : 'a').filter(x => !x.untargetable);
   const allies = livingUnits(st, u.side);
   if (!foes.length) return null;
+  const edict = (u.ch.actives || []).find(e => e.skillId === 'gods_edict');
+  if (edict) {
+    const marked = Combat.validTargets(st, u, 'gods_edict', false);
+    if (marked.length) {
+      const pl = marked.find(x => x.ch.isPlayer);
+      return { kind: 'skill', skillId: 'gods_edict', targetUid: (pl || marked[0]).uid };
+    }
+  }
   // Flee decision: Caution-driven (§15a)
   const hpPct = (u.chp + u.tempHp) / u.maxHp;
-  if (!u.ch.isPlayer && hpPct < 0.25 && !u.ch.isConscript && !u.ch.isUndead && u.ch.status !== 'hero') {
+  if (!u.ch.isPlayer && !u.ch.isGod && hpPct < 0.25 && !u.ch.isConscript && !u.ch.isUndead && u.ch.status !== 'hero') {
     const fleeDrive = (p.caution || 50) / 100 - (p.pride || 50) / 300 - (p.aggression || 50) / 300;
     if (st.rng.chance(Math.max(0, fleeDrive * 0.8))) return { kind: 'flee' };
   }

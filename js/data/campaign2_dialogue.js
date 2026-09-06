@@ -440,7 +440,7 @@ navy: {
 },
 };
 
-// God-line cutscenes (§7a, §7b). Both offer the player an exit and mean it.
+// God-line cutscenes. Each god speaks once in the last room.
 ADV.DATA.GOD_LINE_DIALOGUE = {
   pale_mother: [
     L('[quietly] I have been called a great many things and I answer to none of them.'),
@@ -454,6 +454,89 @@ ADV.DATA.GOD_LINE_DIALOGUE = {
     L('[quietly] I am not angry. That is the part people never believe. I am simply still here, and everything else went away.'),
     L('[calm] Draw. I would like to see whether the world has learned anything.'),
   ],
+  first_bloom: [
+    L('[calm] Everything that lives wants to keep living. I am only the part that will not apologize for it.'),
+    L('[quietly] They cut the woods back every spring. Every spring the woods come through the walls anyway.'),
+    L('[flatly] You may go. I will not chase you. The green will find the place you sleep.'),
+    L('[calm] Stay, then. Let me see whether you can kill a thing that refuses to end.'),
+  ],
+};
+
+ADV.DATA.GOD_LINE_SMITE = {
+  pale_mother: [
+    L('[flatly] {target}. I have decided you have lived long enough.'),
+    L('[quietly] {target}. Your name is already written. I am only finishing the page.'),
+  ],
+  drowned_king: [
+    L('[calm] {target}. The tide does not argue with what it takes.'),
+    L('[flatly] {target}. You grew too large for this water. I am correcting that.'),
+  ],
+  first_bloom: [
+    L('[calm] {target}. That much life is a wound. I will close it.'),
+    L('[quietly] {target}. You have taken more than a body should hold. Give it back.'),
+  ],
+};
+
+ADV.DATA.GOD_LINE_HATRED = {
+  pale_mother: [
+    L('[flatly] I already have your name. The rest is housekeeping.'),
+    L('[quietly] You are not the first to come down here armed. You will not be the last I keep.'),
+  ],
+  drowned_king: [
+    L('[calm] The water does not hate the stone. It simply outlasts it.'),
+    L('[flatly] Your city taught you order. I am what is left when that lesson drowns.'),
+  ],
+  first_bloom: [
+    L('[calm] I will grow through your ribs if I must. That is still a kindness.'),
+    L('[quietly] Put the steel down. Living is the only argument I respect, and you are wasting yours.'),
+  ],
+};
+
+ADV.DATA.FACTION_WAR_DIALOGUE = {
+  bell: {
+    who: 'jiro',
+    open: [
+      L('[quietly] The Bell does not hold streets. We hold names. Yours just went on the paper.'),
+      L('[flatly] The city hired a knife. We have hired worse. Come and be written down.'),
+    ],
+    boss: [
+      L('[quietly] Two of ours. That is what they paid you for. Take them if you can still see.'),
+      L('[flatly] The Bell forgets no contract. Remember that when you sleep.'),
+    ],
+  },
+  green: {
+    who: 'kira',
+    open: [
+      L('[calm] The Green-Eyed keep the law you were paid to break. That is the whole of it.'),
+      L('[flatly] Honour is a blade. You will meet two of them before this writ is done.'),
+    ],
+    boss: [
+      L('[calm] Instructor and captain. If you walk over them, the clan will still be the clan.'),
+      L('[flatly] Law does not end because a bounty was posted.'),
+    ],
+  },
+  tally: {
+    who: 'vanekessler',
+    open: [
+      L('[calm] The Tally is a ledger. Your name is a line item now, and lines get collected.'),
+      L('[flatly] Cargo, coin, and the two men who count it. That is the patrol. Keep up.'),
+    ],
+    boss: [
+      L('[calm] Bosun and captain. Cut the page if you like. The book has copies.'),
+      L('[flatly] We drown people for less than this writ. I am being polite.'),
+    ],
+  },
+  navy: {
+    who: 'ash',
+    open: [
+      L('[calm] The Admiralty closed the channel because it could. You are here because someone could not live with that.'),
+      L('[flatly] Uniforms, guns, and two officers who think the sea is a courtroom. Run them.'),
+    ],
+    boss: [
+      L('[calm] A mate and a commander. The blockade does not care about your reasons.'),
+      L('[flatly] I have taken cargo through worse. Draw, and we will see if you have.'),
+    ],
+  },
 };
 
 // Spoken form: {target} dropped; third-person tokens read as the rival's
