@@ -109,7 +109,7 @@ def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', archetype: 'fi
     advanced:     { name: 'Crowd Favourite', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
   } });
 def({ id: 'septic_sanguine', name: 'Septic Sanguine', kind: 'perk', archetype: 'rogue',
-  desc: 'Your bleeds and poisons bite 35% harder, and every tick of them feeds you.',
+  desc: 'Your bleeds and poisons bite 35% harder, every tick of them feeds you, and they leap to everyone within two rows of the first victim.',
   tiers: {
     basic:        { name: 'Septic Sanguine', dotMult: 1.35, dotLeech: 0.5 },
     intermediate: { name: 'Septic Sanguine', dotMult: 1.35, dotLeech: 0.5 },
@@ -124,7 +124,7 @@ def({ id: 'lookism', name: 'Lookism', kind: 'perk', archetype: null,
   } });
 def({ id: 'backstab', name: 'Backstab', kind: 'active', archetype: 'rogue',
   power: 6.0, reach: 'any', target: 'enemy', melee: true, openerOrStealth: true,
-  desc: 'A burst from nowhere: roughly double a standard attack, any lane — but ONLY as the opening action of an encounter or from stealth.',
+  desc: 'A burst from nowhere: roughly double a standard attack, any lane — but ONLY as the opening action of an encounter or from stealth. Higher tiers cut one extra body, up to three at Advanced.',
   tiers: {
     basic:        { name: 'Backstab' },
     intermediate: { name: 'Throat Cut', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
@@ -166,19 +166,19 @@ def({ id: 'snare', name: 'Snare', kind: 'active', archetype: 'ranger',
 
 // ============ FIGHTER ============
 def({ id: 'momentum', name: 'Momentum', kind: 'perk', archetype: 'fighter',
-  desc: 'Damage rises with consecutive attacks on the same target.',
+  desc: 'Damage rises with each consecutive attacking turn, whoever you swing at. Skip or hold and the chain breaks.',
   tiers: {
     basic:        { name: 'Momentum',  stackMult: 0.15, maxStacks: 4 },
     intermediate: { name: 'Momentum+', stackMult: 0.15, maxStacks: 4, accuracy: true },
     advanced:     { name: 'Avalanche', stackMult: 0.15, maxStacks: 4, thirdHitTwice: true },
   } });
 def({ id: 'cleave', name: 'Cleave', kind: 'active', archetype: 'fighter',
-  power: 2.2, reach: 'front', target: 'enemy', adjacent: 1,
-  desc: 'Hits two adjacent enemies.',
+  power: 2.2, reach: 'front', target: 'enemy', hitScale: true,
+  desc: 'Hits the target\'s row. Higher tiers add rows. Damage is multiplied by how many enemies you hit.',
   tiers: {
-    basic:        { name: 'Cleave' },
-    intermediate: { name: 'Sweep', target: 'enemyLane' },
-    advanced:     { name: 'Whirlwind', target: 'enemyLane', note: 'front lane of every group' },
+    basic:        { name: 'Cleave',     cleaveRows: 1 },
+    intermediate: { name: 'Sweep',      cleaveRows: 2 },
+    advanced:     { name: 'Whirlwind',  cleaveRows: 3 },
   } });
 def({ id: 'sunder', name: 'Sunder', kind: 'active', archetype: 'fighter',
   power: 2.0, reach: 'front', target: 'enemy',

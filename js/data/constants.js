@@ -30,6 +30,8 @@ ADV.DATA.CONST = {
   UNDEAD_STAT_MULT: 1.5,
   NON_ORGANIC_IMMUNITIES: ['poison', 'bleed', 'burn'],
   NON_ORGANIC_WEAK: 1.35,
+  // Ice and lightning bite steel and stone harder than a plain swing.
+  ICE_LIGHTNING_INORGANIC: 1.75,
 
   // ---- Skill levels & tiers (§15) ------------------------------------- LB
   USES_PER_LEVEL: 10,

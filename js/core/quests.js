@@ -97,7 +97,10 @@ Quests.enemyPool = function (tier, faction, opts) {
   const ids = Object.keys(book).filter(id => {
     const e = book[id];
     if (!e || !camps.includes(e.camp)) return false;
-    if (opts.bosses) return true;
+    if (opts.bosses) {
+      if (opts.minibossOnly) return !!e.miniboss;
+      return !e.miniboss;
+    }
     const [elo, ehi] = e.levels || [1, 99];
     return elo <= hi && ehi >= lo;
   });
@@ -241,7 +244,35 @@ const HAZARD_THEMES = {
     ],
     theme: 'crypt vigil',
   },
+  plague_knave: {
+    names: ['Burn the {e} nest', 'The {e} ward'],
+    briefs: [
+      'A poison crew has a house. The county pays to see it empty.',
+      'The {e} is why the well went sour. Bring proof. Do not drink.',
+    ],
+    theme: 'plague nest',
+  },
 };
+
+Quests.attachMonsterBoss = function (rng, quest) {
+  if (!quest || quest.factionAlignment !== 'neutral') return quest;
+  if ((quest.payout || 0) < 300) return quest;
+  const encs = quest.encounters;
+  if (!encs || !encs.length) return quest;
+  const pool = Quests.enemyPool('boss', 'neutral', { bosses: true, minibossOnly: true });
+  const escortPool = Quests.enemyPool(quest.tier === 'boss' ? 3 : (quest.tier || 2), 'neutral');
+  const book = ADV.DATA.MINIBOSSES || ADV.DATA.BOSSES;
+  const bossId = rng.pick(pool.length ? pool : Object.keys(book));
+  const escort = quest.hazard || rng.pick(escortPool.length ? escortPool : ['dire_wolf']);
+  const last = encs[encs.length - 1];
+  last.enemyTypeIds = [bossId, escort];
+  last.boss = true;
+  quest.monsterBoss = true;
+  quest.isBoss = true;
+  if (quest.name && !/^BOSS:/i.test(quest.name)) quest.name = 'BOSS: ' + quest.name;
+  return quest;
+};
+
 // A party contract built around one debuff crew (with a second type mixed in)
 Quests.makeHazard = function (rng, hz, faction) {
   const T = C().QUEST_TIERS[hz];
@@ -269,13 +300,14 @@ Quests.makeHazard = function (rng, hz, faction) {
   }
   const e = ADV.DATA.ENEMIES[lead];
   const pack = HAZARD_THEMES[lead] || { names: ['Hazard: {e}'], briefs: ['A crew of {es} holds the ground.'], theme: 'hazard' };
-  return {
+  const q = {
     id: 'q' + (QID++), tier: T.tier, track: 'party', factionAlignment: faction, hazard: lead,
     theme: pack.theme,
     name: fillTheme(rng.pick(pack.names), e),
     brief: fillTheme(rng.pick(pack.briefs), e),
     payout: T.partyPay, enemyLevels: T.enemyLevels, encounters, isBoss: false,
   };
+  return Quests.attachMonsterBoss(rng, q);
 };
 
 const QUEST_THEMES = {
@@ -326,7 +358,7 @@ Quests.make = function (rng, tier, track, faction) {
   }
   const mainEnemy = ADV.DATA.ENEMIES[encounters[0].enemyTypeIds[0]] || ADV.DATA.BOSSES[encounters[0].enemyTypeIds[0]];
   const pack = rng.pick(QUEST_THEMES[faction] || QUEST_THEMES.neutral);
-  return {
+  const q = {
     id: 'q' + (QID++), tier, track, factionAlignment: faction,
     theme: pack.theme,
     name: (isBoss ? 'BOSS: ' : '') + fillTheme(pack.name, mainEnemy),
@@ -335,6 +367,7 @@ Quests.make = function (rng, tier, track, faction) {
     enemyLevels: (isBoss ? C().QUEST_TIERS.boss : T).enemyLevels,
     encounters, isBoss,
   };
+  return Quests.attachMonsterBoss(rng, q);
 };
 
 // Guided first party job: two single beasts so the NPC lead does not die

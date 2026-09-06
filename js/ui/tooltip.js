@@ -137,9 +137,11 @@ const PARAM_LABEL = {
   openerOrStealth: () => 'usable ONLY as the opening action of an encounter, or from stealth',
   stealthOnUse: () => 'enters stealth (untargetable without See Invisibility; broken by attacking)',
   melee: () => 'counts as melee: applies and consumes Exposed',
-  stackMult: v => `+${Math.round(v * 100)}% per consecutive hit on the same target`,
+  stackMult: v => `+${Math.round(v * 100)}% per consecutive attacking turn`,
   maxStacks: v => `max ${v} stacks`,
-  thirdHitTwice: () => 'every 3rd consecutive attack strikes twice',
+  thirdHitTwice: () => 'every 3rd consecutive attacking turn strikes twice',
+  cleaveRows: v => v === 1 ? "hits the target's row" : `hits ${v} rows around the target`,
+  hitScale: () => 'damage is multiplied by the number of enemies hit',
   status: v => 'inflicts: ' + Object.entries(v).map(([k, s]) =>
     `${k}${s.stacks ? ' (STACKS)' : ''} ${s.power}× ATK/2 per round, ${s.rounds} rounds`).join('; '),
   defStrip: v => `strips ${v} DEF for the battle (counters Armored +${C().ARMORED_BONUS_DEF})`,

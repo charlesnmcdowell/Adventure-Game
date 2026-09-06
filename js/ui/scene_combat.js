@@ -281,7 +281,10 @@ class CombatScene extends Phaser.Scene {
     if (!q) return false;
     if (q.rivalFight) return true;
     const quest = q.quest;
-    return !!(quest && (quest.godLine || quest.war || quest.isBoss || quest.special));
+    if (quest && (quest.godLine || quest.war || quest.isBoss || quest.special || quest.monsterBoss)) return true;
+    const st = this.st && this.st();
+    if (st && (st.units || []).some(u => u.ch && u.ch.boss && u.side === 'b' && !u.downed)) return true;
+    return false;
   }
 
   tryHatredRemark(acting, then) {
@@ -290,10 +293,21 @@ class CombatScene extends Phaser.Scene {
     const speaker = ADV.Combat.hatredRemarkDue(st, { acting, foeSide: 'b' });
     if (!speaker) { then(); return; }
     ADV.Combat.noteHatredRemark(st, speaker.ch);
+    const voId = speaker.ch.enemyTypeId;
+    const pack = voId && ADV.DATA.MONSTER_VO && ADV.DATA.MONSTER_VO[voId];
+    if (pack && pack.roar && pack.roar.length) {
+      const line = pack.roar[0];
+      const text = line.t || line;
+      if (ADV.Music) ADV.Music.speakCampaign(voId, 'roar', 1);
+      if (ADV.DialogueBox) {
+        ADV.DialogueBox.showText(this, this.game_, speaker.ch, text, then);
+        return;
+      }
+    }
     const godId = speaker.ch.campaignId;
     const godLines = godId && ADV.DATA.GOD_LINE_HATRED && ADV.DATA.GOD_LINE_HATRED[godId];
     if (godLines && ADV.CampaignUI && ADV.CampaignUI.playBeats) {
-      ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'open', lines: godLines.slice(0, 1) }], then);
+      ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'hatred', lines: godLines.slice(0, 1) }], then);
       return;
     }
     if (!ADV.DialogueBox) { then(); return; }
@@ -483,7 +497,7 @@ class CombatScene extends Phaser.Scene {
             const lines = smite.slice(0, 1).map(line => Object.assign({}, line, {
               t: String(line.t).replace(/\{target\}/g, victim),
             }));
-            ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'open', lines }], next);
+            ADV.CampaignUI.playBeats(this, this.game_, [{ who: godId, key: 'smite', lines }], next);
             return;
           }
           if (speakerCh && ADV.DialogueBox) {

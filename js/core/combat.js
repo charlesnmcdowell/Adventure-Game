@@ -34,7 +34,7 @@ function makeUnit(ch, side, idx) {
     downed: false, fled: false, reserved: false,
     statuses: [],           // {kind, rounds, power, stacks, srcUid, scope...}
     marksBy: [],            // taunt marks: uids this unit MUST attack
-    momentumTarget: null, momentumStacks: 0, consecutiveCount: 0,
+    momentumTarget: null, momentumStacks: 0, consecutiveCount: 0, momentumArmed: false,
     guard: null,            // {scope, srcUid} shield wall
     evade: 0, untargetable: 0, counter: 0,
     usedOncePerBattle: {},
@@ -350,12 +350,14 @@ Combat.currentTurn = function (st) {
     if (entry.extra && !entry.extraShown) { entry.extraShown = true; ev(st, { t: 'extraTurn', uid: u.uid }); }
     if (u.loseNextAction) {
       u.loseNextAction = false;
+      breakMomentum(u);
       ev(st, { t: 'skip', uid: u.uid, reason: 'bound' });
       st.turnIdx++; tickHatredClock(st); continue;
     }
     const fz = u.statuses.find(x => x.kind === 'frozen');
     if (fz) {
       fz.skips = (fz.skips || 1) - 1;
+      breakMomentum(u);
       ev(st, { t: 'skip', uid: u.uid, reason: 'frozen' });
       if (fz.skips <= 0) {
         removeStatus(u, fz);
@@ -694,10 +696,7 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   if (ac && atkUnit.arenaStacks) dmg *= 1 + atkUnit.arenaStacks * ac.stackPct;
   const mo = perkVal(ch, 'momentum', null);
   if (mo && defUnit) {
-    if (atkUnit.momentumTarget === defUnit.uid) {
-      atkUnit.momentumStacks = Math.min(mo.maxStacks, atkUnit.momentumStacks + 1);
-    } else { atkUnit.momentumTarget = defUnit.uid; atkUnit.momentumStacks = 0; }
-    dmg *= (1 + atkUnit.momentumStacks * mo.stackMult);
+    dmg *= (1 + (atkUnit.momentumStacks || 0) * mo.stackMult);
   }
   // Beast shape / auras / campaign self-buffs
   for (const s of atkUnit.statuses) {
@@ -772,10 +771,12 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
   // Shocked (lightning): the target takes more damage from EVERY source
   const sh = tgt.statuses.find(x => x.kind === 'shocked');
   if (sh && tag !== 'dot') amount = Math.round(amount * (1 + sh.pct));
-  // Constructs / undead: no blood to spoil, but steel, ice, and lightning bite
+  // Constructs / undead: no blood to spoil. Ice and lightning bite steel harder.
   if (tag !== 'dot' && !Ch().isOrganic(tgt.ch)) {
     const el = opts.element;
-    if (!el || el === 'physical' || el === 'lightning' || el === 'ice') {
+    if (el === 'lightning' || el === 'ice') {
+      amount = Math.round(amount * (C().ICE_LIGHTNING_INORGANIC || 1.75));
+    } else if (!el || el === 'physical') {
       amount = Math.round(amount * (C().NON_ORGANIC_WEAK || 1.35));
     }
   }
@@ -1164,12 +1165,14 @@ function addStatus(st, tgt, status) {
   if ((status.kind === 'bleed' || status.kind === 'poison') && status.stacks) {
     st.events.push({ t: 'status', uid: tgt.uid, kind: status.kind });
     tgt.statuses.push(status); // stacking: each application its own instance
+    spreadSeptic(st, tgt, status);
     return;
   }
   const existing = tgt.statuses.find(s => s.kind === status.kind);
   if (existing) Object.assign(existing, status);
   else tgt.statuses.push(status);
   ev(st, { t: 'status', uid: tgt.uid, kind: status.kind });
+  spreadSeptic(st, tgt, status);
 }
 
 function endRoundTicks(st) {
@@ -1226,11 +1229,75 @@ function removeStatus(u, s) {
   }
 }
 
+function breakMomentum(u) {
+  if (!u) return;
+  u.momentumArmed = false;
+  u.momentumStacks = 0;
+  u.momentumTarget = null;
+  u.consecutiveCount = 0;
+}
+
+function noteMomentumAttack(u) {
+  const mo = perkVal(u.ch, 'momentum', null);
+  if (!mo) return;
+  if (u.momentumArmed) {
+    u.momentumStacks = Math.min(mo.maxStacks, (u.momentumStacks || 0) + 1);
+    u.consecutiveCount = (u.consecutiveCount || 0) + 1;
+  } else {
+    u.momentumStacks = 0;
+    u.consecutiveCount = 1;
+  }
+  u.momentumArmed = true;
+}
+
+function meleeExtraCap(m) {
+  const d = m && m.data;
+  if (!d) return 0;
+  if (d.id === 'cleave' || d.id === 'basic_attack') return 0;
+  if (d.cleaveRows || d.hitScale) return 0;
+  if (d.elemental) return 0;
+  if (!d.power || d.power <= 0) return 0;
+  if (d.target === 'allEnemies' || d.target === 'enemyLane' || d.spreadLanes) return 0;
+  if (!(d.melee || d.reach === 'front')) return 0;
+  return m.tier === 'advanced' ? 3 : m.tier === 'intermediate' ? 2 : 1;
+}
+
+function fillMeleeExtras(st, targets, cap, side) {
+  if (targets.length >= cap) return targets;
+  const have = new Set(targets.map(x => x.uid));
+  const foes = livingUnits(st, side).filter(x => !have.has(x.uid));
+  const prim = targets[0];
+  foes.sort((a, b) => {
+    const da = Math.abs(LANE_IDX[a.lane] - LANE_IDX[prim.lane]);
+    const db = Math.abs(LANE_IDX[b.lane] - LANE_IDX[prim.lane]);
+    return da - db;
+  });
+  for (const x of foes) {
+    if (targets.length >= cap) break;
+    targets.push(x);
+  }
+  return targets;
+}
+
+function spreadSeptic(st, origin, status) {
+  if (!st || !origin || !status || status._spread) return;
+  if (status.kind !== 'bleed' && status.kind !== 'poison') return;
+  const src = status.srcUid && st.units.find(x => x.uid === status.srcUid);
+  if (!src || !perkVal(src.ch, 'septic_sanguine', null)) return;
+  const li = LANE_IDX[origin.lane];
+  for (const o of livingUnits(st, origin.side)) {
+    if (o.uid === origin.uid) continue;
+    if (Math.abs(LANE_IDX[o.lane] - li) > 2) continue;
+    const copy = Object.assign({}, status, { _spread: true });
+    addStatus(st, o, copy);
+  }
+}
+
 // ---------------------------------------------------------------- actions
 // action: {kind:'skill', skillId, targetUid, offensiveMode} | {kind:'flee'} | {kind:'attack', targetUid} | {kind:'hold'}
 Combat.act = function (st, u, action) {
   u.planned = null;
-  if (action.kind === 'hold') { ev(st, { t: 'hold', uid: u.uid }); return { ok: true }; }
+  if (action.kind === 'hold') { breakMomentum(u); ev(st, { t: 'hold', uid: u.uid }); return { ok: true }; }
   if (action.kind === 'flee') return doFlee(st, u);
   if (action.kind === 'bribe') return doBribe(st, u, action);
   const skillId = action.kind === 'attack' ? 'basic_attack' : action.skillId;
@@ -1528,7 +1595,11 @@ Combat.act = function (st, u, action) {
 
   // ----- damaging actives & basic attack -----
   let targets = [tgt];
-  if (d.spreadLanes) {
+  if (d.cleaveRows) {
+    const rows = d.cleaveRows;
+    const li = LANE_IDX[tgt.lane];
+    targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) < rows);
+  } else if (d.spreadLanes) {
     const li = LANE_IDX[tgt.lane];
     targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) <= 1);
   } else if (d.target === 'enemyLane') targets = laneUnits(st, tgt.side, tgt.lane);
@@ -1597,6 +1668,10 @@ Combat.act = function (st, u, action) {
     if (more.length) targets = targets.concat(more);
     if (vol) removeStatus(u, vol);
   }
+  const meleeCap = meleeExtraCap(m);
+  if (meleeCap > 1) targets = fillMeleeExtras(st, targets, meleeCap, tgt.side);
+  noteMomentumAttack(u);
+  const hitScale = (d.hitScale && targets.length) ? targets.length : 1;
   for (let hi = 0; hi < hits + flareHits; hi++) for (const t of targets) {
     if (t.downed) continue;
     if (d.chainDecay && targets.indexOf(t) > 0) { /* decayed power handled below */ }
@@ -1622,8 +1697,9 @@ Combat.act = function (st, u, action) {
     }
     const powerOverride = d.chainDecay ? (d.power || 2.0) * Math.pow(d.chainDecay, targets.indexOf(t)) : undefined;
     const flarePower = (hi >= hits && flareHitMult) ? (d.power || 0) * flareHitMult : undefined;
-    const dmg = computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
+    let dmg = computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
       : (powerOverride != null ? { power: powerOverride } : undefined));
+    if (hitScale > 1) dmg *= hitScale;
     const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
       cannotMiss: !!d.cannotMiss, ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
     if (isMelee && !t.downed) addExposed(st, t, 1);
@@ -1661,11 +1737,13 @@ Combat.act = function (st, u, action) {
     if (d.onHitExposed) addStatus(st, u, { kind: 'openingTouch', stacks: d.onHitExposed, rounds: 4 });
     if (d.revealIntents) st.revealIntents = Math.max(st.revealIntents || 0, d.revealIntents);
     if (d.revealGold) st.revealGold = true;
-    // Momentum advanced: every third consecutive attack strikes twice
+    // Momentum advanced: every third consecutive attacking turn strikes twice
     const mo = perkVal(u.ch, 'momentum', null);
-    if (mo && mo.thirdHitTwice) {
-      u.consecutiveCount = (u.consecutiveCount || 0) + 1;
-      if (u.consecutiveCount % 3 === 0 && !t.downed) dealDamage(st, u, t, computeDamage(st, u, t, m), tag);
+    if (mo && mo.thirdHitTwice && u.consecutiveCount % 3 === 0 && !t.downed) {
+      let extra = computeDamage(st, u, t, m);
+      if (hitScale > 1) extra *= hitScale;
+      dealDamage(st, u, t, extra, tag, { element: d.element, melee: isMelee,
+        cannotMiss: !!d.cannotMiss, ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
     }
     // riders
     if (d.status && dealt > 0) {
@@ -1713,6 +1791,9 @@ function applyFlareSelf(st, u, m) {
 
 function finishAction(st, u, skillId) {
   const m = skillId && skillId !== 'basic_attack' ? manifestFor(u, skillId) : null;
+  if (skillId !== 'basic_attack' && m && m.data && !(m.data.power > 0) && !m.data.hitScale && !m.data.cleaveRows) {
+    breakMomentum(u);
+  }
   applyFlareSelf(st, u, m);
   const free = !!(m && m.data && m.data.freeBuff);
   if (!free) u.actedThisEncounter = true;
