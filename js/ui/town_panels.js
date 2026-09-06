@@ -578,7 +578,15 @@ Panels.settings = function (scene, r) {
   header(scene, r, 'Settings', 'These stay in this browser. A new life keeps them.');
   const scale = (ADV.Prefs && ADV.Prefs.textScale()) || 1;
   const pause = !!(ADV.Prefs && ADV.Prefs.pauseEnemy());
+  const full = !!(ADV.Display && ADV.Display.active());
   let y = r.y + 96;
+  scene.keep(T().text(scene, r.x + 24, y, 'Full screen', { size: 16, color: T().css.gold })); y += 28;
+  scene.keep(T().text(scene, r.x + 24, y, 'Fills this device — monitor, tablet, or phone. Hides the browser bars so the game owns the display.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 44;
+  const fsBtn = T().button(scene, r.x + 24, y, 320, 48, full ? 'Exit fullscreen' : 'Enter fullscreen', () => {
+    if (ADV.Display) ADV.Display.toggle().then(() => { if (scene.currentPanel === 'settings') scene.openPanel('settings'); });
+  }, { size: 16, bold: true, display: true, color: T().css.gold, edge: T().c.gold, fill: full ? 0x2a3a22 : 0x2b261f });
+  ADV.UI.keepBtn(scene, fsBtn);
+  y += 72;
   scene.keep(T().text(scene, r.x + 24, y, 'Text and notifications', { size: 16, color: T().css.gold })); y += 28;
   scene.keep(T().text(scene, r.x + 24, y, 'Larger type for menus, toasts, and combat labels.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 36;
   const scales = [[1, 'Normal'], [1.2, 'Large'], [1.35, 'Larger']];

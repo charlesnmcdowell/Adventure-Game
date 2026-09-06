@@ -28,6 +28,12 @@
      #game itself must NOT also flex-centre it or the offset doubles. */
   #game { position: fixed; inset: 0; width: 100%; height: 100%; height: 100dvh; display: block; }
   canvas { image-rendering: auto; display: block; touch-action: none; }
+  /* Fullscreen: the game box owns the monitor / phone display. */
+  :fullscreen, :-webkit-full-screen { background: #0b0a08; width: 100%; height: 100%; }
+  #game:fullscreen, #game:-webkit-full-screen {
+    inset: 0; width: 100vw !important; height: 100vh !important;
+    width: 100dvw !important; height: 100dvh !important;
+  }
 
   /* DOM text fields overlaid on the canvas (canvas text can't summon a
      software keyboard). Positioned by ADV.UI.textField in game-space units. */
@@ -107,7 +113,7 @@
 <script src="js/core/death.js?v=20260912"></script>
 <script src="js/core/world.js?v=20260904"></script>
 <script src="js/core/save.js?v=20260916"></script>
-<script src="js/core/prefs.js?v=20260904"></script>
+<script src="js/core/prefs.js?v=20260919"></script>
 <script src="js/core/campaign.js?v=20260914"></script>
 <script src="js/core/campaign2.js?v=20260914"></script>
 <script src="js/core/game.js?v=20260918"></script>
@@ -125,16 +131,16 @@
 <script src="js/ui/cutscenes.js?v=20260907"></script>
 <script src="js/ui/battle_art.js?v=20260907"></script>
 <script src="js/ui/dialoguebox.js?v=20260918"></script>
-<script src="js/ui/scene_boot.js?v=20260916"></script>
+<script src="js/ui/scene_boot.js?v=20260919"></script>
 <script src="js/ui/scene_creation.js?v=20260904"></script>
-<script src="js/ui/scene_town.js?v=20260918"></script>
-<script src="js/ui/town_panels.js?v=20260918"></script>
-<script src="js/ui/town_panels2.js?v=20260918"></script>
+<script src="js/ui/scene_town.js?v=20260919"></script>
+<script src="js/ui/town_panels.js?v=20260919"></script>
+<script src="js/ui/town_panels2.js?v=20260919"></script>
 <script src="js/ui/campaign_ui.js?v=20260914"></script>
 <script src="js/ui/campaign2_ui.js?v=20260913"></script>
-<script src="js/ui/tutor.js?v=20260916"></script>
+<script src="js/ui/tutor.js?v=20260919"></script>
 <script src="js/ui/scene_quest.js?v=20260910"></script>
-<script src="js/ui/scene_combat.js?v=20260918"></script>
+<script src="js/ui/scene_combat.js?v=20260919"></script>
 <script src="js/ui/scene_death.js?v=20260904"></script>
 
 <script>
@@ -144,7 +150,11 @@ window.__game = new Phaser.Game({
   width: ADV.T.W,
   height: ADV.T.H,
   backgroundColor: '#171512',
-  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    fullscreenTarget: document.getElementById('game'),
+  },
   input: { activePointers: 3 },
   scene: [ADV.TitleScene, ADV.CreationScene, ADV.TownScene, ADV.QuestScene, ADV.CombatScene, ADV.DeathScene],
 });
@@ -161,9 +171,10 @@ window.__game = new Phaser.Game({
   let timers = [];
   function refit() {
     const el = document.getElementById('game');
+    const fs = document.fullscreenElement || document.webkitFullscreenElement;
     const vv = window.visualViewport;
-    const w = Math.round(vv ? vv.width : window.innerWidth);
-    const h = Math.round(vv ? vv.height : window.innerHeight);
+    const w = Math.round(fs ? window.innerWidth : (vv ? vv.width : window.innerWidth));
+    const h = Math.round(fs ? window.innerHeight : (vv ? vv.height : window.innerHeight));
     el.style.width = w + 'px';
     el.style.height = h + 'px';
     // Phaser reads canvas.style inside refresh(); before boot there is no

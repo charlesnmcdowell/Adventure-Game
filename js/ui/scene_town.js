@@ -25,6 +25,7 @@ class TownScene extends Phaser.Scene {
     this.tutorDone = false; this.tutorObjs = [];
     ADV.Music.play('town');
     this.musicBtn = ADV.Music.button(this, W - 26, T().H - 30);
+    if (ADV.Display) this.fsBtn = ADV.Display.button(this, W - 26, T().H - 52);
 
     this.buildCharacterPanel();
     this.buildMenu();
@@ -283,6 +284,7 @@ class TownScene extends Phaser.Scene {
   chromeObjs() {
     const list = [].concat(this.charObjs || [], this.menuObjs || [], this.contentObjs || []);
     if (this.musicBtn) list.push(this.musicBtn);
+    if (this.fsBtn) list.push(this.fsBtn);
     return list;
   }
 

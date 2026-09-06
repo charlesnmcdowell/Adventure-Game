@@ -35,10 +35,10 @@ Panels.applyParty = function (scene, r) {
     const seed = tut && ADV.Tutor && ADV.Tutor.wage ? ADV.Tutor.wage() : ADV.Party.hirelingWageFor(p);
     if (scene.askWage == null) scene.askWage = seed;
     scene.askWage = ADV.Party.clampApplyWage(p, scene.askWage);
-    scene.keep(T().text(scene, r.x + 24, r.y + 96, `Ask ${scene.askWage}g a quest`, { size: 16, color: T().css.gold }));
+    const wageLbl = scene.keep(T().text(scene, r.x + 24, r.y + 96, `Ask ${scene.askWage}g a quest`, { size: 16, color: T().css.gold }));
     wageStepper(scene, r.x + r.w - 248, r.y + 88, d => {
       scene.askWage = ADV.Party.clampApplyWage(p, scene.askWage + d);
-      scene.openPanel('apply');
+      wageLbl.setText(`Ask ${scene.askWage}g a quest`);
     });
     scene.keep(T().text(scene, r.x + 24, r.y + 132, `Your reputation opens ${applyMin}–${applyMax}g. A high ask is harder to land; after you sign, raises can climb to ${raiseMax}g.`, { size: 12, italic: true, color: T().css.inkFaint, wrap: r.w - 48 }));
     listTop = r.y + 172;
@@ -51,12 +51,8 @@ Panels.applyParty = function (scene, r) {
     scene.raiseAsk = Math.max(cur + 5, Math.min(raiseMax, scene.raiseAsk | 0));
     scene.keep(T().text(scene, r.x + 24, r.y + 96, `You ride with ${leader ? leader.name : 'a party'} for ${cur}g a quest.`, { size: 15 }));
     if (!atCap) {
-      scene.keep(T().text(scene, r.x + 24, r.y + 124, `Ask a raise to ${scene.raiseAsk}g`, { size: 16, color: T().css.gold }));
-      wageStepper(scene, r.x + r.w - 248, r.y + 116, d => {
-        scene.raiseAsk = Math.max(cur + 5, Math.min(raiseMax, (scene.raiseAsk | 0) + d));
-        scene.openPanel('apply');
-      });
-      ADV.UI.keepBtn(scene, T().button(scene, r.x + 24, r.y + 158, 260, 36, asked ? 'Raise asked this stay' : `Ask for ${scene.raiseAsk}g`, () => {
+      const raiseLbl = scene.keep(T().text(scene, r.x + 24, r.y + 124, `Ask a raise to ${scene.raiseAsk}g`, { size: 16, color: T().css.gold }));
+      const raiseBtn = T().button(scene, r.x + 24, r.y + 158, 260, 36, asked ? 'Raise asked this stay' : `Ask for ${scene.raiseAsk}g`, () => {
         if (asked) { ADV.Notices.toast(scene, 'You already asked this stay. Ride a quest first.'); return; }
         const res = ADV.Party.requestRaise(world, game.rng, p, scene.raiseAsk);
         if (!res.ok) { ADV.Notices.toast(scene, res.error); return; }
@@ -66,7 +62,13 @@ Panels.applyParty = function (scene, r) {
         if (res.accepted) scene.raiseAsk = Math.min(raiseMax, res.wage + (C().GOLD.wageRaiseStep || 10));
         ADV.Save.saveGame(game);
         scene.refreshAll(); scene.openPanel('apply');
-      }, { size: 14, disabled: asked }));
+      }, { size: 14, disabled: asked });
+      wageStepper(scene, r.x + r.w - 248, r.y + 116, d => {
+        scene.raiseAsk = Math.max(cur + 5, Math.min(raiseMax, (scene.raiseAsk | 0) + d));
+        raiseLbl.setText(`Ask a raise to ${scene.raiseAsk}g`);
+        if (!asked) raiseBtn.txt.setText(`Ask for ${scene.raiseAsk}g`);
+      });
+      ADV.UI.keepBtn(scene, raiseBtn);
     } else {
       scene.keep(T().text(scene, r.x + 24, r.y + 124, `You are at the ${raiseMax}g ceiling.`, { size: 13, italic: true, color: T().css.inkFaint }));
     }

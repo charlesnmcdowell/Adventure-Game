@@ -12,6 +12,7 @@ class TitleScene extends Phaser.Scene {
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
     ADV.Music.play('title');
     ADV.Music.button(this, W - 44, 44);
+    if (ADV.Display) ADV.Display.button(this, W - 44, 72);
     // decorative frame
     const g = this.add.graphics();
     g.lineStyle(2, T().c.goldDim, 0.8); g.strokeRect(28, 28, W - 56, H - 56);
@@ -44,6 +45,13 @@ class TitleScene extends Phaser.Scene {
       } else this.startCards();
     }, { display: true, bold: true, sub: hasSave ? 'wipes everything — journal, levels, lives' : null, subColor: T().css.inkFaint });
     y += 60;
+    if (ADV.Display) {
+      const fs = T().button(this, W / 2 - 130, y, 260, 46, ADV.Display.active() ? 'Exit fullscreen' : 'Fullscreen', () => {
+        ADV.Display.toggle();
+      }, { display: true, bold: true, color: T().css.gold, edge: T().c.gold });
+      ADV.Display.watch((s) => { try { if (fs.txt && fs.txt.active) fs.txt.setText(s); } catch (e) {} });
+      y += 60;
+    }
 
     // visible password field (§14a — honor system by design)
     T().text(this, W / 2, y + 16, 'password', { size: 12, ox: 0.5, color: T().css.inkFaint });

@@ -106,7 +106,12 @@ Tutor.callout = function (scene, rect, title, body, opts) {
     k(T().text(scene, px + 12, py + ph - 20, opts.hint || '↑ click it to continue', { size: 11, italic: true, color: T().css.inkDim }).setDepth(D + 1));
   }
   scene.tutorObjs = (scene.tutorObjs || []).concat(objs);
-  if (opts.vo && ADV.Music && ADV.Music.speakTutorial) ADV.Music.speakTutorial(opts.vo);
+  // Wage +/- rebuilds the apply panel and would restart the same clip.
+  // Speak a line once until the callout itself changes (ask_join → try_another).
+  if (opts.vo && ADV.Music && ADV.Music.speakTutorial && scene._tutorVo !== opts.vo) {
+    scene._tutorVo = opts.vo;
+    ADV.Music.speakTutorial(opts.vo);
+  }
   return { close };
 };
 Tutor.clear = function (scene) {

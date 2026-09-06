@@ -62,6 +62,7 @@ class CombatScene extends Phaser.Scene {
     for (const u of st.units) if (!u.reserved) this.makeUnitView(u);
     this.updateReserveCounters();
 
+    if (ADV.Display) ADV.Display.button(this, W - 16, 18);
     this.turnStrip = T().text(this, W / 2, 32, '', { size: 13, ox: 0.5, color: T().css.inkDim });
     this.roundText = T().text(this, 60, 32, '', { size: 15, display: true, color: T().css.gold });
     this.paintEnemyHoldToggle();
