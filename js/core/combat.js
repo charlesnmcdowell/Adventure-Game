@@ -90,8 +90,8 @@ function canHealOther(caster, tgt) { return true; }
 // Protective (tank-style) support requires being on the target's lane or a
 // lane ahead of them — you shield what stands behind you.
 function canWard(caster, tgt) {
-  if (tgt === caster) return true;
-  return LANE_IDX[caster.lane] <= LANE_IDX[tgt.lane];
+  // Wards reach any ally in any lane, same as heals.
+  return !!(caster && tgt);
 }
 
 // -------------------------------------------------------------- lane layout
@@ -343,6 +343,16 @@ function buildTurnQueue(st) {
     const first = q.findIndex(x => x.uid === e.uid);
     q.splice(first + 1, 0, e);
   }
+  // One Lightning King extra turn per side. Five kings is still one storm.
+  const lkExtra = { a: false, b: false };
+  for (let i = q.length - 1; i >= 0; i--) {
+    const e = q[i];
+    if (!e.extra) continue;
+    const u = st.units.find(x => x.uid === e.uid);
+    if (!u || !perkVal(u.ch, 'lightning_king', null)) continue;
+    if (lkExtra[u.side]) q.splice(i, 1);
+    else lkExtra[u.side] = true;
+  }
   // Ambush: sneaking character gets 2 consecutive turns at the very top of round 1 (§15a)
   if (st.round === 1 && st.ambushUid) {
     const rest = q.filter(e => e.uid !== st.ambushUid);
@@ -403,7 +413,7 @@ function applyBeastShape(st, u, m, skillId) {
   if (!already) applyForm(st, u, skillId || 'beast_shape', d.rounds || 3);
   addStatus(st, u, {
     kind: 'beastShape',
-    mult: d.atkMult || 1.5,
+    mult: d.atkMult || 1.25,
     lifeSteal: d.lifeSteal || 0,
     splashAdjacent: !!d.splashAdjacent,
     rounds: d.rounds || 3,
@@ -537,11 +547,7 @@ function canMelee(st, attacker, target) {
   const laneOrder = ['front', 'mid', 'back'];
   const ti = laneOrder.indexOf(target.lane);
   for (let i = 0; i < ti; i++) {
-    if (laneUnits(st, enemySide, laneOrder[i]).length > 0) {
-      const mk = perkVal(attacker.ch, 'marksman', null);
-      if (mk && mk.ignoreCover) return true;
-      return false;
-    }
+    if (laneUnits(st, enemySide, laneOrder[i]).length > 0) return false;
   }
   return true;
 }
@@ -796,8 +802,9 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   const atk = Ch().effStat(ch, 'atk');
   let power = opts.power != null ? opts.power : (m.data.power || 0);
   if (opts.power == null && m.data.fullHpBackstabPct && defUnit && defUnit.chp >= defUnit.maxHp) {
-    const bs = SK().backstab;
-    if (bs && bs.power) power = bs.power * m.data.fullHpBackstabPct;
+    const bsM = Sys().manifest(ch, { skillId: 'backstab', level: m.level || 1 });
+    const bsPower = (bsM && bsM.data && bsM.data.power) || (SK().backstab && SK().backstab.power);
+    if (bsPower) power = bsPower * m.data.fullHpBackstabPct;
   }
   if (power <= 0) return 0;
   const tierMult = m.data.noTierGrowth ? 1.0 : C().TIER_MULT[m.tier];
@@ -819,7 +826,9 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   const wf = perkVal(ch, 'wild_form', null);
   if (wf) dmg *= wf.dmgMult;
   const mk = perkVal(ch, 'marksman', null);
-  if (mk && atkUnit.lane === 'back') dmg *= mk.backLaneBonus;
+  if (mk && atkUnit.lane === 'back' && m.data.target !== 'allEnemies' && m.data.target !== 'enemyLane') {
+    dmg *= mk.backLaneBonus;
+  }
   // Fifty Names: the clan writes down every kill, and the tally never resets
   const fn = perkVal(ch, 'fifty_names', 'lifeKillScale');
   if (fn) dmg *= 1 + (ch.lifeKills || 0) * fn;
@@ -985,20 +994,22 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
   if (bw && tag !== 'dot') reflectPct += bw.reflectPct;
   // Aura defense
   for (const s of tgt.statuses) if (s.kind === 'aura') dmg = Math.round(dmg / s.def);
-  // Guard (Shield Wall): halves incoming, prevented damage dealt to attacker (§15a)
+  // Guard (Shield Wall): absorb fraction of incoming strikes, spells, and
+  // percent-HP ticks; prevented damage is dealt to the attacker.
   let prevented = 0;
   const guarded = opts.ignoreGuards ? null : findGuard(st, tgt);
-  if (guarded && tag === 'attack') {
-    prevented = Math.ceil(dmg / 2);
+  if (guarded && (tag === 'attack' || tag === 'spell' || tag === 'dot')) {
+    const absorb = guarded.absorb != null ? guarded.absorb : 0.5;
+    prevented = Math.ceil(dmg * absorb);
     dmg -= prevented;
     guarded.owner.preventedStored += prevented;               // Paid in Full ledger
     if (src) bounce(guarded.owner, src, prevented);
     // Unseen Guard: the interceptor is unseen and the attacker bleeds
     if (guarded.unseen && src) { const ug = manifestFor(guarded.owner, 'unseen_guard'); addStatus(st, src, { kind: 'bleed', tier: ug ? ug.tier : 'basic', power: 0.6, rounds: 3, stacks: true, srcAtk: Ch().effStat(guarded.owner.ch, 'atk'), srcUid: guarded.owner.uid }); }
   }
-  // Ward shields (Guardian Ward)
+  // Ward shields (Guardian Ward): the next hit, strike or spell
   const ward = tgt.statuses.find(s => s.kind === 'ward' && (s.hits > 0 || s.rounds > 0));
-  if (ward && (tag === 'attack' || (ward.all && tag === 'spell'))) {
+  if (ward && (tag === 'attack' || tag === 'spell')) {
     if (ward.hits > 0) ward.hits--;
     tgt.preventedStored += dmg;
     ev(st, { t: 'ward', uid: tgt.uid, blocked: dmg });
@@ -1096,8 +1107,9 @@ function applyRankRiders(st, src, tgt) {
   }
 }
 
-function applyOpportunist(src, tgt, dmg) {
+function applyOpportunist(src, tgt, dmg, opts) {
   if (!src || !src.ch || !tgt || src === tgt) return dmg;
+  if (opts && opts.noExecute) return dmg;
   const opp = perkVal(src.ch, 'opportunist', null);
   if (!opp) return dmg;
   const thresh = opp.executeThreshold != null ? opp.executeThreshold : 0.5;
@@ -1109,13 +1121,21 @@ function applyOpportunist(src, tgt, dmg) {
 
 // Personal damage reduction — after the hit is calculated (atk, def, % HP
 // riders, Opportunist). A 50% HP blow still eats Bulwark / Frost Armor.
+function isPhysicalTaken(opts) {
+  const tag = opts && opts.tag;
+  if (opts && opts.melee) return true;
+  return tag === 'attack' || tag === 'dot' || tag === 'retaliation';
+}
+
 function applyTakenReduction(tgt, dmg, opts) {
   if (!tgt || dmg <= 0) return dmg;
   opts = opts || {};
   let mult = 1;
   for (const e of (tgt.ch.perks || [])) {
     const m = manifestFor(tgt, e.skillId);
-    if (m && m.data && typeof m.data.dmgTakenMult === 'number') mult *= m.data.dmgTakenMult;
+    if (!m || !m.data || typeof m.data.dmgTakenMult !== 'number') continue;
+    if (m.data.physicalTaken && !isPhysicalTaken(opts)) continue;
+    mult *= m.data.dmgTakenMult;
   }
   const prismatic = opts.element === 'prismatic';
   for (const s of tgt.statuses || []) {
@@ -1131,8 +1151,8 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   if (!tgt || tgt.downed || tgt.fled) return 0;
   // Hollow Discipline: being hit does not break stealth. Only attacking does.
   if (tgt.stealth && !perkVal(tgt.ch, 'hollow_discipline', 'stealthKeepsOnHit')) { /* base rules elsewhere */ }
-  dmg = applyOpportunist(src, tgt, dmg);
-  dmg = applyTakenReduction(tgt, dmg, opts);
+  dmg = applyOpportunist(src, tgt, dmg, opts);
+  dmg = applyTakenReduction(tgt, dmg, Object.assign({}, opts, { tag }));
   if (dmg <= 0) return 0;
   // Temp HP consumed first — still counts as damage taken for reflect/retaliation (§15a),
   // which is honored because those triggers fire in dealDamage before this point.
@@ -1275,9 +1295,7 @@ function hopPoison(st, dead) { hopDots(st, dead); }
 function pickAdjacentFoe(st, primary) {
   if (!primary) return null;
   const mates = laneUnits(st, primary.side, primary.lane).filter(x => x !== primary);
-  if (mates.length) return mates[0];
-  const li = LANE_IDX[primary.lane];
-  return livingUnits(st, primary.side).find(x => x !== primary && Math.abs(LANE_IDX[x.lane] - li) === 1) || null;
+  return mates[0] || null;
 }
 
 function bulwarkOnEnemyDown(st, dead) {
@@ -1313,19 +1331,20 @@ function findGuard(st, tgt) {
   for (const u of livingUnits(st, tgt.side)) {
     const g = u.statuses.find(s => s.kind === 'guard' || s.kind === 'warhound');
     if (!g) continue;
-    if (u === tgt && g.kind === 'guard') return { owner: u };
-    if (g.kind === 'warhound') { if (u !== tgt && u.lane === tgt.lane) return { owner: u }; continue; }
+    if (u === tgt && g.kind === 'guard') return { owner: u, absorb: g.absorb };
+    if (g.kind === 'warhound') { if (u !== tgt && u.lane === tgt.lane) return { owner: u, absorb: g.absorb }; continue; }
     // Unseen Guard: guards one named ally; the interceptor is not seen
-    if (g.scope === 'ally') { if (g.targetUid === tgt.uid) return { owner: u, unseen: true }; continue; }
+    if (g.scope === 'ally') { if (g.targetUid === tgt.uid) return { owner: u, unseen: true, absorb: g.absorb }; continue; }
     // a guard covers only those on the tank's lane or behind it (request 3)
-    if (g.scope === 'party' && canWard(u, tgt)) return { owner: u };
-    if (g.scope === 'lane' && u.lane === tgt.lane) return { owner: u };
+    if (g.scope === 'party' && canWard(u, tgt)) return { owner: u, absorb: g.absorb };
+    if (g.scope === 'behind' && (LANE_IDX[tgt.lane] || 0) >= (LANE_IDX[u.lane] || 0)) return { owner: u, absorb: g.absorb };
+    if (g.scope === 'lane' && u.lane === tgt.lane) return { owner: u, absorb: g.absorb };
   }
   // Bulwark+ / Rampart: cover an ally in an adjacent lane with no extra stance
   for (const u of livingUnits(st, tgt.side)) {
     const bw = perkVal(u.ch, 'bulwark', null);
     if (!bw || !bw.protectAdjacent || u === tgt) continue;
-    if (Math.abs((LANE_IDX[u.lane] || 0) - (LANE_IDX[tgt.lane] || 0)) === 1) return { owner: u };
+    if (Math.abs((LANE_IDX[u.lane] || 0) - (LANE_IDX[tgt.lane] || 0)) === 1) return { owner: u, absorb: 0.5 };
   }
   return null;
 }
@@ -1337,11 +1356,20 @@ function findGuard(st, tgt) {
 function healCleanse(st, tgt, scope, byUid) {
   if (!tgt || !scope) return 0;
   let cured = 0;
-  const kill = (s) => { removeStatus(tgt, s); cured++; };
+  const kill = (s) => {
+    if (s.kind === 'withering' && !tgt.statuses.some(x => x.kind === 'witherImmune')) {
+      tgt.statuses.push({ kind: 'witherImmune', rounds: 3 });
+    }
+    if (s.kind === 'healcut' && !tgt.statuses.some(x => x.kind === 'healcutImmune')) {
+      tgt.statuses.push({ kind: 'healcutImmune', rounds: 3 });
+    }
+    removeStatus(tgt, s);
+    cured++;
+  };
   if (scope === 'stack') {
     for (const kind of ['poison', 'bleed']) { const s = tgt.statuses.find(x => x.kind === kind); if (s) kill(s); }
   } else {
-    const kinds = scope === 'all' ? NEG_STATUSES : scope === 'dots+' ? ['poison', 'bleed', 'burn', 'healcut'] : ['poison', 'bleed'];
+    const kinds = scope === 'all' ? NEG_STATUSES : scope === 'dots+' ? ['poison', 'bleed', 'burn', 'healcut', 'withering'] : ['poison', 'bleed', 'withering'];
     for (const x of tgt.statuses.slice()) if (kinds.includes(x.kind)) kill(x);
   }
   if (cured) ev(st, { t: 'cleansed', uid: tgt.uid, cured, byHeal: true, by: byUid || null });
@@ -1441,7 +1469,7 @@ function tickCooldowns(st) {
 // Poison & bleed: a tick is a percentage of the TARGET's max HP by the
 // applying skill's tier, spread evenly over DOT_TICKS (8) so the full
 // amount never lands in one turn.
-const DOT_PCT = { basic: 0.5, intermediate: 1.0, advanced: 2.0 };
+const DOT_PCT = { basic: 0.5, intermediate: 1.0, advanced: 1.25 };
 const DOT_TICKS = 8;
 Combat.DOT_PCT = DOT_PCT;
 Combat.DOT_TICKS = DOT_TICKS;
@@ -1502,6 +1530,16 @@ function addStatus(st, tgt, status) {
   // thawed targets cannot be re-frozen for 2 rounds (request 4)
   if (status.kind === 'frozen' && tgt.statuses.some(x => x.kind === 'freezeImmune' || x.kind === 'frozen')) {
     ev(st, { t: 'immune', uid: tgt.uid, kind: 'frozen' });
+    return;
+  }
+  // Wither / heal-cut: one lock, then a gap — a row of smiters cannot shut
+  // healing off for the rest of the fight.
+  if (status.kind === 'withering' && tgt.statuses.some(x => x.kind === 'withering' || x.kind === 'witherImmune')) {
+    ev(st, { t: 'immune', uid: tgt.uid, kind: 'withering' });
+    return;
+  }
+  if (status.kind === 'healcut' && tgt.statuses.some(x => x.kind === 'healcut' || x.kind === 'healcutImmune')) {
+    ev(st, { t: 'immune', uid: tgt.uid, kind: 'healcut' });
     return;
   }
   if (tgt.ch.statusImmunities && tgt.ch.statusImmunities.includes(status.kind)) {
@@ -1574,6 +1612,8 @@ function endRoundTicks(st) {
           s.rounds--;
           if (s.rounds <= 0) {
             if (s.kind === 'share' && s.healAtEnd) healUnit(st, null, u, Math.max(1, Math.round(u.maxHp * s.healAtEnd)));
+            if (s.kind === 'withering') u.statuses.push({ kind: 'witherImmune', rounds: 3 });
+            if (s.kind === 'healcut') u.statuses.push({ kind: 'healcutImmune', rounds: 3 });
             removeStatus(u, s);
           }
         }
@@ -1629,10 +1669,10 @@ function meleeExtraCap(m) {
   return m.tier === 'advanced' ? 3 : m.tier === 'intermediate' ? 2 : 1;
 }
 
-function fillMeleeExtras(st, targets, cap, side) {
+function fillMeleeExtras(st, targets, cap, side, attacker) {
   if (targets.length >= cap) return targets;
   const have = new Set(targets.map(x => x.uid));
-  const foes = livingUnits(st, side).filter(x => !have.has(x.uid));
+  const foes = livingUnits(st, side).filter(x => !have.has(x.uid) && (!attacker || canMelee(st, attacker, x)));
   const prim = targets[0];
   foes.sort((a, b) => {
     const da = Math.abs(LANE_IDX[a.lane] - LANE_IDX[prim.lane]);
@@ -1677,12 +1717,14 @@ function spreadSeptic(st, origin, status) {
   const src = status.srcUid && st.units.find(x => x.uid === status.srcUid);
   if (!src || !perkVal(src.ch, 'septic_sanguine', null)) return;
   const li = LANE_IDX[origin.lane];
-  for (const o of livingUnits(st, origin.side)) {
-    if (o.uid === origin.uid) continue;
-    if (Math.abs(LANE_IDX[o.lane] - li) > 2) continue;
-    const copy = Object.assign({}, status, { _spread: true, ticks: status.ticksTotal, dealt: 0 });
-    addStatus(st, o, copy);
-  }
+  const cand = livingUnits(st, origin.side).filter(o => {
+    if (o.uid === origin.uid) return false;
+    return Math.abs(LANE_IDX[o.lane] - li) <= 2;
+  });
+  if (!cand.length) return;
+  cand.sort((a, b) => Math.abs(LANE_IDX[a.lane] - li) - Math.abs(LANE_IDX[b.lane] - li));
+  const copy = Object.assign({}, status, { _spread: true, ticks: status.ticksTotal, dealt: 0 });
+  addStatus(st, cand[0], copy);
 }
 
 // ---------------------------------------------------------------- actions
@@ -1859,8 +1901,8 @@ Combat.act = function (st, u, action) {
       }
       if (d.cures) for (const kind of d.cures) { const s = t.statuses.find(x => x.kind === kind); if (s) removeStatus(t, s); }
       if (amt > 0) {
-        healUnit(st, u, t, amt, { noCleanse: true });
         healCleanse(st, t, d.archetype === 'healer' ? healerCleanseScope(m.tier) : 'dots', u.uid);
+        healUnit(st, u, t, amt, { noCleanse: true });
       }
     }
     return finishAction(st, u, skillId);
@@ -1911,14 +1953,20 @@ Combat.act = function (st, u, action) {
     const healTargets = d.healTargets === 'party' ? allies : allies.slice(0, d.healTargets || 1);
     for (const a of healTargets) {
       const amt = Math.round(total / Math.max(1, healTargets.length));
-      healUnit(st, u, a, amt, { noCleanse: true });
       healCleanse(st, a, d.archetype === 'healer' ? healerCleanseScope(m.tier) : 'dots', u.uid);
+      healUnit(st, u, a, amt, { noCleanse: true });
     }
     return finishAction(st, u, skillId);
   }
 
   // ----- self buffs / guards -----
-  if (d.guardScope) { addStatus(st, u, { kind: 'guard', scope: d.guardScope, rounds: d.guardRounds || 3 }); return finishAction(st, u, skillId); }
+  if (d.guardScope) {
+    addStatus(st, u, {
+      kind: 'guard', scope: d.guardScope, rounds: d.guardRounds || 3,
+      absorb: d.guardAbsorb != null ? d.guardAbsorb : 0.5,
+    });
+    return finishAction(st, u, skillId);
+  }
   if (d.thornPct) {
     const targets = d.thornScope === 'party' ? livingUnits(st, u.side)
       : d.thornScope === 'lane' ? laneUnits(st, u.side, u.lane) : [u];
@@ -1979,9 +2027,10 @@ Combat.act = function (st, u, action) {
 
   // ----- taunt -----
   if (d.marks != null) {
-    const foes = d.marks === 'lane' ? laneUnits(st, tgt.side, tgt.lane)
-      : livingUnits(st, tgt.side).slice(0, d.marks === 1 ? 1 : d.marks);
-    const list = d.marks === 'lane' ? foes : (tgt ? [tgt].concat(foes.filter(f => f !== tgt)).slice(0, d.marks) : foes);
+    const allFoes = livingUnits(st, tgt.side);
+    const list = d.marks === 'all' ? allFoes
+      : d.marks === 'lane' ? laneUnits(st, tgt.side, tgt.lane)
+      : (tgt ? [tgt].concat(allFoes.filter(f => f !== tgt)).slice(0, d.marks) : allFoes.slice(0, d.marks));
     for (const f of list) {
       if (!f.marksBy.includes(u.uid)) f.marksBy.push(u.uid);
       // timed mark: expires via the status clock, then unhooks from marksBy
@@ -1998,7 +2047,7 @@ Combat.act = function (st, u, action) {
   if (d.cleaveRows) {
     const rows = d.cleaveRows;
     const li = LANE_IDX[tgt.lane];
-    targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) < rows);
+    targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) < rows && canMelee(st, u, x));
   } else if (d.spreadLanes) {
     const li = LANE_IDX[tgt.lane];
     targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) <= 1);
@@ -2053,7 +2102,9 @@ Combat.act = function (st, u, action) {
     if (pick === 'shocked') { d.shock = 0.1; d.shockRounds = 2; }
   }
   const hits = d.hits || 1;
-  const flareHits = (m.flare && (m.flare.bonusHits || m.flare.extraHit)) || 0;
+  const aoe = !!(d.cleaveRows || d.hitScale || d.target === 'allEnemies' || d.target === 'enemyLane'
+    || d.spreadLanes || (d.multiTarget && d.multiTarget > 1));
+  const flareHits = aoe ? 0 : ((m.flare && (m.flare.bonusHits || m.flare.extraHit)) || 0);
   const flareHitMult = m.flare && (m.flare.hitPowerMult || m.flare.extraHitMult);
   if (d.reload) u.reloadLock[skillId] = true;             // Flintlock Shot is now empty
   // Volley Fire / Broadside Doctrine: one more body in the same lane
@@ -2069,9 +2120,15 @@ Combat.act = function (st, u, action) {
     if (vol) removeStatus(u, vol);
   }
   const meleeCap = meleeExtraCap(m);
-  if (meleeCap > 1) targets = fillMeleeExtras(st, targets, meleeCap, tgt.side);
+  if (meleeCap > 1) targets = fillMeleeExtras(st, targets, meleeCap, tgt.side, u);
+  // Taunt: marked attackers dump only on the marker — no splash onto the back line.
+  if (u.marksBy.length) {
+    const locked = targets.filter(t => u.marksBy.includes(t.uid));
+    if (locked.length) targets = locked;
+  }
   noteMomentumAttack(u);
-  const hitScale = (d.hitScale && targets.length) ? targets.length : 1;
+  const hitScale = (d.hitScale && targets.length) ? (1 + (targets.length - 1) * 0.5) : 1;
+  const felled = new Set();
   for (let hi = 0; hi < hits + flareHits; hi++) {
     let wave = targets;
     if (d.critSecondAdjacent && hi === 1) {
@@ -2080,7 +2137,7 @@ Combat.act = function (st, u, action) {
       wave = [adj || tgt];
     }
     for (const t of wave) {
-    if (t.downed) continue;
+    if (t.downed || felled.has(t.uid)) continue;
     if (d.chainDecay && targets.indexOf(t) > 0) { /* decayed power handled below */ }
     if (d.oneShotUndead && t.ch && (t.ch.isUndead || t.ch.isMonster && t.ch.undead)) {
       applyRawDamage(st, u, t, Math.max(t.chp, 1), 'spell');
@@ -2112,9 +2169,13 @@ Combat.act = function (st, u, action) {
     let dmg = computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
       : (powerOverride != null ? { power: powerOverride } : undefined));
     if (hitScale > 1) dmg *= hitScale;
-    if (d.critSecondAdjacent && hi === 1) dmg *= 2;
+    if (d.critSecondAdjacent && hi === 1 && t !== tgt) dmg *= 2;
     const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
-      cannotMiss: !!d.cannotMiss || !!(Sys().knownVal(u.ch, 'accuracy') && u.momentumArmed), ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
+      cannotMiss: !!d.cannotMiss || !!(Sys().knownVal(u.ch, 'accuracy') && u.momentumArmed), ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect,
+      noExecute: hi >= hits });
+    for (let ei = st.events.length - 1; ei >= 0 && ei >= st.events.length - 8; ei--) {
+      if (st.events[ei].t === 'down' && st.events[ei].uid === t.uid) { felled.add(t.uid); break; }
+    }
     if (isMelee && !t.downed) addExposed(st, t, 1);
     // ---- ninja/pirate on-hit riders (add-on §3) ----
     if (dealt > 0 && !t.downed) {
@@ -2151,8 +2212,9 @@ Combat.act = function (st, u, action) {
     if (d.revealIntents) st.revealIntents = Math.max(st.revealIntents || 0, d.revealIntents);
     if (d.revealGold) st.revealGold = true;
     // Momentum advanced: every third consecutive attacking turn strikes twice
+    // (single-target only — whirlwinds already scale with bodies hit)
     const mo = perkVal(u.ch, 'momentum', null);
-    if (mo && mo.thirdHitTwice && u.consecutiveCount % 3 === 0 && !t.downed) {
+    if (mo && mo.thirdHitTwice && u.consecutiveCount % 3 === 0 && !t.downed && targets.length === 1 && hitScale <= 1) {
       let extra = computeDamage(st, u, t, m);
       if (hitScale > 1) extra *= hitScale;
       dealDamage(st, u, t, extra, tag, { element: d.element, melee: isMelee,

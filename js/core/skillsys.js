@@ -119,7 +119,7 @@ const CLASS_FLARE = {
     desc: 'Shocked foes take more from this strike, and the next lightning you throw hits harder.',
   },
   ranger: {
-    kind: 'followup', bonusHits: 2, hitPowerMult: 0.5,
+    kind: 'followup', bonusHits: 1, hitPowerMult: 0.5,
     desc: 'Two arrows follow the shot, each at half power.',
   },
   tank: {

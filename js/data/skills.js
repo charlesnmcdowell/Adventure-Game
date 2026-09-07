@@ -26,7 +26,7 @@ def({ id: 'fire_bolt', name: 'Fire Bolt', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Fire Bolt', status: { burn: { power: 0.8, rounds: 3 } } },
     intermediate: { name: 'Fire Blast', status: { burn: { power: 1.1, rounds: 3 } } },
-    advanced:     { name: 'Fire Ball', target: 'enemyLane', power: 2.2, status: { burn: { power: 1.4, rounds: 3 } } },
+    advanced:     { name: 'Fire Ball', target: 'enemyLane', power: 1.6, status: { burn: { power: 1.4, rounds: 3 } } },
   } });
 def({ id: 'frost_touch', name: 'Frost Touch', kind: 'active', archetype: 'mage',
   elemental: true, element: 'ice', power: 2.4, reach: 'any', target: 'enemy', delayTarget: true,
@@ -34,7 +34,7 @@ def({ id: 'frost_touch', name: 'Frost Touch', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Frost Touch', freeze: 1 },
     intermediate: { name: 'Frost Chain', multiTarget: 2, freeze: 1 },
-    advanced:     { name: 'Blizzard', target: 'enemyLane', freeze: 2 },
+    advanced:     { name: 'Blizzard', target: 'enemyLane', freeze: 1 },
   } });
 
 def({ id: 'spark', name: 'Spark', kind: 'active', archetype: 'mage',
@@ -43,7 +43,7 @@ def({ id: 'spark', name: 'Spark', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Spark',           shock: 0.05, shockRounds: 3 },
     intermediate: { name: 'Chain Lightning', shock: 0.15, shockRounds: 3, multiTarget: 2 },
-    advanced:     { name: 'Thunderstorm',    shock: 0.25, shockRounds: 3, target: 'allEnemies', power: 1.9 },
+    advanced:     { name: 'Thunderstorm',    shock: 0.25, shockRounds: 3, target: 'allEnemies', power: 1.3 },
   } });
 def({ id: 'pyromaniac', name: 'Pyromaniac', kind: 'perk', archetype: 'mage',
   desc: 'Fire answers to you: resist fire damage, and heal for a share of the fire damage you deal.',
@@ -70,35 +70,35 @@ def({ id: 'lightning_king', name: 'Lightning King', kind: 'perk', noTierGrowth: 
 
 // ============ TANK — every skill has an offensive component ============
 def({ id: 'bulwark', name: 'Bulwark', kind: 'perk', archetype: 'tank', survivalHp: 20,
-  desc: 'Reduces all incoming damage 20% after the hit is calculated — including percent-of-HP blows — and reflects part of it back. When any enemy dies you heal 15% of your max HP and every status on you is cleared. Every battle you walk out of adds 20 max HP, permanently.',
+  desc: 'Cuts physical wounds and percent-of-HP blows in half at first, then 75%, then 90%, and reflects part of what remains. When any enemy dies you heal 15% of your max HP and every status on you is cleared. Every battle you walk out of adds 20 max HP, permanently.',
   tiers: {
-    basic:        { name: 'Bulwark',   dmgTakenMult: 0.8, reflectPct: 0.25, killHealPct: 0.15, killCleanse: true },
-    intermediate: { name: 'Bulwark+',  dmgTakenMult: 0.8, reflectPct: 0.40, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
-    advanced:     { name: 'Rampart',   dmgTakenMult: 0.8, reflectPct: 0.60, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
+    basic:        { name: 'Bulwark',   dmgTakenMult: 0.5,  physicalTaken: true, reflectPct: 0.25, killHealPct: 0.15, killCleanse: true },
+    intermediate: { name: 'Bulwark+',  dmgTakenMult: 0.25, physicalTaken: true, reflectPct: 0.40, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
+    advanced:     { name: 'Rampart',   dmgTakenMult: 0.10, physicalTaken: true, reflectPct: 0.60, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
   } });
 def({ id: 'shield_wall', name: 'Shield Wall', kind: 'active', archetype: 'tank',
   power: 0, target: 'self', reach: 'any',
-  desc: 'Halves incoming damage for several rounds; all damage prevented is dealt to the attacker. Guards those behind or beside you, never ahead.',
+  desc: 'Negates incoming damage for 2 turns; all damage prevented is dealt to the attacker. Guards those behind or beside you, never ahead.',
   tiers: {
-    basic:        { name: 'Shield Wall', guardScope: 'self',  guardRounds: 3 },
-    intermediate: { name: 'Iron Wall',   guardScope: 'lane',  guardRounds: 4 },
-    advanced:     { name: 'Aegis',       guardScope: 'party', guardRounds: 5 },
+    basic:        { name: 'Shield Wall', guardScope: 'behind', guardRounds: 1, guardAbsorb: 1 },
+    intermediate: { name: 'Iron Wall',   guardScope: 'behind', guardRounds: 1, guardAbsorb: 1 },
+    advanced:     { name: 'Aegis',       guardScope: 'party',  guardRounds: 1, guardAbsorb: 1 },
   } });
 def({ id: 'taunt', name: 'Taunt', kind: 'active', archetype: 'tank',
   power: 0, target: 'enemy', reach: 'any', retaliationPower: 1.5,
-  desc: 'Marks enemies: they must attack you and take retaliation each time they do.',
+  desc: 'Marks every enemy: they must attack you and take retaliation each time they do. Splashes and volleys stay on you while marked.',
   tiers: {
-    basic:        { name: 'Taunt',     marks: 1, markRounds: 3 },
-    intermediate: { name: 'Provoke',   marks: 2, markRounds: 3 },
-    advanced:     { name: 'Challenge', marks: 'lane', markRounds: 4 },
+    basic:        { name: 'Taunt',     marks: 'all', markRounds: 3 },
+    intermediate: { name: 'Provoke',   marks: 'all', markRounds: 3 },
+    advanced:     { name: 'Challenge', marks: 'all', markRounds: 4 },
   } });
 def({ id: 'stand_fast', name: 'Stand Fast', kind: 'active', archetype: 'tank',
   power: 0, target: 'self', reach: 'any', selfRevive: true,
-  desc: 'When you fall, you stand back up. Once per battle at first; more charges and a fuller return as the skill grows.',
+  desc: 'When you fall, you stand back up behind a short ward. Once per battle at first; more charges and a fuller return as the skill grows.',
   tiers: {
-    basic:        { name: 'Stand Fast',  reviveHp: 0.25, reviveUses: 1 },
-    intermediate: { name: 'Rise Again',  reviveHp: 0.50, reviveUses: 2 },
-    advanced:     { name: 'Undying',     reviveHp: 0.80, reviveUses: 3 },
+    basic:        { name: 'Stand Fast',  reviveHp: 0.25, reviveUses: 1, shieldHits: 1 },
+    intermediate: { name: 'Rise Again',  reviveHp: 0.50, reviveUses: 2, shieldHits: 1 },
+    advanced:     { name: 'Undying',     reviveHp: 0.80, reviveUses: 3, shieldHits: 2 },
   } });
 
 // ============ ROGUE ============
@@ -117,7 +117,7 @@ def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', noTierGrowth: 
     advanced:     { name: 'Crowd Favourite', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
   } });
 def({ id: 'septic_sanguine', name: 'Septic Sanguine', kind: 'perk', archetype: 'rogue',
-  desc: 'Bleed and poison feed you — yours on them, and theirs on you. The ticks also hit harder and leap two rows from the first victim. At advanced you feast on every poison and bleed on the field, whoever cast it and whoever wears it.',
+  desc: 'Bleed and poison feed you — yours on them, and theirs on you. The ticks also hit harder and leap to the nearest ally within two rows. At advanced you feast on every poison and bleed on the field, whoever cast it and whoever wears it.',
   tiers: {
     basic:        { name: 'Septic Sanguine', dotMult: 1.25, dotLeech: 0.5 },
     intermediate: { name: 'Septic Sanguine+', dotMult: 1.5, dotLeech: 1.0 },
@@ -169,7 +169,7 @@ def({ id: 'aimed_shot', name: 'Aimed Shot', kind: 'active', archetype: 'ranger',
   tiers: {
     basic:        { name: 'Aimed Shot' },
     intermediate: { name: 'Piercing Shot', pierceBehind: true },
-    advanced:     { name: 'Volley', target: 'allEnemies', power: 2.0 },
+    advanced:     { name: 'Volley', target: 'allEnemies', power: 1.4 },
   } });
 def({ id: 'snare', name: 'Snare', kind: 'active', archetype: 'ranger',
   power: 1.2, reach: 'any', target: 'enemy', delayTarget: true,
@@ -249,9 +249,9 @@ def({ id: 'beast_shape', name: 'Beast Shape', kind: 'active', archetype: 'druid'
   power: 0, target: 'self', reach: 'any', freeBuff: true,
   desc: 'A free shapeshift. Applied at the start of battle and again whenever it falls off. Does not cost a turn. Can be stripped like any buff.',
   tiers: {
-    basic:        { name: 'Beast Shape', atkMult: 1.5, rounds: 3 },
-    intermediate: { name: 'Greater Beast', atkMult: 1.5, rounds: 3, lifeSteal: 0.3 },
-    advanced:     { name: 'Primal Form', atkMult: 1.5, rounds: 3, lifeSteal: 0.3, splashAdjacent: true },
+    basic:        { name: 'Beast Shape', atkMult: 1.25, rounds: 3 },
+    intermediate: { name: 'Greater Beast', atkMult: 1.25, rounds: 3, lifeSteal: 0.3 },
+    advanced:     { name: 'Primal Form', atkMult: 1.25, rounds: 3, lifeSteal: 0.3, splashAdjacent: true },
   } });
 def({ id: 'grove_raise', name: 'Grove Rise', kind: 'active', archetype: 'druid',
   power: 0, target: 'ally', reach: 'any', heal: true, revive: true, oncePerBattle: true, buffRounds: 3,
@@ -474,7 +474,7 @@ def({ id: 'rime_grasp', name: 'Rime Grasp', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Rime Grasp', freeze: 1 },
     intermediate: { name: 'Hoarfrost Grasp', freeze: 1, delayTarget: true },
-    advanced:     { name: 'Glacial Grasp', freeze: 2, multiTarget: 2 },
+    advanced:     { name: 'Glacial Grasp', freeze: 1, multiTarget: 2 },
   } });
 def({ id: 'wither_touch', name: 'Wither Touch', kind: 'active', archetype: 'druid',
   power: 1.4, reach: 'front', target: 'enemy',
