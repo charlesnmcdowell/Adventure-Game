@@ -538,6 +538,18 @@ function mendFx(scene, ctx, p) {
 }
 
 function regenFx(scene, ctx, p) {
+  if (ctx.name === 'Poison') {
+    const hits = ctx.tgt && ctx.src && ctx.tgt.u && ctx.src.u && ctx.tgt.u.side !== ctx.src.u.side
+      ? [ctx.tgt] : foes(scene, ctx.src, ctx.tgt);
+    hits.forEach((v, i) => {
+      const go = () => {
+        V().motes(scene, v.x, v.y, POI, 4 + p.n);
+        V().ring(scene, v.x, v.y, POI, { r: 16, scale: 1.6 * p.scale, dur: 400 });
+      };
+      if (i) scene.time.delayedCall(i * 60, go); else go();
+    });
+    return p.wait;
+  }
   const src = ctx.src, color = 0x83b56b;
   const hits = healTargets(scene, ctx);
   hits.forEach((v, i) => {

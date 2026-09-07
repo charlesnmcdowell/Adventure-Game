@@ -152,8 +152,7 @@ const PARAM_LABEL = {
     if ((k === 'poison' || k === 'bleed') && ADV.Combat && ADV.Combat.DOT_PCT) {
       const pct = ADV.Combat.DOT_PCT[tier || 'basic'] || 0.5;
       const n = ADV.Combat.dotWindow ? ADV.Combat.dotWindow(s.rounds) : (s.rounds || 6);
-      const stack = tier === 'advanced' ? ' (STACKS)' : '';
-      return `${k}${stack}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
+      return `${k}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
     }
     return `${k}${s.stacks ? ' (STACKS)' : ''} ${s.power}× ATK/2 per round, ${s.rounds} rounds`;
   }).join('; '),
@@ -171,7 +170,8 @@ const PARAM_LABEL = {
   freeAction: () => 'free action — does not end your turn; you may still use another skill',
   fullHpBackstabPct: v => `against a target at full health, deals ${Math.round(v * 100)}% of a Backstab`,
   dotMult: v => `bleed and poison damage ×${v}`,
-  dotLeech: v => `heal ${Math.round(v * 100)}% of the bleed and poison damage you deal`,
+  dotLeech: v => `heal ${Math.round(v * 100)}% of bleed and poison ticks you deal or take`,
+  leechAny: () => 'heals from every poison and bleed on the field, whoever cast it',
   counterNext: v => `negates the next ${v} attack(s) and reflects the damage`,
   thornPct: v => `reflects ${Math.round(v * 100)}% of damage taken`,
   thornScope: v => `thorns cover: ${v}`,

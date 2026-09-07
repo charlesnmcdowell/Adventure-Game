@@ -156,6 +156,7 @@ Combat.create = function (charsA, charsB, opts) {
     leaderId: opts.leaderId || null,
     leaderFell: false,
     leaderFled: false,
+    dotHopDone: false,
     turnsSinceHatred: 99,
     hatredSpoken: {},
   };
@@ -1229,6 +1230,7 @@ function noteLeaderOut(st, u, died) {
 const DOT_HOP = { basic: 0, intermediate: 1, advanced: 3 };
 Combat.DOT_HOP = DOT_HOP;
 function hopDots(st, dead) {
+  if (st.dotHopDone) return;
   const dots = (dead.statuses || []).filter(s => isPctDot(s.kind) && !s.__hopped);
   if (!dots.length) return;
   const rank = { basic: 0, intermediate: 1, advanced: 2 };
@@ -1255,13 +1257,14 @@ function hopDots(st, dead) {
     return (a.slot || 0) - (b.slot || 0);
   });
   const tgts = cand.slice(0, n);
+  st.dotHopDone = true;
   for (const s of dots) s.__hopped = true;
   for (const tgt of tgts) {
     const imm = tgt.ch.statusImmunities || [];
     let hopped = 0;
     for (const s of dots) {
       if (imm.includes(s.kind)) continue;
-      addStatus(st, tgt, reseatDot(Object.assign({}, s, { fresh: true, __hopped: false }), tgt));
+      addStatus(st, tgt, reseatDot(Object.assign({}, s, { fresh: true, __hopped: true, _spread: true }), tgt));
       hopped++;
     }
     if (hopped) ev(st, { t: 'poisonHop', from: dead.uid, to: tgt.uid, n: hopped, kinds: dots.map(s => s.kind) });
@@ -1436,17 +1439,15 @@ function tickCooldowns(st) {
 }
 
 // Poison & bleed: a tick is a percentage of the TARGET's max HP by the
-// applying skill's tier, spread over DOT_TICKS (6). Authoring that still
-// says rounds: 3 is the old window and stretches to 6; any other rounds
-// value is scaled the same way (4 → 8, 2 → 4) so the total % is unchanged.
+// applying skill's tier, spread evenly over DOT_TICKS (8) so the full
+// amount never lands in one turn.
 const DOT_PCT = { basic: 0.5, intermediate: 1.0, advanced: 2.0 };
-const DOT_TICKS = 6;
+const DOT_TICKS = 8;
 Combat.DOT_PCT = DOT_PCT;
 Combat.DOT_TICKS = DOT_TICKS;
 function isPctDot(kind) { return kind === 'poison' || kind === 'bleed'; }
 function dotWindow(rounds) {
-  if (rounds == null || rounds === 3) return DOT_TICKS;
-  return Math.max(1, Math.round(rounds * (DOT_TICKS / 3)));
+  return DOT_TICKS;
 }
 Combat.dotWindow = dotWindow;
 function normaliseDot(status) {
@@ -1507,13 +1508,6 @@ function addStatus(st, tgt, status) {
     ev(st, { t: 'immune', uid: tgt.uid, kind: status.kind });
     return;
   }
-  // Poison and bleed only stack damage at advanced; basic/intermediate refresh.
-  if ((status.kind === 'bleed' || status.kind === 'poison') && status.tier === 'advanced') {
-    st.events.push({ t: 'status', uid: tgt.uid, kind: status.kind });
-    tgt.statuses.push(status);
-    spreadSeptic(st, tgt, status);
-    return;
-  }
   const existing = tgt.statuses.find(s => s.kind === status.kind);
   if (existing) Object.assign(existing, status);
   else tgt.statuses.push(status);
@@ -1549,10 +1543,10 @@ function endRoundTicks(st) {
       if (DOT_STATUSES.includes(s.kind)) {
         let dot = isPctDot(s.kind) ? dotTick(st, s, u) : Math.max(1, Math.round((s.srcAtk || 8) * s.power * 0.5 * (1 + (s.srcLevel || 1) * 0.015)));
         const srcU = s.srcUid ? st.units.find(x => x.uid === s.srcUid) : null;
-        const septic = srcU && (s.kind === 'bleed' || s.kind === 'poison') ? perkVal(srcU.ch, 'septic_sanguine', null) : null;
-        if (septic) dot = Math.round(dot * septic.dotMult);                     // Septic Sanguine
+        const srcSeptic = srcU && (s.kind === 'bleed' || s.kind === 'poison') ? perkVal(srcU.ch, 'septic_sanguine', null) : null;
+        if (srcSeptic) dot = Math.round(dot * srcSeptic.dotMult);
         const dealt = applyRawDamage(st, srcU, u, dot, 'dot');
-        if (septic && dealt > 0 && !srcU.downed) healUnit(st, null, srcU, Math.max(1, Math.round(dealt * septic.dotLeech)));
+        if ((s.kind === 'bleed' || s.kind === 'poison') && dealt > 0) feedSepticLeech(st, dealt, srcU, u);
         if (srcU && s.kind === 'burn' && dealt > 0 && !srcU.downed) {
           const py = perkVal(srcU.ch, 'pyromaniac', null);                     // burns feed the Pyromaniac too
           if (py && py.fireLeech) healUnit(st, null, srcU, Math.max(1, Math.round(dealt * py.fireLeech)));
@@ -1650,6 +1644,31 @@ function fillMeleeExtras(st, targets, cap, side) {
     targets.push(x);
   }
   return targets;
+}
+
+function feedSepticLeech(st, dealt, srcU, tgtU) {
+  if (!(dealt > 0)) return;
+  for (const unit of st.units) {
+    if (unit.downed || unit.fled || unit.reserved) continue;
+    const septic = perkVal(unit.ch, 'septic_sanguine', null);
+    if (!septic || !septic.dotLeech) continue;
+    const involved = unit === srcU || unit === tgtU;
+    if (!septic.leechAny && !involved) continue;
+    healUnit(st, null, unit, Math.max(1, Math.round(dealt * septic.dotLeech)));
+  }
+}
+
+function offensiveDotVictims(st, u, tgt, skillId, o) {
+  const pool = Combat.validTargets(st, u, skillId, true).filter(x => x.side !== u.side && !x.downed);
+  if (!pool.length) return [];
+  const mode = (o && o.target) || 'enemy';
+  if (mode === 'allEnemies') return pool;
+  if (mode === 'enemyLane') {
+    const primary = tgt && pool.includes(tgt) ? tgt : pool[0];
+    return pool.filter(x => x.lane === primary.lane);
+  }
+  if (tgt && pool.includes(tgt)) return [tgt];
+  return [pool[0]];
 }
 
 function spreadSeptic(st, origin, status) {
@@ -1859,7 +1878,10 @@ Combat.act = function (st, u, action) {
       return finishAction(st, u, skillId);
     }
     if (o.dotRounds) {
-      addStatus(st, tgt, { kind: 'poison', tier: m.tier, rounds: o.dotRounds, power: o.power, srcAtk: atk, srcUid: u.uid });
+      const victims = offensiveDotVictims(st, u, tgt, skillId, o);
+      for (const v of victims) {
+        addStatus(st, v, { kind: 'poison', tier: m.tier, rounds: o.dotRounds, power: o.power, srcAtk: atk, srcUid: u.uid });
+      }
       return finishAction(st, u, skillId);
     }
     if (o.wardReflect) {

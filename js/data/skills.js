@@ -117,11 +117,11 @@ def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', noTierGrowth: 
     advanced:     { name: 'Crowd Favourite', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
   } });
 def({ id: 'septic_sanguine', name: 'Septic Sanguine', kind: 'perk', archetype: 'rogue',
-  desc: 'Your bleeds and poisons hit harder and feed you, and they leap to everyone within two rows of the first victim. Advanced doubles the ticks and triples the feast; Intermediate and Basic are half of the tier above.',
+  desc: 'Bleed and poison feed you — yours on them, and theirs on you. The ticks also hit harder and leap two rows from the first victim. At advanced you feast on every poison and bleed on the field, whoever cast it and whoever wears it.',
   tiers: {
     basic:        { name: 'Septic Sanguine', dotMult: 1.25, dotLeech: 0.5 },
     intermediate: { name: 'Septic Sanguine+', dotMult: 1.5, dotLeech: 1.0 },
-    advanced:     { name: 'Blood Culture',   dotMult: 2.0, dotLeech: 2.0 },
+    advanced:     { name: 'Blood Culture',   dotMult: 2.0, dotLeech: 2.0, leechAny: true },
   } });
 def({ id: 'lookism', name: 'Lookism', kind: 'perk', noTierGrowth: true, archetype: null,
   desc: 'A face that opens doors: hired for 10g over your price, your hires take 10g under theirs, the opposite sex starts out Friendly, the ones you leave stay Friendly, and enemies would rather hit anyone but you.',

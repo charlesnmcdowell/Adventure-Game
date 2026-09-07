@@ -115,12 +115,15 @@ class CombatScene extends Phaser.Scene {
     const isPlayer = !!u.ch.isPlayer;
     frame.lineStyle(2, isPlayer ? T().c.gold : u.side === 'a' ? T().c.green : T().c.blood, 0.9);
     frame.strokeRect(x - img.displayWidth / 2, y - img.displayHeight / 2, img.displayWidth, img.displayHeight);
-    const name = T().text(this, x, y + img.displayHeight / 2 + 17, u.ch.name, { size: 11, ox: 0.5, color: isPlayer ? T().css.gold : T().css.ink });
+    const st = this.st();
+    const isLead = !!(st && st.leaderId && u.ch && u.ch.id === st.leaderId);
+    const name = T().text(this, x, y + img.displayHeight / 2 + 17, (isLead ? '♛ ' : '') + u.ch.name, { size: 11, ox: 0.5, color: isLead || isPlayer ? T().css.gold : T().css.ink });
+    const crown = isLead ? T().text(this, x, y - img.displayHeight / 2 - 34, '♛', { size: 18, ox: 0.5, color: T().css.gold }).setDepth(20) : null;
     const hpBar = this.add.graphics();
     const intent = T().text(this, x, y - img.displayHeight / 2 - 18, '', { size: 10, ox: 0.5, color: T().css.blue, wrap: 130, align: 'center' });
     const status = T().text(this, x, y + img.displayHeight / 2 + 33, '', { size: 9, ox: 0.5, color: T().css.purple });
     const pips = this.add.graphics();
-    const view = { u, img, frame, name, hpBar, intent, status, pips, x, y };
+    const view = { u, img, frame, name, hpBar, intent, status, pips, crown, x, y };
     this.unitViews.set(u.uid, view);
     this.redrawUnit(view);
     return view;
@@ -231,8 +234,8 @@ class CombatScene extends Phaser.Scene {
     else if (ADV.SpellFX) ADV.SpellFX.syncStatus(this, v);
     if (u.stealth && !u.downed && !u.fled) { v._fxStealthed = true; if (v.img.alpha > 0.5) v.img.setAlpha(0.4); }
     else if (v._fxStealthed && !u.downed && !u.fled) { v._fxStealthed = false; v.img.setAlpha(1); }
-    if (u.downed) { ADV.VFX.desaturate(v.img); v.intent.setText(''); v.frame.setAlpha(0.4); v.name.setAlpha(0.5); }
-    if (u.fled) { v.img.setAlpha(0.2); v.intent.setText('fled'); }
+    if (u.downed) { ADV.VFX.desaturate(v.img); v.intent.setText(''); v.frame.setAlpha(0.4); v.name.setAlpha(0.5); if (v.crown) v.crown.setAlpha(0.4); }
+    if (u.fled) { v.img.setAlpha(0.2); v.intent.setText('fled'); if (v.crown) v.crown.setAlpha(0.2); }
   }
 
   refreshIntents() {
@@ -254,7 +257,10 @@ class CombatScene extends Phaser.Scene {
     this.roundText.setText('Round ' + st.round);
     const names = st.turnQueue.slice(st.turnIdx, st.turnIdx + 9).map(e => {
       const u = st.units.find(x => x.uid === e.uid);
-      return u && !u.downed && !u.fled ? (u.ch.isPlayer ? '★' + u.ch.name : u.ch.name) : null;
+      if (!u || u.downed || u.fled) return null;
+      const lead = st.leaderId && u.ch && u.ch.id === st.leaderId;
+      if (lead) return '♛' + u.ch.name;
+      return u.ch.isPlayer ? '★' + u.ch.name : u.ch.name;
     }).filter(Boolean);
     this.turnStrip.setText('order: ' + names.join(' → '));
   }
@@ -1023,8 +1029,10 @@ class CombatScene extends Phaser.Scene {
       const tgt = ADV.Combat.lowestHealth(action.pool);
       if (tgt) return this.commitAction(u, action, tgt);
     }
-    if (action.pool.length === 1 || (action.pool.length && action.pool[0] === u)) {
-      return this.commitAction(u, action, action.pool[0]);
+    const only = action.pool.length === 1 ? action.pool[0] : null;
+    const autoSelf = !action.off && action.pool.length && action.pool[0] === u;
+    if ((only && (only !== u || !action.off)) || autoSelf) {
+      return this.commitAction(u, action, only || action.pool[0]);
     }
     // highlight valid targets
     this.targeting = { u, action, marks: [] };
