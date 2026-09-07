@@ -16,6 +16,7 @@ class CreationScene extends Phaser.Scene {
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
     this.done = false;             // scene instances are reused — reset run flags
     this.beginBtn = null;
+    this.rolled = null;
     this.sel = { slot: 1, sex: 'f', name: '', skills: [] };
     // Later lives carry the previous life's learned set — no fresh free picks.
     const meta = ADV.Save.loadMeta();
@@ -40,7 +41,7 @@ class CreationScene extends Phaser.Scene {
     // (mobile pass) The drawn box is gone; the field draws its own.
     if (this.nameField) this.nameField.destroy();
     this.nameField = ADV.UI.textField(this, {
-      x: 230, y: 92, w: 260, h: 34, size: 18, value: this.sel.name, maxLen: 14,
+      x: 250, y: 94, w: 300, h: 38, size: 18, value: this.sel.name, maxLen: 14,
       placeholder: 'your name',
       onChange: (v) => { if (this.done || this.phase !== 1) return; this.sel.name = v; this.drawNextButton(); },
       onCommit: () => { if (this.sel.name.trim() && this.phase === 1) this.drawNextButton(); },
@@ -48,7 +49,7 @@ class CreationScene extends Phaser.Scene {
     // Desktop: start typing immediately. (Phones ignore programmatic focus
     // without a gesture, which is what we want — no keyboard until a tap.)
     if (!ADV.UI.isTouch()) this.nameField.focus();
-    T().text(this, 380, 92, '(type it — NPCs will use it)', { size: 11, oy: 0.5, color: T().css.inkFaint });
+    T().text(this, 430, 94, '(type it — NPCs will use it)', { size: 11, oy: 0.5, color: T().css.inkFaint });
     this.firstGame = (ADV.Save.loadMeta().lives || 0) === 0;
 
     // portrait grid — a look, nothing more (no classes, §1). Classic five
@@ -108,7 +109,7 @@ class CreationScene extends Phaser.Scene {
     T().panel(this, px, 140, T().W - px - 60, 354);
     T().text(this, px + 18, 156, 'The dice are cast', { size: 17, display: true, color: T().css.gold });
     this.statsText = T().text(this, px + 18, 188, '', { size: 15 });
-    this.rolled = this.rollStats();
+    if (!this.rolled) this.rolled = this.rollStats();
     T().button(this, px + 18, 296, 130, 34, 'Reroll fate', () => { this.rolled = this.rollStats(); this.refresh(); }, { size: 13 });
     T().text(this, px + 18, 346, this.carried
       ? 'Stats are fixed for life.\nYour skills return from the\nlast one. There are no classes.'
@@ -127,7 +128,7 @@ class CreationScene extends Phaser.Scene {
     this.refresh();
     if (this.firstGame) {
       // pause here: the name is required, and this is where it goes
-      ADV.Tutor.callout(this, { x: 100, y: 75, w: 260, h: 34 }, 'Your name', 'Type a name for your character — the world will use it when it speaks to you. A name is required before you go on. Then pick a face: each one says whether it is a woman or a man.', { onNext: () => {}, label: 'Got it' });
+      ADV.Tutor.callout(this, { x: 100, y: 75, w: 300, h: 38 }, 'Your name', 'Type a name for your character — the world will use it when it speaks to you. A name is required before you go on. Then pick a face: each one says whether it is a woman or a man.', { onNext: () => {}, label: 'Got it' });
     }
   }
 
@@ -160,39 +161,92 @@ class CreationScene extends Phaser.Scene {
   buildPhase2() {
     this.phase = 2;
     if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
-    this.children.removeAll();
+    if (this.faceScroll) { this.faceScroll.destroy(); this.faceScroll = null; }
+    if (this.skillScroll) { this.skillScroll.destroy(); this.skillScroll = null; }
+    this.children.removeAll(true);
     const W = T().W, H = T().H;
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
-    T().text(this, W / 2, 28, 'Your first three skills — any three', { size: 28, display: true, ox: 0.5, color: T().css.gold });
-    T().text(this, W / 2, 64, `Free, from the whole pool. ◆ marks perks (${C().PLAYER_PERK_SLOTS} slots); the rest are actives (${C().PLAYER_ACTIVE_SLOTS} slots). Everything else waits at the trainer.`, { size: 13, ox: 0.5, color: T().css.inkDim });
+    T().text(this, W / 2, 24, 'Your first three skills — any three', { size: 26, display: true, ox: 0.5, color: T().css.gold });
+    T().text(this, W / 2, 52, `Free, from the whole pool. ◆ marks perks (${C().PLAYER_PERK_SLOTS} slots); the rest are actives (${C().PLAYER_ACTIVE_SLOTS} slots). Scroll for every skill.`, { size: 13, ox: 0.5, color: T().css.inkDim });
+    this.counter = T().text(this, W / 2, 76, '', { size: 15, display: true, ox: 0.5, color: T().css.gold, wrap: 980, align: 'center' });
 
-    this.counter = T().text(this, W / 2, 92, '', { size: 16, display: true, ox: 0.5, color: T().css.gold });
-    this.descText = T().text(this, W / 2, H - 128, '', { size: 13, ox: 0.5, color: T().css.inkDim, wrap: 900, align: 'center' });
+    const footerTop = H - 168;
+    this.add.rectangle(W / 2, footerTop + (H - footerTop) / 2, W, H - footerTop, T().c.bg).setDepth(8);
+    this.add.rectangle(W / 2, footerTop, W - 80, 1, T().c.panelEdge, 0.7).setDepth(8);
+    this.descText = T().text(this, W / 2, footerTop + 10, 'Hover a skill to read it.', { size: 13, ox: 0.5, oy: 0, color: T().css.inkDim, wrap: 860, align: 'center' }).setDepth(9);
 
     this.skillButtons = [];
-    const pool = ADV.DATA.TRAINER_POOL.filter(id => !ADV.DATA.SKILLS[id].forbidden && !ADV.DATA.SKILLS[id].campaign);
-    const cols = 3, cw = 340, rh = 44;
+    const pool = ADV.DATA.TRAINER_POOL.filter(id => {
+      const sk = ADV.DATA.SKILLS[id];
+      return sk && !sk.forbidden && !sk.campaign && !sk.unique && !sk.universal;
+    });
+    const ARCH_ORDER = ['tank', 'fighter', 'rogue', 'ranger', 'mage', 'druid', 'healer'];
+    pool.sort((a, b) => {
+      const aa = ADV.DATA.SKILLS[a].archetype || 'other';
+      const bb = ADV.DATA.SKILLS[b].archetype || 'other';
+      const ia = ARCH_ORDER.indexOf(aa), ib = ARCH_ORDER.indexOf(bb);
+      if (ia !== ib) return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      return (ADV.DATA.SKILLS[a].name || a).localeCompare(ADV.DATA.SKILLS[b].name || b);
+    });
+
+    const cols = 3, cw = 340, rh = 40;
     const gx = W / 2 - (cols * cw + (cols - 1) * 16) / 2;
-    let i = 0;
+    const listTop = 96;
+    const scroll = ADV.UI.scrollArea(this, { x: gx - 12, y: listTop, w: cols * cw + (cols - 1) * 16 + 36, h: footerTop - listTop - 6 });
+    this.skillScroll = scroll;
+
+    let y = listTop + 8;
+    let col = 0;
+    let lastArch = null;
     for (const id of pool) {
       const sk = ADV.DATA.SKILLS[id];
-      const col = i % cols, row = Math.floor(i / cols);
-      const x = gx + col * (cw + 16), y = 120 + row * rh;
-      const b = { id, x, y, w: cw, h: rh - 8 };
+      const arch = sk.archetype || 'other';
+      if (arch !== lastArch) {
+        if (col !== 0) { y += rh; col = 0; }
+        if (lastArch) y += 8;
+        const label = arch === 'other' ? 'Other' : arch.charAt(0).toUpperCase() + arch.slice(1);
+        scroll.add(T().text(this, gx, y + 2, label, { size: 13, color: T().css.gold }));
+        y += 22;
+        lastArch = arch;
+      }
+      const x = gx + col * (cw + 16);
+      const b = { id, x, y, w: cw, h: rh - 6 };
       b.g = this.add.graphics();
-      b.txt = T().text(this, x + 14, y + (rh - 8) / 2, `${sk.name}${sk.kind === 'perk' ? ' ◆' : ''}`, { size: 14, oy: 0.5 });
-      b.tag = T().text(this, x + cw - 14, y + (rh - 8) / 2, sk.archetype || 'social', { size: 11, ox: 1, oy: 0.5, color: T().css.inkFaint });
-      const zone = this.add.zone(x, y, cw, rh - 8).setOrigin(0).setInteractive({ useHandCursor: true });
+      b.txt = T().text(this, x + 14, y + (rh - 6) / 2, `${sk.name}${sk.kind === 'perk' ? ' ◆' : ''}`, { size: 14, oy: 0.5 });
+      b.tag = T().text(this, x + cw - 14, y + (rh - 6) / 2, sk.archetype || 'social', { size: 11, ox: 1, oy: 0.5, color: T().css.inkFaint });
+      const zone = this.add.zone(x, y, cw, rh - 6).setOrigin(0).setInteractive({ useHandCursor: true });
       zone.on('pointerdown', () => { this.descText.setText(sk.name + ' — ' + sk.desc); this.toggleSkill(id); });
       zone.on('pointerover', () => this.descText.setText(sk.name + ' — ' + sk.desc));
       ADV.Tooltip.attach(this, zone, () => ADV.SkillInfo.describe(null, id));
+      scroll.add(b.g); scroll.add(b.txt); scroll.add(b.tag); scroll.add(zone);
       this.skillButtons.push(b);
-      i++;
+      col++;
+      if (col >= cols) { col = 0; y += rh; }
     }
+    if (col !== 0) y += rh;
+    scroll.extend(y + 16);
 
     this.beginBtn = null;
-    this.backBtn = T().button(this, 60, H - 76, 150, 42, '← Back', () => { this.phase = 1; this.children.removeAll(); this.create(); }, { size: 14 });
+    this.backBtn = T().button(this, 60, H - 56, 150, 42, '← Back', () => this.returnPhase1(), { size: 14 });
+    this.backBtn.g.setDepth(10); this.backBtn.txt.setDepth(11); this.backBtn.zone.setDepth(12);
     this.drawSkillButtons();
+  }
+
+  returnPhase1() {
+    const kept = {
+      slot: this.sel.slot, sex: this.sel.sex,
+      name: this.sel.name, skills: (this.sel.skills || []).slice(),
+    };
+    if (this.skillScroll) { this.skillScroll.destroy(); this.skillScroll = null; }
+    if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
+    this.children.removeAll(true);
+    this.phase = 1;
+    this.done = false;
+    this.beginBtn = null;
+    this.sel = kept;
+    const W = T().W, H = T().H;
+    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
+    this.buildPhase1();
   }
 
   toggleSkill(id) {
@@ -224,7 +278,8 @@ class CreationScene extends Phaser.Scene {
     }
     if (this.beginBtn) { this.beginBtn.destroy(); this.beginBtn = null; }
     const ready = n === C().FREE_STARTING_SKILLS;
-    this.beginBtn = T().button(this, T().W / 2 - 130, T().H - 84, 260, 50, 'Step into the world', () => { if (ready) this.begin(); }, { display: true, bold: true, size: 18, disabled: !ready });
+    this.beginBtn = T().button(this, T().W / 2 - 130, T().H - 56, 260, 46, 'Step into the world', () => { if (ready) this.begin(); }, { display: true, bold: true, size: 17, disabled: !ready });
+    this.beginBtn.g.setDepth(10); this.beginBtn.txt.setDepth(11); this.beginBtn.zone.setDepth(12);
   }
 
   // ---------------------------------------------------- Hiro
@@ -233,7 +288,7 @@ class CreationScene extends Phaser.Scene {
     T().text(this, 100, 62, 'Name', { size: 13, color: T().css.inkDim });
     if (this.nameField) this.nameField.destroy();
     this.nameField = ADV.UI.textField(this, {
-      x: 230, y: 92, w: 260, h: 34, size: 18, value: '', maxLen: 14, placeholder: 'Hiro',
+      x: 250, y: 94, w: 300, h: 38, size: 18, value: '', maxLen: 14, placeholder: 'Hiro',
       onChange: (v) => { this.sel.name = v; },
     });
     const key = ADV.Portraits.hiroKey(this);

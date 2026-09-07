@@ -38,11 +38,12 @@
   /* DOM text fields overlaid on the canvas (canvas text can't summon a
      software keyboard). Positioned by ADV.UI.textField in game-space units. */
   .adv-field {
-    position: fixed; box-sizing: border-box; z-index: 20;
+    position: absolute; box-sizing: border-box; z-index: 40;
     background: #211d18; color: #e8e0d0; border: 1px solid #5a4e3c; border-radius: 4px;
     font-family: Georgia, 'Times New Roman', serif; font-size: 16px; /* >=16px: iOS won't zoom */
     text-align: center; outline: none; padding: 0 8px; margin: 0;
     -webkit-user-select: text; user-select: text; touch-action: manipulation;
+    pointer-events: auto;
     -webkit-appearance: none; appearance: none;
   }
   .adv-field:focus { border-color: #c8a24a; }
@@ -120,7 +121,7 @@
 
 <!-- ui -->
 <script src="js/ui/theme.js?v=20260918"></script>
-<script src="js/ui/uikit.js?v=20260918"></script>
+<script src="js/ui/uikit.js?v=20260938"></script>
 <script src="js/ui/home_art.js?v=20260926"></script>
 <script src="js/ui/home_life.js?v=20260926"></script>
 <script src="js/ui/music.js?v=20260924"></script>
@@ -133,7 +134,7 @@
 <script src="js/ui/battle_art.js?v=20260907"></script>
 <script src="js/ui/dialoguebox.js?v=20260924"></script>
 <script src="js/ui/scene_boot.js?v=20260924"></script>
-<script src="js/ui/scene_creation.js?v=20260904"></script>
+<script src="js/ui/scene_creation.js?v=20260938"></script>
 <script src="js/ui/scene_town.js?v=20260931"></script>
 <script src="js/ui/town_panels.js?v=20260929"></script>
 <script src="js/ui/town_panels2.js?v=20260931"></script>
@@ -195,6 +196,8 @@ window.__game = new Phaser.Game({
     [60, 200, 450, 900].forEach(ms => timers.push(setTimeout(refit, ms)));
   }
   window.addEventListener('resize', burst);
+  document.addEventListener('fullscreenchange', burst);
+  document.addEventListener('webkitfullscreenchange', burst);
   window.addEventListener('orientationchange', burst);
   window.addEventListener('pageshow', burst);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) burst(); });

@@ -108,7 +108,7 @@ const UI = {
     opts = opts || {};
     const horiz = !!opts.horizontal;
     const keep = opts.keep || (o => { if (scene.keep) scene.keep(o); return o; });
-    const barW = 6;
+    const barW = 8;
     const view = horiz ? rect.w : rect.h;
     const start = horiz ? rect.x : rect.y;
 
@@ -121,14 +121,14 @@ const UI = {
     keep(maskG);
     container.setMask(maskG.createGeometryMask());
 
-    const barG = scene.add.graphics();
+    const barG = scene.add.graphics().setDepth(6);
     keep(barG);
     const barZone = scene.add.zone(
-      horiz ? rect.x : rect.x + rect.w - 12,
-      horiz ? rect.y + rect.h - 12 : rect.y,
-      horiz ? rect.w : 12,
-      horiz ? 12 : rect.h
-    ).setOrigin(0).setInteractive({ useHandCursor: true });
+      horiz ? rect.x : rect.x + rect.w - 14,
+      horiz ? rect.y + rect.h - 14 : rect.y,
+      horiz ? rect.w : 14,
+      horiz ? 14 : rect.h
+    ).setOrigin(0).setInteractive({ useHandCursor: true }).setDepth(7);
     keep(barZone);
 
     let offset = 0;
@@ -156,15 +156,15 @@ const UI = {
       const max = maxOffset();
       if (max <= 0 || opts.bar === false) { barZone.disableInteractive(); return; }
       barZone.setInteractive({ useHandCursor: true });
-      const trackX = horiz ? rect.x + 4 : rect.x + rect.w - barW - 3;
-      const trackY = horiz ? rect.y + rect.h - barW - 3 : rect.y + 4;
+      const trackX = horiz ? rect.x + 4 : rect.x + rect.w - barW - 4;
+      const trackY = horiz ? rect.y + rect.h - barW - 4 : rect.y + 4;
       const trackLen = (horiz ? rect.w : rect.h) - 8;
-      barG.fillStyle(0x000000, 0.28);
-      if (horiz) barG.fillRoundedRect(trackX, trackY, trackLen, barW, 3);
-      else barG.fillRoundedRect(trackX, trackY, barW, trackLen, 3);
-      const thumbLen = Math.max(22, trackLen * (view / (view + max)));
+      barG.fillStyle(0x000000, 0.45);
+      if (horiz) barG.fillRoundedRect(trackX, trackY, trackLen, barW, 4);
+      else barG.fillRoundedRect(trackX, trackY, barW, trackLen, 4);
+      const thumbLen = Math.max(28, trackLen * (view / (view + max)));
       const thumbOff = (trackLen - thumbLen) * (offset / max);
-      barG.fillStyle(T().c.gold, 0.7);
+      barG.fillStyle(T().c.gold, 0.95);
       if (horiz) barG.fillRoundedRect(trackX + thumbOff, trackY, thumbLen, barW, 3);
       else barG.fillRoundedRect(trackX, trackY + thumbOff, barW, thumbLen, 3);
     }
@@ -317,18 +317,28 @@ const UI = {
 // switch never leaves a stray input on the page.
 const FIELDS = new Set();
 
+function fieldHost() {
+  const d = document;
+  return (d && (d.fullscreenElement || d.webkitFullscreenElement))
+    || (d && d.getElementById('game'))
+    || (d && d.body);
+}
+
 function projectField(f) {
   const game = window.__game;
-  if (!game || !game.canvas) return;
+  if (!game || !game.canvas || !f || !f.el) return;
+  const host = fieldHost();
+  if (host && f.el.parentNode !== host) host.appendChild(f.el);
   const r = game.canvas.getBoundingClientRect();
+  const hr = host && host.getBoundingClientRect ? host.getBoundingClientRect() : { left: 0, top: 0 };
   const sx = r.width / T().W, sy = r.height / T().H;
   const s = Math.min(sx, sy);
   // Minimum sizes win over the design grid on small phones; keep the field
   // centred on its design point either way.
   const w = Math.max(44, f.w * sx), h = Math.max(32, f.h * sy);
   const el = f.el;
-  el.style.left = (r.left + f.x * sx - w / 2) + 'px';
-  el.style.top = (r.top + f.y * sy - h / 2) + 'px';
+  el.style.left = (r.left - hr.left + f.x * sx - w / 2) + 'px';
+  el.style.top = (r.top - hr.top + f.y * sy - h / 2) + 'px';
   el.style.width = w + 'px';
   el.style.height = h + 'px';
   el.style.fontSize = Math.max(16, f.size * s) + 'px';
@@ -372,9 +382,10 @@ UI.textField = function (scene, o) {
   // A phone tap must focus on the FIRST touch: the game shell sets
   // touch-action:none on the body, so the field opts back in.
   el.addEventListener('touchstart', () => { f.focus(); }, { passive: true });
-  document.body.appendChild(el);
+  (fieldHost() || document.body).appendChild(el);
   FIELDS.add(f);
   projectField(f);
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(() => projectField(f));
   if (scene && scene.events) {
     scene.events.once('shutdown', () => f.destroy());
     scene.events.once('destroy', () => f.destroy());
