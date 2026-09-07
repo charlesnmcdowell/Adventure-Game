@@ -254,6 +254,7 @@ Campaign.spawnEnemy = function (rng, typeId, level, opts) {
     (sk.kind === 'perk' ? ch.perks : ch.actives).push({ skillId: id, level, uses: level * 10 });
   }
   ch.enemyLevel = level;
+  if (t.skins && t.skins.length && ADV.Character.applyEnemyLook) ADV.Character.applyEnemyLook(rng, ch, t);
   return ch;
 };
 

@@ -1034,6 +1034,172 @@ const HIRO_RECIPE = {
 
 // ---- monster heads ----------------------------------------------------------
 // Returns rig info for META: { rig: 'wolf'|'sentinel'|'human', anchors }
+function blob(ctx, x, y, rx, ry, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+}
+function pairEyes(ctx, cx, y, dx, color) {
+  for (const s of [-1, 1]) {
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.ellipse(cx + s * dx, y, 7, 5, s * 0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#101010';
+    ctx.beginPath(); ctx.arc(cx + s * dx, y, 2.2, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function drawCreature(ctx, typeId, tint, o) {
+  const cx = W / 2;
+  const c = tint || '#5a5a5f';
+  const dark = shade(c, 0.55);
+  const lit = shade(c, 1.25);
+  if (typeId === 'plant' || typeId === 'moss_giant') {
+    blob(ctx, cx, EYE_Y + 48, 70, 58, dark);
+    blob(ctx, cx, EYE_Y + 8, 48, 50, c);
+    ctx.fillStyle = lit;
+    for (const s of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(cx + s * 10, EYE_Y - 20);
+      ctx.quadraticCurveTo(cx + s * 48, EYE_Y - 90, cx + s * 22, EYE_Y - 28);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle = lit; ctx.lineWidth = 3;
+    for (const s of [-1, 0, 1]) {
+      ctx.beginPath(); ctx.moveTo(cx + s * 18, EYE_Y + 40); ctx.lineTo(cx + s * 28, EYE_Y + 78); ctx.stroke();
+    }
+    pairEyes(ctx, cx, EYE_Y - 2, 16, '#8ad44a');
+    return { rig: 'plant', fur: c, eyeY: EYE_Y - 2, eyeDX: 16, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'boar') {
+    blob(ctx, cx, EYE_Y + 28, 72, 52, c);
+    blob(ctx, cx, EYE_Y + 8, 50, 40, dark);
+    for (const s of [-1, 1]) {
+      ctx.fillStyle = '#e8e0c8';
+      ctx.beginPath(); ctx.moveTo(cx + s * 14, EYE_Y + 36); ctx.lineTo(cx + s * 36, EYE_Y + 58); ctx.lineTo(cx + s * 10, EYE_Y + 46); ctx.closePath(); ctx.fill();
+    }
+    pairEyes(ctx, cx, EYE_Y - 6, 22, '#c8a018');
+    blob(ctx, cx, EYE_Y + 28, 10, 8, '#1c1c1c');
+    return { rig: 'boar', fur: c, eyeY: EYE_Y - 6, eyeDX: 22, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'raptor' || typeId === 'roc' || typeId === 'vulture' || typeId === 'owl') {
+    blob(ctx, cx, EYE_Y + 20, 62, 56, c);
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.moveTo(cx - 70, EYE_Y + 10); ctx.quadraticCurveTo(cx - 20, EYE_Y - 40, cx, EYE_Y + 8); ctx.lineTo(cx - 40, EYE_Y + 30); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + 70, EYE_Y + 10); ctx.quadraticCurveTo(cx + 20, EYE_Y - 40, cx, EYE_Y + 8); ctx.lineTo(cx + 40, EYE_Y + 30); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = typeId === 'owl' ? '#e8c84a' : '#d4a04a';
+    ctx.beginPath(); ctx.moveTo(cx, EYE_Y + 8); ctx.lineTo(cx - 10, EYE_Y + 34); ctx.lineTo(cx + 10, EYE_Y + 34); ctx.closePath(); ctx.fill();
+    pairEyes(ctx, cx, EYE_Y - 8, typeId === 'owl' ? 14 : 18, typeId === 'owl' ? '#f0d060' : '#c8a018');
+    return { rig: 'bird', fur: c, eyeY: EYE_Y - 8, eyeDX: 18, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'serpent' || typeId === 'hydra' || typeId === 'wyrm' || typeId === 'drake' || typeId === 'salamander' || typeId === 'basilisk') {
+    const heads = typeId === 'hydra' ? [-28, 0, 28] : [0];
+    for (const dx of heads) {
+      blob(ctx, cx + dx, EYE_Y + 18, typeId === 'hydra' ? 28 : 54, typeId === 'hydra' ? 36 : 50, c);
+      ctx.fillStyle = lit;
+      ctx.beginPath(); ctx.ellipse(cx + dx, EYE_Y + 40, typeId === 'hydra' ? 10 : 16, 22, 0, 0, Math.PI * 2); ctx.fill();
+      pairEyes(ctx, cx + dx, EYE_Y - 4, typeId === 'hydra' ? 9 : 16, typeId === 'salamander' ? '#e86a30' : '#7ad0e8');
+    }
+    return { rig: 'serpent', fur: c, eyeY: EYE_Y - 4, eyeDX: 16, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'hag') {
+    blob(ctx, cx, EYE_Y + 24, 50, 56, c);
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.moveTo(cx - 56, EYE_Y - 8); ctx.lineTo(cx + 56, EYE_Y - 8); ctx.lineTo(cx + 8, EYE_Y - 92); ctx.closePath(); ctx.fill();
+    pairEyes(ctx, cx, EYE_Y, 15, '#b8e0ff');
+    ctx.fillStyle = '#1c1c1c';
+    ctx.beginPath(); ctx.ellipse(cx, EYE_Y + 28, 6, 10, 0, 0, Math.PI * 2); ctx.fill();
+    return { rig: 'hag', fur: c, eyeY: EYE_Y, eyeDX: 15, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'shadow') {
+    blob(ctx, cx, EYE_Y + 20, 68, 60, dark);
+    ctx.fillStyle = c;
+    ctx.beginPath(); ctx.moveTo(cx - 20, EYE_Y - 20); ctx.lineTo(cx - 40, EYE_Y - 70); ctx.lineTo(cx - 4, EYE_Y - 24); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + 20, EYE_Y - 20); ctx.lineTo(cx + 40, EYE_Y - 70); ctx.lineTo(cx + 4, EYE_Y - 24); ctx.closePath(); ctx.fill();
+    pairEyes(ctx, cx, EYE_Y - 4, 18, '#8a70c0');
+    return { rig: 'shadow', fur: c, eyeY: EYE_Y - 4, eyeDX: 18, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'stag') {
+    blob(ctx, cx, EYE_Y + 22, 56, 50, c);
+    ctx.strokeStyle = lit; ctx.lineWidth = 4;
+    for (const s of [-1, 1]) {
+      ctx.beginPath(); ctx.moveTo(cx + s * 16, EYE_Y - 18); ctx.lineTo(cx + s * 38, EYE_Y - 78); ctx.lineTo(cx + s * 52, EYE_Y - 58); ctx.stroke();
+    }
+    pairEyes(ctx, cx, EYE_Y - 2, 16, '#c8a018');
+    return { rig: 'stag', fur: c, eyeY: EYE_Y - 2, eyeDX: 16, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'panther') {
+    blob(ctx, cx, EYE_Y + 18, 60, 48, c);
+    pairEyes(ctx, cx, EYE_Y - 4, 16, '#e8c84a');
+    blob(ctx, cx, EYE_Y + 28, 16, 14, dark);
+    return { rig: 'panther', fur: c, eyeY: EYE_Y - 4, eyeDX: 16, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'toad') {
+    blob(ctx, cx, EYE_Y + 30, 74, 50, c);
+    blob(ctx, cx - 22, EYE_Y - 8, 16, 16, lit);
+    blob(ctx, cx + 22, EYE_Y - 8, 16, 16, lit);
+    pairEyes(ctx, cx, EYE_Y - 8, 22, '#c8e060');
+    blob(ctx, cx, EYE_Y + 38, 22, 10, '#1c1c1c');
+    return { rig: 'toad', fur: c, eyeY: EYE_Y - 8, eyeDX: 22, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'spider') {
+    blob(ctx, cx, EYE_Y + 16, 46, 40, c);
+    ctx.strokeStyle = dark; ctx.lineWidth = 5;
+    for (const s of [-1, 1]) {
+      for (let i = 0; i < 3; i++) {
+        ctx.beginPath(); ctx.moveTo(cx + s * 20, EYE_Y + 10 + i * 10); ctx.lineTo(cx + s * 70, EYE_Y - 10 + i * 18); ctx.stroke();
+      }
+    }
+    pairEyes(ctx, cx, EYE_Y, 10, '#e8f0ff');
+    return { rig: 'spider', fur: c, eyeY: EYE_Y, eyeDX: 10, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'scorpion') {
+    blob(ctx, cx, EYE_Y + 24, 50, 36, c);
+    ctx.fillStyle = dark;
+    ctx.beginPath(); ctx.moveTo(cx + 20, EYE_Y - 8); ctx.quadraticCurveTo(cx + 70, EYE_Y - 70, cx + 36, EYE_Y - 8); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = lit;
+    ctx.beginPath(); ctx.arc(cx + 38, EYE_Y - 10, 8, 0, Math.PI * 2); ctx.fill();
+    pairEyes(ctx, cx, EYE_Y + 4, 14, '#c8a018');
+    return { rig: 'scorpion', fur: c, eyeY: EYE_Y + 4, eyeDX: 14, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'beetle' || typeId === 'crab') {
+    blob(ctx, cx, EYE_Y + 18, 62, 46, c);
+    ctx.strokeStyle = dark; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(cx, EYE_Y - 20); ctx.lineTo(cx, EYE_Y + 50); ctx.stroke();
+    if (typeId === 'crab') {
+      ctx.fillStyle = lit;
+      ctx.beginPath(); ctx.ellipse(cx - 58, EYE_Y + 8, 16, 22, -0.4, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(cx + 58, EYE_Y + 8, 16, 22, 0.4, 0, Math.PI * 2); ctx.fill();
+    }
+    pairEyes(ctx, cx, EYE_Y - 2, 16, '#58c8e8');
+    return { rig: typeId, fur: c, eyeY: EYE_Y - 2, eyeDX: 16, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'golem' || typeId === 'troll') {
+    blob(ctx, cx, EYE_Y + 16, 60, 58, c);
+    ctx.fillStyle = dark;
+    ctx.fillRect(cx - 28, EYE_Y - 8, 56, 12);
+    pairEyes(ctx, cx, EYE_Y - 2, 16, typeId === 'troll' ? '#8ad44a' : '#58c8e8');
+    return { rig: typeId, fur: c, eyeY: EYE_Y - 2, eyeDX: 16, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'ape' || typeId === 'goblin' || typeId === 'orc') {
+    blob(ctx, cx, EYE_Y + 22, 52, 50, c);
+    blob(ctx, cx, EYE_Y + 36, 28, 18, dark);
+    for (const s of [-1, 1]) {
+      ctx.fillStyle = dark;
+      ctx.beginPath(); ctx.ellipse(cx + s * 38, EYE_Y + 4, 10, 16, s * 0.3, 0, Math.PI * 2); ctx.fill();
+    }
+    pairEyes(ctx, cx, EYE_Y - 4, 15, typeId === 'goblin' ? '#8ad44a' : '#c8a018');
+    return { rig: typeId, fur: c, eyeY: EYE_Y - 4, eyeDX: 15, eyeW: 7, eyeH: 5 };
+  }
+  if (typeId === 'hound') {
+    blob(ctx, cx, EYE_Y + 26, 68, 52, c);
+    for (const s of [-1, 1]) {
+      ctx.fillStyle = dark;
+      ctx.beginPath(); ctx.moveTo(cx + s * 16, EYE_Y - 16); ctx.lineTo(cx + s * 36, EYE_Y - 58); ctx.lineTo(cx + s * 38, EYE_Y - 12); ctx.closePath(); ctx.fill();
+    }
+    pairEyes(ctx, cx, EYE_Y - 2, 18, '#5d8a4a');
+    return { rig: 'hound', fur: c, eyeY: EYE_Y - 2, eyeDX: 18, eyeW: 7, eyeH: 5 };
+  }
+  return null;
+}
+
 function drawMonster(ctx, typeId, tint, o) {
   o = o || {};
   ctx.clearRect(0, 0, W, H);
@@ -1043,7 +1209,9 @@ function drawMonster(ctx, typeId, tint, o) {
   grad.addColorStop(0, 'rgba(255,255,255,0.05)'); grad.addColorStop(1, 'rgba(0,0,0,0.3)');
   ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
   const cx = W / 2;
-  if (typeId === 'dire_wolf' || typeId === 'shadow_beast') {
+  const creature = drawCreature(ctx, typeId, tint, o);
+  if (creature) return creature;
+  if (typeId === 'dire_wolf') {
     const fur = tint || '#5a5a5f';
     ctx.fillStyle = fur;
     ctx.beginPath(); ctx.ellipse(cx, EYE_Y + 30, 75, 65, 0, 0, Math.PI * 2); ctx.fill(); // ruff

@@ -41,17 +41,17 @@ ADV.DATA.ENEMIES = {
     levels: [1, 16], atkMult: 0.8,
   },
   cave_boar: {
-    id: 'cave_boar', name: 'Cave Boar', plural: 'Cave Boars', species: 'beast', portrait: 'dire_wolf', camp: 'wild',
+    id: 'cave_boar', name: 'Cave Boar', plural: 'Cave Boars', species: 'beast', portrait: 'boar', camp: 'wild',
     perks: ['momentum'], actives: ['tusk_gore'],
     levels: [4, 18],
   },
   thorn_lurker: {
-    id: 'thorn_lurker', name: 'Thorn Lurker', plural: 'Thorn Lurkers', species: 'beast', portrait: 'dire_wolf', camp: 'wild',
+    id: 'thorn_lurker', name: 'Thorn Lurker', plural: 'Thorn Lurkers', species: 'beast', portrait: 'plant', camp: 'wild',
     perks: ['wild_form'], actives: ['thorn_lash', 'thorn_skin', 'regenerate'], healer: true,
     levels: [6, 20],
   },
   cliff_raptor: {
-    id: 'cliff_raptor', name: 'Cliff Raptor', plural: 'Cliff Raptors', species: 'beast', portrait: 'dire_wolf', camp: 'wild',
+    id: 'cliff_raptor', name: 'Cliff Raptor', plural: 'Cliff Raptors', species: 'beast', portrait: 'raptor', camp: 'wild',
     perks: ['opportunist'], actives: ['raptor_shred', 'pack_snap'],
     levels: [8, 22], atkMult: 0.9,
   },
@@ -96,7 +96,7 @@ ADV.DATA.ENEMIES = {
     levels: [10, 24], hpMult: 0.6,
   },
   frost_hag: {
-    id: 'frost_hag', name: 'Frost Hag', plural: 'Frost Hags', species: 'beast', portrait: 'hedge_mage', camp: 'wild',
+    id: 'frost_hag', name: 'Frost Hag', plural: 'Frost Hags', species: 'beast', portrait: 'hag', camp: 'wild',
     perks: ['ice_queen'], actives: ['coven_rime', 'rime_grasp'],
     levels: [10, 24], hpMult: 0.7,
   },
@@ -106,7 +106,7 @@ ADV.DATA.ENEMIES = {
     healer: true, levels: [10, 24], usesOffensiveModes: true, hpMult: 0.9,
   },
   shadow_beast: {
-    id: 'shadow_beast', name: 'Shadow Beast', plural: 'Shadow Beasts', species: 'beast', portrait: 'dire_wolf', camp: 'wild',
+    id: 'shadow_beast', name: 'Shadow Beast', plural: 'Shadow Beasts', species: 'beast', portrait: 'shadow', camp: 'wild',
     perks: ['momentum'], actives: ['umbral_rake', 'thorn_skin'],
     levels: [14, 24], atkMult: 0.9,
   },
@@ -122,7 +122,7 @@ ADV.DATA.ENEMIES = {
     levels: [10, 22], hpMult: 0.85,
   },
   moss_matron: {
-    id: 'moss_matron', name: 'Moss Matron', plural: 'Moss Matrons', species: 'beast', portrait: 'frost_hag', camp: 'wild',
+    id: 'moss_matron', name: 'Moss Matron', plural: 'Moss Matrons', species: 'beast', portrait: 'plant', camp: 'wild',
     perks: ['wild_form'], actives: ['growth_field', 'regenerate', 'thorn_lash'], healer: true,
     levels: [10, 26], hpMult: 1.2,
   },
@@ -186,4 +186,25 @@ ADV.DATA.FACTION_BOSSES = {
   criminal: idsOf(ADV.DATA.BOSSES, 'law'),
   neutral:  idsOf(ADV.DATA.BOSSES, 'wild'),
 };
+
+const LOOKS = {
+  bandit: [{ name: 'Ash Hood', tint: '#4a3f30' }, { name: 'Blood Hood', tint: '#6a2a22' }],
+  hedge_mage: [{ name: 'Violet Cowl', tint: '#3f3a50' }, { name: 'Ember Cowl', tint: '#6a3a28' }],
+  grave_acolyte: [{ name: 'Moss Cowl', tint: '#333833' }, { name: 'Bile Cowl', tint: '#3a4a28' }],
+  plated_sentinel: [{ name: 'Iron Plate', tint: '#6e7480' }, { name: 'Brass Plate', tint: '#8a7a48' }],
+  dire_wolf: [{ name: 'Ash Coat', tint: '#5a5a5f' }, { name: 'Night Coat', tint: '#2a2428' }],
+  plant: [{ name: 'Briar', tint: '#3a5a28' }, { name: 'Nightshade', tint: '#24381c' }],
+  boar: [{ name: 'Cave Hide', tint: '#5a4634' }, { name: 'Mud Hide', tint: '#3a2e22' }],
+  raptor: [{ name: 'Cliff Feather', tint: '#6a4a32' }, { name: 'Dusk Feather', tint: '#3a2a28' }],
+  hag: [{ name: 'Hoarfrost', tint: '#4a6a7a' }, { name: 'Winter Veil', tint: '#2a3a4a' }],
+  shadow: [{ name: 'Umbral', tint: '#1a1a22' }, { name: 'Void', tint: '#2a1a2a' }],
+};
+function paintLooks(book) {
+  for (const t of Object.values(book)) {
+    if (t.skins && t.skins.length >= 2) continue;
+    t.skins = LOOKS[t.portrait] || LOOKS.bandit;
+  }
+}
+paintLooks(ADV.DATA.ENEMIES);
+paintLooks(ADV.DATA.BOSSES);
 })();

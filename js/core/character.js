@@ -294,6 +294,17 @@ Character.makeEnemy = function (rng, typeId, opts) {
     ch.actives.push({ skillId: a, level: lvl, uses: lvl * C().USES_PER_LEVEL });
   }
   ch.enemyLevel = lvl;
+  Character.applyEnemyLook(rng, ch, t);
+  return ch;
+};
+
+// Two palette variants per type so the same kit never always wears one coat.
+Character.applyEnemyLook = function (rng, ch, t) {
+  const skins = (t && t.skins) || [];
+  if (!skins.length) return ch;
+  const skin = rng.pick(skins);
+  ch.skin = skin.name;
+  ch.skinTint = skin.tint;
   return ch;
 };
 

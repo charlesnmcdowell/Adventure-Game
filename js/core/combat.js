@@ -1727,6 +1727,27 @@ function spreadSeptic(st, origin, status) {
   addStatus(st, cand[0], copy);
 }
 
+function foeSideOf(u) { return u.side === 'a' ? 'b' : 'a'; }
+function isHostileDot(kind) { return kind === 'poison' || kind === 'bleed' || kind === 'burn'; }
+function hostileSkill(d, off) {
+  if (off && d.offensive) {
+    const t = d.offensive.target || 'enemy';
+    return t === 'enemy' || t === 'enemyLane' || t === 'allEnemies';
+  }
+  if (d.heal && !off) return false;
+  const t = d.target;
+  if (t === 'self' || t === 'ally' || t === 'allyLane' || t === 'party' || t === 'postVictory') return false;
+  return t === 'enemy' || t === 'enemyLane' || t === 'allEnemies' || !t;
+}
+function resolveSkillTarget(st, u, skillId, action, d, off) {
+  const named = st.units.find(x => x.uid === action.targetUid);
+  if (!hostileSkill(d, off)) return named || u;
+  const foes = Combat.validTargets(st, u, skillId, !!off).filter(x => x.side !== u.side && !x.downed);
+  if (named && named.side !== u.side && !named.downed && foes.includes(named)) return named;
+  if (named && named.side !== u.side && !named.downed) return named;
+  return foes[0] || livingUnits(st, foeSideOf(u))[0] || null;
+}
+
 // ---------------------------------------------------------------- actions
 // action: {kind:'skill', skillId, targetUid, offensiveMode} | {kind:'flee'} | {kind:'attack', targetUid} | {kind:'hold'}
 Combat.act = function (st, u, action) {
@@ -1752,7 +1773,8 @@ Combat.act = function (st, u, action) {
   }
   const d = Object.assign({}, m.data);
   const off = action.offensiveMode && d.offensive;
-  const tgt = st.units.find(x => x.uid === action.targetUid) || u;
+  const tgt = resolveSkillTarget(st, u, skillId, action, d, off);
+  if (!tgt) return { ok: false, error: 'no target' };
   if (d.freeAction && u.freeActionUsed) return { ok: false, error: 'already used a free action' };
   if (cooldownLeft(u, skillId) > 0) return { ok: false, error: 'recovering (' + cooldownLeft(u, skillId) + ')' };
   if (battleUseLimit(d) && !canSpendBattleUse(u, skillId, d)) return { ok: false, error: 'once per battle' };
@@ -2047,17 +2069,17 @@ Combat.act = function (st, u, action) {
   if (d.cleaveRows) {
     const rows = d.cleaveRows;
     const li = LANE_IDX[tgt.lane];
-    targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) < rows && canMelee(st, u, x));
+    targets = livingUnits(st, foeSideOf(u)).filter(x => Math.abs(LANE_IDX[x.lane] - li) < rows && canMelee(st, u, x));
   } else if (d.spreadLanes) {
     const li = LANE_IDX[tgt.lane];
-    targets = livingUnits(st, tgt.side).filter(x => Math.abs(LANE_IDX[x.lane] - li) <= 1);
-  } else if (d.target === 'enemyLane') targets = laneUnits(st, tgt.side, tgt.lane);
-  else if (d.target === 'allEnemies') targets = livingUnits(st, tgt.side);
+    targets = livingUnits(st, foeSideOf(u)).filter(x => Math.abs(LANE_IDX[x.lane] - li) <= 1);
+  } else if (d.target === 'enemyLane') targets = laneUnits(st, foeSideOf(u), tgt.lane);
+  else if (d.target === 'allEnemies') targets = livingUnits(st, foeSideOf(u));
   else if (d.multiTarget) {
-    const foes = livingUnits(st, tgt.side).filter(x => x !== tgt);
+    const foes = livingUnits(st, foeSideOf(u)).filter(x => x !== tgt);
     targets = [tgt].concat(foes.slice(0, d.multiTarget - 1));
   } else if (d.adjacent) {
-    const laneMates = laneUnits(st, tgt.side, tgt.lane).filter(x => x !== tgt);
+    const laneMates = laneUnits(st, foeSideOf(u), tgt.lane).filter(x => x !== tgt);
     targets = [tgt].concat(laneMates.slice(0, d.adjacent));
   }
   if (d.pierceBehind) {
@@ -2184,7 +2206,7 @@ Combat.act = function (st, u, action) {
       if (d.rootRounds) addStatus(st, t, { kind: 'rooted', rounds: d.rootRounds });
       if (d.exposedOnSecond && hi === 1) addExposed(st, t, d.exposedOnSecond);
       const vt = u.statuses.find(x => x.kind === 'venomTouch');          // Fox Form
-      if (vt) addStatus(st, t, { kind: 'poison', tier: vt.tier || 'basic', power: vt.power, rounds: vt.dot.rounds, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid });
+      if (vt && t.side !== u.side) addStatus(st, t, { kind: 'poison', tier: vt.tier || 'basic', power: vt.power, rounds: vt.dot.rounds, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid });
       const ot = u.statuses.find(x => x.kind === 'openingTouch');        // Marine Form
       if (ot) addExposed(st, t, ot.stacks);
     }
@@ -2200,7 +2222,7 @@ Combat.act = function (st, u, action) {
     if (dealt > 0 && !t.downed && d.withering) addStatus(st, t, { kind: 'withering', rounds: d.withering });
     if (dealt > 0 && !t.downed && d.healcutRounds) addStatus(st, t, { kind: 'healcut', rounds: d.healcutRounds, pct: 0.5 });
     if (dealt > 0 && !t.downed && d.runic) { t.evade = 0; addStatus(st, t, { kind: 'runic', rounds: 2, srcUid: u.uid }); }
-    if (dealt > 0 && !t.downed) { const sp = u.statuses.find(x => x.kind === 'serpent'); if (sp) addStatus(st, t, { kind: 'poison', tier: sp.tier || 'basic', power: 0.6, rounds: 3, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid }); }
+    if (dealt > 0 && !t.downed && t.side !== u.side) { const sp = u.statuses.find(x => x.kind === 'serpent'); if (sp) addStatus(st, t, { kind: 'poison', tier: sp.tier || 'basic', power: 0.6, rounds: 3, stacks: true, srcAtk: Ch().effStat(u.ch, 'atk'), srcUid: u.uid }); }
     if (dealt > 0 && u.statuses.some(x => x.kind === 'storm') && !t.downed) addStatus(st, t, { kind: 'shock', rounds: 1 });
     if (d.selfWardPct && dealt > 0) addStatus(st, u, { kind: 'ward', hits: 1, pool: Math.round(dealt * d.selfWardPct) });
     if (d.laneBuff) for (const x of laneUnits(st, u.side, u.lane)) addStatus(st, x, Object.assign({}, d.laneBuff));
@@ -2223,6 +2245,7 @@ Combat.act = function (st, u, action) {
     // riders
     if (d.status && dealt > 0) {
       for (const [kind, sdef] of Object.entries(d.status)) {
+        if (isHostileDot(kind) && t.side === u.side) continue;
         addStatus(st, t, Object.assign({ kind, tier: m.tier, srcAtk: Ch().effStat(u.ch, 'atk'), srcLevel: m.level, srcUid: u.uid }, sdef));
       }
       // A killing blow still leaves its poison on the corpse so it can leap.
@@ -2251,7 +2274,7 @@ function applyFlareOnHit(st, u, t, m) {
   const f = m && m.flare;
   if (!f || !t || t.downed) return;
   const atk = Ch().effStat(u.ch, 'atk');
-  if (f.poison) addStatus(st, t, { kind: 'poison', tier: m.tier, power: f.poison.power, rounds: f.poison.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
+  if (f.poison && t.side !== u.side) addStatus(st, t, { kind: 'poison', tier: m.tier, power: f.poison.power, rounds: f.poison.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
   if (f.bleed) addStatus(st, t, { kind: 'bleed', tier: m.tier, power: f.bleed.power, rounds: f.bleed.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
   if (f.rootRounds) addStatus(st, t, { kind: 'rooted', rounds: f.rootRounds });
   if (f.defStrip) { t.defStripped = Math.max(t.defStripped || 0, f.defStrip); ev(st, { t: 'sundered', uid: t.uid }); }

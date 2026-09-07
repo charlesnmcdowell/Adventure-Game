@@ -125,6 +125,16 @@ en({ id: 'academy_proctor', name: 'Academy Proctor', faction: 'varenholm', speci
 en({ id: 'risen', name: 'The Risen', faction: 'varenholm', species: 'human', portrait: 'grave_acolyte', equips: 0,
   pool: [], undead: true, statMult: 1.5, statusImmunities: ['poison', 'bleed', 'burn'] });
 ADV.DATA.CAMPAIGN_ENEMIES = EN;
+const CAMP_LOOKS = {
+  plated_sentinel: [{ name: 'Iron Kit', tint: '#4a4a52' }, { name: 'Brass Kit', tint: '#6a5a38' }],
+  bandit: [{ name: 'Ash Wrap', tint: '#4a3f30' }, { name: 'Night Wrap', tint: '#2a2620' }],
+  hedge_mage: [{ name: 'Violet Cowl', tint: '#3f3a50' }, { name: 'Ink Cowl', tint: '#2a2a38' }],
+  grave_acolyte: [{ name: 'Moss Cowl', tint: '#333833' }, { name: 'Ash Cowl', tint: '#3a3a32' }],
+};
+for (const t of Object.values(EN)) {
+  if (t.skins && t.skins.length >= 2) continue;
+  t.skins = CAMP_LOOKS[t.portrait] || CAMP_LOOKS.bandit;
+}
 
 // Mini-bosses: equip 4-5, always including their signature.
 const MB = {};
