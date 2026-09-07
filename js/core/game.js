@@ -253,6 +253,7 @@ Game.rivalAlignment = function (quest) {
 };
 Game.shouldMeetRival = function (game, quest) {
   if (!quest || quest.campaign) return false;
+  if (quest.track !== 'party') return false;
   if (game.tutorial && game.tutorial.step && game.tutorial.step !== 'done') return false;
   const p = Game.player(game);
   const outings = (p.questsCompleted || 0) + (p.questsFailed || 0);

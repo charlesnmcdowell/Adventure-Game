@@ -125,6 +125,10 @@ const PARAM_LABEL = {
   dmgTakenMult: v => `damage taken ×${v}`,
   reflectPct: v => `reflects ${Math.round(v * 100)}% of damage taken to the attacker`,
   protectAdjacent: () => 'also covers adjacent lane allies',
+  killHealPct: v => `heals ${Math.round(v * 100)}% max HP whenever an enemy dies`,
+  killCleanse: () => 'clears every status on you when an enemy dies',
+  stun: v => `stuns the target for ${v} turn(s)`,
+  critSecondAdjacent: () => 'the second strike is a critical (double damage) on an adjacent enemy',
   guardScope: v => `Shield Wall guard scope: ${v} — halves incoming; 100% of prevented damage hits the attacker`,
   marks: v => `marks ${v === 'lane' ? 'a whole lane' : v + ' enemy(s)'} — marked enemies must attack you`,
   retaliationPower: v => `retaliation ${v}× ATK each time a marked enemy attacks (ignores DEF)`,
@@ -148,7 +152,8 @@ const PARAM_LABEL = {
     if ((k === 'poison' || k === 'bleed') && ADV.Combat && ADV.Combat.DOT_PCT) {
       const pct = ADV.Combat.DOT_PCT[tier || 'basic'] || 0.5;
       const n = ADV.Combat.dotWindow ? ADV.Combat.dotWindow(s.rounds) : (s.rounds || 6);
-      return `${k}${s.stacks ? ' (STACKS)' : ''}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
+      const stack = tier === 'advanced' ? ' (STACKS)' : '';
+      return `${k}${stack}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
     }
     return `${k}${s.stacks ? ' (STACKS)' : ''} ${s.power}× ATK/2 per round, ${s.rounds} rounds`;
   }).join('; '),

@@ -707,11 +707,18 @@ class CombatScene extends Phaser.Scene {
       case 'arenaChampion': { if (v) { V.scalePunch(this, v.img); V.damageNumber(this, v.x, v.y - 44, `ARENA CHAMPION ×${e.stacks}`, '#d4a94e'); this.redrawUnit(v); } return 320; }
       case 'poisonHop': {
         const dest = e.to ? this.view(e.to) : null;
-        if (v) V.damageNumber(this, v.x, v.y - 30, 'poison leaps', '#5d8a4a');
+        const kinds = e.kinds || ['poison'];
+        const label = kinds.includes('poison') && kinds.includes('bleed') ? 'the wound leaps'
+          : kinds.includes('bleed') ? 'bleed leaps' : 'poison leaps';
+        if (v) V.damageNumber(this, v.x, v.y - 30, label, '#5d8a4a');
         if (dest) {
           V.damageNumber(this, dest.x, dest.y - 30, 'caught it', '#5d8a4a');
           this.redrawUnit(dest);
         }
+        return 180;
+      }
+      case 'bulwarkKill': {
+        if (v) { V.damageNumber(this, v.x, v.y - 40, 'bulwark', '#c9a35a'); this.redrawUnit(v); }
         return 180;
       }
       default: return 10;

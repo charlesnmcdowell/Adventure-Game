@@ -70,11 +70,11 @@ def({ id: 'lightning_king', name: 'Lightning King', kind: 'perk', noTierGrowth: 
 
 // ============ TANK — every skill has an offensive component ============
 def({ id: 'bulwark', name: 'Bulwark', kind: 'perk', archetype: 'tank', survivalHp: 20,
-  desc: 'Reduces all incoming damage 20% after the hit is calculated — including percent-of-HP blows — and reflects part of it back. Every battle you walk out of adds 20 max HP, permanently.',
+  desc: 'Reduces all incoming damage 20% after the hit is calculated — including percent-of-HP blows — and reflects part of it back. When any enemy dies you heal 15% of your max HP and every status on you is cleared. Every battle you walk out of adds 20 max HP, permanently.',
   tiers: {
-    basic:        { name: 'Bulwark',   dmgTakenMult: 0.8, reflectPct: 0.25 },
-    intermediate: { name: 'Bulwark+',  dmgTakenMult: 0.8, reflectPct: 0.40, protectAdjacent: true },
-    advanced:     { name: 'Rampart',   dmgTakenMult: 0.8, reflectPct: 0.60, protectAdjacent: true },
+    basic:        { name: 'Bulwark',   dmgTakenMult: 0.8, reflectPct: 0.25, killHealPct: 0.15, killCleanse: true },
+    intermediate: { name: 'Bulwark+',  dmgTakenMult: 0.8, reflectPct: 0.40, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
+    advanced:     { name: 'Rampart',   dmgTakenMult: 0.8, reflectPct: 0.60, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
   } });
 def({ id: 'shield_wall', name: 'Shield Wall', kind: 'active', archetype: 'tank',
   power: 0, target: 'self', reach: 'any',
@@ -211,6 +211,22 @@ def({ id: 'defiant_stand', name: 'Defiant Stand', kind: 'active', archetype: 'fi
     basic:        { name: 'Defiant Stand', reviveHp: 0.2125, reviveUses: 1, reviveAtkMult: 2, reviveBuffRounds: 2, grantSelfTurn: 1 },
     intermediate: { name: 'Deathwish',     reviveHp: 0.425,  reviveUses: 2, reviveAtkMult: 2, reviveBuffRounds: 2, grantSelfTurn: 1 },
     advanced:     { name: 'Blood Rise',    reviveHp: 0.68,   reviveUses: 3, reviveAtkMult: 2, reviveBuffRounds: 2, grantSelfTurn: 1 },
+  } });
+def({ id: 'mace_swing', name: 'Mace Swing', kind: 'active', archetype: 'fighter',
+  power: 2.0, reach: 'front', target: 'enemy', stun: 1, cooldown: 2, noTierGrowth: true,
+  desc: 'A normal attack that stuns the enemy for one turn. Usable every other turn.',
+  tiers: {
+    basic:        { name: 'Mace Swing' },
+    intermediate: { name: 'Mace Swing' },
+    advanced:     { name: 'Mace Swing' },
+  } });
+def({ id: 'dual_swords', name: 'Dual Swords', kind: 'active', archetype: 'fighter',
+  power: 2.0, reach: 'front', target: 'enemy', hits: 2, critSecondAdjacent: true,
+  desc: 'Two attacks in one action. Each counts for Momentum. The second is always a critical — double damage — on an adjacent enemy.',
+  tiers: {
+    basic:        { name: 'Dual Swords' },
+    intermediate: { name: 'Twin Blades' },
+    advanced:     { name: 'Blade Storm' },
   } });
 
 // ============ DRUID / SHAPESHIFTER ============
@@ -474,7 +490,7 @@ ADV.DATA.ARCHETYPE_SKILLS = {
   tank:    { perk: 'bulwark',      actives: ['shield_wall', 'taunt', 'stand_fast'] },
   rogue:   { perk: 'opportunist',  actives: ['backstab', 'smoke_bomb', 'shadow_rise'] },
   ranger:  { perk: 'marksman',     actives: ['aimed_shot', 'snare'] },
-  fighter: { perk: 'momentum',     actives: ['cleave', 'sunder', 'defiant_stand'] },
+  fighter: { perk: 'momentum',     actives: ['cleave', 'sunder', 'defiant_stand', 'mace_swing', 'dual_swords'] },
   druid:   { perk: 'wild_form',    actives: ['thorn_skin', 'beast_shape', 'grove_raise'] },
   healer:  { perk: 'devoted',      actives: ['mend', 'cleanse', 'regenerate', 'guardian_ward', 'triage', 'blood_pact', 'raise'] },
 };

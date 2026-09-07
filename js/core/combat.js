@@ -1226,17 +1226,26 @@ function noteLeaderOut(st, u, died) {
   ev(st, { t: 'end', winner: st.winner, reason: died ? 'leaderFell' : 'leaderFled' });
 }
 
-function hopPoison(st, dead) {
-  const dots = (dead.statuses || []).filter(s => s.kind === 'poison' && !s.__hopped);
+const DOT_HOP = { basic: 0, intermediate: 1, advanced: 3 };
+Combat.DOT_HOP = DOT_HOP;
+function hopDots(st, dead) {
+  const dots = (dead.statuses || []).filter(s => isPctDot(s.kind) && !s.__hopped);
   if (!dots.length) return;
+  const rank = { basic: 0, intermediate: 1, advanced: 2 };
+  let best = 'basic';
+  for (const s of dots) if ((rank[s.tier] || 0) > (rank[best] || 0)) best = s.tier;
+  const n = DOT_HOP[best] || 0;
+  if (n <= 0) return;
   const order = { front: 0, mid: 1, back: 2 };
   const cand = livingUnits(st, dead.side).filter(x => {
     if (x === dead) return false;
-    if (x.ch.statusImmunities && x.ch.statusImmunities.includes('poison')) return false;
     if (x.statuses.some(s => s.kind === 'purified')) return false;
     const dm = perkVal(x.ch, 'demigod', null);
     if (dm && dm.statusImmune) return false;
     return true;
+  }).filter(x => {
+    const imm = x.ch.statusImmunities || [];
+    return dots.some(s => !imm.includes(s.kind));
   });
   if (!cand.length) return;
   cand.sort((a, b) => {
@@ -1245,17 +1254,44 @@ function hopPoison(st, dead) {
     if (da !== db) return da - db;
     return (a.slot || 0) - (b.slot || 0);
   });
-  const tgt = cand[0];
-  for (const s of dots) {
-    s.__hopped = true;
-    addStatus(st, tgt, reseatDot(Object.assign({}, s, { fresh: true, __hopped: false }), tgt));
+  const tgts = cand.slice(0, n);
+  for (const s of dots) s.__hopped = true;
+  for (const tgt of tgts) {
+    const imm = tgt.ch.statusImmunities || [];
+    let hopped = 0;
+    for (const s of dots) {
+      if (imm.includes(s.kind)) continue;
+      addStatus(st, tgt, reseatDot(Object.assign({}, s, { fresh: true, __hopped: false }), tgt));
+      hopped++;
+    }
+    if (hopped) ev(st, { t: 'poisonHop', from: dead.uid, to: tgt.uid, n: hopped, kinds: dots.map(s => s.kind) });
   }
-  ev(st, { t: 'poisonHop', from: dead.uid, to: tgt.uid, n: dots.length });
+}
+function hopPoison(st, dead) { hopDots(st, dead); }
+
+function pickAdjacentFoe(st, primary) {
+  if (!primary) return null;
+  const mates = laneUnits(st, primary.side, primary.lane).filter(x => x !== primary);
+  if (mates.length) return mates[0];
+  const li = LANE_IDX[primary.lane];
+  return livingUnits(st, primary.side).find(x => x !== primary && Math.abs(LANE_IDX[x.lane] - li) === 1) || null;
+}
+
+function bulwarkOnEnemyDown(st, dead) {
+  const foeSide = dead.side === 'a' ? 'b' : 'a';
+  for (const u of livingUnits(st, foeSide)) {
+    const bw = perkVal(u.ch, 'bulwark', null);
+    if (!bw || !bw.killHealPct) continue;
+    healUnit(st, null, u, Math.max(1, Math.round(u.maxHp * bw.killHealPct)), { noCleanse: true });
+    if (bw.killCleanse) healCleanse(st, u, 'all', u.uid);
+    ev(st, { t: 'bulwarkKill', uid: u.uid, from: dead.uid });
+  }
 }
 
 function onUnitDown(st, u) {
   if (trySelfRevive(st, u)) return;
-  hopPoison(st, u);
+  hopDots(st, u);
+  bulwarkOnEnemyDown(st, u);
   noteLeaderOut(st, u, true);
   // step a reserve into the field on the following turn (§15a)
   const side = u.side;
@@ -1471,9 +1507,10 @@ function addStatus(st, tgt, status) {
     ev(st, { t: 'immune', uid: tgt.uid, kind: status.kind });
     return;
   }
-  if ((status.kind === 'bleed' || status.kind === 'poison') && status.stacks) {
+  // Poison and bleed only stack damage at advanced; basic/intermediate refresh.
+  if ((status.kind === 'bleed' || status.kind === 'poison') && status.tier === 'advanced') {
     st.events.push({ t: 'status', uid: tgt.uid, kind: status.kind });
-    tgt.statuses.push(status); // stacking: each application its own instance
+    tgt.statuses.push(status);
     spreadSeptic(st, tgt, status);
     return;
   }
@@ -1531,7 +1568,7 @@ function endRoundTicks(st) {
         if (s.ticks != null) {
           const srcU = s.srcUid ? st.units.find(x => x.uid === s.srcUid) : null;
           healUnit(st, srcU && !srcU.downed ? srcU : null, u, s.perTick || 1, { tick: true, noCleanse: true });
-          healCleanse(st, u, s.druid ? 'dots' : 'stack', s.srcUid || null);   // a druid tick keeps them clean; a regen tick strips one of each
+          healCleanse(st, u, 'dots', s.srcUid || null);   // every heal tick strips poison and bleed
           s.ticks--; if (s.ticks <= 0) removeStatus(u, s);
           continue;
         }
@@ -1589,6 +1626,7 @@ function meleeExtraCap(m) {
   const d = m && m.data;
   if (!d) return 0;
   if (d.id === 'cleave' || d.id === 'basic_attack') return 0;
+  if (d.stun || d.critSecondAdjacent) return 0;
   if (d.cleaveRows || d.hitScale) return 0;
   if (d.elemental) return 0;
   if (!d.power || d.power <= 0) return 0;
@@ -1784,6 +1822,7 @@ Combat.act = function (st, u, action) {
       if (d.selfBleedOnTarget) addStatus(st, t, { kind: 'bleed', tier: m.tier, power: d.selfBleedOnTarget.power, rounds: d.selfBleedOnTarget.rounds, srcAtk: atk, srcUid: u.uid });
       // Regeneration (A2): double the tier value over 5 ticks; refreshes, never stacks; 3-turn cooldown
       if (d.hotRounds) {
+        healCleanse(st, t, d.archetype === 'healer' ? healerCleanseScope(m.tier) : 'dots', u.uid);
         const old = t.statuses.find(x => x.kind === 'hot' && x.regen);
         if (old) removeStatus(t, old);
         addStatus(st, t, { kind: 'hot', regen: true, ticks: REGEN_TICKS, perTick: Math.max(1, Math.round(amt * 2 / REGEN_TICKS)), srcUid: u.uid, tier: m.tier });
@@ -1802,7 +1841,7 @@ Combat.act = function (st, u, action) {
       if (d.cures) for (const kind of d.cures) { const s = t.statuses.find(x => x.kind === kind); if (s) removeStatus(t, s); }
       if (amt > 0) {
         healUnit(st, u, t, amt, { noCleanse: true });
-        if (d.archetype === 'healer') healCleanse(st, t, healerCleanseScope(m.tier), u.uid);
+        healCleanse(st, t, d.archetype === 'healer' ? healerCleanseScope(m.tier) : 'dots', u.uid);
       }
     }
     return finishAction(st, u, skillId);
@@ -1850,8 +1889,8 @@ Combat.act = function (st, u, action) {
     const healTargets = d.healTargets === 'party' ? allies : allies.slice(0, d.healTargets || 1);
     for (const a of healTargets) {
       const amt = Math.round(total / Math.max(1, healTargets.length));
-      healUnit(st, u, a, amt, { noCleanse: d.archetype === 'healer' });
-      if (d.archetype === 'healer') healCleanse(st, a, healerCleanseScope(m.tier), u.uid);
+      healUnit(st, u, a, amt, { noCleanse: true });
+      healCleanse(st, a, d.archetype === 'healer' ? healerCleanseScope(m.tier) : 'dots', u.uid);
     }
     return finishAction(st, u, skillId);
   }
@@ -2011,7 +2050,14 @@ Combat.act = function (st, u, action) {
   if (meleeCap > 1) targets = fillMeleeExtras(st, targets, meleeCap, tgt.side);
   noteMomentumAttack(u);
   const hitScale = (d.hitScale && targets.length) ? targets.length : 1;
-  for (let hi = 0; hi < hits + flareHits; hi++) for (const t of targets) {
+  for (let hi = 0; hi < hits + flareHits; hi++) {
+    let wave = targets;
+    if (d.critSecondAdjacent && hi === 1) {
+      noteMomentumAttack(u);
+      const adj = pickAdjacentFoe(st, tgt);
+      wave = [adj || tgt];
+    }
+    for (const t of wave) {
     if (t.downed) continue;
     if (d.chainDecay && targets.indexOf(t) > 0) { /* decayed power handled below */ }
     if (d.oneShotUndead && t.ch && (t.ch.isUndead || t.ch.isMonster && t.ch.undead)) {
@@ -2044,6 +2090,7 @@ Combat.act = function (st, u, action) {
     let dmg = computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
       : (powerOverride != null ? { power: powerOverride } : undefined));
     if (hitScale > 1) dmg *= hitScale;
+    if (d.critSecondAdjacent && hi === 1) dmg *= 2;
     const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
       cannotMiss: !!d.cannotMiss || !!(Sys().knownVal(u.ch, 'accuracy') && u.momentumArmed), ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect });
     if (isMelee && !t.downed) addExposed(st, t, 1);
@@ -2097,7 +2144,7 @@ Combat.act = function (st, u, action) {
       // A killing blow still leaves its poison on the corpse so it can leap.
       if (t.downed) hopPoison(st, t);
     }
-    if (d.freeze && !t.downed) addStatus(st, t, { kind: 'frozen', skips: d.freeze });
+    if ((d.freeze || d.stun) && !t.downed) addStatus(st, t, { kind: 'frozen', skips: d.freeze || d.stun });
     if (d.shock && !t.downed) addStatus(st, t, { kind: 'shocked', pct: d.shock, rounds: d.shockRounds || 3 });
     if (d.seal && !t.downed) addStatus(st, t, { kind: 'sealed', tiers: d.seal.slice(), rounds: d.sealRounds || 2 });
     if (d.defStrip && !t.downed) { t.defStripped = Math.max(t.defStripped || 0, d.defStrip); ev(st, { t: 'sundered', uid: t.uid }); }
@@ -2111,6 +2158,7 @@ Combat.act = function (st, u, action) {
     // Finisher-like heal riders on damage
     if (d.lifeSteal && dealt > 0) healUnit(st, null, u, Math.round(dealt * d.lifeSteal));
     if (hi === 0 && dealt > 0) applyFlareOnHit(st, u, t, m);
+    }
   }
   return finishAction(st, u, skillId);
 }
@@ -2311,6 +2359,7 @@ Combat._internals = {
   applyTakenReduction,
   ev, perkVal, LANE_IDX, checkEnd, onUnitDown, finishAction, addExposed, canHealOther, canWard,
   NEG_STATUSES, POS_STATUSES, DOT_STATUSES, endRoundTicks, applyRawDamage, applyDruidHeal,
+  hopDots, hopPoison, pickAdjacentFoe,
 };
 ADV.Combat = Combat;
 })();
