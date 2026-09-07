@@ -85,6 +85,48 @@ VFX.healSparkle = function (scene, x, y) {
     scene.tweens.add({ targets: p, y: p.y - 46, alpha: 0, duration: 520 + Math.random() * 200, onComplete: () => p.destroy() });
   }
 };
+// Evade beat (THREAT_PROMPT.md §9): slip + afterimages + the swing through vacated space.
+VFX.evadeBeat = function (scene, view, attacker, opts) {
+  opts = opts || {};
+  if (!view || !view.img) return 220;
+  const pct = !!opts.pct;
+  const img = view.img;
+  const x0 = view.x, y0 = view.y;
+  const dir = view.u && view.u.side === 'a' ? -1 : 1;
+  const dist = pct ? 56 : 90;
+  const afterN = pct ? 1 : 3;
+  const key = img.texture && img.texture.key;
+  const w = img.displayWidth, h = img.displayHeight;
+  for (let i = 0; i < afterN; i++) {
+    try {
+      const ghost = scene.add.image(x0, y0, key).setDisplaySize(w, h).setAlpha(pct ? 0.45 : 0.35 - i * 0.08).setDepth(9).setTint(pct ? 0x7fbf6a : 0xc8c0b0);
+      scene.tweens.add({ targets: ghost, alpha: 0, x: x0 - dir * (8 + i * 10), duration: pct ? 260 : 220, onComplete: () => ghost.destroy() });
+    } catch (e) {}
+  }
+  const streak = scene.add.rectangle(x0, y0, pct ? 28 : 48, 3, pct ? 0x7fbf6a : 0xc8c0b0, 0.55).setDepth(8);
+  scene.tweens.add({ targets: streak, x: x0 + dir * dist * 0.5, alpha: 0, duration: 180, onComplete: () => streak.destroy() });
+  if (pct) {
+    const line = scene.add.rectangle(x0, y0 - 8, 2, h * 0.7, 0x7fbf6a, 0.85).setDepth(11);
+    scene.tweens.add({ targets: line, scaleY: 0.05, alpha: 0, duration: 160, ease: 'Quad.easeIn', onComplete: () => line.destroy() });
+    scene.tweens.add({ targets: img, x: x0 + dir * dist, duration: 90, ease: 'Quad.easeOut',
+      onComplete: () => scene.tweens.add({ targets: img, x: x0, duration: 130, ease: 'Quad.easeIn' }) });
+  } else {
+    scene.tweens.add({ targets: img, x: x0 + dir * dist, duration: 120, ease: 'Quad.easeOut',
+      onComplete: () => scene.tweens.add({ targets: img, x: x0, duration: 180, ease: 'Quad.easeIn' }) });
+  }
+  const vacateX = x0 - dir * 18;
+  VFX.slashArc(scene, vacateX, y0, pct ? 0x7fbf6a : 0xe8dfc8);
+  const word = pct ? 'read' : 'miss';
+  const col = pct ? '#7fbf6a' : '#d8d0b8';
+  const t = scene.add.text(x0 + dir * 20, y0 - 36, word, {
+    fontFamily: ADV.T.font.display, fontSize: pct ? '26px' : '22px', color: col, fontStyle: 'bold',
+    stroke: '#000000', strokeThickness: 3,
+  }).setOrigin(0.5).setDepth(600);
+  scene.tweens.add({ targets: t, x: t.x + dir * 28, y: y0 - 70, alpha: 0, duration: 240, onComplete: () => t.destroy() });
+  if (attacker && attacker.img) VFX.recoil(scene, attacker.img, dir);
+  return pct ? 230 : 250;
+};
+
 VFX.damageNumber = function (scene, x, y, val, color) {
   const t = scene.add.text(x, y, String(val), {
     fontFamily: ADV.T.font.display, fontSize: '22px', color: color || '#f4eee0', fontStyle: 'bold',

@@ -245,6 +245,8 @@ const PARAM_LABEL = {
   auraAtk: v => `party ATK ×${v}`,
   auraDef: v => `party incoming damage ÷${v}`,
   auraEvade: v => `party evade +${Math.round(v * 100)}%`,
+  evadePct: v => `${Math.round(v * 100)}% chance to evade incoming attacks`,
+  rangerExtraUse: v => `${v} extra ranger-skill use(s) per round`,
   element: v => `element: ${v}`,
   guardRounds: v => `negates damage for ${v <= 1 ? 2 : v} turns`,
   markRounds: v => `marks last ${v} rounds`,

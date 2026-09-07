@@ -163,6 +163,13 @@ def({ id: 'marksman', name: 'Marksman', kind: 'perk', archetype: 'ranger',
     intermediate: { name: 'Marksman+',  backLaneBonus: 1.3, ignoreCover: true },
     advanced:     { name: 'Deadeye',    backLaneBonus: 1.3, ignoreCover: true, noReflect: true },
   } });
+def({ id: 'sniper', name: 'Sniper', kind: 'perk', archetype: 'ranger',
+  desc: 'A percentage chance to read incoming attacks and slip them, plus one extra ranger-skill use each round. Not a dodge charge — a real evade roll.',
+  tiers: {
+    basic:        { name: 'Sniper',            evadePct: 0.10, rangerExtraUse: 1 },
+    intermediate: { name: 'Sniper+',           evadePct: 0.25, rangerExtraUse: 1 },
+    advanced:     { name: 'Ghost of the Ridge', evadePct: 0.50, rangerExtraUse: 1 },
+  } });
 def({ id: 'aimed_shot', name: 'Aimed Shot', kind: 'active', archetype: 'ranger',
   power: 3.0, reach: 'any', target: 'enemy',
   desc: 'Single-target ranged damage, any lane.',
@@ -425,7 +432,7 @@ def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, ka
   } });
 def({ id: 'god_aura', name: 'God Aura', kind: 'active', unique: true, noTierGrowth: true,
   power: 0, reach: 'any', target: 'party',
-  desc: 'Team-wide buff: attack, evasion and defense.',
+  desc: 'Team-wide buff: attack, defense, and 15% party evasion (a percentage roll, not dodge charges).',
   tiers: {
     basic:        { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3 },
     intermediate: { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3 },

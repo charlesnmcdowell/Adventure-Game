@@ -34,6 +34,13 @@ function makeUnit(ch, side, idx) {
     downed: false, fled: false, reserved: false,
     statuses: [],           // {kind, rounds, power, stacks, srcUid, scope...}
     marksBy: [],            // taunt marks: uids this unit MUST attack
+    threat: 0,              // current threat (kit + fight events)
+    threatBase: 0,          // what the kit alone is worth; taunt resets to this
+    threatDamage: 0,        // recomputed excess-damage component
+    threatWhy: '',          // one-line reason for the hover
+    damageDealt: 0,         // for the over-share rule
+    healingDone: 0,
+    rangerUsesLeft: 0,      // Sniper extra ranger use this round
     momentumTarget: null, momentumStacks: 0, consecutiveCount: 0, momentumArmed: false,
     guard: null,            // {scope, srcUid} shield wall
     evade: 0, untargetable: 0, counter: 0,
@@ -80,6 +87,139 @@ function perkVal(ch, perkId, key) {
   return key ? data[key] : data;
 }
 
+// ---------------------------------------------------------------- threat (THREAT_PROMPT.md)
+const THREAT_ARCH = { tank: 18, fighter: 14, ranger: 5, druid: 5, healer: 5, mage: 5, rogue: -6 };
+function clampThreat(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+Combat.threatBaseFor = function (ch) {
+  if (!ch) return 40;
+  let sum = 0;
+  for (const e of (ch.actives || []).concat(ch.perks || [])) {
+    const sk = SK()[e.skillId];
+    const arch = sk && sk.archetype;
+    sum += THREAT_ARCH[arch] != null ? THREAT_ARCH[arch] : 5;
+    if (ADV.Campaign && ADV.Campaign.isTankSkill && ADV.Campaign.isTankSkill(e.skillId)) sum += 6;
+  }
+  let base = clampThreat(40 + sum, 15, 160);
+  if (ch.boss || ch.isGod || ch.status === 'hero' || isGod(ch)) base = Math.round(base * 1.3);
+  return base;
+};
+Combat.threatOf = function (u) {
+  if (!u || u.downed || u.fled || u.reserved) return 0;
+  if (u.stealth) return 0;
+  return (u.threat || 0) + (u.threatDamage || 0);
+};
+Combat.addThreat = function (st, u, n, why) {
+  if (!u || !n) return u;
+  const before = u.threat || 0;
+  u.threat = Math.max(0, Math.round(before + n));
+  if (why) u.threatWhy = why;
+  if (st && Math.abs(u.threat - before) >= 8) ev(st, { t: 'threat', uid: u.uid, n: u.threat - before, why: why || '', value: u.threat });
+  return u;
+};
+Combat.resetThreat = function (st, side) {
+  for (const u of (st.units || [])) {
+    if (u.side !== side || u.reserved) continue;
+    u.threat = u.threatBase || Combat.threatBaseFor(u.ch);
+    u.threatDamage = 0;
+    u.threatWhy = 'base';
+  }
+  if (st) ev(st, { t: 'threatReset', side });
+};
+Combat.threatLeader = function (st, side) {
+  const live = livingUnits(st, side);
+  if (!live.length) return null;
+  let best = live[0], bestV = Combat.threatOf(best), tied = false;
+  for (let i = 1; i < live.length; i++) {
+    const v = Combat.threatOf(live[i]);
+    if (v > bestV) { best = live[i]; bestV = v; tied = false; }
+    else if (v === bestV) tied = true;
+  }
+  if (bestV <= 0) return null;
+  return tied && bestV === 0 ? null : best;
+};
+function expectedHit(st, u, t) {
+  try {
+    const m = manifestFor(u, 'basic_attack');
+    return computeDamage(st, u, t, m);
+  } catch (e) {
+    return Math.max(1, Math.round(Ch().effStat(u.ch, 'atk') * 2) - Math.max(0, Ch().effStat(t.ch, 'def')));
+  }
+}
+function noteDamageShare(st, src, dealt) {
+  if (!src || !dealt || src.downed) return;
+  src.damageDealt = (src.damageDealt || 0) + dealt;
+  const living = livingUnits(st, src.side);
+  if (!living.length) return;
+  const share = living.reduce((s, x) => s + (x.damageDealt || 0), 0) / living.length;
+  const excess = Math.max(0, src.damageDealt - share);
+  src.threatDamage = Math.min(90, Math.round(excess / Math.max(1, share) * 45));
+  if (src.threatDamage > 0) src.threatWhy = 'damage share';
+  for (const x of living) {
+    if (x === src) continue;
+    const ex = Math.max(0, (x.damageDealt || 0) - share);
+    x.threatDamage = Math.min(90, Math.round(ex / Math.max(1, share) * 45));
+  }
+}
+Combat.threatTargets = function (st, u, pool) {
+  const list = (pool || []).filter(x => x && !x.downed && !x.fled && !x.reserved);
+  if (!list.length) return [];
+  if (u && u.marksBy && u.marksBy.length) {
+    const forced = list.filter(x => u.marksBy.includes(x.uid));
+    if (forced.length) return forced.slice();
+  }
+  const rng = (st && st.rng) || { float: () => 0.5 };
+  const weights = list.map(t => {
+    let w = Math.max(1, Combat.threatOf(t));
+    const hp = (t.chp || 0) + (t.tempHp || 0);
+    if (u && hp > 0 && hp <= expectedHit(st, u, t)) w *= 2.5;
+    if (t.ch && Sys().knownVal(t.ch, 'targetedLast')) w *= 0.35;
+    if (u && t.lane === u.lane) w *= 1.35;
+    return Math.max(0.01, w);
+  });
+  let total = weights.reduce((s, w) => s + w, 0);
+  const floor = total * 0.08;
+  for (let i = 0; i < weights.length; i++) if (weights[i] < floor) { total += floor - weights[i]; weights[i] = floor; }
+  const scored = list.map((t, i) => ({ t, key: rng.float() / weights[i] }));
+  scored.sort((a, b) => a.key - b.key);
+  return scored.map(x => x.t);
+};
+
+Combat.evadeChance = function (st, u, opts) {
+  opts = opts || {};
+  if (!u || u.downed) return 0;
+  if (opts.cannotMiss) return 0;
+  if (opts.tag === 'dot' || opts.tag === 'reflect' || opts.tag === 'retaliation') return 0;
+  if (u.statuses && u.statuses.some(s => s.kind === 'runic')) return 0;
+  let p = 0;
+  const perk = u.ch ? Sys().knownVal(u.ch, 'evadePct') : 0;
+  if (perk) p += perk;
+  for (const s of u.statuses || []) if (s.kind === 'aura' && s.evadePct) p += s.evadePct;
+  return Math.max(0, Math.min(0.75, p));
+};
+
+function tryEvade(st, src, tgt, tag, opts) {
+  opts = opts || {};
+  if (!src || !tgt) return false;
+  if (opts.cannotMiss || tag === 'dot' || tag === 'reflect' || tag === 'retaliation' || tag === 'smite') return false;
+  const pct = Combat.evadeChance(st, tgt, Object.assign({}, opts, { tag }));
+  if (pct > 0 && st.rng && st.rng.float() < pct) {
+    ev(st, { t: 'evade', uid: tgt.uid, by: src.uid, pct: true, power: opts.power || 0 });
+    return true;
+  }
+  if (tgt.evade > 0) {
+    tgt.evade--;
+    ev(st, { t: 'evade', uid: tgt.uid, by: src.uid, power: opts.power || 0 });
+    return true;
+  }
+  return false;
+}
+
+function initUnitThreat(u) {
+  if (!u) return;
+  u.threatBase = Combat.threatBaseFor(u.ch);
+  u.threat = u.threatBase;
+  u.threatWhy = 'base';
+}
 
 // ---- lane geometry & positional casting rules -------------------------------
 const LANE_IDX = { front: 0, mid: 1, back: 2 };
@@ -96,34 +236,72 @@ function canWard(caster, tgt) {
 
 // -------------------------------------------------------------- lane layout
 function layoutSide(units) {
-  // Prefer: tanks/fighters front, healers/mages/rangers back, rest mid.
+  // Highest-threat kits fill front first; healers keep mid; explicit inclination wins.
   const backish = ['mage', 'ranger'];
-  const midish = ['healer'];      // healing reaches exactly one lane ahead
+  const midish = ['healer'];
   const frontish = ['tank', 'fighter', 'druid'];
   const lanes = { front: [], mid: [], back: [] };
   const solo = units.length === 1;
-  for (const u of units) {
-    if (u.reserved) continue;
+  const live = units.filter(u => !u.reserved);
+
+  function place(u, prefer) {
+    const order = prefer === 'front' ? ['front', 'mid', 'back'] :
+                  prefer === 'back' ? ['back', 'mid', 'front'] : ['mid', 'front', 'back'];
+    for (const L of order) {
+      if (lanes[L].length < C().LANE_CAP) {
+        lanes[L].push(u); u.lane = L; u.slot = lanes[L].length - 1;
+        return;
+      }
+    }
+    u.reserved = true;
+  }
+
+  if (solo) {
+    for (const u of live) place(u, 'front');
+    return lanes;
+  }
+
+  const explicit = [];
+  const rest = [];
+  for (const u of live) {
+    if (u.ch.archetypeInclination && u.ch.archetypeInclination[0]) explicit.push(u);
+    else rest.push(u);
+  }
+  for (const u of explicit) {
+    const inc = u.ch.archetypeInclination[0];
     let lane = 'mid';
-    const inc = (u.ch.archetypeInclination && u.ch.archetypeInclination[0]) ||
-                mainArchetype(u.ch);
-    if (solo) lane = 'front';                       // a solo character occupies the front lane (§15a)
-    else if (frontish.includes(inc)) lane = 'front';
+    if (frontish.includes(inc)) lane = 'front';
     else if (midish.includes(inc)) lane = 'mid';
     else if (backish.includes(inc)) lane = 'back';
-    // overflow to adjacent lanes
-    const order = lane === 'front' ? ['front', 'mid', 'back'] :
-                  lane === 'back' ? ['back', 'mid', 'front'] : ['mid', 'front', 'back'];
-    for (const L of order) {
-      if (lanes[L].length < C().LANE_CAP) { lanes[L].push(u); u.lane = L; u.slot = lanes[L].length - 1; break; }
-    }
-    if (!u.lane) { u.reserved = true; }              // field cap: 9 per side (§15a)
+    place(u, lane);
   }
-  // guarantee front occupancy: if front empty but others occupied, pull forward
+  const healers = rest.filter(u => midish.includes(mainArchetype(u.ch)));
+  const others = rest.filter(u => !midish.includes(mainArchetype(u.ch)));
+  others.sort((a, b) => (b.threatBase || Combat.threatBaseFor(b.ch)) - (a.threatBase || Combat.threatBaseFor(a.ch)));
+  for (const u of healers) place(u, 'mid');
+  const cap = C().LANE_CAP;
+  const frontBound = [];
+  const backBound = [];
+  for (const u of others) {
+    const arch = mainArchetype(u.ch);
+    const tb = u.threatBase || Combat.threatBaseFor(u.ch);
+    if (backish.includes(arch) || tb < 45) backBound.push(u);
+    else frontBound.push(u);
+  }
+  while (frontBound.length && lanes.front.length < cap) place(frontBound.shift(), 'front');
+  for (const u of frontBound) place(u, 'mid');
+  for (const u of backBound) {
+    const arch = mainArchetype(u.ch);
+    const tb = u.threatBase || Combat.threatBaseFor(u.ch);
+    place(u, (backish.includes(arch) || tb < 45) ? 'back' : 'mid');
+  }
   if (!lanes.front.length) {
     const src = lanes.mid.length ? 'mid' : 'back';
     const u = lanes[src].shift();
-    if (u) { lanes.front.push(u); u.lane = 'front'; u.slot = 0; }
+    if (u) {
+      lanes.front.push(u); u.lane = 'front'; u.slot = 0;
+      lanes[src].forEach((x, i) => { x.slot = i; });
+    }
   }
   return lanes;
 }
@@ -164,6 +342,7 @@ Combat.create = function (charsA, charsB, opts) {
   for (const ch of charsA) st.units.push(makeUnit(ch, 'a', i++));
   i = 0;
   for (const ch of charsB) st.units.push(makeUnit(ch, 'b', i++));
+  for (const u of st.units) initUnitThreat(u);
   // field cap
   for (const side of ['a', 'b']) {
     const mine = st.units.filter(u => u.side === side);
@@ -244,6 +423,7 @@ function applyRevive(st, src, tgt, d, skillId) {
   if (arch === 'druid') addStatus(st, tgt, { kind: 'grove', rounds: d.buffRounds || d.reviveBuffRounds || 3, srcUid: src ? src.uid : null });
   else if (arch === 'healer') addStatus(st, tgt, { kind: 'wings', rounds: d.reviveBuffRounds || 2, srcUid: src ? src.uid : null });
   ev(st, { t: 'revive', uid: tgt.uid, by: src ? src.uid : tgt.uid, skillId: skillId || null, arch });
+  if (src) Combat.addThreat(st, src, 40, 'healing');
   if (src && (arch === 'druid' || arch === 'healer')) {
     st.revLines = st.revLines || {};
     const first = !st.revLines[src.uid];
@@ -442,7 +622,10 @@ Combat.refreshFreeBuffs = refreshFreeBuffs;
 function startRound(st) {
   st.round++;
   tickCooldowns(st);
-  for (const u of st.units) { u.delayed = 0; u.attackedThisRoundBy = []; } // per-round trackers
+  for (const u of st.units) {
+    u.delayed = 0; u.attackedThisRoundBy = [];
+    u.rangerUsesLeft = Sys().knownVal(u.ch, 'rangerExtraUse') || 0;
+  }
   // scripted reinforcements (The Quiet raises the Risen mid-fight, §6a)
   if (st.spawnQueue) {
     for (const spec of st.spawnQueue.filter(x => x.round === st.round)) Combat.spawnReinforcement(st, spec.ch, spec.side || 'b');
@@ -762,7 +945,8 @@ function autoUsable(st, u, r) {
     if (!needy.length) return null;
     pool = needy;
   }
-  const tgt = Combat.lowestHealth(pool);
+  const hostile = pool[0] && pool[0].side !== u.side;
+  const tgt = hostile ? (Combat.threatTargets(st, u, pool)[0] || null) : Combat.lowestHealth(pool);
   if (!tgt) return null;
   return {
     action: { skillId: r.skillId, off: !!r.off, isAttack: r.skillId === 'basic_attack', pool },
@@ -975,12 +1159,8 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
     const ex = tgt.statuses.find(x => x.kind === 'exposed');
     if (ex && ex.stacks > 0) { amount = Math.round(amount * (1 + 0.2 * ex.stacks)); removeStatus(tgt, ex); ev(st, { t: 'exposedBurst', uid: tgt.uid, stacks: ex.stacks }); }
   }
-  // Evade / counter
-  if (tgt.evade > 0 && src && !opts.cannotMiss && tag !== 'dot' && tag !== 'reflect' && tag !== 'retaliation') {
-    tgt.evade--;
-    ev(st, { t: 'evade', uid: tgt.uid, by: src.uid });
-    return 0;
-  }
+  if (tryEvade(st, src, tgt, tag, opts)) return 0;
+  opts.evadeChecked = true;
   const locked = tgt.statuses.some(x => x.kind === 'reactionLock');   // Bell-Silence
   if (tgt.counter > 0 && src && tag === 'attack' && !locked) {
     tgt.counter--;
@@ -1109,6 +1289,7 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
       for (const g of group) dealt += applyRawDamage(st, src, g, each, tag, opts);
     } else dealt = applyRawDamage(st, src, tgt, dmg, tag, opts);
   } else dealt = applyRawDamage(st, src, tgt, dmg, tag, opts);
+  if (src && dealt > 0 && tag !== 'dot' && tag !== 'reflect' && tag !== 'retaliation') noteDamageShare(st, src, dealt);
   if (opts.element) tgt.lastElementTaken = opts.element;
   if (src && src.reflectImmuneNext && tag !== 'dot') src.reflectImmuneNext = false;
   if (src && dealt > 0 && opts.element === 'fire') {
@@ -1191,6 +1372,8 @@ Combat.applyTakenReduction = applyTakenReduction;
 
 function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   if (!tgt || tgt.downed || tgt.fled) return 0;
+  opts = opts || {};
+  if (!opts.evadeChecked && tryEvade(st, src, tgt, tag, opts)) return 0;
   // Hollow Discipline: being hit does not break stealth. Only attacking does.
   if (tgt.stealth && !perkVal(tgt.ch, 'hollow_discipline', 'stealthKeepsOnHit')) { /* base rules elsewhere */ }
   dmg = applyOpportunist(src, tgt, dmg, opts);
@@ -1239,6 +1422,7 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
       ev(st, { t: 'down', uid: tgt.uid, by: src ? src.uid : null });
       onUnitDown(st, tgt);
       if (src && tgt.downed) {
+        Combat.addThreat(st, src, 20, 'kill');
         src.killStreak++;                                        // Executioner's Rhythm
         src.ch.lifeKills = (src.ch.lifeKills || 0) + 1;          // Fifty Names' tally
         if (src.stealthOnKillPending) { src.stealth = true; src.stealthRounds = 2; src.stealthOnKillPending = false; ev(st, { t: 'stealth', uid: src.uid }); }
@@ -1255,6 +1439,8 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
             const existing = f.statuses.find(x => x.kind === 'taunted' && x.srcUid === src.uid);
             if (existing) existing.rounds = ac.tauntRounds; else addStatus(st, f, { kind: 'taunted', srcUid: src.uid, rounds: ac.tauntRounds });
           }
+          Combat.resetThreat(st, src.side);
+          Combat.addThreat(st, src, 40, 'taunt');
           ev(st, { t: 'arenaChampion', uid: src.uid, stacks: src.arenaStacks });
         }
       }
@@ -1268,6 +1454,7 @@ Combat.spawnReinforcement = function (st, ch, side) {
   const idx = st.units.filter(x => x.side === side).length;
   ch.combatHp = null;
   const u = makeUnit(ch, side, idx);
+  initUnitThreat(u);
   st.units.push(u);
   const lanes = { front: laneUnits(st, side, 'front'), mid: laneUnits(st, side, 'mid'), back: laneUnits(st, side, 'back') };
   for (const L of ['front', 'mid', 'back']) {
@@ -1414,7 +1601,13 @@ function healCleanse(st, tgt, scope, byUid) {
     const kinds = scope === 'all' ? NEG_STATUSES : scope === 'dots+' ? ['poison', 'bleed', 'burn', 'healcut', 'withering'] : ['poison', 'bleed', 'withering'];
     for (const x of tgt.statuses.slice()) if (kinds.includes(x.kind)) kill(x);
   }
-  if (cured) ev(st, { t: 'cleansed', uid: tgt.uid, cured, byHeal: true, by: byUid || null });
+  if (cured) {
+    ev(st, { t: 'cleansed', uid: tgt.uid, cured, byHeal: true, by: byUid || null });
+    if (byUid) {
+      const healer = st.units.find(x => x.uid === byUid);
+      if (healer) Combat.addThreat(st, healer, 8 * cured, 'healing');
+    }
+  }
   return cured;
 }
 Combat.healCleanse = healCleanse;
@@ -1441,12 +1634,24 @@ function healUnit(st, src, tgt, amount, opts) {
   const applied = Math.min(missing, amount);
   tgt.chp += applied;
   let over = amount - applied;
+  const tempBefore = tgt.tempHp;
   if (over > 0) {
     // Overheal -> temp HP, cap 50% of max (universal, §15a); Demigod uncapped; Devoted+ doubles
     if (dev && dev.tempHpDouble) over *= 2;
     let cap = Math.round(tgt.maxHp * ((dev && dev.tempHpCap) || C().OVERHEAL_CAP_PCT));
     if (dm && SK().demigod.overhealUncapped) cap = Infinity;
     tgt.tempHp = Math.min(cap, tgt.tempHp + over);
+  }
+  const tempGain = Math.max(0, tgt.tempHp - tempBefore);
+  if (src) {
+    const appliedPts = tgt.maxHp ? Math.round(applied / tgt.maxHp * 60) : 0;
+    const overPts = tgt.maxHp && tempGain ? Math.round(tempGain / tgt.maxHp * 30) : 0;
+    let n = appliedPts + overPts;
+    if (src === tgt) n = Math.round(n * 0.5);
+    if (n) {
+      src.healingDone = (src.healingDone || 0) + applied;
+      Combat.addThreat(st, src, n, 'healing');
+    }
   }
   ev(st, { t: 'heal', uid: tgt.uid, by: src ? src.uid : null, amount, temp: tgt.tempHp, tick: !!opts.tick });
   // Devoted advanced: healing also damages the nearest enemy
@@ -1662,6 +1867,14 @@ function endRoundTicks(st) {
       }
     }
     if (u.untargetable > 0) { u.untargetable--; if (u.untargetable <= 0 && u.stealthRounds <= 0) u.stealth = false; }
+  }
+  for (const u of st.units) {
+    if (u.reserved) continue;
+    const base = u.threatBase || 0;
+    const cur = u.threat || 0;
+    if (cur === base) continue;
+    const next = cur + (base - cur) * 0.15;
+    u.threat = cur > base ? Math.max(base, Math.round(next)) : Math.min(base, Math.round(next));
   }
   checkEnd(st);
 }
@@ -2114,6 +2327,8 @@ Combat.act = function (st, u, action) {
       else f.statuses.push({ kind: 'taunted', srcUid: u.uid, rounds: d.markRounds || 3 });
       ev(st, { t: 'taunted', uid: f.uid, by: u.uid });
     }
+    Combat.resetThreat(st, u.side);
+    Combat.addThreat(st, u, 40, 'taunt');
     return finishAction(st, u, skillId);
   }
 
@@ -2247,7 +2462,7 @@ Combat.act = function (st, u, action) {
     if (d.critSecondAdjacent && hi === 1 && t !== tgt) dmg *= 2;
     const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
       cannotMiss: !!d.cannotMiss || !!(Sys().knownVal(u.ch, 'accuracy') && u.momentumArmed), ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect,
-      noExecute: hi >= hits });
+      noExecute: hi >= hits, power: d.power });
     for (let ei = st.events.length - 1; ei >= 0 && ei >= st.events.length - 8; ei--) {
       if (st.events[ei].t === 'down' && st.events[ei].uid === t.uid) { felled.add(t.uid); break; }
     }
@@ -2363,6 +2578,12 @@ function finishAction(st, u, skillId) {
   if (free || u.refundAction) {
     u.refundAction = false;
     ev(st, { t: 'refund', uid: u.uid });
+    return { ok: true, refund: true };
+  }
+  const arch = (m && m.data && m.data.archetype) || (skillId && SK()[skillId] && SK()[skillId].archetype);
+  if (arch === 'ranger' && (u.rangerUsesLeft || 0) > 0) {
+    u.rangerUsesLeft--;
+    ev(st, { t: 'refund', uid: u.uid, why: 'sniper' });
     return { ok: true, refund: true };
   }
   return { ok: true };

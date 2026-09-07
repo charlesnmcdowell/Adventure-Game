@@ -116,21 +116,20 @@ function chooseAction(st, u) {
       continue;
     }
     if (!pool.length) continue;
-    pool = avoidLookism(pool);
     // Nameless mooks never Backstab (campaign §0d makes it a 6.0 any-lane burst;
     // §11a: the first two minutes matter). Bosses and named rogues still do —
     // that is where the player witnesses it.
     if (d.openerOrStealth && u.ch.isMonster && !u.ch.boss) continue;
-    // damaging active: prefer wounded targets, back-lane for backstab handled by pool
-    const t = pool.sort((x, y) => (x.chp / x.maxHp) - (y.chp / y.maxHp))[0];
+    const t = Combat.threatTargets(st, u, pool)[0];
+    if (!t) continue;
     let w = 3 + (d.power || 0) * 0.5 + (p.aggression || 50) / 50;
     if (d.executeBelow && (t.chp / t.maxHp) < d.executeBelow) w += 20;
     candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: t.uid, weight: w, offensiveMode });
   }
   // Basic attack always legal against the front (§15a)
-  const meleePool = avoidLookism(Combat.validTargets(st, u, 'basic_attack', false));
+  const meleePool = Combat.threatTargets(st, u, Combat.validTargets(st, u, 'basic_attack', false));
   if (meleePool.length) {
-    const t = meleePool.sort((x, y) => (x.chp / x.maxHp) - (y.chp / y.maxHp))[0];
+    const t = meleePool[0];
     // Taunt marks compel attacking (§3a): "it must attack you"
     candidates.push({ kind: 'attack', targetUid: t.uid, weight: u.marksBy.length ? 10 : 1.5 });
   }
@@ -143,12 +142,6 @@ function chooseAction(st, u) {
   let r = st.rng.float() * total;
   for (const c of candidates) { r -= c.weight; if (r <= 0) return c; }
   return candidates[candidates.length - 1];
-}
-
-// Lookism: enemies would rather hit anyone else on the field (request 16)
-function avoidLookism(list) {
-  const rest = list.filter(x => !(ADV.SkillSys && ADV.SkillSys.knownVal(x.ch, 'targetedLast')));
-  return rest.length ? rest : list;
 }
 
 Combat.aiTakeTurn = function (st, u) {

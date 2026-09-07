@@ -123,8 +123,14 @@ class CombatScene extends Phaser.Scene {
     const intent = T().text(this, x, y - img.displayHeight / 2 - 18, '', { size: 10, ox: 0.5, color: T().css.blue, wrap: 130, align: 'center' });
     const status = T().text(this, x, y + img.displayHeight / 2 + 33, '', { size: 9, ox: 0.5, color: T().css.purple });
     const pips = this.add.graphics();
-    const view = { u, img, frame, name, hpBar, intent, status, pips, crown, x, y };
+    const threatBar = this.add.graphics();
+    const threatMark = this.add.graphics().setDepth(21);
+    const view = { u, img, frame, name, hpBar, intent, status, pips, crown, threatBar, threatMark, x, y };
     this.unitViews.set(u.uid, view);
+    try {
+      img.setInteractive();
+      if (ADV.Tooltip && ADV.Tooltip.attach) ADV.Tooltip.attach(this, img, () => this.threatHover(view.u));
+    } catch (e) {}
     this.redrawUnit(view);
     return view;
   }
@@ -204,6 +210,7 @@ class CombatScene extends Phaser.Scene {
       const tp = Math.min(1, u.tempHp / u.maxHp);
       v.hpBar.fillStyle(T().c.tempHp, 1); v.hpBar.fillRect(v.x - w / 2, by + 8, w * tp, 3);
     }
+    this.paintThreatBar(v);
     const revealHp = this.game_ && ADV.SkillSys && ADV.SkillSys.knownVal(ADV.Game.player(this.game_), 'revealHp');
     if (revealHp && u.side === 'b') {
       if (!v.hpTxt) v.hpTxt = this.add.text(v.x, by + 12, '', { fontFamily: T().font, fontSize: '10px', color: '#e8dfc8' }).setOrigin(0.5, 0);
@@ -234,8 +241,66 @@ class CombatScene extends Phaser.Scene {
     else if (ADV.SpellFX) ADV.SpellFX.syncStatus(this, v);
     if (u.stealth && !u.downed && !u.fled) { v._fxStealthed = true; if (v.img.alpha > 0.5) v.img.setAlpha(0.4); }
     else if (v._fxStealthed && !u.downed && !u.fled) { v._fxStealthed = false; v.img.setAlpha(1); }
-    if (u.downed) { ADV.VFX.desaturate(v.img); v.intent.setText(''); v.frame.setAlpha(0.4); v.name.setAlpha(0.5); if (v.crown) v.crown.setAlpha(0.4); }
-    if (u.fled) { v.img.setAlpha(0.2); v.intent.setText('fled'); if (v.crown) v.crown.setAlpha(0.2); }
+    if (u.downed) { ADV.VFX.desaturate(v.img); v.intent.setText(''); v.frame.setAlpha(0.4); v.name.setAlpha(0.5); if (v.crown) v.crown.setAlpha(0.4); if (v.threatMark) v.threatMark.setAlpha(0); }
+    if (u.fled) { v.img.setAlpha(0.2); v.intent.setText('fled'); if (v.crown) v.crown.setAlpha(0.2); if (v.threatMark) v.threatMark.setAlpha(0); }
+    this.refreshThreatMarks();
+  }
+
+  threatHover(u) {
+    if (!u) return '';
+    const st = this.st();
+    const cur = ADV.Combat.threatOf ? ADV.Combat.threatOf(u) : (u.threat || 0);
+    const base = u.threatBase || 0;
+    const why = u.threatWhy || 'base';
+    const lines = [u.ch.name, 'threat ' + cur + '  (base ' + base + ')', why];
+    const revealHp = this.game_ && ADV.SkillSys && ADV.SkillSys.knownVal(ADV.Game.player(this.game_), 'revealHp');
+    if (revealHp && u.side === 'b') lines.splice(1, 0, Math.ceil(u.chp) + '/' + u.maxHp + ' HP');
+    return lines;
+  }
+
+  paintThreatBar(v) {
+    if (!v.threatBar) return;
+    v.threatBar.clear();
+    const st = this.st();
+    const u = v.u;
+    if (!st || !u || u.downed || u.fled) return;
+    const sideMax = Math.max(1, ...st.units.filter(x => x.side === u.side && !x.downed && !x.fled && !x.reserved).map(x => ADV.Combat.threatOf(x)));
+    const frac = Math.max(0, Math.min(1, ADV.Combat.threatOf(u) / sideMax));
+    const w = v.img.displayWidth;
+    const by = v.y + v.img.displayHeight / 2 + (u.tempHp > 0 ? 12 : 11);
+    v.threatBar.fillStyle(0x0d0c0a, 0.85); v.threatBar.fillRect(v.x - w / 2, by, w, 3);
+    v.threatBar.fillStyle(0x3d9b8f, 0.75); v.threatBar.fillRect(v.x - w / 2, by, w * frac, 3);
+  }
+
+  refreshThreatMarks() {
+    const st = this.st();
+    if (!st || !ADV.Combat.threatLeader) return;
+    for (const side of ['a', 'b']) {
+      const lead = ADV.Combat.threatLeader(st, side);
+      for (const v of this.unitViews.values()) {
+        if (v.u.side !== side || !v.threatMark) continue;
+        const on = !!(lead && lead.uid === v.u.uid && !v.u.downed && !v.u.fled);
+        const was = !!v._threatLead;
+        v.threatMark.clear();
+        if (on) {
+          const mx = v.x, my = v.y - v.img.displayHeight / 2 - 22;
+          v.threatMark.lineStyle(2, 0x3d9b8f, 0.95);
+          v.threatMark.strokeCircle(mx, my, 7);
+          v.threatMark.fillStyle(0x3d9b8f, 0.95);
+          v.threatMark.fillTriangle(mx, my + 11, mx - 6, my + 2, mx + 6, my + 2);
+          if (!was) {
+            v.threatMark.setAlpha(0).setY(-8);
+            this.tweens.add({ targets: v.threatMark, alpha: 1, y: 0, duration: 250, ease: 'Quad.easeOut' });
+            if (!v._threatBob) {
+              v._threatBob = this.tweens.add({ targets: v.threatMark, y: 4, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+            }
+          }
+        } else if (was) {
+          this.tweens.add({ targets: v.threatMark, alpha: 0, y: 10, duration: 220, onComplete: () => { if (v._threatBob) { v._threatBob.stop(); v._threatBob = null; } } });
+        }
+        v._threatLead = on;
+      }
+    }
   }
 
   refreshIntents() {
@@ -617,10 +682,21 @@ class CombatScene extends Phaser.Scene {
         return 260;
       }
       case 'evade': {
-        if (v) { V.damageNumber(this, v.x, v.y - 30, 'miss', '#a89a7c'); this.reactAt(v, 'smug', { ms: 450, intensity: 0.5 }); }
         const by = e.by ? this.view(e.by) : null;
-        if (by) this.reactAt(by, 'angry', { ms: 500, intensity: 0.5 });
-        return 100;
+        const pct = !!e.pct;
+        if (v) {
+          const low = v.u.maxHp && (v.u.chp / v.u.maxHp) < 0.3;
+          const mood = ADV.Portraits.moodFor ? ADV.Portraits.moodFor(this.game_, v.u.ch, 'combat', { unit: v.u, st: this.st() }) : null;
+          this.reactAt(v, low ? 'resolve' : (mood && mood.mood) || 'smug', { ms: 450, intensity: 0.6 });
+          if (ADV.VFX.evadeBeat) ADV.VFX.evadeBeat(this, v, by, { pct });
+          else V.damageNumber(this, v.x, v.y - 30, pct ? 'read' : 'miss', pct ? '#7fbf6a' : '#a89a7c');
+        }
+        if (by) {
+          this.reactAt(by, (e.power || 0) >= 3 ? 'surprised' : 'angry', { ms: 500, intensity: 0.6 });
+          if (ADV.Portraits.motion) ADV.Portraits.motion(this, by.img, 'recoil');
+        }
+        if ((e.power || 0) >= 3) this.cameraPunch();
+        return pct ? 230 : 250;
       }
       case 'counter': { if (v) V.damageNumber(this, v.x, v.y - 30, 'counter!', '#6fa0bf'); return 140; }
       case 'ward': { if (v) V.damageNumber(this, v.x, v.y - 30, 'blocked', '#d4a94e'); return 100; }
@@ -726,6 +802,11 @@ class CombatScene extends Phaser.Scene {
       case 'bulwarkKill': {
         if (v) { V.damageNumber(this, v.x, v.y - 40, 'bulwark', '#c9a35a'); this.redrawUnit(v); }
         return 180;
+      }
+      case 'threat':
+      case 'threatReset': {
+        for (const view of this.unitViews.values()) this.redrawUnit(view);
+        return 40;
       }
       default: return 10;
     }
