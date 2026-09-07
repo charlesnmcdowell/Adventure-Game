@@ -100,12 +100,26 @@ Death.rememberDeadChild = function (world, child, parent) {
   });
 };
 
+// Finisher's +1-all is tracked on finisherGains so death can unwind it
+// without touching title or Hero bonuses that share bonusStats.
+Death.stripFinisherGains = function (ch) {
+  if (!ch) return;
+  const n = ch.finisherGains || 0;
+  if (n && ch.bonusStats) {
+    for (const k of ['hp', 'atk', 'def', 'spd']) {
+      ch.bonusStats[k] = Math.max(0, (ch.bonusStats[k] || 0) - n);
+    }
+  }
+  ch.finisherGains = 0;
+};
+
 Death.finalize = function (world, ch, killerId, cause) {
   if (!ch.alive) return;
   if (ch.hiroNpc && !ch.isPlayer && ADV.Hiro) {
     ADV.Hiro.resurrect(world, ch, killerId, cause);
     return { resurrected: true };
   }
+  Death.stripFinisherGains(ch);
   ch.alive = false;
   ch.deadAtQuest = world.questClock;
   ch.obituary = Death.composeObituary(world, ch, killerId, cause);

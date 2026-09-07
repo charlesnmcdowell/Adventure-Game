@@ -330,8 +330,9 @@ Character.makePlayer = function (rng, opts) {
 Character.makeRegistry = function (rng, regId, playerName, asNpc) {
   const def = ADV.DATA.REGISTRY[regId];
   if (!def) return null;
+  const given = playerName && String(playerName).trim();
   const ch = Character.base({
-    name: def.name, sex: def.sex,
+    name: given || def.name, sex: def.sex,
     stats: Character.rollStats(rng, 'human'),
     portraitSeed: ADV.hashStr(def.portrait), portraitKind: 'player',
     portraitId: def.portrait,
@@ -339,11 +340,12 @@ Character.makeRegistry = function (rng, regId, playerName, asNpc) {
     personality: { aggression: 45, greed: 30, caution: 55, loyalty: 70, pride: 60 },
     archetypeInclination: ['fighter'],
     personalityId: def.personalityId,
-    bloodline: { demigod: def.flags.bloodline === 'demigod' },
+    bloodline: { demigod: def.flags && def.flags.bloodline === 'demigod' },
   });
   for (const p of def.perks) ch.perks.push({ skillId: p, level: 1, uses: 0 });
   for (const a of def.actives) ch.actives.push({ skillId: a, level: 1, uses: 0 });
-  ch.equipped = def.startingGear.slice();
+  ch.equipped = (def.startingGear || []).slice();
+  ch.equippedSet = def.equippedSet || null;
   ch.freeSkillsUsed = C().FREE_STARTING_SKILLS;
   return ch;
 };

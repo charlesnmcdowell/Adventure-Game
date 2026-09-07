@@ -321,14 +321,19 @@ Panels.storeGear = function (scene, r) {
   }
   if (p.equippedSet) {
     const cur = ADV.DATA.GEAR_SETS[p.equippedSet];
-    const back = (cur && cur.cost) || C().GOLD.gearSet;
-    scroll.addBtn(T().button(scene, r.x + 24, y, r.w - 320, 40, `Sell the ${cur.name} — ${back}g back`, () => {
-      ADV.Notices.confirm(scene, 'Sell ' + cur.name + '?', `You get ${back}g and lose the floor, tier lift, and free armor slots that set gave your skills.`, 'Sell it', () => {
-        p.equippedSet = null; p.inventory.gold += back;
-        ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel(scene.currentPanel || 'blacksmith');
-      });
-    }, { size: 14, color: T().css.gold }));
-    y += 48;
+    if (cur && (cur.campaign || cur.unique)) {
+      scroll.add(T().text(scene, r.x + 24, y, `Worn: ${cur.name} — it is not for sale.`, { size: 13, italic: true, color: T().css.gold }));
+      y += 28;
+    } else {
+      const back = (cur && cur.cost) || C().GOLD.gearSet;
+      scroll.addBtn(T().button(scene, r.x + 24, y, r.w - 320, 40, `Sell the ${cur.name} — ${back}g back`, () => {
+        ADV.Notices.confirm(scene, 'Sell ' + cur.name + '?', `You get ${back}g and lose the floor, tier lift, and free armor slots that set gave your skills.`, 'Sell it', () => {
+          p.equippedSet = null; p.inventory.gold += back;
+          ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel(scene.currentPanel || 'blacksmith');
+        });
+      }, { size: 14, color: T().css.gold }));
+      y += 48;
+    }
   }
   if (spouse && spouse.alive && spouse.equippedSet) { scroll.add(T().text(scene, r.x + 24, y, `${spouse.name} wears the ${ADV.DATA.GEAR_SETS[spouse.equippedSet].name}.`, { size: 12, italic: true, color: T().css.inkDim })); y += 24; }
   scroll.extend(y + 24);

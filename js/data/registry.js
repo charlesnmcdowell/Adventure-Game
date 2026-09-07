@@ -11,9 +11,10 @@ ADV.DATA.REGISTRY = {
     id: 'hiro',
     name: 'Hiro',
     sex: 'm',
-    portrait: 'hiro',   // 11th authored player portrait: purple dreadlocks, hazel eyes, dark skin, samurai armor, katana
+    portrait: 'hiro',   // authored player portrait: purple dreads, hazel eyes, dark skin, lamellar, katana
     personalityId: 'HIRO', // his own lines (js/data/dialogue_hiro.js)
     startingGear: ['abyssal_katana', 'ronin_gear'],
+    equippedSet: 'ronin',
     perks: ['demigod', 'master_swordsman', 'lone_wolf', 'rich'],
     actives: ['katana_slash', 'god_aura', 'counter_attack', 'finisher'],
     katanaSkills: ['katana_slash', 'counter_attack', 'finisher'], // Master Swordsman scope

@@ -101,7 +101,8 @@ class TownScene extends Phaser.Scene {
     const share = v && ADV.Vault.sharePartner && ADV.Vault.sharePartner(this.game_.world, v, p);
     const vaultT = put(T().text(this, x + 16, yy, v ? `Vault: ${v.gold}${share ? ' (shared)' : ''}` : 'Vault: none yet', { size: 13, color: T().css.inkDim }));
     yy += after(vaultT, 4);
-    const setT = put(T().text(this, x + 16, yy, p.equippedSet ? `Set: ${ADV.DATA.GEAR_SETS[p.equippedSet].name}` : 'No gear set', { size: 13, color: p.equippedSet ? T().css.green : T().css.inkFaint, wrap: w - 36 }));
+    const worn = p.equippedSet && ADV.DATA.GEAR_SETS[p.equippedSet];
+    const setT = put(T().text(this, x + 16, yy, worn ? `Set: ${worn.name}` : 'No gear set', { size: 13, color: worn ? T().css.green : T().css.inkFaint, wrap: w - 36 }));
     yy += after(setT, 4);
     if (p.meal) {
       const mealT = put(T().text(this, x + 16, yy, `Fed: ${p.meal.name} (${Object.entries(p.meal.bonus).map(([k, v]) => '+' + v + ' ' + k.toUpperCase()).join(', ')})`, { size: 12, color: T().css.green, wrap: w - 36 }));

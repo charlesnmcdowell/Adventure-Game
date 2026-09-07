@@ -154,7 +154,7 @@ const PARAM_LABEL = {
     if ((k === 'poison' || k === 'bleed') && ADV.Combat && ADV.Combat.DOT_PCT) {
       const pct = ADV.Combat.DOT_PCT[tier || 'basic'] || 0.5;
       const n = ADV.Combat.dotWindow ? ADV.Combat.dotWindow(s.rounds) : (s.rounds || 6);
-      return `${k}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
+      return `${k}${s.stacks ? ' (STACKS)' : ''}: ${Math.round(pct * 100)}% of the target's health over ${n} turns`;
     }
     return `${k}${s.stacks ? ' (STACKS)' : ''} ${s.power}× ATK/2 per round, ${s.rounds} rounds`;
   }).join('; '),

@@ -424,7 +424,7 @@ def({ id: 'rich', name: 'Rich', kind: 'perk', unique: true, noTierGrowth: true,
 
 def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, katana: true, noTierGrowth: true,
   power: 2.6, reach: 'front', target: 'enemy',
-  desc: 'Basic katana attack. Inflicts stacking Bleed.',
+  desc: 'A katana cut that opens stacking Bleed: a percentage of the target\'s max health over several turns. Hitting them again refreshes the wound.',
   tiers: {
     basic:        { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
     intermediate: { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
@@ -448,7 +448,7 @@ def({ id: 'counter_attack', name: 'Counter Attack', kind: 'active', unique: true
   } });
 def({ id: 'finisher', name: 'Finisher', kind: 'active', unique: true, katana: true, noTierGrowth: true,
   power: 0, reach: 'front', target: 'enemy',
-  desc: 'Executes targets below 40%, heals Hiro, and permanently raises all his stats by 1. Lost on death.',
+  desc: 'Executes non-bosses below 40% health. The kill heals 30% of max HP and permanently raises all stats by 1. Those gains are lost on death.',
   tiers: {
     basic:        { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 0.3, permStatGain: 1 },
     intermediate: { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 0.3, permStatGain: 1 },
@@ -521,6 +521,8 @@ ADV.DATA.GEAR_SETS = {
   chantry:    { name: 'Chantry Robes',   archetypes: ['mage', 'healer'],   cost: 600 },
   greenward:  { name: 'Greenward Kit',   archetypes: ['ranger', 'druid'],  cost: 600 },
   shadowweave:{ name: 'Shadowweave',     archetypes: ['rogue', 'mage'],    cost: 600 },
+  // Hiro's starting kit — authored look, never sold at the smith.
+  ronin:      { name: 'Ronin Gear', archetypes: ['fighter'], extraSkills: ['katana_slash', 'counter_attack', 'finisher'], cost: 0, campaign: true, unique: true },
 };
 
 // Trainer-listed pool: the 31 (perks + actives), excludes universal/unique.

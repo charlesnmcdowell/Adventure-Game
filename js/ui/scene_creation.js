@@ -296,11 +296,13 @@ class CreationScene extends Phaser.Scene {
     T().text(this, W / 2 - 40, 190, 'The password is spoken.', { size: 24, display: true, color: T().css.purple });
     T().text(this, W / 2 - 40, 230, 'HIRO', { size: 40, display: true, bold: true, color: T().css.gold });
     const def = ADV.DATA.REGISTRY[this.password.toLowerCase()];
+    const set = def.equippedSet && ADV.DATA.GEAR_SETS[def.equippedSet];
     const lines = def.perks.concat(def.actives).map(id => {
       const sk = ADV.DATA.SKILLS[id];
       return `${sk.name} — ${sk.desc}`;
     });
-    T().text(this, W / 2 - 40, 280, lines.join('\n'), { size: 13, wrap: 520, color: T().css.inkDim });
+    const gear = set ? `${set.name} and the Abyssal Katana.\n` : '';
+    T().text(this, W / 2 - 40, 280, gear + lines.join('\n'), { size: 13, wrap: 520, color: T().css.inkDim });
     T().button(this, W / 2 - 130, H - 90, 260, 50, 'Walk as a god', () => this.begin(), { display: true, bold: true, size: 18, color: T().css.purple });
   }
 

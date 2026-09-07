@@ -52,6 +52,10 @@ Hiro.maybeArrive = function (world, rng, feed) {
 // He does not stay dead. The old company breaks; he walks back and hires again.
 Hiro.resurrect = function (world, ch, killerId, cause) {
   if (!ch || !ch.hiroNpc || ch.isPlayer) return null;
+  if (ADV.Death && ADV.Death.stripFinisherGains) ADV.Death.stripFinisherGains(ch);
+  if (!ch.equippedSet && ADV.DATA.REGISTRY.hiro && ADV.DATA.REGISTRY.hiro.equippedSet) {
+    ch.equippedSet = ADV.DATA.REGISTRY.hiro.equippedSet;
+  }
   ch.alive = true;
   ch.deadAtQuest = null;
   ch.obituary = null;

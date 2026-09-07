@@ -2449,6 +2449,7 @@ Combat.act = function (st, u, action) {
       if (d.healOnKillPct) healUnit(st, null, u, Math.round(u.maxHp * d.healOnKillPct));
       if (d.permStatGain) {
         for (const k of ['hp', 'atk', 'def', 'spd']) u.ch.bonusStats[k] = (u.ch.bonusStats[k] || 0) + d.permStatGain;
+        u.ch.finisherGains = (u.ch.finisherGains || 0) + d.permStatGain;
         u.maxHp = Ch().maxHp(u.ch);
         ev(st, { t: 'permGain', uid: u.uid });
       }

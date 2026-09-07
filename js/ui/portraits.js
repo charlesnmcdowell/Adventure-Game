@@ -256,6 +256,7 @@ const PATTERNS = {
     ctx.strokeStyle = '#1c1c22'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(cx + 40, y0 + 4); ctx.lineTo(cx + 88, y0 - 44); ctx.stroke();
     ctx.strokeStyle = P.trim; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx + 36, y0 + 8); ctx.lineTo(cx + 46, y0 - 2); ctx.stroke();
     for (let i = 0; i < 4; i++) { ctx.strokeStyle = '#1c1c22'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx + 37 + i * 2.4, y0 + 6 - i * 2.4); ctx.lineTo(cx + 39 + i * 2.4, y0 + 8 - i * 2.4); ctx.stroke(); }
+    if (o.clanKnot) { ctx.fillStyle = P.trim; ctx.beginPath(); ctx.arc(cx, y0 + 16, 4.5, 0, Math.PI * 2); ctx.fill(); }
     garmentLight(ctx, cx, y0, sh);
   },
   // shinobi shōzoku: wrap top with crossed chest ties, forearm wraps, face cowl
@@ -968,6 +969,7 @@ const SET_LOOK = {
   wildhide:          { pattern: 'hide',          palette: { base: '#5a4030', trim: '#e8e2d2', metal: '#e8e2d2' } },
   duelist:           { pattern: 'duelist',       palette: { base: '#4a2a32', trim: '#1c1c22', metal: '#a8adb8' } },
   street:            { pattern: 'street',        palette: { base: '#4a3830', trim: '#7a3a2a', metal: '#5a5a62' }, extras: 'mask' },
+  ronin:             { pattern: 'lamellar',      palette: { base: '#38343e', trim: '#8a6fd0', metal: '#1c1c22' }, clanKnot: true },
 };
 const PATTERN_KIND = { plate: 'armor', leather_plate: 'armor', lamellar: 'samurai', shinobi: 'ninja', pirate: 'pirate', navy: 'navy', robe: 'robe', ranger: 'hiking', hide: 'hide', duelist: 'suit', street: 'hiking', dress: 'dress' };
 
@@ -1030,6 +1032,7 @@ const HIRO_RECIPE = {
   palette: { base: '#38343e', trim: '#8a6fd0', metal: '#1c1c22' },
   eyes: '#8a7a3a',                              // hazel
   jaw: 2, brow: 1, mouth: 1, fringe: 0, strandSeed: 11,
+  warm: 0.02, clanKnot: true,
 };
 
 // ---- monster heads ----------------------------------------------------------
@@ -1703,7 +1706,7 @@ const Portraits = {
       else if (ch.portraitId === 'hiro') rec = finishRecipe(Object.assign({}, HIRO_RECIPE));
       else if (ch.portraitKind === 'player') rec = recipePlayer(ch.portraitSlot || 1, ch.sex, ch.portraitSeed);
       else rec = recipeNPC(ch.sex, ch.portraitSeed, ch.archetype);
-      if (ch.equippedSet) applySetLook(rec, ch.equippedSet);
+      if (ch.equippedSet && ch.portraitId !== 'hiro') applySetLook(rec, ch.equippedSet);
       applyVeteran(rec, ch);
       drawBust(ctx, rec);
     }
