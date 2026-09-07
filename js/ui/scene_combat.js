@@ -734,6 +734,12 @@ class CombatScene extends Phaser.Scene {
   // ------------------------------------------------------------ player turn
   clearActionBar() {
     if (this.autoTimer) { try { this.autoTimer.remove(false); } catch (e) {} this.autoTimer = null; }
+    if (this._targetClicks) {
+      for (const { img, fn } of this._targetClicks) {
+        try { img.off('pointerdown', fn); img.disableInteractive(); } catch (e) {}
+      }
+      this._targetClicks = null;
+    }
     for (const o of this.actionObjs) { try { o.destroy(); } catch (e) {} }
     this.actionObjs = [];
     this.targeting = null;
@@ -925,13 +931,13 @@ class CombatScene extends Phaser.Scene {
       if (m && m.data.selfRevive) continue;
       const sealed = !!(seal && (seal.tiers || []).includes(m.tier));
       const cd = ADV.Combat.cooldownLeft ? ADV.Combat.cooldownLeft(u, e.skillId) : 0;
-      const pool = sealed || cd > 0 ? [] : ADV.Combat.validTargets(st, u, e.skillId, false);
+      const pool = sealed || cd > 0 ? [] : ADV.Combat.playerTargets(st, u, e.skillId, false);
       const stance = m.data.freeBuff
         ? (u.statuses.some(s => s.kind === 'beastShape') ? 'UP · free' : 'free')
         : ('L' + e.level);
       actions.push({ label: m.data.name, sub: sealed ? 'SEALED' : cd > 0 ? ('recovering · ' + cd) : stance, skillId: e.skillId, off: false, pool });
       if (m.data.offensive) {
-        const opool = sealed ? [] : ADV.Combat.validTargets(st, u, e.skillId, true);
+        const opool = sealed ? [] : ADV.Combat.playerTargets(st, u, e.skillId, true);
         actions.push({ label: m.data.offensive.name, sub: sealed ? 'SEALED' : 'hostile', skillId: e.skillId, off: true, pool: opool });
       }
     }
@@ -945,7 +951,7 @@ class CombatScene extends Phaser.Scene {
     if (bribePool.length) {
       actions.push({ label: 'Bribe', sub: 'gold buys peace', isBribe: true, offers, pool: bribePool });
     }
-    const basicPool = ADV.Combat.validTargets(st, u, 'basic_attack', false);
+    const basicPool = ADV.Combat.playerTargets(st, u, 'basic_attack', false);
     actions.push({ label: 'Attack', sub: 'always', skillId: 'basic_attack', off: false, pool: basicPool, isAttack: true });
     for (const a of actions) {
       const autoable = !a.isBribe && ADV.Combat.skillNeedsAuto(u.ch, a.skillId, a.off);
@@ -1029,24 +1035,28 @@ class CombatScene extends Phaser.Scene {
       const tgt = ADV.Combat.lowestHealth(action.pool);
       if (tgt) return this.commitAction(u, action, tgt);
     }
-    const only = action.pool.length === 1 ? action.pool[0] : null;
-    const autoSelf = !action.off && action.pool.length && action.pool[0] === u;
-    if ((only && (only !== u || !action.off)) || autoSelf) {
-      return this.commitAction(u, action, only || action.pool[0]);
+    if (ADV.Combat.skillAutocasts(u, action)) {
+      return this.commitAction(u, action, action.pool[0]);
     }
-    // highlight valid targets
     this.targeting = { u, action, marks: [] };
+    this._targetClicks = [];
     for (const tgt of action.pool) {
       const v = this.view(tgt.uid);
       if (!v) continue;
+      const pick = () => this.commitAction(u, action, tgt);
       const ring = this.add.rectangle(v.x, v.y, v.img.displayWidth + 10, v.img.displayHeight + 10)
         .setStrokeStyle(3, 0xd4a94e).setFillStyle(0xd4a94e, 0.08).setDepth(700)
         .setInteractive({ useHandCursor: true });
-      ring.on('pointerdown', () => this.commitAction(u, action, tgt));
+      ring.on('pointerdown', pick);
       this.targeting.marks.push(ring);
       this.actionObjs.push(ring);
+      if (v.img) {
+        v.img.setInteractive({ useHandCursor: true });
+        v.img.on('pointerdown', pick);
+        this._targetClicks.push({ img: v.img, fn: pick });
+      }
     }
-    const cancel = T().text(this, T().W / 2, 100, 'choose a target (click elsewhere to cancel)', { size: 13, ox: 0.5, color: T().css.gold }).setDepth(700);
+    const cancel = T().text(this, T().W / 2, 100, 'choose a target (click a portrait, or elsewhere to cancel)', { size: 13, ox: 0.5, color: T().css.gold }).setDepth(700);
     this.actionObjs.push(cancel);
   }
 

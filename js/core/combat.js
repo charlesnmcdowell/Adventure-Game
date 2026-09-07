@@ -604,6 +604,48 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
   return pool;
 };
 
+// Manual aim: the player picks any living visible foe unless taunt locked
+// them. Reach still binds AUTO and the AI via validTargets.
+Combat.playerTargets = function (st, u, skillId, offensiveMode) {
+  const legal = Combat.validTargets(st, u, skillId, offensiveMode);
+  const m = manifestFor(u, skillId);
+  if (!m) return legal;
+  const d = m.data;
+  let target = d.target;
+  if (offensiveMode && d.offensive) target = d.offensive.target || 'enemy';
+  const isHeal = d.heal && !offensiveMode;
+  if (d.selfRevive || d.freeBuff || target === 'self' || target === 'party' || isHeal || target === 'ally' || target === 'allyLane') return legal;
+  if (u.marksBy.length) {
+    const forced = legal.filter(x => u.marksBy.includes(x.uid));
+    if (forced.length) return forced;
+  }
+  const seeInvis = !!(perkVal(u.ch, 'see_invisibility', null) || Sys().knownVal(u.ch, 'seeInvis'));
+  let foes = livingUnits(st, foeSideOf(u)).filter(x => !x.untargetable && (!x.stealth || seeInvis));
+  if (d.openerOnly && u.actedThisEncounter) return [];
+  if (d.openerOrStealth && !(u.stealth || !u.actedThisEncounter)) return [];
+  if (d.instantKillIfMaxHp) foes = foes.filter(x => (x.maxHp || 0) > d.instantKillIfMaxHp);
+  return foes.length ? foes : legal;
+};
+
+// Skip the picker only for self/party/all-foe skills, or a taunt lock.
+Combat.skillAutocasts = function (u, action) {
+  if (!u || !action || action.isBribe) return false;
+  const skillId = action.isAttack ? 'basic_attack' : action.skillId;
+  const m = manifestFor(u, skillId);
+  if (!m) return false;
+  const d = m.data;
+  let target = d.target;
+  if (action.off && d.offensive) target = d.offensive.target || 'enemy';
+  if (d.selfRevive || d.freeBuff) return true;
+  if (target === 'self' || target === 'party' || target === 'allEnemies' || target === 'postVictory') return true;
+  const heal = d.heal && !action.off;
+  if (u.marksBy.length && !heal && target !== 'ally' && target !== 'allyLane') {
+    const pool = action.pool || [];
+    return pool.length === 1 && u.marksBy.includes(pool[0].uid);
+  }
+  return false;
+};
+
 // Lowest current health in a target pool (temp HP counts). Ties keep the
 // first unit so auto-target is deterministic.
 Combat.lowestHealth = function (pool) {
@@ -1740,12 +1782,23 @@ function hostileSkill(d, off) {
   return t === 'enemy' || t === 'enemyLane' || t === 'allEnemies' || !t;
 }
 function resolveSkillTarget(st, u, skillId, action, d, off) {
-  const named = st.units.find(x => x.uid === action.targetUid);
-  if (!hostileSkill(d, off)) return named || u;
-  const foes = Combat.validTargets(st, u, skillId, !!off).filter(x => x.side !== u.side && !x.downed);
-  if (named && named.side !== u.side && !named.downed && foes.includes(named)) return named;
-  if (named && named.side !== u.side && !named.downed) return named;
-  return foes[0] || livingUnits(st, foeSideOf(u))[0] || null;
+  const named = action.targetUid != null ? st.units.find(x => x.uid === action.targetUid) : null;
+  const living = named && !named.downed && !named.fled && !named.reserved;
+  if (!hostileSkill(d, off)) {
+    if (living && named.side === u.side) return named;
+    return u;
+  }
+  const foes = livingUnits(st, foeSideOf(u)).filter(x => !x.downed && !x.untargetable);
+  if (u.marksBy.length) {
+    const forced = foes.filter(x => u.marksBy.includes(x.uid));
+    if (forced.length) {
+      if (living && forced.includes(named)) return named;
+      return forced[0];
+    }
+  }
+  if (living && named.side !== u.side) return named;
+  const legal = Combat.validTargets(st, u, skillId, !!off).filter(x => x.side !== u.side && !x.downed);
+  return legal[0] || foes[0] || null;
 }
 
 // ---------------------------------------------------------------- actions
