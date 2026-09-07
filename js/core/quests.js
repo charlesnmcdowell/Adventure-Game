@@ -37,6 +37,9 @@ Quests.generateBoard = function (world, rng, game) {
     }
   }
   board.push(Quests.make(rng, 'boss', 'party', rng.pick(factions)));
+  // named solo bounties: 300g at reputation 10, 600g mini-boss at 15
+  board.push(Quests.makeSoloPremium(rng, 'solo300', rng.pick(factions)));
+  board.push(Quests.makeSoloPremium(rng, 'solo600', 'neutral'));
   // the debuff contracts (request 14): poison, fire, frozen, heal-cancel crews
   for (const hz of ['hazard2', 'hazard2', 'hazard3', 'hazard3']) board.push(Quests.makeHazard(rng, hz, rng.pick(factions)));
   // the faction war (add-on §6): two rotating contracts against the four
@@ -267,8 +270,114 @@ const HAZARD_THEMES = {
   },
 };
 
+Quests.repGate = function (quest, player) {
+  const need = (quest && quest.minRep) || 0;
+  if (!need) return { ok: true, need: 0, have: (player && player.reputation) || 0 };
+  const have = (player && player.reputation) || 0;
+  if (have >= need) return { ok: true, need, have };
+  return { ok: false, need, have, error: 'reputation ' + need + '+' };
+};
+
+// Named solo bounties: a 300g hunt at reputation 10, and a 600g mini-boss
+// contract at 15. The 600g finale uses the same mini-boss + tank + healer
+// setup as the other board bosses.
+Quests.makeSoloPremium = function (rng, kind, faction) {
+  const T = C().QUEST_TIERS[kind];
+  const tier = T.tier;
+  const wantBoss = kind === 'solo600';
+  faction = wantBoss ? 'neutral' : (faction || rng.pick(['law', 'criminal', 'neutral']));
+  const encN = rng.int(C().SOLO_ENCOUNTERS[0], C().SOLO_ENCOUNTERS[1]);
+  const pool = Quests.enemyPool(tier, faction, { levels: T.enemyLevels });
+  const use = pool.length ? pool : Quests.enemyPool(tier, faction);
+  const encounters = [];
+  for (let i = 0; i < encN; i++) {
+    const last = i === encN - 1;
+    const nEnemies = (last && !wantBoss) ? rng.int(C().SOLO_ENEMIES[0], C().SOLO_ENEMIES[1]) : 1;
+    const ids = [];
+    for (let k = 0; k < nEnemies; k++) ids.push(rng.pick(use.length ? use : ['dire_wolf']));
+    encounters.push({ enemyTypeIds: ids, boss: false });
+  }
+  const mainEnemy = ADV.DATA.ENEMIES[encounters[0].enemyTypeIds[0]] || ADV.DATA.BOSSES[encounters[0].enemyTypeIds[0]];
+  const pack = rng.pick(QUEST_THEMES[faction] || QUEST_THEMES.neutral);
+  const q = {
+    id: 'q' + (QID++), tier, track: 'solo', factionAlignment: faction,
+    theme: pack.theme, soloPremium: true, soloKind: kind, minRep: T.minRep,
+    name: fillTheme(pack.name, mainEnemy),
+    brief: fillTheme(pack.brief, mainEnemy),
+    payout: T.soloPay, enemyLevels: T.enemyLevels, encounters, isBoss: false,
+  };
+  if (wantBoss) return Quests.attachMonsterBoss(rng, q);
+  return q;
+};
+
+Quests.scaleSoloMook = function (ch) {
+  const m = C().SOLO_STAT_MULT;
+  if (!ch || ch.boss || m == null) return ch;
+  const def = (ADV.DATA.BOSSES && ADV.DATA.BOSSES[ch.enemyTypeId]) || null;
+  if (def && (def.boss || def.miniboss)) return ch;
+  for (const k of ['hp', 'atk', 'def', 'spd']) {
+    ch.stats[k] = Math.max(k === 'hp' ? 8 : 1, Math.round((ch.stats[k] || 1) * m));
+  }
+  return ch;
+};
+
+Quests.campRoleIds = function (camp, role) {
+  return Object.keys(ADV.DATA.ENEMIES || {}).filter(id => {
+    const e = ADV.DATA.ENEMIES[id];
+    if (!e || e.camp !== camp) return false;
+    if (role === 'healer') return !!e.healer;
+    if (role === 'tank') {
+      if (e.armored) return true;
+      const ids = (e.actives || []).concat(e.perks || []);
+      return ids.some(sid => ADV.Campaign && ADV.Campaign.isTankSkill(sid));
+    }
+    return false;
+  });
+};
+
+// Board mini-boss fights: floor the boss at the player's max HP and make
+// sure a tank and a healer of the same camp are on the field.
+Quests.guardBoardBoss = function (out, quest, rng, game) {
+  if (!out || !out.length) return out;
+  const p = game && ADV.Game && ADV.Game.player(game);
+  const floor = p ? ADV.Character.maxHp(p) : 0;
+  for (const ch of out) {
+    const def = ADV.DATA.BOSSES[ch.enemyTypeId];
+    if (ch.boss || (def && (def.boss || def.miniboss))) {
+      ch.boss = true;
+      if (floor) ch.hpFloor = Math.max(ch.hpFloor || 0, floor);
+    }
+  }
+  const camp = Quests.campOf(out[0].enemyTypeId) || 'wild';
+  const skillsOf = (ch) => (ch.actives || []).concat(ch.perks || []).map(a => a.skillId);
+  const restores = (id) => {
+    const d = ADV.DATA.SKILLS[id];
+    return !!(d && d.heal && (d.power || d.hotRounds || d.healFromTaken || d.revive) && d.target !== 'enemy');
+  };
+  const tankish = (ch) => !!(ch.armored || skillsOf(ch).some(id => ADV.Campaign && ADV.Campaign.isTankSkill(id)));
+  const hasHealer = out.some(ch => !ch.boss && (skillsOf(ch).some(restores) || (ADV.DATA.ENEMIES[ch.enemyTypeId] && ADV.DATA.ENEMIES[ch.enemyTypeId].healer)));
+  const hasTank = out.some(ch => !ch.boss && tankish(ch));
+  const [lo, hi] = quest.enemyLevels || [12, 24];
+  const lvl = hi || 20;
+  const world = game && game.world;
+  const fallback = { healer: { wild: 'moss_matron', law: 'field_chaplain', criminal: 'cutpurse_leech' },
+    tank: { wild: 'shadow_beast', law: 'plated_sentinel', criminal: 'bandit' } };
+  if (!hasTank) {
+    const ids = Quests.campRoleIds(camp, 'tank');
+    const tid = (ids.length ? rng.pick(ids) : null) || fallback.tank[camp] || 'dire_wolf';
+    if (ADV.DATA.ENEMIES[tid] || ADV.DATA.BOSSES[tid]) out.push(ADV.Character.makeEnemy(rng, tid, { level: lvl, world }));
+  }
+  if (!hasHealer) {
+    const ids = Quests.campRoleIds(camp, 'healer');
+    const hid = (ids.length ? rng.pick(ids) : null) || fallback.healer[camp] || 'moss_matron';
+    if (ADV.DATA.ENEMIES[hid] || ADV.DATA.BOSSES[hid]) out.push(ADV.Character.makeEnemy(rng, hid, { level: lvl, world }));
+  }
+  return out;
+};
+
 Quests.attachMonsterBoss = function (rng, quest) {
   if (!quest || quest.factionAlignment !== 'neutral') return quest;
+  if (quest.soloPremium && quest.soloKind === 'solo300') return quest;
   if ((quest.payout || 0) < 300) return quest;
   const encs = quest.encounters;
   if (!encs || !encs.length) return quest;
@@ -407,7 +516,7 @@ Quests.makeTutorialParty = function () {
 };
 
 // Spawn enemy characters for one encounter.
-Quests.spawnEncounter = function (rng, quest, encIdx, world) {
+Quests.spawnEncounter = function (rng, quest, encIdx, world, game) {
   const enc = quest.encounters[encIdx];
   // Difficulty curve inside the quest: early encounters sit near the tier's
   // low bound, the finale reaches its high bound (keeps first fights fair
@@ -418,18 +527,24 @@ Quests.spawnEncounter = function (rng, quest, encIdx, world) {
   let mid = lo + (hi - lo) * t01;
   // A solo finale that fields two enemies fields two LESSER enemies —
   // total threat stays near one top-of-tier opponent (§15a balance targets).
-  if (quest.track === 'solo' && enc.enemyTypeIds.length > 1) {
+  if (quest.track === 'solo' && enc.enemyTypeIds.length > 1 && !enc.boss) {
     mid = lo + (hi - lo) * t01 * 0.5;
   }
-  return enc.enemyTypeIds.map(tid => {
+  const weaken = quest.track === 'solo' && !quest.soloPremium && !enc.boss;
+  const out = enc.enemyTypeIds.map(tid => {
     const t = ADV.DATA.ENEMIES[tid] || ADV.DATA.BOSSES[tid];
     const typeMin = quest.tutorialEasy ? lo : t.levels[0];
     const lvl = Math.round(Math.max(typeMin, Math.min(t.levels[1],
       Math.max(lo, Math.min(hi, mid + rng.int(-1, 1))))));
     const e = ADV.Character.makeEnemy(rng, tid, { level: lvl, world });
     if (e.armored) e.armorBonus = C().ARMORED_BONUS_DEF;
+    if (weaken) Quests.scaleSoloMook(e);
     return e;
   });
+  if (enc.boss && (quest.monsterBoss || quest.soloKind === 'solo600')) {
+    Quests.guardBoardBoss(out, quest, rng, game);
+  }
+  return out;
 };
 
 // ---- Encounter verbs (§8) ---------------------------------------------------

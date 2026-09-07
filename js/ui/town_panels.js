@@ -60,7 +60,13 @@ Panels.questBoard = function (scene, r) {
     if (!party) {
       scroll.add(T().text(scene, left.x + 24, yl, 'SOLO CONTRACTS', { size: 13, color: T().css.inkDim })); yl += 24;
       const solo = game.board.filter(q => q.track === 'solo' && !q.war && !q.godLine && !q.special);
-      for (const q of solo) { const b = questRow(scene, left, q, yl, tutOk(q), null, scroll); if (!scene.tutorFirstQuestBtn && tutOk(q) && q.tier === 1) scene.tutorFirstQuestBtn = b.btn; yl = b.y; }
+      for (const q of solo) {
+        const gate = ADV.Quests.repGate(q, p);
+        const note = gate.ok ? null : gate.error;
+        const b = questRow(scene, left, q, yl, tutOk(q) && gate.ok, note, scroll);
+        if (!scene.tutorFirstQuestBtn && tutOk(q) && q.tier === 1) scene.tutorFirstQuestBtn = b.btn;
+        yl = b.y;
+      }
     } else {
       scroll.add(T().text(scene, left.x + 24, yl, 'SOLO CONTRACTS', { size: 13, color: T().css.inkDim })); yl += 24;
       scroll.add(T().text(scene, left.x + 24, yl, 'A party does not take solo work.', { size: 12, italic: true, color: T().css.inkFaint, wrap: colW })); yl += 30;

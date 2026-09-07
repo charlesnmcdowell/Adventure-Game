@@ -370,6 +370,8 @@ Game.startQuest = function (game, quest, opts) {
   const roster = Game.partyRoster(game);
   if (quest.track === 'party' && roster.length < 2) { game.quest = null; return { ok: false, error: 'party contracts need a party' }; }
   if (quest.track === 'solo' && ADV.Party.of(game.world, p)) { game.quest = null; return { ok: false, error: 'a party does not take solo work' }; }
+  const gate = ADV.Quests.repGate(quest, p);
+  if (!gate.ok) { game.quest = null; return { ok: false, error: gate.error }; }
   if (!Game.contractCoversPayroll(game, quest)) { game.quest = null; return { ok: false, error: 'that contract would not cover payroll' }; }
   for (const ch of roster) { ch.combatHp = ADV.Character.maxHp(ch); ch.wasDowned = false; ch.hasFled = false; }
   game.quest.partnerAlong = roster.some(c => ADV.Rel.isPartner(p, c));
@@ -404,7 +406,7 @@ Game.currentEncounter = function (game) {
   if (q.readyToComplete || q.encIdx >= q.quest.encounters.length) return null;
   if (!q.enemies) {
     q.enemies = q.quest.campaign ? ADV.Campaign.spawnEncounter(game, q.quest, q.encIdx)
-      : ADV.Quests.spawnEncounter(game.rng, q.quest, q.encIdx, game.world);
+      : ADV.Quests.spawnEncounter(game.rng, q.quest, q.encIdx, game.world, game);
     // campaign allies who exited the last fight walk back in at full health (§5a)
     for (const ch of Game.partyRoster(game)) if (ch.campaign && ch.hasFled) { ch.hasFled = false; ch.combatHp = ADV.Character.maxHp(ch); }
     if (q.quest.campaign) {

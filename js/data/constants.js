@@ -96,7 +96,12 @@ ADV.DATA.CONST = {
     // the debuff contracts (request 14): two at 300g, two at 600g
     hazard2: { partyPay: 300, enemyLevels: [12, 18], tier: 2 },
     hazard3: { partyPay: 600, enemyLevels: [19, 24], tier: 3 },
+    // named solo bounties: reputation opens the purse
+    solo300: { soloPay: 300, enemyLevels: [12, 18], tier: 2, minRep: 10 },
+    solo600: { soloPay: 600, enemyLevels: [18, 24], tier: 3, minRep: 15 },
   },
+  // Regular solo contracts field thinner foes so a single adventurer can finish.
+  SOLO_STAT_MULT: 0.5,
   // Faction-hall jobs must clear a real payroll. Tier-1 party pay is 100g and
   // locked leaders out of the Maw's first contract.
   CAMPAIGN_MIN_PAY: 500,
