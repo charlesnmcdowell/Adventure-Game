@@ -109,10 +109,8 @@ function chooseAction(st, u) {
       continue;
     }
     if (d.marks != null) {
-      if (allies.length > 1 || true) { // Taunt works solo too (§3a)
-        const unmarked = foes.filter(f => !f.marksBy.includes(u.uid));
-        if (unmarked.length) candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: unmarked[0].uid, weight: allies.length > 1 ? 3.5 : 2 });
-      }
+      const unmarked = foes.filter(f => !f.marksBy.includes(u.uid));
+      if (unmarked.length) candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: unmarked[0].uid, weight: allies.length > 1 ? 3.5 : 2 });
       continue;
     }
     if (!pool.length) continue;

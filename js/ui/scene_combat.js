@@ -60,6 +60,8 @@ class CombatScene extends Phaser.Scene {
 
     this.unitViews = new Map();
     for (const u of st.units) if (!u.reserved) this.makeUnitView(u);
+    this.refreshThreatMarks();
+    this.events.once('shutdown', () => this.stopThreatBobs());
     this.updateReserveCounters();
     const p = ADV.Game.player(this.game_);
     if (p && ADV.SkillSys && ADV.SkillSys.knownVal(p, 'revealLoadouts')) {
@@ -243,7 +245,6 @@ class CombatScene extends Phaser.Scene {
     else if (v._fxStealthed && !u.downed && !u.fled) { v._fxStealthed = false; v.img.setAlpha(1); }
     if (u.downed) { ADV.VFX.desaturate(v.img); v.intent.setText(''); v.frame.setAlpha(0.4); v.name.setAlpha(0.5); if (v.crown) v.crown.setAlpha(0.4); if (v.threatMark) v.threatMark.setAlpha(0); }
     if (u.fled) { v.img.setAlpha(0.2); v.intent.setText('fled'); if (v.crown) v.crown.setAlpha(0.2); if (v.threatMark) v.threatMark.setAlpha(0); }
-    this.refreshThreatMarks();
   }
 
   threatHover(u) {
@@ -272,6 +273,13 @@ class CombatScene extends Phaser.Scene {
     v.threatBar.fillStyle(0x3d9b8f, 0.75); v.threatBar.fillRect(v.x - w / 2, by, w * frac, 3);
   }
 
+  stopThreatBobs() {
+    if (!this.unitViews) return;
+    for (const v of this.unitViews.values()) {
+      if (v._threatBob) { try { v._threatBob.stop(); } catch (e) {} v._threatBob = null; }
+    }
+  }
+
   refreshThreatMarks() {
     const st = this.st();
     if (!st || !ADV.Combat.threatLeader) return;
@@ -289,14 +297,15 @@ class CombatScene extends Phaser.Scene {
           v.threatMark.fillStyle(0x3d9b8f, 0.95);
           v.threatMark.fillTriangle(mx, my + 11, mx - 6, my + 2, mx + 6, my + 2);
           if (!was) {
-            v.threatMark.setAlpha(0).setY(-8);
-            this.tweens.add({ targets: v.threatMark, alpha: 1, y: 0, duration: 250, ease: 'Quad.easeOut' });
+            v.threatMark.setAlpha(0);
+            this.tweens.add({ targets: v.threatMark, alpha: 1, duration: 250, ease: 'Quad.easeOut' });
             if (!v._threatBob) {
               v._threatBob = this.tweens.add({ targets: v.threatMark, y: 4, duration: 700, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
             }
           }
         } else if (was) {
-          this.tweens.add({ targets: v.threatMark, alpha: 0, y: 10, duration: 220, onComplete: () => { if (v._threatBob) { v._threatBob.stop(); v._threatBob = null; } } });
+          if (v._threatBob) { v._threatBob.stop(); v._threatBob = null; }
+          this.tweens.add({ targets: v.threatMark, alpha: 0, duration: 220, onComplete: () => { if (v.threatMark) v.threatMark.setY(0); } });
         }
         v._threatLead = on;
       }
@@ -443,7 +452,7 @@ class CombatScene extends Phaser.Scene {
     this.eventCursor = st.events.length;
     let i = 0;
     const step = () => {
-      if (i >= evs.length) { for (const v of this.unitViews.values()) this.redrawUnit(v); this.updateReserveCounters(); cb(); return; }
+      if (i >= evs.length) { for (const v of this.unitViews.values()) this.redrawUnit(v); this.refreshThreatMarks(); this.updateReserveCounters(); cb(); return; }
       const e = evs[i++];
       const d = this.animateEvent(e);
       if (typeof d === 'function') d(step);          // blocking beats (campaign lines)
@@ -691,10 +700,7 @@ class CombatScene extends Phaser.Scene {
           if (ADV.VFX.evadeBeat) ADV.VFX.evadeBeat(this, v, by, { pct });
           else V.damageNumber(this, v.x, v.y - 30, pct ? 'read' : 'miss', pct ? '#7fbf6a' : '#a89a7c');
         }
-        if (by) {
-          this.reactAt(by, (e.power || 0) >= 3 ? 'surprised' : 'angry', { ms: 500, intensity: 0.6 });
-          if (ADV.Portraits.motion) ADV.Portraits.motion(this, by.img, 'recoil');
-        }
+        if (by) this.reactAt(by, (e.power || 0) >= 3 ? 'surprised' : 'angry', { ms: 500, intensity: 0.6 });
         if ((e.power || 0) >= 3) this.cameraPunch();
         return pct ? 230 : 250;
       }
@@ -955,7 +961,7 @@ class CombatScene extends Phaser.Scene {
     const rot = this.autoRotationLabel(u);
     keep(T().panel(this, 40, H - 110, W - 80, 96));
     keep(T().text(this, 56, H - 88, 'AUTO · ' + name, { size: 16, color: T().css.green }));
-    keep(T().text(this, 56, H - 62, 'Rotation: ' + rot + '. Weakest target each swing.', { size: 12, color: T().css.inkDim, wrap: W - 360 }));
+    keep(T().text(this, 56, H - 62, 'Rotation: ' + rot + '. Hostile swings follow threat.', { size: 12, color: T().css.inkDim, wrap: W - 360 }));
     const stop = T().button(this, W - 348, H - 86, 128, 60, 'PAUSE', () => {
       this._autoPaused = true;
       this.showActionBar(u);

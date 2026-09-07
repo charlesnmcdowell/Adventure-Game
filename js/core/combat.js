@@ -134,8 +134,8 @@ Combat.threatLeader = function (st, side) {
     if (v > bestV) { best = live[i]; bestV = v; tied = false; }
     else if (v === bestV) tied = true;
   }
-  if (bestV <= 0) return null;
-  return tied && bestV === 0 ? null : best;
+  if (bestV <= 0 || tied) return null;
+  return best;
 };
 function expectedHit(st, u, t) {
   try {
@@ -2069,7 +2069,7 @@ Combat.act = function (st, u, action) {
     if (holder) {
       removeStatus(holder, holder.statuses.find(y => y.kind === 'countersign'));
       ev(st, { t: 'interrupted', uid: u.uid, by: holder.uid, skillId });
-      return finishAction(st, u, skillId);
+      return finishAction(st, u, skillId, { fizzled: true });
     }
   }
   // stealth bookkeeping: any non-silent hostile act breaks stealth
@@ -2556,7 +2556,8 @@ function applyFlareSelf(st, u, m) {
   if (f.thornPct) addStatus(st, u, { kind: 'thorns', pct: f.thornPct, rounds: f.thornRounds || 2 });
 }
 
-function finishAction(st, u, skillId) {
+function finishAction(st, u, skillId, opts) {
+  opts = opts || {};
   const m = skillId && skillId !== 'basic_attack' ? manifestFor(u, skillId) : null;
   if (skillId !== 'basic_attack' && m && m.data && !(m.data.power > 0) && !m.data.hitScale && !m.data.cleaveRows) {
     breakMomentum(u);
@@ -2581,7 +2582,7 @@ function finishAction(st, u, skillId) {
     return { ok: true, refund: true };
   }
   const arch = (m && m.data && m.data.archetype) || (skillId && SK()[skillId] && SK()[skillId].archetype);
-  if (arch === 'ranger' && (u.rangerUsesLeft || 0) > 0) {
+  if (!opts.fizzled && arch === 'ranger' && (u.rangerUsesLeft || 0) > 0) {
     u.rangerUsesLeft--;
     ev(st, { t: 'refund', uid: u.uid, why: 'sniper' });
     return { ok: true, refund: true };
