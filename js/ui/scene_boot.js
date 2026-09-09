@@ -22,7 +22,10 @@ class TitleScene extends Phaser.Scene {
     T().text(this, W / 2, 218, 'a life, several times over', { size: 18, display: true, italic: true, ox: 0.5, color: T().css.inkDim });
     T().text(this, W / 2, 268, 'Stats never change. Skills are everything. Death is not the end of what you know.', { size: 14, ox: 0.5, color: T().css.inkFaint });
 
-    const hasSave = ADV.Save.hasValidContinue ? ADV.Save.hasValidContinue() : ADV.Save.hasSave();
+    const leftover = ADV.Save.hasSave();
+    const canContinue = ADV.Save.hasVoicedContinue ? ADV.Save.hasVoicedContinue()
+      : (ADV.Save.hasValidContinue ? ADV.Save.hasValidContinue() : leftover);
+    const startFresh = leftover || canContinue;
     let y = 340;
     if (ADV.TitleNotice && ADV.TitleNotice.visible()) {
       T().text(this, W / 2, 318, ADV.TitleNotice.text, {
@@ -30,7 +33,7 @@ class TitleScene extends Phaser.Scene {
       });
       y = 400;
     }
-    if (hasSave) {
+    if (canContinue) {
       T().button(this, W / 2 - 130, y, 260, 46, 'Continue', () => {
         let game = null;
         try { game = ADV.Game.load(); } catch (e) { game = null; }
@@ -39,11 +42,11 @@ class TitleScene extends Phaser.Scene {
       }, { display: true, bold: true });
       y += 60;
     }
-    T().button(this, W / 2 - 130, y, 260, 46, hasSave ? 'New Game' : 'Begin', () => {
-      if (hasSave) {
+    T().button(this, W / 2 - 130, y, 260, 46, startFresh ? 'New Game' : 'Begin', () => {
+      if (startFresh) {
         this.confirmNew();
       } else this.startCards();
-    }, { display: true, bold: true, sub: hasSave ? 'wipes everything — journal, levels, lives' : null, subColor: T().css.inkFaint });
+    }, { display: true, bold: true, sub: startFresh ? 'wipes everything — journal, levels, lives' : null, subColor: T().css.inkFaint });
     y += 60;
     if (ADV.Display) {
       const fs = T().button(this, W / 2 - 130, y, 260, 46, ADV.Display.active() ? 'Exit fullscreen' : 'Fullscreen', () => {
@@ -69,6 +72,10 @@ class TitleScene extends Phaser.Scene {
     });
 
     T().text(this, W / 2, H - 70, 'save data lives in this browser · reset from the town codex', { size: 11, ox: 0.5, color: T().css.inkFaint });
+  }
+
+  shutdown() {
+    if (this.pwField) { this.pwField.destroy(); this.pwField = null; }
   }
 
   confirmNew() {

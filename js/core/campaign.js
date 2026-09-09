@@ -336,7 +336,7 @@ Campaign.buildQuest = function (game, n) {
   const src = D().CAMPAIGN_QUESTS[f.id][n - 1];
   const tierPay = { 1: C().QUEST_TIERS[1].partyPay, 2: C().QUEST_TIERS[2].partyPay, 3: C().QUEST_TIERS[3].partyPay };
   const q = {
-    id: 'cq_' + f.id + '_' + n, campaign: true, factionId: f.id, n, name: src.name, brief: src.brief,
+    id: 'cq_' + f.id + '_' + n, campaign: true, factionId: f.id, n, name: src.name, brief: src.brief, storyCaption: src.storyCaption,
     tier: src.tier, track: 'campaign', factionAlignment: f.alignment,
     payout: Math.max(C().CAMPAIGN_MIN_PAY || 500, n === 5 ? C().QUEST_TIERS.boss.partyPay : tierPay[src.tier]),
     enemyLevels: C().QUEST_TIERS[src.tier].enemyLevels,
@@ -442,9 +442,11 @@ Campaign.banter = function (game, st, roundN) {
     who = (f.id === 'antler' && s.branch === 'holloway') ? 'holloway' : f.boss; key = 'fight';
   } else if (q.rival && s.rivalToggle && s.rivalAlive) { who = f.rival; key = 'banter'; }
   if (!who) return null;
+  if (st && st.units && !st.units.some(u => u.ch && u.ch.campaignId === who && !u.downed && !u.fled)) return null;
   const lines = Campaign.lines(f.id, who, key);
   if (!lines.length) return null;
-  return { who, line: rng.pick(lines) };
+  const line = rng.pick(lines);
+  return { who, key, line, voOffset: lines.indexOf(line), fid: f.id };
 };
 
 // Called by Game.completeQuest for a campaign quest that succeeded.

@@ -626,7 +626,7 @@ Game.resolveLeaderFall = function (game, st) {
     leaderName: leader.name,
     leaderId: leader.id,
     memberIds: mourners.map(c => c.id),
-    words: mourners.filter(c => !c.isPlayer).map(c => ({
+    words: mourners.map(c => ({
       id: c.id,
       band: Game.funeralBand(world, c, leader),
       score: ADV.Rel.score(world, c.id, leader.id),
@@ -753,12 +753,11 @@ Game.finishCombat = function (game) {
         const fid = q.quest.factionId;
         const m = ADV.Campaign2.member(game, fid);
         if (q.quest.rivalDies && m && m.rivalToggle) q.closingBeats = ADV.Campaign.rivalDeathSequence(game, fid);
-        else if (q.quest.rivalDies) q.closingBeats = ADV.Campaign.rivalDeathSequence(game, fid).filter(b => !b.death)
-          .concat([{ who: ADV.Campaign2.faction(fid).rival, key: 'death', death: true, offscreen: true }]);
+        else if (q.quest.rivalDies) q.closingBeats = ADV.Campaign.rivalDeathSequence(game, fid).filter(b => b.death).map(b => Object.assign({}, b, { offscreen: true }));
         else if (q.quest.isBoss) q.closingBeats = ADV.Campaign.afterBossBeats(game, fid);
       }
       else if (q.quest.campaign && q.quest.rivalDies && game.campaign && game.campaign.rivalToggle) q.closingBeats = ADV.Campaign.rivalDeathSequence(game);
-      else if (q.quest.campaign && q.quest.rivalDies) q.closingBeats = ADV.Campaign.rivalDeathSequence(game).filter(b => !b.death).concat([{ who: ADV.Campaign.faction(game).rival, key: 'death', death: true, offscreen: true }]);
+      else if (q.quest.campaign && q.quest.rivalDies) q.closingBeats = ADV.Campaign.rivalDeathSequence(game).filter(b => b.death).map(b => Object.assign({}, b, { offscreen: true }));
       else if (q.quest.campaign && q.quest.isBoss) q.closingBeats = ADV.Campaign.afterBossBeats(game);
     }
     // party wipe check on our side (possible pyrrhic states)

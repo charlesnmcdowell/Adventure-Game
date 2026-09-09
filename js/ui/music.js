@@ -297,17 +297,21 @@ const Music = {
     Music._voiceHeld = false;
     if (Music.hidden && Music.pageVisible()) Music.hidden = false;
   },
+  voiceUrl(path) {
+    const hash = ADV.DATA.VOICE_HASHES && ADV.DATA.VOICE_HASHES[path];
+    return path + (hash ? '?v=' + hash : '');
+  },
   speakFile(personalityId, band, idx, tag) {
     if (!personalityId) return;
     Music._readyVoice();
     Music.stopVoice();
     const plain = 'audio/vo/' + personalityId + '/' + band + '_' + idx + '.mp3';
     const src = tag ? 'audio/vo/' + tag + '/' + personalityId + '/' + band + '_' + idx + '.mp3' : plain;
-    const el = watch(new Audio(src));
+    const el = watch(new Audio(Music.voiceUrl(src)));
     if (tag) {
       el.addEventListener('error', () => {
         if (Music.voiceEl !== el) return;
-        const fb = watch(new Audio(plain));
+        const fb = watch(new Audio(Music.voiceUrl(plain)));
         Music.voiceEl = fb;
         playEl(fb);
       }, { once: true });
@@ -320,7 +324,7 @@ const Music = {
   speakCampaign(who, key, idx) {
     Music._readyVoice();
     Music.stopVoice();
-    const el = watch(new Audio('audio/vo/campaign/' + who + '/' + key + '_' + idx + '.mp3'));
+    const el = watch(new Audio(Music.voiceUrl('audio/vo/campaign/' + who + '/' + key + '_' + idx + '.mp3')));
     Music.voiceKind = 'campaign';
     Music.voiceEl = el;
     playEl(el);

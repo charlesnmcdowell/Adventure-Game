@@ -299,7 +299,7 @@ C2.buildQuest = function (game, fid, n) {
   const T = C().QUEST_TIERS;
   return {
     id: 'c2_' + fid + '_' + n, campaign: true, campaign2: true, factionId: fid, n,
-    name: src.name, brief: src.brief, tier: src.tier, track: 'campaign',
+    name: src.name, brief: src.brief, storyCaption: src.storyCaption, tier: src.tier, track: 'campaign',
     factionAlignment: f.alignment === 'neutral' ? 'neutral' : f.alignment,
     payout: Math.max(C().CAMPAIGN_MIN_PAY || 500, n === 5 ? T.boss.partyPay : T[src.tier].partyPay),
     enemyLevels: T[src.tier].enemyLevels,
@@ -372,9 +372,11 @@ C2.banter = function (game, st, roundN) {
   if (q.bossAlly) { who = C2.bossId(game, fid); key = 'fight'; }
   else if (q.rival && m.rivalToggle && m.rivalAlive) { who = f.rival; key = 'banter'; }
   if (!who) return null;
+  if (st && st.units && !st.units.some(u => u.ch && u.ch.campaignId === who && !u.downed && !u.fled)) return null;
   const lines = C2.lines(fid, who, key);
   if (!lines.length) return null;
-  return { who, line: game.rng.pick(lines), fid, c2: true };
+  const line = game.rng.pick(lines);
+  return { who, key, line, voOffset: lines.indexOf(line), fid, c2: true };
 };
 C2.rivalDeathSequence = function (game, fid) {
   const f = C2.faction(fid);

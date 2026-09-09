@@ -133,10 +133,7 @@ Character.voiceTagFor = function (world, ch) {
   if (!ch || ch.isPlayer) return null;
   if (ch.isGod || ch.role === 'god' || ch.godLine) return ch.sex === 'f' ? 'godf' : 'godm';
   if (!ch.personalityId) return null;
-  if (ch.bloodline && ch.bloodline.demigod) return ch.sex === 'f' ? 'godf' : 'godm';
-  // §0a matriarch: a high-rank woman who has borne children and holds an estate
-  if (ch.sex === 'f' && (ch.childIds || []).length && ch.rank >= 3 &&
-      world && ADV.Vault && ADV.Vault.of(world, ch)) return 'matriarch';
+  // Ordinary personalities keep their assigned actor at every status.
   return null;
 };
 
@@ -317,7 +314,9 @@ Character.makePlayer = function (rng, opts) {
     portraitSeed: opts.portraitSeed, portraitKind: 'player',
     portraitSlot: opts.portraitSlot,
     isPlayer: true,
-    personalityId: null, // the player speaks through choices, not the line library
+    personalityId: opts.personalityId && ADV.DATA.DIALOGUE[opts.personalityId] &&
+      !ADV.DATA.DIALOGUE[opts.personalityId].hidden && ADV.DATA.DIALOGUE[opts.personalityId].sex === opts.sex
+      ? opts.personalityId : null,
   });
   for (const id of (opts.startingSkills || []).slice(0, 3)) {
     ADV.SkillSys.learn(ch, id, { free: true });

@@ -22,7 +22,8 @@ const UI2 = ADV.Campaign2UI = {};
   const CU = ADV.CampaignUI;
   const fill = CU.fill, speaker = CU.speaker;
 
-  CU.fill = function (game, text, who) {
+  CU.fill = function (game, text, who, context) {
+    if (context) return ADV.util.renderLine(text, context);
     const ch = D().CAMPAIGN_CHARS[who];
     if (!ch || !C2().isC2(ch.faction)) return fill(game, text, who);
     const p = ADV.Game.player(game);

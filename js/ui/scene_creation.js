@@ -15,6 +15,7 @@ class CreationScene extends Phaser.Scene {
     const W = T().W, H = T().H;
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
     this.done = false;             // scene instances are reused — reset run flags
+    this.choosingPersonality = false;
     this.beginBtn = null;
     this.rolled = null;
     this.sel = { slot: 1, sex: 'f', name: '', skills: [] };
@@ -235,7 +236,7 @@ class CreationScene extends Phaser.Scene {
   returnPhase1() {
     const kept = {
       slot: this.sel.slot, sex: this.sel.sex,
-      name: this.sel.name, skills: (this.sel.skills || []).slice(),
+      name: this.sel.name, personalityId: this.sel.personalityId, skills: (this.sel.skills || []).slice(),
     };
     if (this.skillScroll) { this.skillScroll.destroy(); this.skillScroll = null; }
     if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
@@ -307,7 +308,16 @@ class CreationScene extends Phaser.Scene {
   }
 
   begin() {
-    if (this.done) return;
+    if (this.done || this.choosingPersonality) return;
+    if (this.sel.personalityId && ADV.DATA.DIALOGUE[this.sel.personalityId].sex !== this.sel.sex) this.sel.personalityId = null;
+    if (!this.isHiro && !this.sel.personalityId) {
+      if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
+      this.choosingPersonality = true;
+      ADV.DialogueBox.choosePersonality(this, { sex: this.sel.sex, personalityId: null },
+        id => { this.choosingPersonality = false; this.sel.personalityId = id; this.begin(); },
+        () => { this.choosingPersonality = false; });
+      return;
+    }
     this.done = true;
     if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
     const opts = {
@@ -317,6 +327,7 @@ class CreationScene extends Phaser.Scene {
       portraitSlot: this.sel.slot,
       portraitSeed: this.sel.slot * 7919 + (this.sel.sex === 'f' ? 13 : 29),
       startingSkills: this.sel.skills,
+      personalityId: this.sel.personalityId,
       password: this.isHiro ? this.password : null,
     };
     const game = ADV.Game.newGame(opts);

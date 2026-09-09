@@ -37,6 +37,7 @@ Save.saveGame = function (game) {
     pendingRescues: w.pendingRescues, pendingPopulation: w.pendingPopulation,
     orphans: w.orphans, divineOffers: w.divineOffers,
     pendingHeroInvites: w.pendingHeroInvites, pendingPlayerJilt: w.pendingPlayerJilt,
+    pendingLeaderDeath: w.pendingLeaderDeath || null,
     playerId: w.playerId, metIds: w.metIds,
     parties: w.parties, campaignWorld: w.campaignWorld || null, mawContracts: w.mawContracts || [], pendingRaises: w.pendingRaises || [], hiroId: w.hiroId || null,
     sharedQuests: w.sharedQuests || {}, pendingProposals: w.pendingProposals || [], cooldowns: w.cooldowns || {},
@@ -103,6 +104,7 @@ Save.loadGame = function () {
     pendingRescues: ws.pendingRescues || [], pendingPopulation: ws.pendingPopulation || [],
     orphans: ws.orphans || [], divineOffers: ws.divineOffers || [],
     pendingHeroInvites: ws.pendingHeroInvites || [], pendingPlayerJilt: ws.pendingPlayerJilt || null,
+    pendingLeaderDeath: ws.pendingLeaderDeath || null,
     playerId: ws.playerId, metIds: ws.metIds || [],
     campaignWorld: ws.campaignWorld || null, campaignProgress: ws.campaignProgress || [], mawContracts: ws.mawContracts || [], pendingRaises: ws.pendingRaises || [], hiroId: ws.hiroId || null,
     sharedQuests: ws.sharedQuests || {}, pendingProposals: ws.pendingProposals || [], cooldowns: ws.cooldowns || {},
@@ -125,24 +127,35 @@ Save.loadGame = function () {
 
 Save.hasSave = function () { return !!get('adv:world'); };
 
+Save.peekPlayer = function () {
+  try {
+    const data = Save.loadGame();
+    if (!data || !data.world) return null;
+    return ADV.World && ADV.World.byId
+      ? ADV.World.byId(data.world, data.world.playerId)
+      : (data.world.characters || []).find(c => c && c.id === data.world.playerId) || null;
+  } catch (e) {
+    return null;
+  }
+};
+
 // Continue is only real if the full save loads and the player is still alive.
 // A leftover world key must not hide the title notice or offer a dead Continue.
 Save.hasValidContinue = function () {
-  try {
-    const data = Save.loadGame();
-    if (!data || !data.world) return false;
-    const player = ADV.World && ADV.World.byId
-      ? ADV.World.byId(data.world, data.world.playerId)
-      : (data.world.characters || []).find(c => c && c.id === data.world.playerId);
-    return !!(player && player.alive);
-  } catch (e) {
-    return false;
-  }
+  const player = Save.peekPlayer();
+  return !!(player && player.alive);
+};
+
+// Old lives have no personality. This expansion needs a fresh character; do not
+// offer Continue until the current life has a locked voice.
+Save.hasVoicedContinue = function () {
+  const player = Save.peekPlayer();
+  return !!(player && player.alive && player.personalityId);
 };
 
 ADV.TitleNotice = {
   text: 'All characters and data will be wiped at 8 PM CST. Sorry for the inconvenience — a new expansion has released. Create a new character and let me know if you like it.',
-  visible: () => !Save.hasValidContinue(),
+  visible: () => true,
 };
 
 Save.reset = function () {

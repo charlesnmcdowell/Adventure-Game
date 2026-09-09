@@ -27,11 +27,17 @@ class TownScene extends Phaser.Scene {
     this.musicBtn = ADV.Music.button(this, W - 26, T().H - 30);
     if (ADV.Display) this.fsBtn = ADV.Display.button(this, W - 26, T().H - 52);
 
+    // Unvoiced lives belong to the previous expansion. Title no longer offers
+    // Continue for them; if one still arrives here, send it back so New Game
+    // is the way forward. Creation still assigns a voice for a fresh life.
+    if (!this.player().personalityId) {
+      this.scene.start('Title');
+      return;
+    }
+
     this.buildCharacterPanel();
     this.buildMenu();
     this.openPanel('board');
-
-    // arrival notices: jilt choice, rescues, divine offers, withdrawals, prompts
     this.queueArrivalNotices();
     // A won contract earns the walk back before the town starts talking at you.
     // The cutscene restores the chrome itself, and the guided tutorial keeps
@@ -570,7 +576,7 @@ class TownScene extends Phaser.Scene {
             ADV.CampaignUI.playBeats(this, this.game_, beats, () => { if (done) done(); });
             return;
           }
-          if (done) done();
+          ADV.DialogueBox.playExchange(this, this.game_, ADV.Conversation.partyExchange(this.game_, 'departure'), done);
         },
       });
     };
@@ -584,8 +590,10 @@ class TownScene extends Phaser.Scene {
 
   // Speak helper: NPC dialogue box on interactions (§17a trigger points)
   speak(npc, band, extra, done) {
-    ADV.DialogueBox.show(this, this.game_, npc, band || ADV.DialogueBox.bandFor(this.game_, npc),
-      ADV.DialogueBox.ctxFor(this.game_, npc, extra), done);
+    const opts = Object.assign({}, extra || {}, { band: band || undefined });
+    // Old name overrides cannot safely identify a respondent.
+    if (opts.target && opts.listenerId == null && opts.target !== this.player().name) opts.noReply = true;
+    ADV.DialogueBox.playExchange(this, this.game_, ADV.Conversation.exchange(this.game_, npc, opts), done);
   }
 }
 

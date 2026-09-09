@@ -64,6 +64,8 @@ class QuestScene extends Phaser.Scene {
       if (line) ADV.Notices.toast(this, line);
     }
 
+    if (q.quest.storyCaption && enc.encIdx === 0) T().text(this, W / 2, 360, q.quest.storyCaption, { size: 13, ox: 0.5, wrap: W - 120, align: 'center', color: T().css.inkDim });
+
     // the opposition
     let x = W / 2 - (enc.enemies.length * 130) / 2 + 65;
     for (const e of enc.enemies) {

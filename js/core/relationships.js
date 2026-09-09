@@ -218,6 +218,9 @@ Rel.move = function (world, fromId, toId, delta, cause, opts) {
   if (opts.set) e.score = delta;
   else e.score = Math.max(C().REL.MIN, Math.min(C().REL.MAX, e.score + delta));
   if (cause) e.cause = cause;
+  if (ADV.Conversation && ['theft', 'jilt', 'rescue', 'quest'].includes(cause)) {
+    ADV.Conversation.remember(world, cause, toId, fromId);
+  }
   if (opts.decays != null) e.decays = opts.decays;
   if (opts.floor != null) e.score = Math.max(opts.floor, e.score);
   if (opts.ceiling != null) e.score = Math.min(opts.ceiling, e.score);

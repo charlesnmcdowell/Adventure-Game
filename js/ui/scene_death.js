@@ -70,7 +70,7 @@ class DeathScene extends Phaser.Scene {
       let said = '';
       let vo = null;
       try {
-        const r = ADV.util.speakEx(world, m.c, m.tier === 'romantic' ? 'romantic' : 'friendly',
+        const r = ADV.util.speakEx(world, m.c, 'funeral_' + (m.tier === 'romantic' ? 'romantic' : m.tier === 'friendly' ? 'friendly' : m.tier === 'hatred' ? 'hatred' : 'general'),
           { target: dead.name, them: null, partner: null, rand: Math.random() });
         said = (r && r.text) || '';
         if (r && m.c.personalityId) {

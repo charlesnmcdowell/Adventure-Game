@@ -13,7 +13,8 @@ const CampaignUI = {};
 // ---------------------------------------------------------------- lines
 // Tokens are filled on screen; the spoken clip is the name-free `v` form
 // (the name plate and the text box carry the names).
-CampaignUI.fill = function (game, text, who) {
+CampaignUI.fill = function (game, text, who, context) {
+  if (context) return ADV.util.renderLine(text, context);
   const p = ADV.Game.player(game);
   const ch = who && D().CAMPAIGN_CHARS[who];
   const f = ADV.Campaign.faction(game) || (ch && D().FACTIONS[ch.faction]) || {};
@@ -38,7 +39,19 @@ CampaignUI.speaker = function (game, who) {
 // Play one beat: every line of dialogue[faction][who][key], in order.
 CampaignUI.playBeat = function (scene, game, beat, done) {
   const who = beat.who;
-  const fid = D().CAMPAIGN_CHARS[who].faction;
+  const def = who && D().CAMPAIGN_CHARS[who];
+  if (!def) { if (done) done(); return; }
+  const fid = beat.fid || def.faction;
+  const authored = D().STORY_SCENES && D().STORY_SCENES[fid + ':' + who + ':' + beat.key];
+  if (authored && !beat.expanded) {
+    CampaignUI.playBeats(scene, game, authored.map(b => Object.assign({}, b, { fid, c2: beat.c2, expanded: true })), done);
+    return;
+  }
+  const faction = D().FACTIONS[fid];
+  const to = beat.to || (beat.key === 'final' && faction ? faction.boss : beat.key === 'facing' && who === 'holloway' ? 'crane' : 'player');
+  const listener = beat.listenerId ? ADV.World.byId(game.world, beat.listenerId) : to !== 'player' ? D().CAMPAIGN_CHARS[to] : ADV.Game.player(game);
+  const subject = beat.subject ? D().CAMPAIGN_CHARS[beat.subject] : faction && D().CAMPAIGN_CHARS[faction.rival];
+  const context = { target: listener ? listener.name : '', them: subject && subject.name, self: def.name };
   const lines = beat.lines || ADV.Campaign.lines(fid, who, beat.key);
   const speaker = CampaignUI.speaker(game, who);
   let i = 0;
@@ -46,16 +59,21 @@ CampaignUI.playBeat = function (scene, game, beat, done) {
     if (i >= lines.length) { if (done) done(); return; }
     const line = lines[i++];
     if (ADV.Music) ADV.Music.speakCampaign(who, beat.key, (beat.voOffset || 0) + i);
-    ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who), next, { raw: line.t });
+    ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who, context), next, { raw: line.t, recipient: listener ? 'To ' + listener.name : 'To the company', caption: beat.caption });
   };
   if (beat.death && !beat.offscreen) {
     // the rival's last line, then the screen goes red for a moment
-    const speak = () => { const line = lines[0]; if (ADV.Music) ADV.Music.speakCampaign(who, 'death', 1); ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who), () => { ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8); scene.time.delayedCall(600, done); }, { raw: line.t }); };
+    const speak = () => { const line = lines[0]; if (ADV.Music) ADV.Music.speakCampaign(who, 'death', 1); ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who, context), () => { ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8); scene.time.delayedCall(600, done); }, { raw: line.t, recipient: 'To ' + listener.name, caption: D().STORY_DEATH_CAPTIONS && D().STORY_DEATH_CAPTIONS[fid] }); };
     speak(); return;
   }
   if (beat.death && beat.offscreen) {
-    ADV.Notices.toast(scene, `${speaker.name} went ahead alone. ${speaker.name} did not come back.`);
-    scene.time.delayedCall(1800, done); return;
+    const killer = faction && D().CAMPAIGN_CHARS[faction.antagonist];
+    ADV.Notices.custom(scene, (keep, depth, close) => {
+      keep(T().text(scene, T().W / 2, 256, 'Word from the road', { size: 22, ox: 0.5, color: T().css.gold }).setDepth(depth));
+      keep(T().text(scene, T().W / 2, 308, `${speaker.name} was killed away from your company${killer ? ' by ' + killer.name : ''}. The faction is calling its people home.`, { size: 17, ox: 0.5, wrap: 560, align: 'center' }).setDepth(depth));
+      ADV.UI.modalBtn(keep, depth, T().button(scene, T().W / 2 - 100, 400, 200, 40, 'Continue', () => { close(); if (done) done(); }));
+    });
+    return;
   }
   next();
 };

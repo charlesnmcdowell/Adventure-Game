@@ -175,13 +175,16 @@ Cut.rideHome = function (scene, done) {
     : `${shortName(p)} comes back to ${where}.`));
 
   let finished = false;
-  const finish = () => {
+  const finish = (skip) => {
     if (finished) return;
     finished = true; st.done = true;
-    closeOut(scene, st, done);
+    closeOut(scene, st, () => {
+      const turns = skip ? [] : ADV.Conversation.partyExchange(game, 'return');
+      ADV.DialogueBox.playExchange(scene, game, turns, done);
+    });
   };
-  armSkip(scene, st, finish, 450);
-  scene.time.delayedCall(2480, finish);
+  armSkip(scene, st, () => finish(true), 450);
+  scene.time.delayedCall(2480, () => finish(false));
 };
 
 // ============================================================== THE FUNERAL
@@ -229,7 +232,9 @@ Cut.funeral = function (scene, rec, done) {
   const conts = mourners.map((c, i) => {
     const x0 = 220 + (i - mid) * 54;
     const y0 = 548 + (i % 2) * 14;
-    const cont = card(scene, st, c, x0, y0, { z: i, tint: 0x9aa0aa, lead: c.isPlayer, mood: 'grief', moodK: c.isPlayer ? 1 : 0.8 });
+    const word = wordsById[c.id];
+    const hostile = word && word.band === 'hatred';
+    const cont = card(scene, st, c, x0, y0, { z: i, tint: 0x9aa0aa, lead: c.isPlayer, mood: hostile ? 'stern' : 'grief', moodK: hostile ? 0.45 : 0.8 });
     scene.tweens.add({ targets: cont, alpha: 1, duration: 280, delay: 140 + i * 90 });
     scene.tweens.add({
       targets: cont,
@@ -261,7 +266,7 @@ Cut.funeral = function (scene, rec, done) {
   // DialogueBox.show hands back a {close} handle so a skip can shut an open box.
   const speakers = mourners
     .map((c, i) => ({ c, i, word: wordsById[c.id] }))
-    .filter(x => x.word && !x.c.isPlayer);
+    .filter(x => x.word && x.c.personalityId);
   let idx = 0, openBox = null;
   const speakNext = () => {
     if (st.done) return;
@@ -275,21 +280,22 @@ Cut.funeral = function (scene, rec, done) {
     }
     st.say(`${c.name} says a word over ${leaderName}.`);
     const ctx = ADV.DialogueBox.ctxFor(game, c, {
-      target: leaderName,
+      listenerId: null, scene: 'funeral',
+      target: leaderName, subjectName: leaderName,
       them: leaderName,
       score: word.score,
     });
-    openBox = ADV.DialogueBox.show(scene, game, c, word.band || 'general', ctx, () => {
+    openBox = ADV.DialogueBox.show(scene, game, c, 'funeral_' + (word.band || 'general'), ctx, () => {
       openBox = null;
       if (cont) { try { cont.__img.setTint(0x9aa0aa); } catch (e) {} }
       speakNext();
     });
-    if (!openBox) speakNext();
+    // show invokes the callback itself when no line is eligible.
   };
 
   armSkip(scene, st, () => {
-    if (openBox && openBox.close) { try { openBox.close(); } catch (e) {} openBox = null; }
     finishAll();
+    if (openBox && openBox.close) { try { openBox.close(); } catch (e) {} openBox = null; }
   }, 700);
   scene.time.delayedCall(2280, () => {
     st.say(`They put ${leaderName} in the ground.`);
@@ -372,11 +378,10 @@ Cut.conscription = function (scene, game, victor, c, done, extra) {
   const speakThenBind = () => {
     if (st.done) return;
     const ctx = ADV.DialogueBox && ADV.DialogueBox.ctxFor
-      ? ADV.DialogueBox.ctxFor(game, c, { target: victor.name, them: victor.name })
+      ? ADV.DialogueBox.ctxFor(game, c, { listenerId: victor.id, target: victor.name, subjectName: victor.name, scene: 'binding' })
       : {};
     if (ADV.DialogueBox && ADV.DialogueBox.show) {
       openBox = ADV.DialogueBox.show(scene, game, c, 'hatred', ctx, () => { openBox = null; bind(); });
-      if (!openBox) bind();
     } else bind();
   };
 
@@ -436,7 +441,7 @@ Cut.raising = function (scene, game, victor, c, done, extra) {
   if (mourners[0] && ADV.DialogueBox) {
     scene.time.delayedCall(900, () => {
       const m = mourners[0].ch;
-      ADV.DialogueBox.show(scene, game, m, 'hatred', ADV.DialogueBox.ctxFor(game, m, { target: victor.name }), () => {});
+      ADV.DialogueBox.show(scene, game, m, 'hatred', ADV.DialogueBox.ctxFor(game, m, { listenerId: victor.id, target: victor.name, scene: 'binding' }), () => {});
     });
   }
   scene.time.delayedCall(5200, finish);

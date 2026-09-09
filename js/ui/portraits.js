@@ -1373,6 +1373,7 @@ const TAG_MOODS = {
   shouts: ['furious', 0.9], dramatically: ['surprised', 0.6], impressed: ['content', 0.6], curious: ['surprised', 0.3], questioning: ['surprised', 0.25],
   smirks: ['smug', 0.8], dryly: ['smug', 0.5], sneers: ['disgust', 0.8], disgusted: ['disgust', 0.9],
   firmly: ['resolve', 0.7], steadily: ['resolve', 0.6], grimly: ['resolve', 0.7], wearily: ['dazed', 0.5],
+  tense: ['resolve', 0.7], focused: ['resolve', 0.55],
 };
 const TAG_IGNORE = ['calm', 'thoughtful', 'formal', 'quietly', 'whisper', 'whispers', 'pause', 'beat'];
 

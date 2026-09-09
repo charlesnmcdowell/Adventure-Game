@@ -36,13 +36,16 @@ ADV.util = {
   // Full form: returns {text, band, idx} so callers can play the matching
   // voice clip (audio/vo/{pid}/{band}_{idx+1}.mp3, §17a asset layout).
   speakEx(world, speaker, band, ctx) {
+    ctx = ctx || {};
     const D = ADV.DATA.DIALOGUE;
     const p = speaker.personalityId ? D[speaker.personalityId] : null;
     if (!p) return null;
-    const lines = p[band] || p.general;
+    const lines = p[band];
     if (!lines || !lines.length) return null;
     const usable = [];
     for (let i = 0; i < lines.length; i++) {
+      const rules = p.replyFamilies && p.replyFamilies[band];
+      if (ctx.replyTo && (!rules || !rules[i] || !rules[i].includes(ctx.replyTo))) continue;
       const needs = ADV.util.lineNeeds(lines[i]);
       if (needs.includes('them') && !ctx.them) continue;
       if (needs.includes('partner') && !ctx.partner) continue;
@@ -51,27 +54,34 @@ ADV.util = {
     if (!usable.length) return null; // show no box rather than the wrong voice (§17a)
     speaker.lastVariantUsed = speaker.lastVariantUsed || {};
     const last = speaker.lastVariantUsed[band];
-    let pickPool = usable.filter(i => i !== last);
-    if (!pickPool.length) pickPool = usable;
-    // warmth picks a third of the band; then we roll inside that third so
-    // Friendly-50 does not lock every speaker to the same clip forever
-    let idx;
-    const roll = ctx.rand != null ? ctx.rand : Math.random();
-    if (ctx.score != null && pickPool.length > 1 && ADV.Rel && ADV.Rel.warmth) {
-      const w = ADV.Rel.warmth(ctx.score);
-      const n = pickPool.length;
-      const third = Math.max(1, Math.ceil(n / 3));
-      let slice = w === 'low' ? pickPool.slice(0, third)
-        : w === 'high' ? pickPool.slice(-third)
-        : pickPool.slice(Math.floor((n - third) / 2), Math.floor((n - third) / 2) + third);
-      slice = slice.filter(i => i !== last);
-      if (!slice.length) slice = pickPool.filter(i => i !== last);
-      if (!slice.length) slice = pickPool;
-      idx = slice[Math.floor(roll * slice.length)];
-    } else {
-      idx = pickPool[Math.floor(roll * pickPool.length)];
+    // Keep candidates in their authored intensity range before removing repeats.
+    let pool = usable;
+    if (ctx.score != null && usable.length >= 4 && !ctx.replyTo && !p.contextual) {
+      const intensity = band === 'hatred' ? Math.abs(ctx.score) : ctx.score;
+      const pos = band === 'general' ? (intensity + 49) / 98 : (intensity - 50) / 50;
+      const at = Math.max(0, Math.min(lines.length - 2, Math.floor(pos * (lines.length - 1))));
+      const allowed = usable.filter(i => i >= at && i <= at + 1);
+      if (allowed.length) pool = allowed;
     }
+    let rotation = null;
+    if (p.contextual && pool.length > 1) {
+      speaker.dialogueRotation = speaker.dialogueRotation || {};
+      const key = band + ':' + (ctx.replyTo || 'opening');
+      const signature = ADV.DATA.DIALOGUE_REVISION + ':' + pool.join(',');
+      rotation = speaker.dialogueRotation[key];
+      if (!rotation || rotation.signature !== signature || !Array.isArray(rotation.used)) {
+        rotation = speaker.dialogueRotation[key] = { signature, used: [] };
+      }
+      let remaining = pool.filter(i => !rotation.used.includes(i));
+      if (!remaining.length) { rotation.used = []; remaining = pool; }
+      pool = remaining;
+    }
+    const fresh = pool.filter(i => i !== last);
+    if (fresh.length) pool = fresh;
+    const roll = Math.max(0, Math.min(0.999999, ctx.rand == null ? Math.random() : ctx.rand));
+    const idx = pool[Math.floor(roll * pool.length)];
     speaker.lastVariantUsed[band] = idx;
+    if (rotation) rotation.used.push(idx);
     return { text: ADV.util.renderLine(lines[idx], ctx), band, idx };
   },
 };

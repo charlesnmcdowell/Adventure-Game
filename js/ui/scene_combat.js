@@ -436,12 +436,15 @@ class CombatScene extends Phaser.Scene {
       return;
     }
     if (!ADV.DialogueBox) { then(); return; }
+    const recipient = st.units.find(u => u.side !== speaker.side && !u.downed && !u.fled && u.ch.isPlayer)
+      || st.units.find(u => u.side !== speaker.side && !u.downed && !u.fled);
     const ctx = ADV.DialogueBox.ctxFor
-      ? ADV.DialogueBox.ctxFor(this.game_, speaker.ch, { target: ADV.Game.player(this.game_).name })
+      ? ADV.DialogueBox.ctxFor(this.game_, speaker.ch, { listenerId: recipient ? recipient.ch.id : null, target: recipient ? recipient.ch.name : '', scene: 'combat' })
       : {};
     let started = false;
     const done = () => { if (started) return; started = true; then(); };
-    const box = ADV.DialogueBox.show(this, this.game_, speaker.ch, 'hatred', ctx, done);
+    const library = ADV.DATA.DIALOGUE[speaker.ch.personalityId];
+    const box = ADV.DialogueBox.show(this, this.game_, speaker.ch, library && library.combat_hatred ? 'combat_hatred' : 'hatred', ctx, done);
     if (!box) done();
   }
 
@@ -472,7 +475,7 @@ class CombatScene extends Phaser.Scene {
         this.refreshStrip();
         // campaign banter (§8): one line from a present companion, round 2
         const b = ADV.Campaign && ADV.CampaignUI && this.mode === 'quest' ? ADV.Campaign.banter(this.game_, st, e.n) : null;
-        if (b) return (next) => ADV.CampaignUI.playBeat(this, this.game_, { who: b.who, key: b.key, lines: [b.line] }, next);
+        if (b) return (next) => ADV.CampaignUI.playBeat(this, this.game_, { who: b.who, key: b.key, fid: b.fid, c2: b.c2, voOffset: b.voOffset, lines: [b.line] }, next);
         return 30;
       }
       case 'reinforce': {
@@ -734,6 +737,7 @@ class CombatScene extends Phaser.Scene {
         if (!v) return 200;
         v.img.clearTint(); v.frame.setAlpha(1); v.name.setAlpha(1);
         const by = e.by ? this.view(e.by) : null;
+        if (by && ADV.Conversation) ADV.Conversation.remember(this.game_.world, 'revived', by.u.ch.id, v.u.ch.id);
         if (e.arch === 'healer') {
           // white flash, the wings unfold (the `wings` status mark draws them), crosses, faces
           V.flashOverlay(this, 0xffffff, 0.25);
@@ -755,6 +759,14 @@ class CombatScene extends Phaser.Scene {
       // the reviver's word over the one they brought back (B4 / C4): a short, blocking beat
       case 'line': {
         if (!v || !ADV.DialogueBox || !ADV.DialogueBox.showText) return 10;
+        const risen = e.target && this.view(e.target);
+        if (risen && ADV.Conversation && ['healer', 'druid'].includes(e.kind)) {
+          const turn = ADV.Conversation.select(this.game_, risen.u.ch, { listenerId: v.u.ch.id, event: 'revived', scene: 'combat' });
+          if (turn) return next => {
+            for (const memory of risen.u.ch.conversationMemory || []) if (memory.kind === 'revived' && memory.actorId === v.u.ch.id) memory.heard = true;
+            ADV.DialogueBox.playExchange(this, this.game_, [turn], next);
+          };
+        }
         const raw = e.tag ? '[' + e.tag + '] ' + e.text : e.text;
         return (next) => {
           let done = false; const go = () => { if (!done) { done = true; next(); } };

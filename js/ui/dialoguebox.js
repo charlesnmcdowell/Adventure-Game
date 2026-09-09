@@ -20,7 +20,9 @@ const DialogueBox = {
     }
     // the raw line still carries its delivery tags — the face reads them (expression pass)
     const raw = (() => { try { const p = ADV.DATA.DIALOGUE[speaker.personalityId]; const arr = p && (p[r.band] || p.general); return arr ? arr[r.idx] : null; } catch (e) { return null; } })();
-    return DialogueBox.showText(scene, game, speaker, r.text, onDone, { raw });
+    const recipient = ctx && ctx.scene === 'funeral' ? 'Remembering ' + (ctx.subjectName || ctx.target || 'the deceased')
+      : ctx && ctx.target ? 'To ' + ctx.target : null;
+    return DialogueBox.showText(scene, game, speaker, r.text, onDone, { raw, recipient });
   },
 
   // opts: { raw } — the untrimmed line with [delivery] tags, for reactions
@@ -39,6 +41,10 @@ const DialogueBox = {
     panel.lineStyle(2, T().c.gold, 0.85);
     panel.strokeRoundedRect(20, y, W - 40, bh, 8);
     group.push(dim, panel);
+    if (opts.caption) {
+      group.push(scene.add.rectangle(W / 2, 150, W - 100, 110, 0x14110d, 0.96).setDepth(901));
+      group.push(T().text(scene, W / 2, 150, opts.caption, { size: 17, ox: 0.5, oy: 0.5, wrap: W - 170, align: 'center', color: T().css.ink }).setDepth(902));
+    }
     // portrait
     const key = ADV.Portraits.key(scene, speaker);
     const img = scene.add.image(88, y + bh / 2, key).setDisplaySize(96, 122).setDepth(902);
@@ -72,6 +78,7 @@ const DialogueBox = {
     nameBg.strokeRoundedRect(150, y - 14, 200, 28, 4);
     const nameTxt = T().text(scene, 250, y, speaker.name + (speaker.title ? ' · ' + speaker.title : ''), { size: 14, ox: 0.5, oy: 0.5, display: true, color: T().css.gold }).setDepth(904);
     group.push(nameBg, nameTxt);
+    if (opts.recipient) group.push(T().text(scene, W - 48, y + 8, opts.recipient, { size: 12, ox: 1, color: T().css.inkDim }).setDepth(904));
     // typewriter text
     const txt = T().text(scene, 160, y + 26, '', { size: 17, wrap: W - 220, display: true }).setDepth(904);
     group.push(txt);
@@ -88,7 +95,10 @@ const DialogueBox = {
     if (ADV.Tutor) ADV.Tutor.clear(scene);
     if (ADV.Notices && ADV.Notices.block) ADV.Notices.block(scene);
     if (!scene.__cutscene && scene.hideChrome) scene.hideChrome();
+    let closed = false;
     const close = () => {
+      if (closed) return;
+      closed = true;
       timer.remove(false);
       if (ADV.Music) ADV.Music.stopVoice();
       for (const g of group) { try { g.destroy(); } catch (e) {} }
@@ -105,8 +115,57 @@ const DialogueBox = {
     return { close };
   },
 
+  choosePersonality(scene, ch, onDone, onCancel) {
+    ADV.Notices.custom(scene, (keep, depth, close) => {
+      const W = T().W;
+      keep(T().text(scene, W / 2, 100, 'How do you speak?', { size: 26, ox: 0.5, color: T().css.gold }).setDepth(depth));
+      keep(T().text(scene, W / 2, 141, 'Choose one personality and voice for this life. Remarks are automatic; your decisions stay yours.', { size: 14, ox: 0.5, wrap: 950, align: 'center' }).setDepth(depth));
+      const pool = ADV.Conversation.personalityPool(ch.sex);
+      let selected = null;
+      const sample = keep(T().text(scene, W / 2, 615, 'Select a personality to hear its voice.', { size: 15, ox: 0.5, wrap: 900, align: 'center' }).setDepth(depth));
+      pool.forEach((p, i) => {
+        const x = 100 + (i % 5) * 218, y = 180 + Math.floor(i / 5) * 66;
+        ADV.UI.modalBtn(keep, depth, T().button(scene, x, y, 202, 48, p.name, () => {
+          selected = p.id;
+          sample.setText(p.name + ' — ' + ADV.util.renderLine(p.general[0], {}));
+          ADV.Music.speakFile(p.id, 'general', 1);
+        }, { size: 14 }));
+      });
+      ADV.UI.modalBtn(keep, depth, T().button(scene, W / 2 - 280, 678, 200, 44, 'Back', () => {
+        ADV.Music.stopVoice(); close(); if (onCancel) onCancel();
+      }, { size: 16 }));
+      ADV.UI.modalBtn(keep, depth, T().button(scene, W / 2 - 50, 678, 270, 44, 'Keep this personality', () => {
+        if (!selected) return;
+        ADV.Conversation.assign(ch, selected);
+        ADV.Music.stopVoice(); close(); if (onDone) onDone(ch.personalityId);
+      }, { size: 16, color: T().css.gold }));
+    }, { x: 60, y: 70, w: 1160, h: 660 });
+  },
+
+  playExchange(scene, game, turns, onDone) {
+    let stopped = false, open = null, index = 0;
+    const shutdown = () => { stopped = true; if (open) open.close(); };
+    const detach = () => { if (scene.events) scene.events.off('shutdown', shutdown); };
+    if (scene.events) scene.events.once('shutdown', shutdown);
+    const done = () => { if (stopped) return; stopped = true; detach(); if (onDone) onDone(); };
+    const next = () => {
+      if (stopped) return;
+      const turn = turns[index++];
+      if (!turn) { done(); return; }
+      if (turn.speaker.alive === false) { next(); return; }
+      ADV.Music.stopTutorial();
+      ADV.Music.speakFile(turn.speaker.personalityId, turn.band, turn.idx + 1);
+      const listener = turn.ctx.listenerId && ADV.World.byId(game.world, turn.ctx.listenerId);
+      open = DialogueBox.showText(scene, game, turn.speaker, turn.text, next,
+        { raw: turn.raw, recipient: listener ? 'To ' + listener.name : turn.ctx.scene === 'funeral' ? 'At the grave' : 'To the company' });
+    };
+    next();
+    return { close() { if (stopped) return; stopped = true; detach(); if (open) open.close(); if (onDone) onDone(); } };
+  },
+
   // Build the token context for a speaker addressing the player (§17a)
   ctxFor(game, speaker, extra) {
+    if (ADV.Conversation) return ADV.Conversation.context(game, speaker, extra);
     const world = game.world;
     const p = ADV.Game.player(game);
     const partner = speaker.partnerId ? world.characters.find(c => c.id === speaker.partnerId) : null;
