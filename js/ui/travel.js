@@ -110,10 +110,11 @@ ADV.TravelUI={
   if(plan.event==='occupied-landmark')sub.setText('Someone has left a space beside them. The company keeps walking.');
   if(plan.event==='party-friction')sub.setText('There is room on the road. They choose opposite sides.');
   if(plan.event==='weather-turn')sub.setText('The light changes. The weather is following you in.');
+  if(leg==='outbound'&&!plan.event&&plan.visits===0)sub.setText(r.caption||q.name);
   if(leg==='outbound'){
     heading.setAlpha(0);sub.setAlpha(0);
     scene.tweens.add({targets:[heading,sub],alpha:1,delay:800,duration:400});
-    if(!plan.event)later(3300,()=>scene.tweens.add({targets:[heading,sub],alpha:0,duration:600}));
+    if(!plan.event)later(7000,()=>scene.tweens.add({targets:[heading,sub],alpha:0,duration:600}));
   }
   const roster=ADV.Travel.roster(game),cards=[];
   roster.forEach((c,i)=>{
