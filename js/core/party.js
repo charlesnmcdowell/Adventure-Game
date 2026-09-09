@@ -217,7 +217,7 @@ Party.maxAffordableWage = function (world, party, board) {
 // What a hireling actually gets per quest: the standard wage, plus Lookism's edge.
 Party.hirelingWageFor = function (ch) {
   const looks = ch.perks.find(x => x.skillId === 'lookism');
-  return C().GOLD.hirelingWage + (looks ? (ADV.SkillSys.manifest(ch, looks).data.wageEdge || 10) : 0);
+  return C().GOLD.hirelingWage + (ch.isPlayer ? 100 : 0) + (looks ? (ADV.SkillSys.manifest(ch, looks).data.wageEdge || 10) : 0);
 };
 
 Party.clampWage = function (n) {
@@ -226,14 +226,14 @@ Party.clampWage = function (n) {
 
 // Player apply ceiling: 30g at reputation −20, 200g at +20, linear between.
 Party.applyAskMax = function (ch) {
-  const min = C().GOLD.wageAcceptMin;
-  const max = C().GOLD.wageApplyMax || 200;
+  const min = C().GOLD.wageAcceptMin + (ch && ch.isPlayer ? 100 : 0);
+  const max = (C().GOLD.wageApplyMax || 200) + (ch && ch.isPlayer ? 100 : 0);
   const rep = Math.max(-20, Math.min(20, (ch && ch.reputation) || 0));
   return min + Math.round((max - min) * (rep + 20) / 40);
 };
 
 Party.clampApplyWage = function (ch, n) {
-  return Math.max(C().GOLD.wageAcceptMin, Math.min(Party.applyAskMax(ch), n | 0));
+  return Math.max(C().GOLD.wageAcceptMin + (ch && ch.isPlayer ? 100 : 0), Math.min(Party.applyAskMax(ch), n | 0));
 };
 
 Party.clampRaiseWage = function (n) {
@@ -246,8 +246,8 @@ Party.raiseChance = function (ch, cur, ask) {
   let p0 = 0.22 + rep * 0.028;
   const step = C().GOLD.wageRaiseStep || 10;
   if ((ask - cur) > step) p0 -= 0.08;
-  const raiseMax = C().GOLD.wageRaiseMax || 300;
-  const height = (ask - C().GOLD.wageAcceptMin) / Math.max(1, raiseMax - C().GOLD.wageAcceptMin);
+  const raiseMax = (C().GOLD.wageRaiseMax || 300) + (ch.isPlayer ? 100 : 0);
+  const height = (ask - C().GOLD.wageAcceptMin - (ch.isPlayer ? 100 : 0)) / Math.max(1, raiseMax - C().GOLD.wageAcceptMin - (ch.isPlayer ? 100 : 0));
   if (height > 0.5) p0 -= 0.10;
   if (ask >= raiseMax) p0 -= 0.08;
   return Math.max(0.08, Math.min(0.9, p0));
@@ -257,7 +257,7 @@ Party.requestRaise = function (world, rng, ch, ask) {
   const p = Party.of(world, ch);
   if (!p || p.leaderId === ch.id) return { ok: false, error: 'you do not serve' };
   const cur = p.wages[ch.id] || ch.wage || C().GOLD.hirelingWage;
-  const max = C().GOLD.wageRaiseMax || 300;
+  const max = (C().GOLD.wageRaiseMax || 300) + (ch.isPlayer ? 100 : 0);
   if (cur >= max) return { ok: false, error: 'already at the cap' };
   if (ch.raiseAskedAt != null && ch.raiseAskedAt >= (world.questClock | 0)) return { ok: false, error: 'already asked this stay' };
   const step = C().GOLD.wageRaiseStep || 10;

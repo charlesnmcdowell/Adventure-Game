@@ -338,6 +338,12 @@ const Music = {
     Music.voiceEl = el;
     playEl(el);
   },
+  speakNarrator(id) {
+    if (!id) return;
+    Music._readyVoice(); Music.stopVoice();
+    const el = watch(new Audio(Music.voiceUrl('audio/vo/narrator/' + id + '.mp3')));
+    Music.voiceKind = 'narrator'; Music.voiceEl = el; playEl(el);
+  },
   stopVoice() {
     Music._voiceHeld = false;
     Music.voiceKind = null;

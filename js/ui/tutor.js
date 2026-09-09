@@ -8,7 +8,7 @@ const T = () => ADV.T;
 const C = () => ADV.DATA.CONST;
 
 const ALLOWED = { tour: [], firstQuest: ['board'], trainer: ['trainer'], vault: ['vault'], party: ['apply'], partyQuest: ['board'] };
-const TUTORIAL_WAGE = 45;
+const TUTORIAL_WAGE = 145;
 
 const TOUR = [
   ['board',    'Quest Board',     'Contracts are posted here. Solo work pays less; party work pays full. The contract IS the difficulty — nothing scales to you.'],

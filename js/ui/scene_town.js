@@ -10,6 +10,7 @@ class TownScene extends Phaser.Scene {
 
   create() {
     this.game_ = this.registry.get('game');
+    if (ADV.BalanceSupport) ADV.BalanceSupport.migrate(this.game_);
     const W = T().W, H = T().H;
     // Phaser reuses this scene — leftover embark/talk flags would keep the
     // hub menus hidden (and the tutorial would highlight empty air).

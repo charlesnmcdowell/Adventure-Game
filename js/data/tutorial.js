@@ -22,7 +22,7 @@ ADV.DATA.PROMPTS = {
   firstNonCombat:      'Not every encounter has to be a fight.',
   firstPartyQuest:     'You control only yourself — the others decide for themselves.',
   firstSkillAuto:      'Turn AUTO on as many skills as you want. Combat walks them in order, skips one that cannot fire, and hands the turn back if none can.',
-  firstHome:           'A roof of your own changes the town behind the menus, and a brick house, a mansion, or a castle will hold two, three, or five spouses without anyone being left.',
+  firstHome:           'A roof of your own changes the town behind the menus. Keep improving your shelter before the damp makes you sick.',
   firstIntentIcon:     'Their portraits show what they plan to do before you act.',
   firstAffordableSet:  'A full set makes all your matching skills stronger.',
   firstFactionShift:   'The quests you accept decide who trusts you — law hunts outlaws, crime hits the watch, and a neutral job is only beasts.',

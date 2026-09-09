@@ -54,7 +54,7 @@ Character.base = function (o) {
     stats: { hp: 100, atk: 10, def: 10, spd: 10 },
     bonusStats: { hp: 0, atk: 0, def: 0, spd: 0 },  // nepotism title + Hero + Finisher only
     perks: [], actives: [],                 // [{skillId, level, uses, auto?, autoOff?}]
-    autoAttack: false, autoRepeat: null, autoOrder: [], autoIdx: 0,
+    autoAttack: false, autoRepeat: null, autoOrder: [], autoIdx: 0, autoAdopted: false,
     perkCap: C().PLAYER_PERK_SLOTS, activeCap: C().PLAYER_ACTIVE_SLOTS,
     journal: {}, skillLevels: {}, freeSkillsUsed: 0,
     equipped: [], equippedSet: null,
@@ -78,7 +78,7 @@ Character.base = function (o) {
     bloodline: { demigod: false },
     alive: true, deadAtQuest: null,
     partyId: null, leaderId: null, wage: 0,
-    isPlayer: false, registryId: null,
+    isPlayer: false, registryId: null, playerHealthV1: !!(o && o.isPlayer),
     jiltCount: 0, badActor: false,
     // children under 10 quests tracked as simple records on the mother:
     dependents: [],                          // [{id, age, fatherId, sex, demigod}]
@@ -113,7 +113,8 @@ Character.syncNpcHeroFloor = function (list) {
   const chars = (list && list.characters) ? list.characters : (list || []);
   const player = chars.find(c => c && c.isPlayer && c.alive !== false);
   if (!player) return;
-  const floor = Character.effStat(player, 'hp');
+  // The player safety buffer must not also double enemy hero health.
+  const floor = Character.effStat(player, 'hp') / 2;
   for (const c of chars) {
     if (c && !c.isPlayer && (c.status === 'hero' || c.status === 'villain')) c.npcHpFloor = floor;
   }

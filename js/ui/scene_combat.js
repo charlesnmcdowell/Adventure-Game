@@ -36,6 +36,8 @@ class CombatScene extends Phaser.Scene {
     this.autoTimer = null;
     this._autoPaused = false;
     this._autoHalted = false;
+    this._dangerFleeWarned = false;
+    this._healthStopNotified = false;
     const W = T().W, H = T().H;
     // A roadside mugging and a drowned king used to share one flat rectangle.
     if (ADV.BattleArt) {
@@ -473,6 +475,7 @@ class CombatScene extends Phaser.Scene {
     const st = this.st();
     const V = ADV.VFX;
     const v = e.uid ? this.view(e.uid) : null;
+    if (['damage','heal','down','revive'].includes(e.t)) this.checkPlayerDanger();
     if (ADV.CombatPresentation) {
       try { ADV.CombatPresentation.event(this, e); } catch (err) {}
     }
@@ -862,7 +865,30 @@ class CombatScene extends Phaser.Scene {
     return m.data.name;
   }
 
+  checkPlayerDanger() {
+    const st = this.st();
+    const u = st && st.units.find(x => x.ch && x.ch.isPlayer);
+    if (!u || u.downed || u.fled || u.chp <= 0) return false;
+    const pct = u.chp / Math.max(1, u.maxHp);
+    if (pct >= .5) { this._healthStopNotified = false; return false; }
+    const wasAuto = !this._autoHalted && ADV.Combat.autoList(u.ch).length > 0;
+    this._autoHalted = true;
+    if (this.autoTimer) { this.autoTimer.remove(false); this.autoTimer = null; }
+    if (wasAuto && !this._healthStopNotified) {
+      this._healthStopNotified = true;
+      ADV.Notices.toast(this, 'Below 50% health — auto combat stopped. Choose your next action.');
+      this.paintAutoHaltToggle();
+    }
+    const solo = !st.units.some(x => x.side === u.side && x !== u);
+    if (pct < .3 && solo && !this._dangerFleeWarned && ADV.Narrator) {
+      this._dangerFleeWarned = true;
+      ADV.Narrator.say(this, this.game_, 'flee_solo');
+    }
+    return true;
+  }
+
   queuePlayerAuto(u) {
+    if (this.checkPlayerDanger()) return false;
     if (this._autoPaused) { this._autoPaused = false; return false; }
     const ready = ADV.Combat.autoReadyAction(this.st(), u);
     if (ready) {
@@ -870,6 +896,7 @@ class CombatScene extends Phaser.Scene {
       this.autoTimer = this.time.delayedCall(this.autoGap(360), () => {
         this.autoTimer = null;
         if (this.ended) return;
+        if (this.checkPlayerDanger()) { this.showActionBar(u); return; }
         this.commitAction(u, ready.action, ready.tgt);
       });
       return true;
@@ -931,6 +958,9 @@ class CombatScene extends Phaser.Scene {
     }
     const halted = !!this._autoHalted;
     const b = T().button(this, box.x, box.y0 + box.h + box.gap, box.w, box.h, halted ? 'Skills auto: off' : 'Skills auto: on', () => {
+      if (this._autoHalted && this.checkPlayerDanger()) {
+        ADV.Notices.toast(this, 'Health is below 50%. Choose an action manually; auto can resume after you recover.'); return;
+      }
       this._autoHalted = !this._autoHalted;
       if (this._autoHalted && this.autoTimer) {
         try { this.autoTimer.remove(false); } catch (e) {}

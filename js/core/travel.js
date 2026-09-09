@@ -22,7 +22,7 @@ Travel.declare = function(q) {
  if (!q) return q;
  const r=L()[Travel.locationFor(q)];
  q.travelLocation=r.id; q.terrain=r.terrain; q.distance=r.distance;
- q.passageCost=r.terrain==='port'?Math.min(30,Math.max(8,Math.floor((q.payout||100)*0.04))):0;
+ q.passageCost=r.terrain==='port'?Math.min(30,Math.max(8,Math.floor(((q.payout||100)-(q.incomeBoostV1?100:0))*0.04))):0;
  q.midLegAfterEncounter=(!q.campaign&&!q.godLine&&(q.encounters||[]).length>=3)?1:null;
  return q;
 };
@@ -111,7 +111,7 @@ Travel.prepareBoard=function(qs,world,game){
  {
   const local=ADV.Quests.makeTutorialParty();
   local.id='local-'+track+'-'+world.questClock;local.track=track;local.tutorialEasy=false;
-  local.payout=track==='solo'?40:100;local.travelLocation='road';local.localTravel=true;
+  delete local.incomeBoostV1;local.payout=track==='solo'?40:100;local.travelLocation='road';local.localTravel=true;
   if(track==='party'&&game&&game.world) {
     const party=ADV.Party.of(game.world,ADV.Game.player(game));
     if(party)local.payout=Math.max(local.payout,ADV.Party.payroll(game.world,party)+40);

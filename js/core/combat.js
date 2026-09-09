@@ -870,6 +870,7 @@ Combat.clearAutoFlags = function (ch) {
   ch.autoRepeat = null;
   ch.autoOrder = [];
   ch.autoIdx = 0;
+  ch.autoAdopted = true;
   for (const e of (ch.actives || []).concat(ch.perks || [])) {
     if (e.auto || e.autoOff) {
       e.auto = false;
@@ -884,19 +885,21 @@ function sameAuto(a, skillId, off) {
 }
 
 // Queue of auto skills, oldest first. Older saves only have a single
-// autoRepeat / per-skill flag — fold those in so combat still fires.
+// autoRepeat / per-skill flag — fold those in once, then autoOrder is law.
+// An empty list after that means the player turned everything off.
 Combat.autoList = function (ch) {
   if (!ch) return [];
   let stored = (ch.autoOrder || []).filter(x => x && x.skillId);
-  if (!stored.length) {
+  if (!stored.length && !ch.autoAdopted) {
     if (ch.autoRepeat && ch.autoRepeat.skillId) stored.push({ skillId: ch.autoRepeat.skillId, off: !!ch.autoRepeat.off });
     if (ch.autoAttack && !stored.some(x => sameAuto(x, 'basic_attack', false))) stored.push({ skillId: 'basic_attack', off: false });
     for (const e of ch.actives || []) {
       if (e.autoOff && !stored.some(x => sameAuto(x, e.skillId, true))) stored.push({ skillId: e.skillId, off: true });
       else if (e.auto && !stored.some(x => sameAuto(x, e.skillId, false))) stored.push({ skillId: e.skillId, off: false });
     }
-    ch.autoOrder = stored;
   }
+  ch.autoOrder = stored;
+  ch.autoAdopted = true;
   const list = stored.filter(x => x.skillId === 'basic_attack' || Sys().entryFor(ch, x.skillId));
   ch.autoAttack = list.some(x => sameAuto(x, 'basic_attack', false));
   ch.autoRepeat = list[0] || null;
@@ -919,13 +922,16 @@ Combat.setSkillAuto = function (ch, skillId, on, offensiveMode) {
   const i = list.findIndex(x => sameAuto(x, skillId, off));
   if (on && i < 0) list.push({ skillId, off });
   if (!on && i >= 0) list.splice(i, 1);
+  ch.autoAdopted = true;
+  if (skillId === 'basic_attack' && !off) ch.autoAttack = !!on && list.some(x => sameAuto(x, 'basic_attack', false));
+  if (!on && ch.autoRepeat && sameAuto(ch.autoRepeat, skillId, off)) ch.autoRepeat = list[0] || null;
   const live = Combat.autoList(ch);
   ch.autoIdx = live.length ? ((ch.autoIdx || 0) % live.length) : 0;
   if (skillId === 'basic_attack') return;
   const e = Sys().entryFor(ch, skillId);
   if (!e) return;
-  e.auto = list.some(x => sameAuto(x, skillId, false));
-  e.autoOff = list.some(x => sameAuto(x, skillId, true));
+  e.auto = live.some(x => sameAuto(x, skillId, false));
+  e.autoOff = live.some(x => sameAuto(x, skillId, true));
   Sys().storeProgress(ch, e);
 };
 

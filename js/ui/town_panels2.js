@@ -23,9 +23,9 @@ Panels.applyParty = function (scene, r) {
   const world = game.world;
   const p = scene.player();
   const tut = ADV.Tutor && ADV.Tutor.step(game) === 'party';
-  const applyMin = C().GOLD.wageAcceptMin;
+  const applyMin = C().GOLD.wageAcceptMin + 100;
   const applyMax = ADV.Party.applyAskMax(p);
-  const raiseMax = C().GOLD.wageRaiseMax || 300;
+  const raiseMax = (C().GOLD.wageRaiseMax || 300) + 100;
   header(scene, r, 'Apply for Party', 'Name a wage before they hire you. Reputation opens the range; raises come after you sign.');
   const myParty = ADV.Party.of(world, p);
   const isLeader = !!(myParty && myParty.leaderId === p.id);
@@ -106,7 +106,7 @@ Panels.applyParty = function (scene, r) {
       : (p.wage || (tut && ADV.Tutor ? ADV.Tutor.wage() : ADV.Party.hirelingWageFor(p))));
     // a high ask costs odds; an ask past the purse is refused outright
     let finalOdds = odds.odds;
-    const askFloor = C().GOLD.hirelingWage;
+    const askFloor = C().GOLD.hirelingWage + 100;
     const askCeil = Math.max(askFloor + 1, applyMax);
     if (!tut && finalOdds > 0) finalOdds = ask > cap ? 0 : Math.max(0.05, finalOdds * (1 - Math.max(0, ask - askFloor) / (askCeil - askFloor)));
     const archs = new Set();
