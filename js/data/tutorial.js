@@ -83,7 +83,7 @@ ADV.DATA.TUTORIAL_VO = {
   tour_3: 'A set floors matching skills at Intermediate. One set at a time; sell the one you wear for what you paid.',
   tour_4: 'Fifty gold now. If you or your spouse dies, the survivor is paid five hundred, and the policy is gone.',
   tour_5: 'Every skill lives here. Your first three were free; witnessed skills are free; the rest cost gold. Tutoring lifts a skill a whole tier for gold.',
-  tour_6: 'Hire on with an existing party. Name your wage first — reputation opens 30 gold to 200 gold. The leader picks the contracts and keeps the take.',
+  tour_6: 'Hire on with an existing party. Name your wage first — reputation opens 130 gold to 300 gold. The leader picks the contracts and keeps the take.',
   tour_7: 'With 100 gold you can lead your own: hire people, set wages, take the whole payout — and owe payroll win or lose.',
   tour_8: 'Everyone in town: what they run, who they ride with, what they think of you.',
   tour_9: 'Regard moves with shared quests, money and how you treat people. Friendly opens romance; Hatred opens knives.',
@@ -101,7 +101,7 @@ ADV.DATA.TUTORIAL_VO = {
   queue: 'Click Ready. The leader picks the contract; you take your wage either way.',
   skills_sale: 'Gold-priced skills you have never seen; free ones you witnessed in battle. Click a skill you already own to buy tutoring — 300 gold to Intermediate, 600 gold to Advanced. Nothing to buy yet? Come back richer.',
   safe_keeping: 'This is your vault. Gold here survives your death and passes to your heirs. Before every quest you choose what to leave behind. When you marry, the two of you share one — you may draw your share once per stay.',
-  ask_join: 'Set your asking wage, then pick a party. Reputation opens 30 gold to 200 gold; a high ask is harder to land. After you hire on you can keep asking for raises, up to 300 gold.',
+  ask_join: 'Set your asking wage, then pick a party. Reputation opens 130 gold to 300 gold; a high ask is harder to land. After you hire on you can keep asking for raises, up to 400 gold.',
   try_another: 'Turned away — that happens; reputation and what your sheet fills decide it. Ask the next party.',
   final_words: 'Contracts, gold, skills, people. From here it is yours: quit the party when you want to lead or go solo, name your wage when you join the next, marry, buy knives. Death is not the end of what you know.',
 };

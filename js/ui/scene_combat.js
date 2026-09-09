@@ -910,6 +910,7 @@ class CombatScene extends Phaser.Scene {
     this.autoTimer = this.time.delayedCall(this.autoGap(360), () => {
       this.autoTimer = null;
       if (this.ended) return;
+      if (this.checkPlayerDanger()) { this.showActionBar(u); return; }
       const again = ADV.Combat.autoReadyAction(this.st(), u);
       if (again) { this.commitAction(u, again.action, again.tgt); return; }
       this.commitHold(u);

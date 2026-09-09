@@ -16,7 +16,7 @@ const TOUR = [
   ['blacksmith','Blacksmith',     'A set parks its skills in free armor slots. The 800 gold sets also advance those skills a whole tier. One set at a time; sell the one you wear for what you paid.'],
   ['insurance','Insurance',       'Fifty gold now. If you or your spouse dies, the survivor is paid five hundred, and the policy is gone.'],
   ['trainer',  'Trainer',         'Every skill lives here. Your first three were free; witnessed skills are free; the rest cost gold. Tutoring lifts a skill a whole tier for gold.'],
-  ['apply',    'Apply for Party', 'Hire on with an existing party. Name your wage first — reputation opens 30 gold to 200 gold. The leader picks the contracts and keeps the take.'],
+  ['apply',    'Apply for Party', 'Hire on with an existing party. Name your wage first — reputation opens 130 gold to 300 gold. The leader picks the contracts and keeps the take.'],
   ['create',   'Create Party',    'With 100 gold you can lead your own: hire people, set wages, take the whole payout — and owe payroll win or lose.'],
   ['roster',   'Guild Roster',    'Everyone in town: what they run, who they ride with, what they think of you.'],
   ['rel',      'Relationships',   'Regard moves with shared quests, money and how you treat people. Friendly opens romance; Hatred opens knives.'],
@@ -193,7 +193,7 @@ Tutor.panel = function (scene, game, id, r) {
   if (s.step === 'party' && id === 'apply') {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 80 }, s.declined ? 'Try another' : 'Ask to join', s.declined
       ? 'Turned away — that happens; reputation and what your sheet fills decide it. Ask the next party.'
-      : 'Set your asking wage, then pick a party. Reputation opens 30 gold to 200 gold; a high ask is harder to land. After you hire on you can keep asking for raises, up to 300 gold.', { pass: true, hint: '↑ set a wage, then click a party', vo: s.declined ? 'try_another' : 'ask_join' });
+      : 'Set your asking wage, then pick a party. Reputation opens 130 gold to 300 gold; a high ask is harder to land. After you hire on you can keep asking for raises, up to 400 gold.', { pass: true, hint: '↑ set a wage, then click a party', vo: s.declined ? 'try_another' : 'ask_join' });
   }
 };
 

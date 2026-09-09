@@ -236,7 +236,10 @@ Campaign.spawnEnemy = function (rng, typeId, level, opts) {
       { kind: 'poison', power: 0.5, rounds: 3, stacks: true },
       { kind: 'burn', power: 0.8, rounds: 2 },
     ];
-    ch.hitStatus = rng.pick(riders);
+    const kit=t.pool||[];
+    const burning=kit.some(id=>/fire|flame|ember|ashfall|siege/.test(id));
+    const venom=kit.some(id=>/poison|venom|serpent|wither/.test(id));
+    ch.hitStatus = riders[burning?2:venom?1:0];
   }
   if (t.undead || opts.undead) { ch.isUndead = true; ch.statusImmunities = t.statusImmunities || []; }
   if (t.statusImmunities) ch.statusImmunities = t.statusImmunities;
