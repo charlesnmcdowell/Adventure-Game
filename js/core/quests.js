@@ -340,7 +340,7 @@ Quests.campRoleIds = function (camp, role) {
 Quests.guardBoardBoss = function (out, quest, rng, game) {
   if (!out || !out.length) return out;
   const p = game && ADV.Game && ADV.Game.player(game);
-  const floor = p ? ADV.Character.maxHp(p) : 0;
+  const floor = p ? ADV.Character.maxHp(p) / 2 : 0; // player safety HP does not scale enemies
   for (const ch of out) {
     const def = ADV.DATA.BOSSES[ch.enemyTypeId];
     if (ch.boss || (def && (def.boss || def.miniboss))) {
