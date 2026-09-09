@@ -13,11 +13,11 @@ const TUTORIAL_WAGE = 45;
 const TOUR = [
   ['board',    'Quest Board',     'Contracts are posted here. Solo work pays less; party work pays full. The contract IS the difficulty — nothing scales to you.'],
   ['store',    'Grocer',          'Eat before every contract. Skip a meal and you come back Hungry; four Hungry nights kill you. One meal wipes the stack.'],
-  ['blacksmith','Blacksmith',     'A set parks its skills in free armor slots. The 800g sets also advance those skills a whole tier. One set at a time; sell the one you wear for what you paid.'],
+  ['blacksmith','Blacksmith',     'A set parks its skills in free armor slots. The 800 gold sets also advance those skills a whole tier. One set at a time; sell the one you wear for what you paid.'],
   ['insurance','Insurance',       'Fifty gold now. If you or your spouse dies, the survivor is paid five hundred, and the policy is gone.'],
   ['trainer',  'Trainer',         'Every skill lives here. Your first three were free; witnessed skills are free; the rest cost gold. Tutoring lifts a skill a whole tier for gold.'],
-  ['apply',    'Apply for Party', 'Hire on with an existing party. Name your wage first — reputation opens 30g to 200g. The leader picks the contracts and keeps the take.'],
-  ['create',   'Create Party',    'With 100g you can lead your own: hire people, set wages, take the whole payout — and owe payroll win or lose.'],
+  ['apply',    'Apply for Party', 'Hire on with an existing party. Name your wage first — reputation opens 30 gold to 200 gold. The leader picks the contracts and keeps the take.'],
+  ['create',   'Create Party',    'With 100 gold you can lead your own: hire people, set wages, take the whole payout — and owe payroll win or lose.'],
   ['roster',   'Guild Roster',    'Everyone in town: what they run, who they ride with, what they think of you.'],
   ['rel',      'Relationships',   'Regard moves with shared quests, money and how you treat people. Friendly opens romance; Hatred opens knives.'],
   ['vault',    'Vault',           'Gold you carry is lost when you die. Gold in the vault is not. Married couples share one.'],
@@ -152,7 +152,7 @@ Tutor.town = function (scene, game) {
   }
   if (s.step === 'trainer') {
     scene.openPanel('board');
-    Tutor.callout(scene, null, 'Gold', `You came home with ${ADV.Game.player(game).inventory.gold}g. Gold buys skills at the trainer and lifts the ones you have a whole tier. Gear, food and insurance too — but skills first.`, { onNext: () => {
+    Tutor.callout(scene, null, 'Gold', `You came home with ${ADV.Game.player(game).inventory.gold} gold. Gold buys skills at the trainer and lifts the ones you have a whole tier. Gear, food and insurance too — but skills first.`, { onNext: () => {
       Tutor.callout(scene, btnRect('trainer'), 'The Trainer', 'Open the Trainer to see what is for sale.', { pass: true, vo: 'trainer_door' });
     }, vo: 'gold' });
     return true;
@@ -185,7 +185,7 @@ Tutor.panel = function (scene, game, id, r) {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 220, h: 48 }, 'Queue up', 'Click Ready. The leader picks the contract; you take your wage either way.', { pass: true, hint: '↑ Ready for the quest', vo: 'queue' });
   }
   if (s.step === 'trainer' && id === 'trainer') {
-    Tutor.callout(scene, { x: r.x + 24, y: r.y + 122, w: r.w - 48, h: 200 }, 'Skills for sale', 'Gold-priced skills you have never seen; free ones you witnessed in battle. Click a skill you already own to buy tutoring — 300g to Intermediate, 600g to Advanced. Nothing to buy yet? Come back richer.', { onNext: () => { s.step = 'vault'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'skills_sale' });
+    Tutor.callout(scene, { x: r.x + 24, y: r.y + 122, w: r.w - 48, h: 200 }, 'Skills for sale', 'Gold-priced skills you have never seen; free ones you witnessed in battle. Click a skill you already own to buy tutoring — 300 gold to Intermediate, 600 gold to Advanced. Nothing to buy yet? Come back richer.', { onNext: () => { s.step = 'vault'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'skills_sale' });
   }
   if (s.step === 'vault' && id === 'vault') {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 120 }, 'Safe keeping', 'This is your vault. Gold here survives your death and passes to your heirs. Before every quest you choose what to leave behind. When you marry, the two of you share one — you may draw your share once per stay.', { onNext: () => { s.step = 'party'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'safe_keeping' });
@@ -193,7 +193,7 @@ Tutor.panel = function (scene, game, id, r) {
   if (s.step === 'party' && id === 'apply') {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 80 }, s.declined ? 'Try another' : 'Ask to join', s.declined
       ? 'Turned away — that happens; reputation and what your sheet fills decide it. Ask the next party.'
-      : 'Set your asking wage, then pick a party. Reputation opens 30g to 200g; a high ask is harder to land. After you hire on you can keep asking for raises, up to 300g.', { pass: true, hint: '↑ set a wage, then click a party', vo: s.declined ? 'try_another' : 'ask_join' });
+      : 'Set your asking wage, then pick a party. Reputation opens 30 gold to 200 gold; a high ask is harder to land. After you hire on you can keep asking for raises, up to 300 gold.', { pass: true, hint: '↑ set a wage, then click a party', vo: s.declined ? 'try_another' : 'ask_join' });
   }
 };
 
