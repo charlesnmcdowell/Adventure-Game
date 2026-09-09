@@ -332,6 +332,7 @@ Combat.create = function (charsA, charsB, opts) {
     questTier: opts.questTier || 1,           // Paid Shot scaling
     encounterIndex: opts.encounterIndex || 0, // Veteran's Cut scaling
     leaderId: opts.leaderId || null,
+    leaderDowned: false,
     leaderFell: false,
     leaderFled: false,
     dotHopDone: false,
@@ -395,13 +396,16 @@ function downedAllies(st, side) {
 
 function pickReviveTargets(st, side, preferred, n) {
   const downed = downedAllies(st, side);
+  const lead = st.leaderId ? downed.find(x => x.ch && x.ch.id === st.leaderId) : null;
   const out = [];
   if (preferred && preferred.downed && downed.includes(preferred)) out.push(preferred);
+  else if (lead) out.push(lead);
+  if (lead && !out.includes(lead)) out.push(lead);
   for (const x of downed) {
     if (out.length >= n) break;
     if (!out.includes(x)) out.push(x);
   }
-  return out;
+  return out.slice(0, n);
 }
 
 function applyRevive(st, src, tgt, d, skillId) {
@@ -423,6 +427,10 @@ function applyRevive(st, src, tgt, d, skillId) {
   if (arch === 'druid') addStatus(st, tgt, { kind: 'grove', rounds: d.buffRounds || d.reviveBuffRounds || 3, srcUid: src ? src.uid : null });
   else if (arch === 'healer') addStatus(st, tgt, { kind: 'wings', rounds: d.reviveBuffRounds || 2, srcUid: src ? src.uid : null });
   ev(st, { t: 'revive', uid: tgt.uid, by: src ? src.uid : tgt.uid, skillId: skillId || null, arch });
+  if (st.leaderId && tgt.ch && tgt.ch.id === st.leaderId) {
+    st.leaderDowned = false;
+    st.leaderFell = false;
+  }
   if (src) Combat.addThreat(st, src, 40, 'healing');
   if (src && (arch === 'druid' || arch === 'healer')) {
     st.revLines = st.revLines || {};
@@ -946,7 +954,9 @@ function autoUsable(st, u, r) {
     pool = needy;
   }
   const hostile = pool[0] && pool[0].side !== u.side;
-  const tgt = hostile ? (Combat.threatTargets(st, u, pool)[0] || null) : Combat.lowestHealth(pool);
+  const lead = !hostile && st.leaderId ? pool.find(x => x.ch && x.ch.id === st.leaderId) : null;
+  const tgt = hostile ? (Combat.threatTargets(st, u, pool)[0] || null)
+    : ((d.revive && lead) || Combat.lowestHealth(pool));
   if (!tgt) return null;
   return {
     action: { skillId: r.skillId, off: !!r.off, isAttack: r.skillId === 'basic_attack', pool },
@@ -1467,13 +1477,25 @@ Combat.spawnReinforcement = function (st, ch, side) {
 
 function noteLeaderOut(st, u, died) {
   if (!st.leaderId || !u.ch || u.ch.id !== st.leaderId || u.ch.isPlayer) return;
-  if (died) st.leaderFell = true;
-  else st.leaderFled = true;
-  if (st.over) return;
-  st.over = true;
-  st.winner = u.side === 'a' ? 'b' : 'a';
-  Combat.applySurvivalGrowth(st);
-  ev(st, { t: 'end', winner: st.winner, reason: died ? 'leaderFell' : 'leaderFled' });
+  if (!died) {
+    st.leaderFled = true;
+    if (st.over) return;
+    st.over = true;
+    st.winner = u.side === 'a' ? 'b' : 'a';
+    Combat.applySurvivalGrowth(st);
+    ev(st, { t: 'end', winner: st.winner, reason: 'leaderFled' });
+    return;
+  }
+  // Stay downed, not dead: a healer or druid still has their turn to Raise.
+  st.leaderDowned = true;
+}
+
+function confirmLeaderOutcome(st) {
+  if (!st.leaderId || st.leaderFled) return;
+  const lead = st.units.find(u => u.ch && u.ch.id === st.leaderId);
+  if (!lead || lead.ch.isPlayer) return;
+  if (lead.fled) { st.leaderFled = true; return; }
+  if (lead.downed && st.winner !== lead.side) st.leaderFell = true;
 }
 
 const DOT_HOP = { basic: 0, intermediate: 1, advanced: 3 };
@@ -2686,8 +2708,9 @@ function checkEnd(st) {
   if (a === 0 || b === 0) {
     st.over = true;
     st.winner = a > 0 ? 'a' : (b > 0 ? 'b' : null);
+    confirmLeaderOutcome(st);
     Combat.applySurvivalGrowth(st);
-    ev(st, { t: 'end', winner: st.winner });
+    ev(st, { t: 'end', winner: st.winner, reason: st.leaderFell ? 'leaderFell' : (st.leaderFled ? 'leaderFled' : undefined) });
   }
 }
 

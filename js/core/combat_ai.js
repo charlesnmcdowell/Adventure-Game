@@ -67,7 +67,8 @@ function chooseAction(st, u) {
       const hurt = allies.filter(a => a.chp / a.maxHp < 0.7 || dotted(a)).sort((x, y) => (x.chp / x.maxHp - (dotted(x) ? 0.3 : 0)) - (y.chp / y.maxHp - (dotted(y) ? 0.3 : 0)));
       const downed = st.units.filter(x => x.side === u.side && x.downed && !x.fled && !x.reserved);
       if (d.revive && downed.length && ADV.Combat.canSpendBattleUse(u, e.skillId, d)) {
-        candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: downed[0].uid, weight: 50 });
+        const lead = st.leaderId && downed.find(x => x.ch && x.ch.id === st.leaderId);
+        candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: (lead || downed[0]).uid, weight: lead ? 80 : 50 });
         continue;
       }
       let reachable = hurt.filter(h => pool.includes(h));
@@ -145,6 +146,14 @@ function chooseAction(st, u) {
 Combat.aiTakeTurn = function (st, u) {
   if (Combat.tryNpcSmite && Combat.tryNpcSmite(st, u)) return { ok: true };
   let act = u.planned || chooseAction(st, u);
+  if (st.leaderDowned && act) {
+    const planned = act.skillId && manifestFor(u, act.skillId);
+    if (!planned || !planned.data.revive) {
+      const raise = chooseAction(st, u);
+      const next = raise && raise.skillId && manifestFor(u, raise.skillId);
+      if (next && next.data.revive) act = raise;
+    }
+  }
   u.planned = null;
   if (!act || act.kind === 'hold') { ev(st, { t: 'hold', uid: u.uid }); return { ok: true }; }
   // re-validate target

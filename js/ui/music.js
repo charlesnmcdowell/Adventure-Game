@@ -333,7 +333,7 @@ const Music = {
     if (!id) return;
     Music._readyVoice();
     Music.stopVoice();
-    const el = watch(new Audio('audio/vo/tutorial/' + id + '.mp3'));
+    const el = watch(new Audio(Music.voiceUrl('audio/vo/tutorial/' + id + '.mp3')));
     Music.voiceKind = 'tutorial';
     Music.voiceEl = el;
     playEl(el);

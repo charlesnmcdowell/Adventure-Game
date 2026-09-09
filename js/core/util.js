@@ -55,11 +55,11 @@ ADV.util = {
     if (!usable.length) return null; // show no box rather than the wrong voice (§17a)
     speaker.lastVariantUsed = speaker.lastVariantUsed || {};
     const last = speaker.lastVariantUsed[band];
-    // Replies must answer the actual subject. Exhausting a preparation pool
-    // must not turn the next answer into a greeting or an acknowledgment of thanks.
+    // Unknown subjects stay silent. A spent thanks or greeting pool must still
+    // be able to use the rest of the band — that is why they have many replies.
     if (ctx.replyTo && !matched.length) return null;
-    const eligible = ctx.replyTo ? matched : usable;
-    let preferred = eligible;
+    const family = ctx.replyTo ? matched : usable;
+    let preferred = family;
     if (ctx.score != null && usable.length >= 4 && !ctx.replyTo) {
       const intensity = band === 'hatred' ? Math.abs(ctx.score) : ctx.score;
       const pos = band === 'general' ? (intensity + 49) / 98 : (intensity - 50) / 50;
@@ -68,20 +68,20 @@ ADV.util = {
       if (allowed.length) preferred = allowed;
     }
     speaker.dialogueRotation = speaker.dialogueRotation || {};
-    const signature = (ADV.DATA.DIALOGUE_REVISION || '') + ':' + eligible.join(',');
-    const rotationKey = band + (ctx.replyTo ? ':' + ctx.replyTo : '');
-    let rotation = speaker.dialogueRotation[rotationKey];
+    const signature = (ADV.DATA.DIALOGUE_REVISION || '') + ':' + usable.join(',');
+    let rotation = speaker.dialogueRotation[band];
     if (!rotation || rotation.signature !== signature || !Array.isArray(rotation.used)) {
-      rotation = speaker.dialogueRotation[rotationKey] = { signature, used: [] };
+      rotation = speaker.dialogueRotation[band] = { signature, used: [] };
     }
     const unused = list => list.filter(i => !rotation.used.includes(i) && i !== last);
     let pool = unused(preferred);
-    if (!pool.length) pool = unused(eligible);
+    if (!pool.length) pool = unused(family);
+    if (!pool.length) pool = unused(usable);
     if (!pool.length) {
       rotation.used = [];
-      pool = eligible.filter(i => i !== last);
+      pool = usable.filter(i => i !== last);
     }
-    if (!pool.length) pool = eligible;
+    if (!pool.length) pool = usable;
     const roll = Math.max(0, Math.min(0.999999, ctx.rand == null ? Math.random() : ctx.rand));
     const idx = pool[Math.floor(roll * pool.length)];
     speaker.lastVariantUsed[band] = idx;
