@@ -285,7 +285,7 @@ const Music = {
   toggleMute() {
     Music.muted = !Music.muted;
     try { localStorage.setItem('adv:muted', Music.muted ? '1' : '0'); } catch (e) {}
-    if (Music.muted) haltAll(false);
+    if (Music.muted) { haltAll(false); if (ADV.CombatPresentation) ADV.CombatPresentation.stop(); }
     else Music.resumeCurrent();
     return Music.muted;
   },

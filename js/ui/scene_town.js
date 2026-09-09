@@ -110,6 +110,51 @@ class TownScene extends Phaser.Scene {
     const worn = p.equippedSet && ADV.DATA.GEAR_SETS[p.equippedSet];
     const setT = put(T().text(this, x + 16, yy, worn ? `Set: ${worn.name}` : 'No gear set', { size: 13, color: worn ? T().css.green : T().css.inkFaint, wrap: w - 36 }));
     yy += after(setT, 4);
+    const autoH = T().gap(18);
+    const paintActive = (e, armor) => {
+      const m = ADV.SkillSys.manifest(p, e);
+      const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: armor || m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: w - 90 }));
+      t.setInteractive({ useHandCursor: true });
+      ADV.Tooltip.attach(this, t, () => ADV.SkillInfo.describe(p, e.skillId));
+      if (ADV.Combat.skillNeedsAuto(p, e.skillId, false)) {
+        const on = ADV.Combat.skillAutoOn(p, e.skillId, false);
+        const b = T().button(this, x + 186, yy, 52, autoH, on ? 'AUTO' : 'auto', () => {
+          const next = !on;
+          ADV.Combat.setSkillAuto(p, e.skillId, next, false);
+          const line = ADV.Game.prompt(this.game_, 'firstSkillAuto');
+          if (line) ADV.Notices.toast(this, line);
+          ADV.Save.saveGame(this.game_);
+          this.buildCharacterPanel();
+        }, { size: 10, color: on ? T().css.green : T().css.inkFaint, fill: on ? 0x2a3a22 : 0x211d18 });
+        scroll.addBtn(b);
+      }
+      yy += Math.max(after(t, 6), autoH + T().gap(6));
+    };
+    const armorSkills = p.perks.concat(p.actives).filter(e => ADV.SkillSys.inArmorSlot(p, e.skillId));
+    if (worn) {
+      const arch = (worn.archetypes || []).join(' / ') || 'matching';
+      const armH = put(T().text(this, x + 16, yy, armorSkills.length
+        ? `Armor skills (${worn.name}) · unlimited`
+        : `Armor · parks ${arch} skills`, { size: 13, color: T().css.gold, wrap: w - 36 }));
+      yy += after(armH, 4);
+      if (!armorSkills.length) {
+        const hint = put(T().text(this, x + 22, yy, 'None of yours match yet — they will sit here and free a slot.', { size: 11, color: T().css.inkDim, wrap: w - 44 }));
+        yy += after(hint, 4);
+      } else {
+        for (const e of armorSkills) {
+          const sk = ADV.DATA.SKILLS[e.skillId];
+          if (sk && sk.kind === 'active') paintActive(e, true);
+          else {
+            const m = ADV.SkillSys.manifest(p, e);
+            const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: T().css.gold, wrap: w - 80 }));
+            t.setInteractive({ useHandCursor: true });
+            ADV.Tooltip.attach(this, t, () => ADV.SkillInfo.describe(p, e.skillId));
+            yy += after(t, 4);
+          }
+        }
+      }
+      yy += T().gap(6);
+    }
     if (p.meal) {
       const mealT = put(T().text(this, x + 16, yy, `Fed: ${p.meal.name} (${Object.entries(p.meal.bonus).map(([k, v]) => '+' + v + ' ' + k.toUpperCase()).join(', ')})`, { size: 12, color: T().css.green, wrap: w - 36 }));
       yy += after(mealT, 4);
@@ -134,26 +179,6 @@ class TownScene extends Phaser.Scene {
     yy += T().gap(6);
     const actH = put(T().text(this, x + 16, yy, `Actives (${ADV.SkillSys.slottedCount(p, 'active')}/${ADV.SkillSys.capFor(p, 'active')})`, { size: 13, color: T().css.inkDim }));
     yy += after(actH, 4);
-    const autoH = T().gap(18);
-    const paintActive = (e) => {
-      const m = ADV.SkillSys.manifest(p, e);
-      const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: w - 90 }));
-      t.setInteractive({ useHandCursor: true });
-      ADV.Tooltip.attach(this, t, () => ADV.SkillInfo.describe(p, e.skillId));
-      if (ADV.Combat.skillNeedsAuto(p, e.skillId, false)) {
-        const on = ADV.Combat.skillAutoOn(p, e.skillId, false);
-        const b = T().button(this, x + 186, yy, 52, autoH, on ? 'AUTO' : 'auto', () => {
-          const next = !on;
-          ADV.Combat.setSkillAuto(p, e.skillId, next, false);
-          const line = ADV.Game.prompt(this.game_, 'firstSkillAuto');
-          if (line) ADV.Notices.toast(this, line);
-          ADV.Save.saveGame(this.game_);
-          this.buildCharacterPanel();
-        }, { size: 10, color: on ? T().css.green : T().css.inkFaint, fill: on ? 0x2a3a22 : 0x211d18 });
-        scroll.addBtn(b);
-      }
-      yy += Math.max(after(t, 6), autoH + T().gap(6));
-    };
     for (const e of p.actives) {
       if (ADV.SkillSys.inArmorSlot(p, e.skillId)) continue;
       paintActive(e);
@@ -170,24 +195,6 @@ class TownScene extends Phaser.Scene {
       }, { size: 10, color: on ? T().css.green : T().css.inkFaint, fill: on ? 0x2a3a22 : 0x211d18 });
       scroll.addBtn(b);
       yy += autoH + T().gap(8);
-    }
-    const armorSkills = p.perks.concat(p.actives).filter(e => ADV.SkillSys.inArmorSlot(p, e.skillId));
-    if (armorSkills.length) {
-      const set = ADV.DATA.GEAR_SETS[p.equippedSet];
-      const armH = put(T().text(this, x + 16, yy, `Armor skills (${set ? set.name : 'set'}) · unlimited`, { size: 13, color: T().css.gold }));
-      yy += after(armH, 4);
-      for (const e of armorSkills) {
-        const sk = ADV.DATA.SKILLS[e.skillId];
-        if (sk && sk.kind === 'active') paintActive(e);
-        else {
-          const m = ADV.SkillSys.manifest(p, e);
-          const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: T().css.gold, wrap: w - 80 }));
-          t.setInteractive({ useHandCursor: true });
-          ADV.Tooltip.attach(this, t, () => ADV.SkillInfo.describe(p, e.skillId));
-          yy += after(t, 4);
-        }
-      }
-      yy += T().gap(6);
     }
     const home = ADV.Housing.of(p);
     const homeT = put(T().text(this, x + 16, yy, home.id === 'camp' ? 'No home — sleeping outside the walls' : home.name, { size: 12, color: home.id === 'camp' ? T().css.inkFaint : T().css.gold, wrap: w - 36 }));

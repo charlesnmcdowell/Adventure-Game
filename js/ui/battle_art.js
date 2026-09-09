@@ -70,6 +70,14 @@ const EL = {
     g.fillStyle(keyLit(leaf, phase, 1), 0.5);
     const dir = lightDir(phase);
     g.fillCircle(o.x + dir * h * 0.1, o.y - h * 0.48, h * 0.14);
+    // Canopy clusters and visible branches break the three-circle silhouette.
+    for(let i=0;i<18;i++) { const a=i*2.399,r=h*(.09+(i%4)*.045);
+      g.fillStyle(shade(leaf,i%3===0?1.22:.82),.48);
+      g.fillEllipse(o.x+Math.cos(a)*r,o.y-h*.43+Math.sin(a)*r*.7,h*.12,h*.065);
+    }
+    g.lineStyle(2,shade(P.trunk||0x3a2a1c,1.4),.6);
+    g.lineBetween(o.x-2,o.y,o.x-2,o.y-h*.3);
+    g.lineBetween(o.x-2,o.y-h*.21,o.x-h*.13,o.y-h*.36);
   },
 
   bamboo(g, o, P) {
@@ -111,6 +119,10 @@ const EL = {
     g.fillStyle(c, 1); g.fillRect(o.x, o.y, o.w || 40, o.h || 34);
     g.fillStyle(shade(c, 1.25), 1);
     g.fillRect(o.x, o.y, o.w || 40, 4); g.fillRect(o.x, o.y + (o.h || 34) / 2 - 2, o.w || 40, 4);
+    const w=o.w||40,h=o.h||34;
+    g.lineStyle(1,shade(c,.55),.7);for(let xx=7;xx<w;xx+=8)g.lineBetween(o.x+xx,o.y+4,o.x+xx,o.y+h);
+    g.lineStyle(3,shade(c,1.4),.8);g.lineBetween(o.x+3,o.y+h-3,o.x+w-3,o.y+4);
+    g.fillStyle(0x22272a,.8);for(const xx of [4,w-4])for(const yy of [3,h-3])g.fillCircle(o.x+xx,o.y+yy,1.5);
   },
 
   mast(g, o, P) {
@@ -134,6 +146,8 @@ const EL = {
       const yy = o.y + 12 + i * ((o.h - 20) / (o.n || 9));
       g.fillRect(o.x + ((i * 61) % 120), yy, 60 + (i % 3) * 40, 3);
     }
+    g.lineStyle(1,shade(P[o.c]||P.water,1.65),.23);
+    for(let i=0;i<65;i++){const x=o.x+(i*83)%Math.max(1,o.w-55),y=o.y+8+(i*31)%Math.max(1,o.h-16);g.lineBetween(x,y,x+12+i%5*8,y);}
   },
 
   banner(g, o, P) {
@@ -465,9 +479,10 @@ BA.paint = function (scene, groundId, phase) {
   scene.battlePlanes = { far, mid, near };
 
   const sky = (rec.sky && rec.sky[phase]) || [0x121110, 0x121110];
-  far.fillStyle(sky[0], 1); far.fillRect(0, 0, W, H);
-  far.fillStyle(sky[1], 0.55); far.fillRect(0, H * 0.30, W, H * 0.70);
-  far.fillStyle(sky[0], 0.28); far.fillRect(0, 0, W, H * 0.4);
+  for(let i=0;i<48;i++) {
+    const t=i/47, mix=(shift)=>Math.round(((sky[0]>>shift)&255)*(1-t)+((sky[1]>>shift)&255)*t);
+    far.fillStyle((mix(16)<<16)|(mix(8)<<8)|mix(0),1);far.fillRect(0,H*i/48,W,H/48+1);
+  }
 
   const m = phaseMul(phase);
   const P = {};

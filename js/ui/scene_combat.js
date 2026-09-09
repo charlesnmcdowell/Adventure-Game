@@ -23,6 +23,9 @@ class CombatScene extends Phaser.Scene {
 
   create() {
     this.game_ = this.registry.get('game');
+    this.__skillActions = new Map();
+    this.__lastSkill = null;
+    this.__sfxStamps = {};
     // Phaser reuses scene instances across scene.start() — every run flag
     // must be reset here or the second fight of a quest inherits ended=true
     // and the turn loop never runs.
@@ -470,6 +473,9 @@ class CombatScene extends Phaser.Scene {
     const st = this.st();
     const V = ADV.VFX;
     const v = e.uid ? this.view(e.uid) : null;
+    if (ADV.CombatPresentation) {
+      try { ADV.CombatPresentation.event(this, e); } catch (err) {}
+    }
     switch (e.t) {
       case 'round': {
         this.refreshStrip();
@@ -555,6 +561,10 @@ class CombatScene extends Phaser.Scene {
         const lbl = T().text(this, src.x, src.y - 78, e.name, { size: 12, ox: 0.5, color: T().css.gold })
           .setDepth(600).setAlpha(0.95);
         this.tweens.add({ targets: lbl, y: lbl.y - 16, alpha: 0, delay: 350, duration: 400, onComplete: () => lbl.destroy() });
+        if (ADV.CombatPresentation) {
+          const presentation = ADV.CombatPresentation.profile(e.skillId, e.tier);
+          if (presentation.melee) return ADV.CombatPresentation.swing(this, src, tgt, presentation);
+        }
         if (ADV.SpellFX && ADV.SpellFX.has(e.skillId, e.tier)) {
           return ADV.SpellFX.play(this, { skillId: e.skillId, tier: e.tier, src, tgt, dir, name: e.name });
         }

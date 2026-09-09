@@ -14,17 +14,31 @@ function drawStrip(c,w,h,r,layer,rng,phase){
  for(let x=-100;x<w+160;x+=near?650:rng.int(100,190)){
   const ht=near?rng.int(380,590):rng.int(80,layer===1?190:290), width=near?65:rng.int(80,155), base=near?630:y;
   if(['forest','mountain'].includes(r.terrain)){
-   if(r.terrain==='mountain'&&!near) poly(c,[[x-100,base],[x+width/2,base-ht],[x+width+120,base]],color);
-   else {c.fillStyle=near?'#172724':color;c.fillRect(x+width*.46,base-ht,width*.09,ht);poly(c,[[x-20,base-ht*.18],[x+width*.5,base-ht],[x+width+20,base-ht*.18]],near?'#172724':color);}
+   if(r.terrain==='mountain'&&!near) {
+    poly(c,[[x-100,base],[x+width/2,base-ht],[x+width+120,base]],color);
+    poly(c,[[x+width/2,base-ht],[x+width*.68,base-ht*.58],[x+width+120,base]],'#16253633');
+    poly(c,[[x+width/2,base-ht],[x+width*.16,base-ht*.72],[x+width*.46,base-ht*.8],[x+width*.64,base-ht*.72]],'#e4e1ca55');
+   } else {
+    const leaf=near?'#172724':color;c.fillStyle=leaf;c.fillRect(x+width*.46,base-ht,width*.09,ht);
+    // Layered evergreen boughs leave gaps instead of a single solid triangle.
+    for(let b=0;b<6;b++){const t=b/6,yy=base-ht+ht*t*.79,spread=width*(.12+t*.64);poly(c,[[x+width*.5-spread,yy+ht*.24],[x+width*.5,yy],[x+width*.5+spread,yy+ht*.24]],leaf);}
+    c.strokeStyle='#b7c1a21c';c.lineWidth=near?2:1;c.beginPath();c.moveTo(x+width*.47,base);c.lineTo(x+width*.47,base-ht*.3);c.stroke();
+   }
   }else if(r.terrain==='city'){
    c.fillStyle=near?'#272527':color;c.fillRect(x,base-ht,width,ht);poly(c,[[x-12,base-ht],[x+width/2,base-ht-30],[x+width+12,base-ht]],color);
    c.fillStyle=phase==='night'?'#d8ae6566':'#292b3044';for(let yy=base-ht+25;yy<base-20;yy+=35)for(let xx=x+15;xx<x+width-12;xx+=24)c.fillRect(xx,yy,8,13);
+   c.strokeStyle='#e3cc9c22';c.lineWidth=1;
+   for(let yy=base-ht+19;yy<base;yy+=18){c.beginPath();c.moveTo(x,yy);c.lineTo(x+width,yy);c.stroke();}
+   c.strokeStyle='#1b212866';c.lineWidth=3;c.beginPath();c.moveTo(x+width-3,base-ht);c.lineTo(x+width-3,base);c.stroke();
   }else if(r.terrain==='dungeon'){
    c.fillStyle=color;c.fillRect(x,0,width,25);poly(c,[[x,0],[x+width,0],[x+width*.6,ht]],color);poly(c,[[x-30,base+50],[x+width*.4,base-ht*.4],[x+width+40,base+50]],color);
    if(near){c.fillStyle='#111d26';c.fillRect(x,0,50,h);}
+   c.strokeStyle='#91a4a52a';c.lineWidth=1;for(let j=0;j<4;j++){c.beginPath();c.moveTo(x+width*.25,20+j*17);c.lineTo(x+width*.66,27+j*17);c.stroke();}
   }else {
    if(layer===1){poly(c,[[x-50,base],[x+width/2,base-ht*.45],[x+width+90,base]],color);}
-   else if(r.terrain==='port'||near){c.fillStyle=color;c.fillRect(x+width*.5,base-ht,5,ht);c.fillRect(x+width*.15,base-ht*.75,width*.7,4);poly(c,[[x+width*.5+5,base-ht+12],[x+width*.5+5,base-ht*.3],[x+width,base-ht*.3]],color);poly(c,[[x,base-15],[x+width,base-15],[x+width*.8,base+18],[x+width*.2,base+18]],color);}
+   else if(r.terrain==='port'||near){c.fillStyle=color;c.fillRect(x+width*.5,base-ht,5,ht);c.fillRect(x+width*.15,base-ht*.75,width*.7,4);poly(c,[[x+width*.5+5,base-ht+12],[x+width*.5+5,base-ht*.3],[x+width,base-ht*.3]],color);poly(c,[[x,base-15],[x+width,base-15],[x+width*.8,base+18],[x+width*.2,base+18]],color);
+    c.strokeStyle='#d6c7aa44';c.lineWidth=1;c.beginPath();c.moveTo(x,base-15);c.lineTo(x+width*.5,base-ht);c.lineTo(x+width,base-15);c.moveTo(x+width*.55,base-ht*.32);c.lineTo(x+width*.68,base-ht*.69);c.stroke();
+   }
    else {c.fillStyle=color;c.beginPath();c.ellipse(x,base+20,width,ht*.24,0,0,7);c.fill();}
   }
  }

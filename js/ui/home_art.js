@@ -6,8 +6,10 @@
 const T = () => ADV.T;
 
 function sky(g, W, H, top, bot) {
-  g.fillStyle(top, 1); g.fillRect(0, 0, W, H);
-  g.fillStyle(bot, 0.55); g.fillRect(0, H * 0.38, W, H * 0.62);
+  for(let i=0;i<48;i++) {
+    const t=i/47, mix=(shift)=>Math.round(((top>>shift)&255)*(1-t)+((bot>>shift)&255)*t);
+    g.fillStyle((mix(16)<<16)|(mix(8)<<8)|mix(0),1);g.fillRect(0,H*i/48,W,H/48+1);
+  }
 }
 
 function stars(g, n, seed) {
@@ -29,6 +31,8 @@ function tree(g, x, y, h, trunk, leaf) {
   g.fillCircle(x, y - h * 0.45, h * 0.28);
   g.fillCircle(x - h * 0.16, y - h * 0.32, h * 0.2);
   g.fillCircle(x + h * 0.16, y - h * 0.32, h * 0.2);
+  for(let i=0;i<17;i++){const a=i*2.399,r=h*(.1+i%4*.04);g.fillStyle(i%3?0x0a2018:0xc5cca1,i%3?.15:.12);g.fillEllipse(x+Math.cos(a)*r,y-h*.42+Math.sin(a)*r*.7,h*.12,h*.07);}
+  g.lineStyle(1.5,0xc1ac80,.35);g.lineBetween(x-2,y,x-2,y-h*.3);g.lineBetween(x-2,y-h*.2,x-h*.12,y-h*.35);
 }
 
 function horse(g, x, y, flip) {

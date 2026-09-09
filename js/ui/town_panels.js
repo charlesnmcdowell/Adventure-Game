@@ -314,6 +314,11 @@ Panels.storeGear = function (scene, r) {
       if (p.inventory.gold < set.cost) { ADV.Notices.toast(scene, 'You cannot afford it.'); return; }
       p.inventory.gold -= set.cost;
       p.equippedSet = id;
+      const parked = p.perks.concat(p.actives).filter(e => ADV.SkillSys.inArmorSlot(p, e.skillId))
+        .map(e => ADV.DATA.SKILLS[e.skillId].name);
+      ADV.Notices.toast(scene, parked.length
+        ? `${set.name} worn. ${parked.join(', ')} ${parked.length === 1 ? 'now uses' : 'now use'} armor slots.`
+        : `${set.name} worn. It parks ${(set.archetypes || []).join(' / ')} skills — none of yours match yet.`);
       ADV.Save.saveGame(game);
       scene.promptOnce('firstAffordableSet');
       scene.refreshAll(); scene.openPanel(scene.currentPanel || 'blacksmith');
