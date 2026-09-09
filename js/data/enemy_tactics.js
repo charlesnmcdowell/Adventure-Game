@@ -7,6 +7,7 @@ const D=ADV.DATA,changes={
  town_watch:{perks:['opportunist'],actives:['sunder','taunt']},
  plated_sentinel:{perks:['momentum'],actives:['mace_swing','shield_wall']},
  field_chaplain:{actives:['mend','guardian_ward','stanch']},
+ pyre_justicar:{actives:['fire_bolt','guardian_ward']},
  sentinel_prime:{perks:['momentum'],actives:['shield_breaker','mace_swing','shield_wall','sunder']},
  hollow_owl:{actives:['night_screech','umbral_rake']}
 };

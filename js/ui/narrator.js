@@ -28,20 +28,22 @@ N.conditions=function(game){
 };
 N.say=function(scene,game,id,done){
  if(!N.lines[id]){if(done)done();return;}
+ scene.__narratorCaption={text:N.lines[id],hold:Math.max(6500,N.lines[id].length*90)};
  ADV.Notices.toast(scene,N.lines[id]);
  if(ADV.Music.speakNarrator)ADV.Music.speakNarrator(id);
  const audio=ADV.Music.voiceEl;
  let finished=false,timer;
  const finish=()=>{if(finished)return;finished=true;if(timer)timer.remove(false);if(audio)audio.removeEventListener('ended',finish);if(done)done();};
  if(audio)audio.addEventListener('ended',finish,{once:true});
- timer=scene.time.delayedCall(Math.max(6500,N.lines[id].length*65),finish);
+ // Normal playback advances on ended; the fallback must not cut off a slow read.
+ timer=scene.time.delayedCall(Math.max(20000,N.lines[id].length*120),finish);
  scene.events.once('shutdown',()=>{if(audio)audio.removeEventListener('ended',finish);if(ADV.Music.voiceKind==='narrator')ADV.Music.stopVoice();});
 };
 N.town=function(scene,game){
  if(scene.__narratorQueue)return;scene.__narratorQueue=true;
  const next=()=>{
   if(!scene.sys.isActive())return;
-  if((ADV.Tutor&&ADV.Tutor.active(game)) || scene.__embarking || scene._chromeHidden || (ADV.Music.voiceEl&&!ADV.Music.voiceEl.paused&&!ADV.Music.voiceEl.ended)) {scene.time.delayedCall(1200,next);return;}
+  if((ADV.Tutor&&ADV.Tutor.active(game)) || scene.__embarking || scene._chromeHidden || (scene.__msg&&scene.__msg.blocked) || (ADV.Music.voiceEl&&!ADV.Music.voiceEl.paused&&!ADV.Music.voiceEl.ended)) {scene.time.delayedCall(1200,next);return;}
   const item=N.conditions(game)[0];if(!item){scene.__narratorQueue=false;return;}
   const m=ADV.Game.player(game).narratorMemory;m[item.key]=true;if(item.gold){m.lastGoldAt=game.world.questClock||0;m.goldCount=(m.goldCount||0)+1;}
   ADV.Save.saveGame(game);N.say(scene,game,item.id,()=>scene.time.delayedCall(1200,next));

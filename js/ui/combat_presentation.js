@@ -19,8 +19,34 @@ function profile(id, tier) {
   return {id, family, melee, tier:tier||'basic', intensity:tier==='advanced'?1.3:tier==='intermediate'?1.15:1, element:s.element, color:colors[s.element] || (family==='heal'?0x9edaa5:0xead8b0), passive:d.kind==='perk'};
 }
 
-// Short, layered synthesized effects. No remote requests or voice credits.
+// Local ElevenLabs recordings with synthesized fallback while decoding.
 let context, master, unlocked = false;
+const buffers=new Map();let bankPromise;
+function sampleKey(p,phase){
+  if(phase==='block'||phase==='miss')return phase;
+  if(phase==='use' && /raise|revive/.test(p.id))return 'revive_use';
+  if(phase==='use' && /stealth|smoke|vanish/.test(p.id))return 'stealth_use';
+  let f=p.family;
+  if(phase==='hit' && p.melee && colors[p.element])return (p.element==='prismatic'?'arcane':p.element)+'_hit';
+  if(f==='flurry')f='slash';
+  if(f==='magic')f=/root|thorn|vine|leaf|spore|entang|grove/.test(p.id)?'nature':p.element==='prismatic'?'arcane':p.element||'arcane';
+  if(['heal','guard','support','transform'].includes(f))return f+'_use';
+  return f+'_'+phase;
+}
+function preload(){
+  const c=init();if(!c)return Promise.resolve();
+  if(!bankPromise)bankPromise=Promise.all(Object.entries(A.DATA.SFX_HASHES||{}).map(async([key,hash])=>{
+    try{const r=await fetch('audio/sfx/'+key+'.mp3?v='+hash);if(!r.ok)return;const b=await c.decodeAudioData(await r.arrayBuffer());buffers.set(key,b);}catch(_){}
+  }));
+  return bankPromise;
+}
+function recorded(c,scene,p,phase){
+  const b=buffers.get(sampleKey(p,phase));if(!b)return false;
+  const source=c.createBufferSource(),gain=c.createGain();source.buffer=b;
+  source.playbackRate.value=1+(Math.random()-.5)*.06;
+  gain.gain.value=.65;source.connect(gain);gain.connect(master);active.set(source,scene);
+  source.onended=()=>{source.disconnect();gain.disconnect();active.delete(source);};source.start();return true;
+}
 const active = new Map(), sceneHooks = new WeakSet();
 function allowed() { return !document.hidden && !(A.Music && (A.Music.muted || A.Music.hidden)); }
 function init() {
@@ -31,7 +57,7 @@ function init() {
   }
   return context;
 }
-function unlock() { unlocked = true; const c=init(); if(c && allowed()) c.resume().catch(()=>{}); }
+function unlock() { unlocked = true; const c=init(); if(c && allowed()) c.resume().catch(()=>{});preload(); }
 function stop(scene) {
   for (const [node, owner] of active) if (!scene || owner===scene) { try {node.stop();}catch(_){} }
 }
@@ -70,10 +96,10 @@ function sound(scene,p,phase) {
   const c=init();if(!c || c.state!=='running')return;
   if(!sceneHooks.has(scene)){sceneHooks.add(scene);scene.events.once('shutdown',()=>{stop(scene);sceneHooks.delete(scene);});}
   // Bound simultaneous voices in large party/area attacks, and debounce repeated outcomes.
-  const key=phase+':'+p.family, now=c.currentTime;
+  const key=sampleKey(p,phase), now=c.currentTime;
   const stamps=scene.__sfxStamps || (scene.__sfxStamps={});
   if(now-(stamps[key]??-1)<.055 || active.size>30)return;
-  stamps[key]=now;synth(c,master,p,phase,now,node=>active.set(node,scene));
+  stamps[key]=now;if(!recorded(c,scene,p,phase))synth(c,master,p,phase,now,node=>active.set(node,scene));
 }
 function graphic(scene, paint, duration) {
   const g=scene.add.graphics().setDepth(505);paint(g);
@@ -132,5 +158,5 @@ function event(scene,e) {
     sound(scene,profile(id),'use');
   }
 }
-A.CombatPresentation={profile,event,swing,impact,sound,stop,synth,coverage:()=>Object.keys(A.DATA.SKILLS).map(id=>profile(id)),get activeVoices(){return active.size;}};
+A.CombatPresentation={profile,event,swing,impact,sound,stop,synth,preload,sampleKey,coverage:()=>Object.keys(A.DATA.SKILLS).map(id=>profile(id)),get loadedSamples(){return buffers.size;},get activeVoices(){return active.size;}};
 })();

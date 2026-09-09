@@ -96,7 +96,7 @@ Character.effStat = function (ch, key) {
   if (ch.isUndead) v = Math.round(v * (ch.risenPower || C().UNDEAD_STAT_MULT));
   const m = ADV.Survival ? ADV.Survival.statMult(ch) : 1;
   if (m !== 1) v = Math.max(0, Math.round(v * m));
-  return v;
+  return ch.isPlayer && key === 'hp' ? v * 2 : v;
 };
 
 Character.maxHp = function (ch) {

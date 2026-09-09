@@ -318,6 +318,7 @@ class TownScene extends Phaser.Scene {
     if (ADV.HousingArt) ADV.HousingArt.paint(this, ADV.Housing.of(this.player()).id);
     this.buildCharacterPanel();
     if (this._chromeHidden) this.applyChromeHidden(false);
+    if(ADV.Narrator)ADV.Narrator.town(this,this.game_);
   }
 
   chromeObjs() {

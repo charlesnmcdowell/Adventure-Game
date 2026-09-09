@@ -966,7 +966,7 @@ Notices._paintToast = function (scene, text) {
   };
   bg.on('pointerdown', finish);
   entry.tween = scene.tweens.add({
-    targets: [t, bg], alpha: 0, delay: Notices.TOAST_HOLD_MS, duration: Notices.TOAST_FADE_MS,
+    targets: [t, bg], alpha: 0, delay: scene.__narratorCaption && scene.__narratorCaption.text === text ? scene.__narratorCaption.hold : Notices.TOAST_HOLD_MS, duration: Notices.TOAST_FADE_MS,
     onComplete: finish,
   });
 };
