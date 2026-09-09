@@ -136,6 +136,23 @@ function chooseAction(st, u) {
     // nothing legal at all — basic attack unreachable (cover): hold
     return meleePool.length ? { kind: 'attack', targetUid: meleePool[0].uid } : { kind: 'hold' };
   }
+  // Type identity matters more than raw spell power. Keep legal targets and
+  // emergency healing priorities, but avoid repeating one flashy move forever.
+  if (u.ch.isMonster) {
+    const def=ADV.Character.enemyDef(u.ch), tactic=def&&def.tactics;
+    const recent=(u.aiRecentSkills||[]), different=candidates.some(c=>c.skillId&&c.skillId!==recent[recent.length-1]);
+    for(const c of candidates){
+      if(tactic&&c.skillId===tactic.signature)c.weight*=recent.length?1.35:2.6;
+      if(different&&c.skillId&&c.skillId===recent[recent.length-1])c.weight*=.3;
+      if(tactic&&tactic.style==='hunter'&&c.targetUid){
+        const pool=Combat.threatTargets(st,u,Combat.validTargets(st,u,c.skillId||'basic_attack',false));
+        const target=pool.find(t=>t.statuses.some(s=>['bleed','exposed'].includes(s.kind)))||pool[0];
+        if(target)c.targetUid=target.uid;
+      }
+      const target=st.units.find(t=>t.uid===c.targetUid);
+      if(target&&tactic&&tactic.style==='affliction'&&target.statuses.some(s=>s.kind==='poison')&&/venom|wither|curse/.test(c.skillId||''))c.weight*=1.4;
+    }
+  }
   // weighted pick
   const total = candidates.reduce((s, c) => s + c.weight, 0);
   let r = st.rng.float() * total;
@@ -166,6 +183,7 @@ Combat.aiTakeTurn = function (st, u) {
     }
   }
   const res = Combat.act(st, u, act);
+  if(res&&res.ok&&u.ch.isMonster){u.aiRecentSkills=(u.aiRecentSkills||[]).concat(act.skillId||'basic_attack').slice(-2);}
   if (res && res.refund) {
     const again = chooseAction(st, u);
     if (again && again.kind !== 'hold') return Combat.act(st, u, again);
