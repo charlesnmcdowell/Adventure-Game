@@ -108,11 +108,13 @@ const DialogueBox = {
       if (onDone) onDone();
     };
     if (ADV.UI && ADV.UI.holdCard) ADV.UI.holdCard('dialogue', close);
+    if (opts.autoAdvance) hint.setVisible(false);
     dim.on('pointerdown', () => {
+      if (opts.autoAdvance) return;
       if (!doneTyping) { timer.remove(false); txt.setText(line); doneTyping = true; }
       else close();
     });
-    return { close };
+    return { close, completeText() { timer.remove(false); txt.setText(line); doneTyping = true; } };
   },
 
   choosePersonality(scene, ch, onDone, onCancel) {

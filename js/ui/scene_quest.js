@@ -10,6 +10,7 @@ class QuestScene extends Phaser.Scene {
     this.game_ = this.registry.get('game');
     const game = this.game_;
     const W = T().W, H = T().H;
+    if (game.travelResolution) { this.completeFlow(); return; }
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
     if (ADV.BattleArt && game.quest) {
       try {
@@ -31,6 +32,11 @@ class QuestScene extends Phaser.Scene {
       if (finale) { this.buildEncounter(finale); return; }
     }
     if (q.readyToComplete || q.over || (q.encIdx >= q.quest.encounters.length && !q.rivalFight)) { this.completeFlow(); return; }
+
+    if (ADV.TravelUI && q.quest.midLegAfterEncounter === q.encIdx && !q.travelMidShown && !q.rivalFight) {
+      q.travelMidShown=true;
+      ADV.TravelUI.play(this,game,q.quest,'midleg',()=>this.scene.restart());return;
+    }
 
     const enc = ADV.Game.currentEncounter(game);
     if (!enc) { this.completeFlow(); return; }
@@ -184,7 +190,8 @@ class QuestScene extends Phaser.Scene {
 
   completeFlow() {
     const game = this.game_;
-    const q = game.quest;
+    const q = game.quest || (game.travelResolution && game.travelResolution.q);
+    if (!q) { this.scene.start('Town'); return; }
     if (q.closingBeats && q.closingBeats.length && ADV.CampaignUI) {
       const beats = q.closingBeats; q.closingBeats = null;
       const W = T().W;
@@ -199,13 +206,30 @@ class QuestScene extends Phaser.Scene {
       return;
     }
     const failed = q.failed;
-    const out = ADV.Game.completeQuest(game);
+    if (ADV.TravelUI && !game.travelResolution) {
+      const roster=ADV.Travel.roster(game).slice();
+      const result=ADV.Game.completeQuest(game);
+      game.travelResolution={q,out:result,roster};
+    }
+    if (ADV.TravelUI && !q.travelReturnShown) {
+      const pending=game.travelResolution;
+      ADV.TravelUI.play(this,game,q.quest,'return',()=>{
+        q.travelReturnShown=true;
+        if(pending.out.ambush&&!pending.ambushStarted){
+          pending.ambushStarted=true;this.ambushIntro(pending.out.ambush);
+        }else this.completeFlow();
+      },{resume:pending.ambushStarted,interrupt:pending.out.ambush&&!pending.ambushStarted?()=>{
+        pending.ambushStarted=true;this.ambushIntro(pending.out.ambush);
+      }:null});return;
+    }
+    const out = game.travelResolution ? game.travelResolution.out : ADV.Game.completeQuest(game);
     if (ADV.Tutor) ADV.Tutor.onQuestDone(game, failed || q.playerDead);
     const W = T().W;
-    T().panel(this, W / 2 - 280, 180, 560, 320);
+    T().panel(this, W / 2 - 300, 160, 600, 490);
     T().text(this, W / 2, 210, failed ? (q.leaderDied ? 'The lead fell.' : q.fled ? 'You fled.' : 'The contract failed.') : (q.quest.campaign && !q.quest.factionRepeatable ? `${q.quest.name} — done` : 'Contract complete'), { size: 26, display: true, ox: 0.5, color: failed ? T().css.blood : T().css.gold });
     let y = 260;
     const line = (s, c) => { T().text(this, W / 2, y, s, { size: 15, ox: 0.5, color: c || T().css.ink }); y += 26; };
+    if (out.travelCost) line(`Travel: ${out.travelCost}g paid · ${out.travelReimbursement || 0}g reimbursed`, T().css.inkDim);
     if (!failed) {
       if (out.wage) { line(`Your wage: ${out.wage}g`, T().css.gold); if (out.leaderTake != null) line(`The leader pockets ${out.leaderTake}g.`, T().css.inkDim); }
       else if (out.gold) { line(`Payout: ${out.gold}g${out.payroll ? ` (after ${out.payroll}g payroll)` : ''}`, T().css.gold); }
@@ -233,11 +257,13 @@ class QuestScene extends Phaser.Scene {
       const tl = ADV.Game.prompt(game, 'firstTitle'); if (tl) ADV.Notices.toast(this, tl);
     }
 
-    T().button(this, W / 2 - 110, 430, 220, 44, 'Head back to town', () => {
+    T().button(this, W / 2 - 110, 590, 220, 44, 'Head back to town', () => {
       // The ride home plays in Town, where the housing art is the backdrop —
       // the mirror of the embark beat, which plays in Town on the way out.
-      if (!failed) game.rideHomeDue = true;
-      if (out.ambush) this.ambushIntro(out.ambush);
+      if (!failed && !ADV.TravelUI) game.rideHomeDue = true;
+      const handled=game.travelResolution&&game.travelResolution.ambushStarted;
+      game.travelResolution=null;
+      if (out.ambush && !handled) this.ambushIntro(out.ambush);
       else this.scene.start('Town');
     }, { display: true, bold: true, size: 16 });
   }
@@ -246,6 +272,7 @@ class QuestScene extends Phaser.Scene {
     const game = this.game_;
     const a = ambush.attacker;
     const isHero = ambush.kind === 'hero';
+    T().text(this,T().W/2,160,'An ambush on the road home',{size:24,display:true,ox:.5,color:T().css.blood});
     const l = ADV.Game.prompt(game, 'firstAssassination');
     if (l) ADV.Notices.toast(this, l);
     ADV.DialogueBox.show(this, game, a, isHero ? 'general' : 'hatred', ADV.DialogueBox.ctxFor(game, a), () => {

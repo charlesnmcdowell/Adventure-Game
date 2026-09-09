@@ -517,7 +517,8 @@ BA.paint = function (scene, groundId, phase) {
   const game = scene.game_ || (scene.g && scene.g());
   const world = game && game.world;
   if (ADV.WeatherFX && ADV.Weather) {
-    const w = ADV.Weather.at(world || { seed: 1, questClock: 0 }, { phase, groundId });
+    const journey=game&&((game.quest&&game.quest.travel)||(game.travelResolution&&game.travelResolution.q.travel));
+    const w = journey&&journey.weather || ADV.Weather.at(world || { seed: 1, questClock: 0 }, { phase, groundId });
     ADV.WeatherFX.attach(scene, w, phase, { x: 0, y: 80, w: W, h: 560 }, {
       depth: -5, combat: true, onLightning: () => {
         if (scene.__stormFaced) return;

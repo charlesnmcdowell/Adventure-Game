@@ -214,12 +214,14 @@ Game.wipeParty = function (world, party, killerId) {
 Game.departureInfo = function (game, quest) {
   const p = Game.player(game);
   const kids = Game.youngDependents(p);
+  const travel = ADV.Travel ? ADV.Travel.quote(game, quest) : null;
   return {
     quest,
     carriedGold: p.inventory.gold,
     vault: ADV.Vault.of(game.world, p),
     dependents: kids,
-    tuition: kids * C().GOLD.tuitionPerChildPerQuest,
+    tuition: kids * C().GOLD.tuitionPerChildPerQuest * (travel ? travel.days : 1),
+    travel,
     roster: Game.partyRoster(game),
     payroll: (() => {
       const party = ADV.Party.of(game.world, p);
@@ -349,6 +351,19 @@ Game.maybeStartRivalFinale = function (game) {
 Game.startQuest = function (game, quest, opts) {
   opts = opts || {};
   const p = Game.player(game);
+  // Validate all costs and gates before any gold is moved.
+  const travel = ADV.Travel ? ADV.Travel.quote(game, quest, opts.provisions !== false) : null;
+  const tuitionDue = Game.youngDependents(p) * C().GOLD.tuitionPerChildPerQuest * (travel ? travel.days : 1);
+  const deposit = Math.min(Math.max(0, opts.vaultGold || 0), p.inventory.gold);
+  const available = p.inventory.gold - deposit;
+  if (available < tuitionDue + (travel && travel.payer === p ? travel.total : 0)) return { ok:false, error:'Keep enough carried gold for childcare and travel, or choose a nearby contract.' };
+  if (travel && travel.payer !== p && (!travel.payer || travel.payer.inventory.gold < travel.total)) return {ok:false,error:'The company leader cannot afford this passage. Choose nearby work.'};
+  const partyBefore = ADV.Party.of(game.world,p);
+  if (quest.track === 'party' && Game.partyRoster(game).length < 2) return {ok:false,error:'party contracts need a party'};
+  if (quest.track === 'solo' && partyBefore) return {ok:false,error:'a party does not take solo work'};
+  const repBefore = ADV.Quests.repGate(quest,p);
+  if (!repBefore.ok) return repBefore;
+  if (!Game.contractCoversPayroll(game,quest)) return {ok:false,error:'that contract would not cover payroll'};
   if (opts.vaultGold && opts.vaultGold > 0) {
     const amt = Math.min(opts.vaultGold, p.inventory.gold);
     p.inventory.gold -= amt;
@@ -356,7 +371,7 @@ Game.startQuest = function (game, quest, opts) {
   }
   const kids = Game.youngDependents(p);
   if (kids > 0) {
-    const tuition = kids * C().GOLD.tuitionPerChildPerQuest;
+    const tuition = tuitionDue;
     if (p.inventory.gold < tuition) return { ok: false, error: 'cannot afford tuition' };
     p.inventory.gold -= tuition;
   }
@@ -374,6 +389,14 @@ Game.startQuest = function (game, quest, opts) {
   if (!gate.ok) { game.quest = null; return { ok: false, error: gate.error }; }
   if (!Game.contractCoversPayroll(game, quest)) { game.quest = null; return { ok: false, error: 'that contract would not cover payroll' }; }
   for (const ch of roster) { ch.combatHp = ADV.Character.maxHp(ch); ch.wasDowned = false; ch.hasFled = false; }
+  if (travel) {
+    travel.payer.inventory.gold -= travel.total;
+    game.meta.travelJourneyCount=(game.meta.travelJourneyCount||0)+1;
+    game.quest.travel = { days:travel.days, cost:travel.total, payerId:travel.payer.id, provisions:travel.provisions,
+      journey:game.meta.travelJourneyCount,
+      phase:ADV.Housing.timeOfDay(game.world.questClock), weather:ADV.Weather ? ADV.Weather.at(game.world,{groundId:quest.travelLocation}) : null };
+    if (quest.distance === 'far' && !travel.provisions) for (const ch of roster) ch.combatHp = Math.floor(ch.combatHp * .85);
+  }
   game.quest.partnerAlong = roster.some(c => ADV.Rel.isPartner(p, c));
   if (quest.campaign) game.quest.departureBeats = ADV.Campaign.departureBeats(game, quest);
   const rival = Game.attachRival(game, quest);
@@ -858,6 +881,19 @@ Game.completeQuest = function (game) {
 
   // Payouts default to the vault (§10): auto-deposit above carry comfort
   // (kept manual for the player; NPC payouts bank automatically)
+  if (q.travel && q.travel.days > 1) {
+    agePlayerChildren(game);
+    tickPlayerPregnancy(game);
+    ADV.World.tick(world, game.rng, { playerQuested:true });
+  }
+  if (q.travel) {
+    out.travelCost=q.travel.cost;
+    out.travelReimbursement=0;
+    if (!q.failed && !q.playerDead) {
+      const payer=ADV.World.byId(world,q.travel.payerId);
+      if (payer && payer.alive) { payer.inventory.gold+=q.travel.cost;out.travelReimbursement=q.travel.cost; }
+    }
+  }
 
   // Ambush queue (§6): at most one attempt per quest return, highest hatred first.
   out.ambush = Game.pendingAmbush(game);
@@ -1207,6 +1243,7 @@ Game.refuseRescue = function (game, rescue) {
 // ---------------------------------------------------------------- death
 // Returns {mode, heir?} — UI shows the death screen then calls continueAs*.
 Game.onPlayerDeath = function (game, killerId) {
+  game.travelResolution = null;
   const world = game.world;
   const p = Game.player(game);
   const extracted = ADV.Death.extractMeta(p);

@@ -1193,7 +1193,7 @@ class CombatScene extends Phaser.Scene {
       } else if (this.mode === 'ambush') {
         const r = ADV.Game.finishAmbush(game);
         if (r.playerDead) { ADV.Game.onPlayerDeath(game, r.attacker ? r.attacker.id : null); this.scene.start('Death'); return; }
-        this.namedChoices((r.defeatedNamed || []).filter(c => c.alive), () => this.scene.start('Town'));
+        this.namedChoices((r.defeatedNamed || []).filter(c => c.alive), () => this.scene.start(game.travelResolution ? 'Quest' : 'Town'));
       } else if (this.mode === 'rescue') {
         const r = ADV.Game.finishRescue(game);
         if (r.playerDead) { ADV.Game.onPlayerDeath(game, r.attacker ? r.attacker.id : null); this.scene.start('Death'); return; }

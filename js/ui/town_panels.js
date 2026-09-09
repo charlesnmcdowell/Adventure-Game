@@ -132,7 +132,7 @@ Panels.departure = function (scene, q) {
   if (ADV.Tutor) ADV.Tutor.clear(scene);
   if (ADV.Notices && ADV.Notices.block) ADV.Notices.block(scene);
   keep(scene.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.75).setDepth(200).setInteractive());
-  keep(T().panel(scene, W / 2 - 300, 110, 600, 520)).setDepth(201);
+  keep(T().panel(scene, W / 2 - 300, 90, 600, 640)).setDepth(201);
   const D = 202;
   const tx = (x, y2, s, o) => { const t = T().text(scene, x, y2, s, o); t.setDepth(D); return keep(t); };
   tx(W / 2, 130, 'Departure: ' + q.name, { size: 22, display: true, ox: 0.5, color: T().css.gold });
@@ -187,14 +187,26 @@ Panels.departure = function (scene, q) {
     objs.forEach(o => { try { o.destroy(); } catch (e) {} });
     if (ADV.Notices && ADV.Notices.unblock) ADV.Notices.unblock(scene);
   };
-  const go = T().button(scene, W / 2 - 250, 560, 240, 46, 'Set out', () => {
-    const res = ADV.Game.startQuest(game, q, { vaultGold: vaultAmt });
+  let provisions = true;
+  if (info.travel) {
+    const tr=info.travel;
+    tx(W/2-240,500,`${tr.location.name} · ${tr.days} world day${tr.days>1?'s':''} · passage ${tr.passage}g`,{size:13,color:T().css.gold,wrap:480});
+    tx(W/2-240,526,`Standard travel expenses reimbursed on success, in addition to the ${q.payout}g contract.`,{size:12,wrap:480,color:T().css.inkDim});
+    if(tr.days>1) {
+      const supply=ADV.UI.modalBtn(keep,D,T().button(scene,W/2-240,565,480,42,'Provisions: 8g · arrive at full health',()=>{
+        provisions=!provisions;
+        supply.txt.setText(provisions?'Provisions: 8g · arrive at full health':'No provisions · arrive at 85% health');
+      },{size:13}));
+    }
+  }
+  const go = T().button(scene, W / 2 - 250, 660, 240, 46, 'Set out', () => {
+    const res = ADV.Game.startQuest(game, q, { vaultGold: vaultAmt, provisions });
     if (!res.ok) { ADV.Notices.toast(scene, res.error); return; }
     finish();
     if (scene.playEmbark) scene.playEmbark(q, () => scene.scene.start('Quest'));
     else scene.scene.start('Quest');
   }, { display: true, bold: true, size: 17 });
-  const stay = T().button(scene, W / 2 + 10, 560, 240, 46, 'Think better of it', () => {
+  const stay = T().button(scene, W / 2 + 10, 660, 240, 46, 'Think better of it', () => {
     finish();
     if (ADV.Tutor && ADV.Tutor.active(game)) ADV.Tutor.town(scene, game);
   }, { size: 15 });

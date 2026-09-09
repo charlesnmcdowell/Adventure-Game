@@ -374,10 +374,10 @@ class TownScene extends Phaser.Scene {
 
   armChromeFailsafe() {
     this.clearChromeFailsafe();
-    if (this.__embarking || !this.time) return;
+    if (this.__embarking || this.__cutscene || !this.time) return;
     this._chromeFailsafe = this.time.delayedCall(6000, () => {
       this._chromeFailsafe = null;
-      if (this.__embarking) return;
+      if (this.__embarking || this.__cutscene) return;
       this._chromeHidden = 0;
       this._arrivalChrome = false;
       this.fadeChromeIn();
@@ -481,6 +481,18 @@ class TownScene extends Phaser.Scene {
   // Menus hide so the painted house (or the roadside) and the people taking
   // the road can be seen. Click skips; then the quest scene starts as usual.
   playEmbark(quest, done) {
+    if (ADV.TravelUI) {
+      const game=this.game_;
+      ADV.Music.startRun(!!quest.isBoss);
+      if(game.quest)game.quest.musicStarted=true;
+      ADV.TravelUI.play(this,game,quest,'outbound',()=>{
+        const qs=game.quest;
+        if(qs && qs.departureBeats && qs.departureBeats.length && !qs.departureShown){
+          qs.departureShown=true;ADV.CampaignUI.playBeats(this,game,qs.departureBeats,done);
+        }else if(done)done();
+      });
+      return;
+    }
     if (this.__embarking) { if (done) done(); return; }
     this.__embarking = true;
     // Kill the home theme as soon as the party leaves the lawn — do not wait
