@@ -9,6 +9,7 @@ Talk.assign = function (ch, id) {
   if (!ch || ch.personalityId || !p || p.hidden || p.sex !== ch.sex) return false;
   ch.personalityId = id;
   ch.lastVariantUsed = {};
+  ch.dialogueRotation = {};
   return true;
 };
 Talk.band = function (world, from, to) {

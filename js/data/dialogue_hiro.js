@@ -20,7 +20,7 @@ ADV.DATA.DIALOGUE.HIRO = {
   ],
   hatred: [
     "[tired] Oh, now I'm pissed.",
-    '[sad] You are one annoying bastard.',
+    '[sad] You are one annoying bitch.',
     '[sighs] You evil mother fucker, you.',
     "[sorrowful] When I kill you, I'll make sure you don't respawn.",
   ],

@@ -64,7 +64,7 @@ Character.base = function (o) {
     factionStanding: { criminal: 0, law: 0, neutral: 0 },
     personality: { aggression: 50, greed: 50, caution: 50, loyalty: 50, pride: 50 },
     archetypeInclination: [], factionLeaning: 'neutral',
-    personalityId: null, lastVariantUsed: {},
+    personalityId: null, lastVariantUsed: {}, dialogueRotation: {},
     partnerId: null, partnerIds: [], childIds: [], motherId: null, fatherId: null,
     homeId: 'camp',
     titleBonus: 0, title: null,

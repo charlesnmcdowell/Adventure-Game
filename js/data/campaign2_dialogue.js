@@ -296,7 +296,7 @@ tally: {
     ],
     afterKill: [
       L('[flatly] Admiral August Kessler. A foreign empire pays me to make these waters safe for trade. That is the whole instruction.'),
-      L('[calm] I have hanged captains. I did not like it. I did it anyway.'),
+      L('[calm] I hanged captains. I did not like it. I did it anyway. That is the job.'),
       L('[thoughtful] That man was the best shot in your fleet. He died covering someone he had barely met. Tell them that. It is true.'),
       L('[dismissive] Go back to Saint-Cloud, {target}. Tell her the last rope is cut and hanging. She will know — I have written to her about every one.'),
     ],
@@ -318,8 +318,9 @@ tally: {
       L('[flatly] He turns steel back on whoever swings it. Shoot him. From the back of the deck. Do not go near him.'),
     ],
     fight: [
-      L('[calm] Keep off his reach. Everything you give him he gives back.'),
-      L('[quietly] The marines break if the officer does. Take the officer.'),
+      L('[angry] Keep off his reach. Everything you give him he throws the fuck back.'),
+      L('[flatly] Shoot him. From the back of the deck. Do not go near him.'),
+      L('[angry] What the hell are you waiting for. Take the officer.'),
     ],
     afterFall: [
       L('[quietly] All those letters. I never answered one. Now I never will.'),
@@ -416,7 +417,7 @@ navy: {
   vanekessler: {
     first: [
       L('[calm] Admiral August Kessler. A foreign empire pays this fleet to keep trade moving. That is the instruction. I have never needed another.'),
-      L('[flatly] I have hanged pirate captains. I did not enjoy it. I did it. Decide now if you can serve under that.'),
+      L('[flatly] I have hanged pirate captains. I did not enjoy it. I still fucking did it. Decide now if you can serve under that.'),
       L('[thoughtful] Crell says you can take an order. Do the five commissions. Then we will talk about the man who keeps beating this fleet.'),
     ],
     hunt: [
@@ -425,8 +426,9 @@ navy: {
       L('[quietly] He will hook you off the back of the deck and into his reach. Stand where a pull forward does not matter, and shoot.'),
     ],
     fight: [
-      L('[calm] Close order. Nothing gets between the lanes.'),
-      L('[flatly] Do not listen to him. Shoot him.'),
+      L('[angry] Close order. Nothing gets between the lanes.'),
+      L('[flatly] Do not listen to that son of a bitch. Shoot him.'),
+      L('[angry] God damn it, hold the line. If he talks, he is buying a shot.'),
     ],
     afterFall: [
       L('[quietly] Somebody write this down properly. We have him.'),
@@ -479,7 +481,7 @@ ADV.DATA.GOD_LINE_SMITE = {
 
 ADV.DATA.GOD_LINE_HATRED = {
   pale_mother: [
-    L('[flatly] I already have your name. The rest is housekeeping.'),
+    L('[flatly] I already have your name. The rest is housekeeping, you mother fucker.'),
     L('[quietly] You are not the first to come down here armed. You will not be the last I keep.'),
   ],
   drowned_king: [
@@ -498,10 +500,12 @@ ADV.DATA.FACTION_WAR_DIALOGUE = {
     open: [
       L('[quietly] The Bell does not hold streets. We hold names. Yours just went on the paper.'),
       L('[flatly] The city hired a knife. We have hired worse. Come and be written down.'),
+      L('[angry] What the fuck did you think this contract was. Draw or walk.'),
     ],
     boss: [
       L('[quietly] Two of ours. That is what they paid you for. Take them if you can still see.'),
       L('[flatly] The Bell forgets no contract. Remember that when you sleep.'),
+      L('[angry] God damn it, finish it. They will not give you a second chance.'),
     ],
   },
   green: {
@@ -509,10 +513,12 @@ ADV.DATA.FACTION_WAR_DIALOGUE = {
     open: [
       L('[quietly] The Green-Eyed are out enforcing someone\'s law. I am paying you to stop them.'),
       L('[flatly] They call it honour. You will meet two of them before this writ is done.'),
+      L('[angry] I am done watching them burn houses and call it lawful. Cut them down.'),
     ],
     boss: [
       L('[calm] Instructor and captain. Walk over them if you can. The clan will still be there tomorrow.'),
       L('[flatly] They will call this a crime. They called my house a lawful fire.'),
+      L('[angry] What in the hells are you waiting for. Those two die here.'),
     ],
   },
   tally: {
@@ -520,10 +526,14 @@ ADV.DATA.FACTION_WAR_DIALOGUE = {
     open: [
       L('[calm] The Tally has been taking cargo from these shallows. That ends.'),
       L('[flatly] A bosun and a captain are running the take. We are the patrol. Keep up.'),
+      L('[angry] God damn it, this is a navy. Act like it.'),
     ],
     boss: [
       L('[calm] Those two. Cut them down. The rest of the fleet will hear about it.'),
       L('[flatly] I have hanged men for less than this writ. I am being polite.'),
+      L('[angry] I will sink the next punk ass bitch who lifts cargo under my flag. These two can go first.'),
+      L('[flatly] What the hell are you waiting for. This is a patrol, not a conversation.'),
+      L('[angry] Draw. God damn it. I am done being polite with pirates.'),
     ],
   },
   navy: {
@@ -531,10 +541,12 @@ ADV.DATA.FACTION_WAR_DIALOGUE = {
     open: [
       L('[calm] They closed a channel people live on. You are here because someone could not swallow that.'),
       L('[flatly] Uniforms, guns, and two officers who think the sea is a courtroom. We go through.'),
+      L('[playfully] What the fuck did you expect. A polite request?'),
     ],
     boss: [
       L('[calm] A mate and a commander. The blockade does not care why you came.'),
       L('[playfully] I have taken cargo through worse. Draw, and we will see if you have.'),
+      L('[angry] God damn it, do not freeze. They will hang you for standing still.'),
     ],
   },
 };

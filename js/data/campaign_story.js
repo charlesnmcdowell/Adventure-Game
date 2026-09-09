@@ -59,7 +59,7 @@ debriefs: [
  '[quietly] The competing claim is settled. Dain says the contract justified his methods. I do not think a price on paper answers that question.',
  '[sad] I have to close Dain\'s file. I have not picked up the pen.|[quietly] I can miss him and still wish he had listened about Conscript. Both are true.'
 ],
-appear: '[angry] Dain. Release the people you bound. This ends here.',
+appear: '[angry] Roscarrow. There you are. I came to kill you. What the fuck did you think this was going to be.',
 death: '[quietly] Get the others clear. Finish the escort.',
 afterKill: '[flatly] Conscript made people fight for him without a choice. The divine call named him for it.|[quietly] I served beside him once. That did not make this easier, and it did not make those people free.|[calm] My call was for him. Take the survivors home.',
 hunt: '[quietly] You deserve the truth before you choose.|[angry] Dain used Conscript to keep his costs down. I let myself believe the figures because they suited the company.|[sad] We were together. I loved him. That does not answer what he did.|[calm] I want Hargrave dead. Helping me kill a hero will bring the divine pursuit on us too. Read that part before you sign.',
@@ -199,11 +199,11 @@ debriefs: [
  '[calm] The command dispute is settled. Merrow has a revised route. She wants it checked on the water before anyone calls it safe.',
  '[sad] Merrow left a correction on my desk. I was going to tease her about the handwriting.|[quietly] I have not moved it. Sit a moment if you need to.'
 ],
-appear: '[playfully] Right on schedule. That is the trouble with a very orderly navy.',
+appear: '[playfully] Right on schedule. What the hell did you expect from a very orderly navy.',
 death: '[alarmed] The other rail! Get off the crossing—',
-afterKill: '[quietly] She saw the second boarding party. Most officers kept watching me.|[calm] Take that home with you. Tell the Admiral his schedule is no longer his alone.',
+afterKill: '[quietly] She saw the second boarding party. Most officers kept watching me.|[calm] Take that home with you. Tell the Admiral his schedule is no longer his alone. God damn it, he should have listened.',
 hunt: '[quietly] Merrow warned us about the schedule. I should have acted sooner.|[calm] We have changed the patrols. Now we go after the man using them against us. I am coming with you.',
-final: '[playfully] Admiral. A different route this time. Someone finally changed the orders.|[calm] You still have to take the deck from me.',
+final: '[playfully] Admiral. A different route this time. Someone finally changed the fucking orders.|[calm] You still have to take the deck from me.',
 afterFall: '[calm] Signal the patrol. The cargo route can reopen.|[sad] Merrow should have been here to correct the report. Write it properly anyway.',
 ending: '[calm] The north-coast cargo will have an escort. The village gets its supplies, and the patrol charts will be corrected.|[quietly] Your service is recorded beside hers. She wanted the work done properly. You helped us do that.'
 }
@@ -217,7 +217,6 @@ for (const [fid, arc] of Object.entries(arcs)) {
   lines(fid, r, 'banter', '[calm] Keep watching the field. I am with you.|[quietly] We still have work to do.');
   for (const [key,text] of Object.entries({appear:arc.appear, afterKill:arc.afterKill, final:arc.final})) lines(fid,ant,key,text);
   for (const [key,text] of Object.entries({hunt:arc.hunt, afterFall:arc.afterFall, ending:arc.ending})) lines(fid,boss,key,text);
-  lines(fid,boss,'fight','[calm] Watch the whole field. We finish this together.');
   // Captions establish place and objective without claiming an unplayed action.
   D.CAMPAIGN_QUESTS[fid].forEach((q,i) => { q.storyCaption = arc.briefs[i]; });
 }
@@ -268,8 +267,22 @@ lines('tally','hallow','stay','[softly] You can stay here a while.');
 scene('tally','hallow','debrief4',[turn('hallow','debrief4','player','Cask closes the ledger. Saint-Cloud joins you.'),turn('saintcloud','crew','hallow'),turn('hallow','crew','saintcloud'),turn('saintcloud','tellCrew','hallow'),turn('hallow','stay','player')]);
 // Make the opposing role clear; Jiro does not represent the clan hunting him.
 D.FACTION_WAR_DIALOGUE.bell.who = 'kaede';
-D.FACTION_WAR_DIALOGUE.bell.open = ['[quietly] You are approaching a Hollow Bell operation. Our people know you are coming.','[calm] Turn back if you do not want to fight for this contract.'];
-D.FACTION_WAR_DIALOGUE.bell.boss = ['[quietly] Those are our people at the last post. They have orders to hold it.','[calm] Whatever you were paid, this will not end the Bell.'];
+D.FACTION_WAR_DIALOGUE.bell.open = [
+ {t:'[quietly] You are approaching a Hollow Bell operation. Our people know you are coming.'},
+ {t:'[calm] Turn back if you do not want to fight for this contract.'},
+ {t:'[angry] What the fuck did you think this was. Draw or leave.'}
+];
+D.FACTION_WAR_DIALOGUE.bell.boss = [
+ {t:'[quietly] Those are our people at the last post. They have orders to hold it.'},
+ {t:'[calm] Whatever you were paid, this will not end the Bell.'},
+ {t:'[angry] God damn it, finish it. They will not give you a second chance.'}
+];
+// Kessler's rewritten afterKill must not play the hanging clip (afterKill_2).
+const kesslerKill = (D.CAMPAIGN2_DIALOGUE.tally && D.CAMPAIGN2_DIALOGUE.tally.vanekessler || {}).afterKill;
+if (kesslerKill && kesslerKill[1]) kesslerKill[1].vo = 3;
+// Bosses who never received a fight beat still need one unique remark.
+lines('maw','vane','fight','[angry] Do not let her talk. Put that bitch down.|[flatly] Watch the knife. If she speaks, she is buying time.');
+lines('varenholm','venn','fight','[angry] Kill the word before the spell.|[flatly] Do not let him finish a sentence. God damn it, hit him.');
 // Remove false offers of a peaceful departure from mandatory boss openings.
 D.GOD_LINE_DIALOGUE.pale_mother = [
  {t:'[quietly] You have reached the bonehouse armed. I know what that means.'},

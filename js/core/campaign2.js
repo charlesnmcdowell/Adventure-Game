@@ -373,10 +373,11 @@ C2.banter = function (game, st, roundN) {
   else if (q.rival && m.rivalToggle && m.rivalAlive) { who = f.rival; key = 'banter'; }
   if (!who) return null;
   if (st && st.units && !st.units.some(u => u.ch && u.ch.campaignId === who && !u.downed && !u.fled)) return null;
-  const lines = C2.lines(fid, who, key);
+  const lines = ADV.Campaign.pickSpoken(game, who, C2.lines(fid, who, key), { limit: 1 });
   if (!lines.length) return null;
   const line = game.rng.pick(lines);
-  return { who, key, line, voOffset: lines.indexOf(line), fid, c2: true };
+  const all = C2.lines(fid, who, key);
+  return { who, key, line, voOffset: Math.max(0, all.indexOf(line)), fid, c2: true };
 };
 C2.rivalDeathSequence = function (game, fid) {
   const f = C2.faction(fid);

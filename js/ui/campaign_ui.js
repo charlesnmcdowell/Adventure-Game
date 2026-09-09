@@ -52,18 +52,30 @@ CampaignUI.playBeat = function (scene, game, beat, done) {
   const listener = beat.listenerId ? ADV.World.byId(game.world, beat.listenerId) : to !== 'player' ? D().CAMPAIGN_CHARS[to] : ADV.Game.player(game);
   const subject = beat.subject ? D().CAMPAIGN_CHARS[beat.subject] : faction && D().CAMPAIGN_CHARS[faction.rival];
   const context = { target: listener ? listener.name : '', them: subject && subject.name, self: def.name };
-  const lines = beat.lines || ADV.Campaign.lines(fid, who, beat.key);
+  const raw = beat.lines || ADV.Campaign.lines(fid, who, beat.key);
+  const poolLimit = beat.lineLimit || ({ waropen: 2, warboss: 2 }[beat.key]);
+  const lines = ADV.Campaign.pickSpoken(game, who, raw, { limit: poolLimit });
   const speaker = CampaignUI.speaker(game, who);
   let i = 0;
   const next = () => {
     if (i >= lines.length) { if (done) done(); return; }
     const line = lines[i++];
-    if (ADV.Music) ADV.Music.speakCampaign(who, beat.key, (beat.voOffset || 0) + i);
-    ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who, context), next, { raw: line.t, recipient: listener ? 'To ' + listener.name : 'To the company', caption: beat.caption });
+    const rawText = line.t || line;
+    if (ADV.Campaign.markSpoken) ADV.Campaign.markSpoken(game, who, line);
+    const clip = line.vo || (beat.voOffset != null ? (beat.voOffset || 0) + i : (line._i || i));
+    if (ADV.Music) ADV.Music.speakCampaign(who, beat.key, clip);
+    ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, rawText, who, context), next, { raw: rawText, recipient: listener ? 'To ' + listener.name : 'To the company', caption: beat.caption });
   };
   if (beat.death && !beat.offscreen) {
     // the rival's last line, then the screen goes red for a moment
-    const speak = () => { const line = lines[0]; if (ADV.Music) ADV.Music.speakCampaign(who, 'death', 1); ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, line.t, who, context), () => { ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8); scene.time.delayedCall(600, done); }, { raw: line.t, recipient: 'To ' + listener.name, caption: D().STORY_DEATH_CAPTIONS && D().STORY_DEATH_CAPTIONS[fid] }); };
+    const speak = () => {
+      const line = lines[0];
+      if (!line) { if (done) done(); return; }
+      const rawText = line.t || line;
+      if (ADV.Campaign.markSpoken) ADV.Campaign.markSpoken(game, who, line);
+      if (ADV.Music) ADV.Music.speakCampaign(who, 'death', 1);
+      ADV.DialogueBox.showText(scene, game, speaker, CampaignUI.fill(game, rawText, who, context), () => { ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8); scene.time.delayedCall(600, done); }, { raw: rawText, recipient: 'To ' + listener.name, caption: D().STORY_DEATH_CAPTIONS && D().STORY_DEATH_CAPTIONS[fid] });
+    };
     speak(); return;
   }
   if (beat.death && beat.offscreen) {

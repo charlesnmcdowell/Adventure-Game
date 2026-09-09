@@ -74,8 +74,8 @@ for (const [pid,p] of Object.entries(ADV.DATA.DIALOGUE)) {
  p.travel_romantic = ['Stay beside me. I like knowing which footsteps are yours.'];
  if (/Wrathful|Furious/.test(p.name)) {
    p.travel_law = ['I have seen a guard beat a man with a rolled warrant. Official fucking business, apparently.'];
-   p.travel_criminal = ['I once got paid to frighten a debtor. The bastard who hired me owed him more than he owed us.'];
-   p.travel_response = ['Useful. The bastards could have told us sooner.','I have heard worse. Usually from the prick paying us.'];
+   p.travel_criminal = ['I once got paid to frighten a debtor. The bitch who hired me owed him more than he owed us.'];
+   p.travel_response = ['Useful. Those bitches could have told us sooner.','I have heard worse. Usually from the prick paying us.'];
  }
 }
 const named={

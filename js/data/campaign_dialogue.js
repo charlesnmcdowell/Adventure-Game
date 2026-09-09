@@ -159,7 +159,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
    ],
    "final": [
     {
-     "t": "[angry] Vane. I have been leaving bodies where you would have to see them."
+     "t": "[angry] Vane. I have been leaving bodies where you would have to see them. What the fuck did you expect."
     },
     {
      "t": "[flatly] You cannot buy me. You cannot scare me. The proof I wanted is already at the guard house, written down."
@@ -456,7 +456,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
      "t": "[shouts] Left side is open. Move."
     },
     {
-     "t": "[angry] He put Dain in the ground. I will put him in one."
+     "t": "[angry] He put Dain in the ground. I will put that bitch in one."
     },
     {
      "t": "[shouts] Get up. We are not done. {target}."
@@ -647,7 +647,7 @@ ADV.DATA.CAMPAIGN_DIALOGUE = {
    ],
    "final": [
     {
-     "t": "[angry] Magister. Say something. One word."
+     "t": "[angry] Magister. Say something. One word. What the hell is this."
     },
     {
      "t": "[angry] You signed me out of this school before I had sat down."

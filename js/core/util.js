@@ -42,46 +42,48 @@ ADV.util = {
     if (!p) return null;
     const lines = p[band];
     if (!lines || !lines.length) return null;
+    const rules = p.replyFamilies && p.replyFamilies[band];
     const usable = [];
+    const matched = [];
     for (let i = 0; i < lines.length; i++) {
-      const rules = p.replyFamilies && p.replyFamilies[band];
-      if (ctx.replyTo && (!rules || !rules[i] || !rules[i].includes(ctx.replyTo))) continue;
       const needs = ADV.util.lineNeeds(lines[i]);
       if (needs.includes('them') && !ctx.them) continue;
       if (needs.includes('partner') && !ctx.partner) continue;
       usable.push(i);
+      if (ctx.replyTo && rules && rules[i] && rules[i].includes(ctx.replyTo)) matched.push(i);
     }
     if (!usable.length) return null; // show no box rather than the wrong voice (§17a)
     speaker.lastVariantUsed = speaker.lastVariantUsed || {};
     const last = speaker.lastVariantUsed[band];
-    // Keep candidates in their authored intensity range before removing repeats.
-    let pool = usable;
-    if (ctx.score != null && usable.length >= 4 && !ctx.replyTo && !p.contextual) {
+    // Warmth and reply-family are preferences. The whole band stays available
+    // so a one-line family can never pin an NPC to the same clip.
+    let preferred = usable;
+    if (ctx.replyTo && matched.length) preferred = matched;
+    else if (ctx.score != null && usable.length >= 4 && !ctx.replyTo) {
       const intensity = band === 'hatred' ? Math.abs(ctx.score) : ctx.score;
       const pos = band === 'general' ? (intensity + 49) / 98 : (intensity - 50) / 50;
       const at = Math.max(0, Math.min(lines.length - 2, Math.floor(pos * (lines.length - 1))));
       const allowed = usable.filter(i => i >= at && i <= at + 1);
-      if (allowed.length) pool = allowed;
+      if (allowed.length) preferred = allowed;
     }
-    let rotation = null;
-    if (p.contextual && pool.length > 1) {
-      speaker.dialogueRotation = speaker.dialogueRotation || {};
-      const key = band + ':' + (ctx.replyTo || 'opening');
-      const signature = ADV.DATA.DIALOGUE_REVISION + ':' + pool.join(',');
-      rotation = speaker.dialogueRotation[key];
-      if (!rotation || rotation.signature !== signature || !Array.isArray(rotation.used)) {
-        rotation = speaker.dialogueRotation[key] = { signature, used: [] };
-      }
-      let remaining = pool.filter(i => !rotation.used.includes(i));
-      if (!remaining.length) { rotation.used = []; remaining = pool; }
-      pool = remaining;
+    speaker.dialogueRotation = speaker.dialogueRotation || {};
+    const signature = (ADV.DATA.DIALOGUE_REVISION || '') + ':' + usable.join(',');
+    let rotation = speaker.dialogueRotation[band];
+    if (!rotation || rotation.signature !== signature || !Array.isArray(rotation.used)) {
+      rotation = speaker.dialogueRotation[band] = { signature, used: [] };
     }
-    const fresh = pool.filter(i => i !== last);
-    if (fresh.length) pool = fresh;
+    const unused = list => list.filter(i => !rotation.used.includes(i) && i !== last);
+    let pool = unused(preferred);
+    if (!pool.length) pool = unused(usable);
+    if (!pool.length) {
+      rotation.used = [];
+      pool = usable.filter(i => i !== last);
+    }
+    if (!pool.length) pool = usable;
     const roll = Math.max(0, Math.min(0.999999, ctx.rand == null ? Math.random() : ctx.rand));
     const idx = pool[Math.floor(roll * pool.length)];
     speaker.lastVariantUsed[band] = idx;
-    if (rotation) rotation.used.push(idx);
+    rotation.used.push(idx);
     return { text: ADV.util.renderLine(lines[idx], ctx), band, idx };
   },
 };

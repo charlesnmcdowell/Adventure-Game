@@ -412,6 +412,67 @@ Campaign.lines = function (fid, who, key) {
   const dlg = D().CAMPAIGN_DIALOGUE[fid];
   return (dlg && dlg[who] && dlg[who][key]) ? dlg[who][key] : [];
 };
+Campaign.normalizeLine = function (line) {
+  if (line && typeof line.t === 'string') return line;
+  if (typeof line === 'string') return { t: line };
+  return null;
+};
+Campaign.lineKey = function (text) {
+  return String(text || '').replace(/\[[a-z ]+\]\s*/gi, '').replace(/\{[^}]+\}/g, ' ')
+    .replace(/[^a-z0-9]+/gi, ' ').trim().toLowerCase().replace(/\s+/g, ' ');
+};
+Campaign.lineIds = function (who, line) {
+  const text = line && line.t != null ? line.t : line;
+  const body = Campaign.lineKey(text);
+  if (!body) return [];
+  const ids = [who + ':' + body];
+  if (/hanged/.test(body)) ids.push(who + ':hanged-people');
+  return ids;
+};
+Campaign.heardSet = function (game) {
+  const meta = game.meta || (game.meta = {});
+  if (!Array.isArray(meta.heardCampaign)) meta.heardCampaign = [];
+  return meta.heardCampaign;
+};
+Campaign.lastSpoken = function (game, who) {
+  const meta = game.meta || (game.meta = {});
+  meta.lastCampaign = meta.lastCampaign || {};
+  return meta.lastCampaign[who] || '';
+};
+Campaign.wasSpoken = function (game, who, line) {
+  const heard = Campaign.heardSet(game);
+  return Campaign.lineIds(who, line).some(id => heard.indexOf(id) >= 0);
+};
+Campaign.markSpoken = function (game, who, line) {
+  const heard = Campaign.heardSet(game);
+  const ids = Campaign.lineIds(who, line);
+  for (let i = 0; i < ids.length; i++) if (heard.indexOf(ids[i]) < 0) heard.push(ids[i]);
+  const meta = game.meta || (game.meta = {});
+  meta.lastCampaign = meta.lastCampaign || {};
+  if (ids[0]) meta.lastCampaign[who] = ids[0];
+  if (heard.length > 500) heard.splice(0, heard.length - 400);
+};
+// Unused lines first, then anything but the last clip this speaker used.
+// `limit` keeps war openers to a couple of remarks instead of the whole pool.
+Campaign.pickSpoken = function (game, who, lines, opts) {
+  opts = opts || {};
+  const list = [];
+  for (let i = 0; i < (lines || []).length; i++) {
+    const n = Campaign.normalizeLine(lines[i]);
+    if (!n) continue;
+    if (n._i == null) n._i = i + 1;
+    list.push(n);
+  }
+  if (!list.length) return [];
+  const last = Campaign.lastSpoken(game, who);
+  const fresh = list.filter(l => !Campaign.wasSpoken(game, who, l));
+  let pool = fresh;
+  if (!pool.length) pool = list.filter(l => Campaign.lineIds(who, l)[0] !== last);
+  if (!pool.length) pool = list;
+  const limit = opts.limit;
+  if (limit && pool.length > limit) return pool.slice(0, limit);
+  return pool;
+};
 Campaign.pushBeat = function (game, who, key, extra) {
   Campaign.state(game).beats.push(Object.assign({ who, key }, extra || {}));
 };
@@ -443,10 +504,11 @@ Campaign.banter = function (game, st, roundN) {
   } else if (q.rival && s.rivalToggle && s.rivalAlive) { who = f.rival; key = 'banter'; }
   if (!who) return null;
   if (st && st.units && !st.units.some(u => u.ch && u.ch.campaignId === who && !u.downed && !u.fled)) return null;
-  const lines = Campaign.lines(f.id, who, key);
+  const lines = Campaign.pickSpoken(game, who, Campaign.lines(f.id, who, key), { limit: 1 });
   if (!lines.length) return null;
   const line = rng.pick(lines);
-  return { who, key, line, voOffset: lines.indexOf(line), fid: f.id };
+  const all = Campaign.lines(f.id, who, key);
+  return { who, key, line, voOffset: Math.max(0, all.indexOf(line)), fid: f.id };
 };
 
 // Called by Game.completeQuest for a campaign quest that succeeded.
