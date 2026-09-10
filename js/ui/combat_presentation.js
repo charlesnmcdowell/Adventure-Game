@@ -22,14 +22,35 @@ function profile(id, tier) {
 // Local ElevenLabs recordings with synthesized fallback while decoding.
 let context, master, unlocked = false;
 const buffers=new Map();let bankPromise;
+function hasToken(id, list) {
+  const bits = new Set((id || '').split('_'));
+  return list.some(x => bits.has(x));
+}
+function bankElement(p) {
+  if (p.element === 'prismatic') return 'arcane';
+  if (p.element) return p.element;
+  const id = p.id || '';
+  if (hasToken(id, ['ember', 'cinder', 'magma', 'pyre', 'flame']) || /^fire_|powder_keg|ashfall|ash_ward/.test(id)) return 'fire';
+  if (hasToken(id, ['ice', 'frost', 'rime', 'winter']) || id === 'glass_web') return 'ice';
+  if (hasToken(id, ['spark', 'lightning', 'storm', 'shock']) || id === 'antler_arc') return 'lightning';
+  if (hasToken(id, ['poison', 'venom', 'acid', 'wither', 'plague']) || id === 'rot_wing') return 'acid';
+  if (hasToken(id, ['shadow', 'umbral']) || /night_screech|whisper_of_ending/.test(id)) return 'shadow';
+  if (hasToken(id, ['holy', 'edict', 'smite']) || /true_rest|gods_/.test(id)) return 'holy';
+  if (hasToken(id, ['root', 'thorn', 'vine', 'leaf', 'spore', 'grove', 'growth', 'briar', 'moss']) || /entang|quartermasters/.test(id)) return 'nature';
+  return null;
+}
 function sampleKey(p,phase){
   if(phase==='block'||phase==='miss')return phase;
   if(phase==='use' && /raise|revive/.test(p.id))return 'revive_use';
-  if(phase==='use' && /stealth|smoke|vanish/.test(p.id))return 'stealth_use';
+  if(phase==='use' && /stealth|smoke|vanish|ghoststep|cloak_of_shadows/.test(p.id))return 'stealth_use';
+  const el=bankElement(p);
+  const keepWeapon=/fang|bite|snap/.test(p.id||'') && !p.element;
+  if(el && !keepWeapon && !['heal','transform','guard'].includes(p.family)) {
+    return el+(phase==='hit'?'_hit':'_use');
+  }
   let f=p.family;
-  if(phase==='hit' && p.melee && colors[p.element])return (p.element==='prismatic'?'arcane':p.element)+'_hit';
   if(f==='flurry')f='slash';
-  if(f==='magic')f=/root|thorn|vine|leaf|spore|entang|grove/.test(p.id)?'nature':p.element==='prismatic'?'arcane':p.element||'arcane';
+  if(f==='magic')f=el||'arcane';
   if(['heal','guard','support','transform'].includes(f))return f+'_use';
   return f+'_'+phase;
 }
