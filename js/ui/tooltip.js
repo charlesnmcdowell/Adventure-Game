@@ -9,51 +9,100 @@ const T = () => ADV.T;
 const C = () => ADV.DATA.CONST;
 
 // ---------------------------------------------------------------- Tooltip
+// Sit beside the hovered control after a long pause, then vanish the instant
+// the pointer leaves that control. Never follow the cursor — a cursor-locked
+// card covers the skill and steals the hover that is keeping it open.
 const Tooltip = {
   current: null,
+  SHOW_DELAY_MS: 4000,
+  _timer: null,
+  _host: null,
+  _hoverGen: 0,
 
-  show(scene, textLines, px, py) {
+  hostRect(obj, px, py) {
+    if (obj && ADV.UI && ADV.UI.worldRect) {
+      const r = ADV.UI.worldRect(obj);
+      if (r && r.w > 0 && r.h > 0) return r;
+    }
+    if (obj && typeof obj.getBounds === 'function') {
+      const b = obj.getBounds();
+      if (b && b.width > 0 && b.height > 0) return { x: b.x, y: b.y, w: b.width, h: b.height };
+    }
+    return { x: (px || 0) - 8, y: (py || 0) - 8, w: 16, h: 16 };
+  },
+
+  // Keep the card off the host's hit box so the pointer can stay on the skill.
+  placeBeside(host, w, h, screenW, screenH) {
+    const M = 8, GAP = 12;
+    const W = screenW, H = screenH;
+    const hx = host.x, hy = host.y, hw = host.w, hh = host.h;
+    let y = hy;
+    if (y + h > H - M) y = H - M - h;
+    if (y < M) y = M;
+    const rightX = hx + hw + GAP;
+    const leftX = hx - w - GAP;
+    if (rightX + w <= W - M) return { x: rightX, y };
+    if (leftX >= M) return { x: leftX, y };
+    const belowY = hy + hh + GAP;
+    if (belowY + h <= H - M) return { x: Math.max(M, Math.min(hx, W - M - w)), y: belowY };
+    const aboveY = hy - h - GAP;
+    if (aboveY >= M) return { x: Math.max(M, Math.min(hx, W - M - w)), y: aboveY };
+    return { x: rightX + w <= W - M ? rightX : Math.max(M, leftX), y };
+  },
+
+  overlapsHost(box, host) {
+    return !(box.x + box.w <= host.x || box.x >= host.x + host.w || box.y + box.h <= host.y || box.y >= host.y + host.h);
+  },
+
+  cancelHover() {
+    if (Tooltip._timer != null) {
+      clearTimeout(Tooltip._timer);
+      Tooltip._timer = null;
+    }
+    if (Tooltip._tapTimer) {
+      clearTimeout(Tooltip._tapTimer);
+      Tooltip._tapTimer = null;
+    }
+  },
+
+  leave(obj) {
+    if (obj && Tooltip._host && Tooltip._host !== obj) return;
+    Tooltip.cancelHover();
+    Tooltip._host = null;
+    Tooltip.hide();
+  },
+
+  show(scene, textLines, host, px, py) {
     Tooltip.hide();
     if (ADV.UI && ADV.UI.holdCard && !ADV.UI.holdCard('tooltip', Tooltip.hide)) return;
+    if (typeof host === 'number') { py = px; px = host; host = null; }
     const body = Array.isArray(textLines) ? textLines.join('\n') : textLines;
     const txt = scene.add.text(0, 0, body, {
       fontFamily: T().font.mono, fontSize: '12px', color: T().css.ink,
       lineSpacing: 3, wordWrap: { width: 430 },
     }).setDepth(1502);
     const w = txt.width + 24, h = txt.height + 20;
-    let x = px + 18, y = py + 12;
-    if (x + w > T().W - 8) x = px - w - 12;
-    if (y + h > T().H - 8) y = T().H - 8 - h;
-    if (x < 8) x = 8;
-    if (y < 8) y = 8;
+    const hostBox = Tooltip.hostRect(host || Tooltip._host, px, py);
+    const pos = Tooltip.placeBeside(hostBox, w, h, T().W, T().H);
+    const x = pos.x, y = pos.y;
     const bg = scene.add.graphics().setDepth(1501);
+    if (bg.disableInteractive) bg.disableInteractive();
+    if (txt.disableInteractive) txt.disableInteractive();
     bg.fillStyle(0x0f0d0a, 0.97);
     bg.fillRoundedRect(x, y, w, h, 5);
     bg.lineStyle(1.5, T().c.gold, 0.8);
     bg.strokeRoundedRect(x, y, w, h, 5);
     txt.setPosition(x + 12, y + 10);
-    Tooltip.current = { bg, txt, scene };
+    Tooltip.current = { bg, txt, scene, host: hostBox };
     scene.events.once('shutdown', Tooltip.hide);
   },
 
-  move(scene, px, py) {
-    if (!Tooltip.current || Tooltip.current.scene !== scene) return;
-    const { bg, txt } = Tooltip.current;
-    const w = txt.width + 24, h = txt.height + 20;
-    let x = px + 18, y = py + 12;
-    if (x + w > T().W - 8) x = px - w - 12;
-    if (y + h > T().H - 8) y = T().H - 8 - h;
-    if (x < 8) x = 8;
-    if (y < 8) y = 8;
-    bg.clear();
-    bg.fillStyle(0x0f0d0a, 0.97);
-    bg.fillRoundedRect(x, y, w, h, 5);
-    bg.lineStyle(1.5, T().c.gold, 0.8);
-    bg.strokeRoundedRect(x, y, w, h, 5);
-    txt.setPosition(x + 12, y + 10);
+  move() {
+    // Kept as a no-op so older call sites do not drag the card onto the cursor.
   },
 
   hide() {
+    Tooltip.cancelHover();
     if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('tooltip');
     if (!Tooltip.current) return;
     try { Tooltip.current.bg.destroy(); Tooltip.current.txt.destroy(); } catch (e) {}
@@ -62,21 +111,30 @@ const Tooltip = {
 
   // Wire hover on any interactive zone/object. textFn is lazy (built on hover).
   attach(scene, obj, textFn) {
-    obj.on('pointerover', (p) => { const t = textFn(); if (t) Tooltip.show(scene, t, p.x, p.y); });
-  // Phones have no hover (mobile pass): a tap shows the inspector for a few
-  // seconds alongside whatever the tap does, and any later tap hides it.
-  if (ADV.UI && ADV.UI.isTouch && ADV.UI.isTouch()) {
-    obj.on('pointerup', (p) => {
-      const t = textFn(); if (!t) return;
-      Tooltip.show(scene, t, p.x, p.y);
-      if (Tooltip._tapTimer) clearTimeout(Tooltip._tapTimer);
-      Tooltip._tapTimer = setTimeout(() => Tooltip.hide(), 3500);
+    obj.on('pointerover', (p) => {
+      Tooltip.cancelHover();
+      Tooltip._host = obj;
+      const gen = ++Tooltip._hoverGen;
+      Tooltip._timer = setTimeout(() => {
+        if (Tooltip._hoverGen !== gen || Tooltip._host !== obj) return;
+        Tooltip._timer = null;
+        const t = textFn();
+        if (t) Tooltip.show(scene, t, obj, p && p.x, p && p.y);
+      }, Tooltip.SHOW_DELAY_MS);
     });
-    return;
-  }
-    obj.on('pointermove', (p) => Tooltip.move(scene, p.x, p.y));
-    obj.on('pointerout', () => Tooltip.hide());
-    obj.on('pointerdown', () => Tooltip.hide());
+    obj.on('pointerout', () => Tooltip.leave(obj));
+    obj.on('pointerdown', () => Tooltip.leave(obj));
+    // Phones have no hover (mobile pass): a tap shows the inspector for a few
+    // seconds alongside whatever the tap does.
+    if (ADV.UI && ADV.UI.isTouch && ADV.UI.isTouch()) {
+      obj.on('pointerup', (p) => {
+        const t = textFn(); if (!t) return;
+        Tooltip._host = obj;
+        Tooltip.show(scene, t, obj, p.x, p.y);
+        if (Tooltip._tapTimer) clearTimeout(Tooltip._tapTimer);
+        Tooltip._tapTimer = setTimeout(() => Tooltip.leave(obj), Tooltip.SHOW_DELAY_MS);
+      });
+    }
   },
 };
 
