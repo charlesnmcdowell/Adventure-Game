@@ -59,13 +59,14 @@ ADV.util = {
     // be able to use the rest of the band — that is why they have many replies.
     if (ctx.replyTo && !matched.length) return null;
     const family = ctx.replyTo ? matched : usable;
-    let preferred = family;
-    if (ctx.score != null && usable.length >= 4 && !ctx.replyTo) {
+    // Walk every eligible line in order (round-robin). Relationship score only
+    // chooses where the cycle starts, never shrinks the pool to two greetings.
+    let preferred = family.slice();
+    if (ctx.score != null && usable.length >= 2 && !ctx.replyTo) {
       const intensity = band === 'hatred' ? Math.abs(ctx.score) : ctx.score;
       const pos = band === 'general' ? (intensity + 49) / 98 : (intensity - 50) / 50;
-      const at = Math.max(0, Math.min(lines.length - 2, Math.floor(pos * (lines.length - 1))));
-      const allowed = usable.filter(i => i >= at && i <= at + 1);
-      if (allowed.length) preferred = allowed;
+      const start = Math.max(0, Math.min(usable.length - 1, Math.floor(pos * usable.length)));
+      preferred = usable.slice(start).concat(usable.slice(0, start));
     }
     speaker.dialogueRotation = speaker.dialogueRotation || {};
     const signature = (ADV.DATA.DIALOGUE_REVISION || '') + ':' + usable.join(',');
@@ -73,17 +74,22 @@ ADV.util = {
     if (!rotation || rotation.signature !== signature || !Array.isArray(rotation.used)) {
       rotation = speaker.dialogueRotation[band] = { signature, used: [] };
     }
-    const unused = list => list.filter(i => !rotation.used.includes(i) && i !== last);
-    let pool = unused(preferred);
-    if (!pool.length) pool = unused(family);
-    if (!pool.length) pool = unused(usable);
-    if (!pool.length) {
+    const take = list => {
+      const avail = list.filter(i => !rotation.used.includes(i) && i !== last);
+      if (avail.length) return avail[0];
+      const rest = list.filter(i => !rotation.used.includes(i));
+      return rest.length ? rest[0] : null;
+    };
+    let idx = take(preferred);
+    if (idx == null) idx = take(family);
+    if (idx == null) idx = take(usable);
+    if (idx == null) {
       rotation.used = [];
-      pool = usable.filter(i => i !== last);
+      idx = take(preferred);
+      if (idx == null) idx = take(family);
+      if (idx == null) idx = take(usable);
     }
-    if (!pool.length) pool = usable;
-    const roll = Math.max(0, Math.min(0.999999, ctx.rand == null ? Math.random() : ctx.rand));
-    const idx = pool[Math.floor(roll * pool.length)];
+    if (idx == null) idx = usable[0];
     speaker.lastVariantUsed[band] = idx;
     rotation.used.push(idx);
     return { text: ADV.util.renderLine(lines[idx], ctx), band, idx };

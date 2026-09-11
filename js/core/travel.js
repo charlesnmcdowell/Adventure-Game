@@ -90,11 +90,16 @@ Travel.dialogue = function(game,q,leg,plan) {
  let band=leg==='return'?'travel_'+((game.quest||(game.travelResolution&&game.travelResolution.q)||{}).failed?'return_loss':'return_win'):
   leg==='midleg'?'travel_midleg':plan.visits===0?'travel_'+q.travelLocation:'travel_'+(q.factionAlignment||'neutral');
  const make=(c,band,idx,to)=>({speaker:c,band,idx,text:ADV.DATA.DIALOGUE[c.personalityId][band][idx],to});
- const lines=[make(a,band,0,b||p)];
+ const say=(c,band,to)=>{
+  const r=ADV.util.speakEx(game.world,c,band,{target:to&&to.name,self:c.name});
+  if(r) return {speaker:c,band:r.band,idx:r.idx,text:r.text,to};
+  return make(c,band,0,to);
+ };
+ const lines=[say(a,band,b||p)];
  if(b) {
   const score=ADV.Rel.score(game.world,b.id,a.id);
   const response=ADV.Rel.tier(score)==='hatred'?'travel_hatred':ADV.Rel.isPartner(a,b)?'travel_romantic':'travel_response';
-  lines.push(make(b,response,response==='travel_response'?seed%2:0,a));
+  lines.push(say(b,response,a));
  }
  return lines;
 };
