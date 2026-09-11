@@ -5,7 +5,7 @@
 globalThis.ADV = globalThis.ADV || {};
 
 const KEY = 'adv:prefs';
-const DEFAULTS = { textScale: 1, pauseEnemy: false, artMotion: true, secondaryMotion: true };
+const DEFAULTS = { textScale: 1, pauseEnemy: false, artMotion: true, secondaryMotion: true, titleMotion: true };
 
 let cache = null;
 function read() {

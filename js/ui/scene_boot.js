@@ -23,8 +23,11 @@ class TitleScene extends Phaser.Scene {
       return;
     }
     const W = T().W, H = T().H;
-    if(ADV.AnimeEnvironments)ADV.AnimeEnvironments.view(this,'road','evening',{depth:-10});
-    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg, ADV.AnimeEnvironments ? .78 : 1);
+    if(ADV.TitleBackdrop)ADV.TitleBackdrop.create(this);
+    else this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
+    if(ADV.TitleBackdrop){const motion=T().button(this,54,54,175,34,ADV.Prefs.get().titleMotion===false?'Scenery motion: off':'Scenery motion: on',()=>{
+      const on=ADV.Prefs.get().titleMotion===false;ADV.Prefs.set({titleMotion:on});motion.txt.setText('Scenery motion: '+(on?'on':'off'));
+    },{size:12});}
     ADV.Music.play('title');
     ADV.Music.button(this, W - 44, 44);
     if (ADV.Display) ADV.Display.button(this, W - 44, 72);

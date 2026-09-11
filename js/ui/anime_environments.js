@@ -75,8 +75,8 @@ function view(scene,raw,phase,opts){
  const moving=()=>A.AnimeArt.motion.breathing&&!(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
  const tick=(time)=>{
   if(!alive||!bg)return;const t=moving()?time:0;
-  // Gentle camera travel, with localized water/cloth moving at different rates.
-  const drift=opts.travel&&moving()?Math.sin(t/15000)*7:0;art.x=drift;
+  // Static framing for battles and homes; journeys use TravelPanorama.
+  const drift=0;art.x=drift;
   water.forEach((s,i)=>{s.x=W/2+Math.sin(t/850+i*.9)*(1+i*.12);});
   cloth.forEach((s,i)=>{s.x=W/2+Math.sin(t/620+i*.4)*(i+1)*.24;});
   effects.clear();
@@ -100,7 +100,21 @@ A.HousingArt.paint=function(scene,id){
  if(scene.game.__artPreview)return oldHome(scene,id);
  for(const name of ['homeArt','homeLife','homePost','weatherFx','homeMaskShape']){scene[name]?.destroy();scene[name]=null;}
  const phase=A.Housing.timeOfDay(scene.game_?.world?.questClock||0),root=view(scene,id||'camp',phase,{depth:-10});scene.homeArt=root;scene.homePlanes=root.planes;
- if(A.WeatherFX&&!INDOOR.has(id))A.WeatherFX.attach(scene,A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase}),phase,{x:0,y:0,w:W,h:H},{depth:-5,town:true});return root;
+ if(A.WeatherFX){
+  const opts={depth:-5,town:true,celestial:true};
+  if(id==='inn'){
+   // Glass panes in the approved illustrated bedroom, transformed with its cover fit.
+   const s=Math.max((W+24)/1024,(H+18)/760),ox=W/2-512*s,oy=H/2-380*s;
+   const shape=scene.make.graphics({add:false});shape.fillStyle(0xffffff);
+   for(const [x1,x2,rows]of [[47,102,[[76,126],[139,187],[201,248],[260,315]]],[126,180,[[104,145],[156,200],[212,253],[266,306]]]]){
+    for(const [top,bottom]of rows)shape.fillRect(ox+x1*s,oy+top*s,(x2-x1)*s,(bottom-top)*s);
+   }
+   const mask=shape.createGeometryMask();scene.homeMaskShape=shape;opts.mask=mask;opts.tintScale=0;opts.sunX=80;opts.sunY=55;
+   root.once('destroy',()=>{mask.destroy();shape.destroy();if(scene.homeMaskShape===shape)scene.homeMaskShape=null;});
+  }
+  if(id==='inn'||!INDOOR.has(id))A.WeatherFX.attach(scene,A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase}),phase,{x:0,y:0,w:W,h:H},opts);
+ }
+ return root;
 };
 A.AnimeEnvironments={view,resolve,DETAILS,ALIASES,INDOOR,pool,acquire};
 })();

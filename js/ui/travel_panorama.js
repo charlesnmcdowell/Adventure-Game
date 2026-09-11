@@ -1,0 +1,96 @@
+// Travel-only panoramas. Battle compositions keep their original camera and art.
+(function(){
+'use strict';
+const A=ADV,W=1280,H=760,ROOT='assets/anime/travel/v1/runtime/';
+const INDOOR=new Set(['crypt','ossuary','birthing_house']);
+const pool=new Map();
+function acquire(scene,id){
+ if(id!=='sea'&&!A.DATA.TRAVEL_LOCATIONS[id])throw Error('Unknown travel panorama: '+id);
+ let e=pool.get(id);
+ if(e?.failed){pool.delete(id);e=null;}
+ if(!e){
+  e={id,key:'travel_pano_'+id,refs:0,used:performance.now()};pool.set(id,e);
+  e.ready=new Promise(resolve=>{
+   const img=new Image();img.decoding='async';
+   img.onload=()=>{if(!scene.textures.exists(e.key))scene.textures.addImage(e.key,img);e.loaded=true;resolve(true);};
+   img.onerror=()=>{e.failed=true;resolve(false);};img.src=ROOT+id+'.webp';
+  });
+ }
+ e.refs++;e.used=performance.now();let released=false;
+ return{entry:e,ready:e.ready,release(){
+  if(released)return;released=true;e.refs--;e.used=performance.now();
+  const free=[...pool.values()].filter(v=>v.loaded&&!v.refs).sort((a,b)=>a.used-b.used);
+  while(free.length>2){const old=free.shift();scene.textures.remove(old.key);pool.delete(old.id);}
+ }};
+}
+function motion(){return !(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);}
+function view(scene,id,phase,opts={}){
+ const lease=acquire(scene,id),root=scene.add.container(0,0),fx=scene.add.graphics();
+ let tile=null,alive=true,elapsed=0,distance=opts.resume?310:0;
+ root.add(scene.add.rectangle(W/2,H/2,W,H,0x18283c));
+ root.add(fx);root.locationId=id;root.distance=distance;
+ const terrain=id==='sea'?'coast':A.DATA.TRAVEL_LOCATIONS[id].terrain;
+ const leafy=['forest','mountain'].includes(terrain),water=['coast','port'].includes(terrain)||id==='marsh'||id==='maw';
+ const haunted=INDOOR.has(id),city=terrain==='city',fire=id==='pyre';
+ lease.ready.then(ok=>{
+  if(!alive||!ok)return;
+  const frame=scene.textures.get(lease.entry.key).get(),scale=H/frame.realHeight;
+  tile=scene.add.tileSprite(0,0,W,H,lease.entry.key).setOrigin(0).setTileScale(scale,scale);
+  tile.tilePositionX=distance/scale;root.addAt(tile,1);root.tile=tile;root.tileScale=scale;
+  if(phase==='night')tile.setTint(0x7189ba);else if(phase==='evening')tile.setTint(0xffc795);
+  const key='travel_grade_'+phase;
+  if(!scene.textures.exists(key)){
+   const t=scene.textures.createCanvas(key,4,H),c=t.getContext(),g=c.createLinearGradient(0,0,0,H);
+   g.addColorStop(0,phase==='night'?'rgba(5,13,40,.6)':phase==='evening'?'rgba(164,63,73,.25)':'rgba(10,25,40,.08)');
+   g.addColorStop(.45,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(6,15,23,.28)');c.fillStyle=g;c.fillRect(0,0,4,H);t.refresh();
+  }
+  root.addAt(scene.add.image(W/2,H/2,key).setDisplaySize(W,H),2);
+ });
+ root.advance=(dt,velocity)=>{
+  if(!alive||!tile||document.hidden)return;
+  dt=Math.min(50,dt);const moving=motion();if(moving){elapsed+=dt;distance+=velocity*dt/1000*1.6;}
+  root.distance=distance;tile.tilePositionX=distance/root.tileScale;
+  const t=elapsed,span=tile.frame.realWidth*root.tileScale;
+  const at=(fraction,speed=1)=>((fraction*span-distance*speed)%(span)+span)%span;
+  fx.clear();
+  // Screen-space atmosphere passes faster than the painted midground.
+  if(leafy||fire||haunted){for(let i=0;i<24;i++){
+   const x=((i*127-distance*1.9)%(W+100)+W+100)%(W+100)-50;
+   const y=fire?650-(i*53+t*.038)%430:haunted?210+(i*41+t*.009)%340:180+(i*71+t*.019)%510;
+   fx.fillStyle(fire?0xffb76a:haunted?0xa4d2de:['green','green_boss','bell'].includes(id)?0xc7d99a:0xc9cb8b,fire?.6:.32);
+   fx.fillEllipse(x,y,haunted?2:5+Math.sin(t/220+i)*2,fire?3:2);
+  }}
+  if(!haunted&&phase!=='night'){
+   fx.lineStyle(1.7,0x273e50,.68);
+   for(let i=0;i<5;i++){const x=((i*34+t*.042)%(W+250))-125,y=130+i%3*12,flap=Math.sin(t/145+i)*4;
+    fx.lineBetween(x-7,y+flap,x,y);fx.lineBetween(x,y,x+7,y+flap);}
+  }
+  if(water){for(let i=0;i<28;i++){
+   const x=at(i/28,.9),y=H*(id==='sea'?.42:.61)+(i%5)*9;
+   fx.lineStyle(1,phase==='night'?0xa6bbdc:0xf5edd1,.08+Math.max(0,Math.sin(t/600+i))*.15);
+   fx.lineBetween(x,y,x+14+i%4*9,y);
+  }}
+  if(city){for(let i=0;i<3;i++){
+   const x=at(.2+i*.28)-t*.008*(i%2?1:-1),y=606,step=Math.sin(t/150+i);
+   fx.fillStyle([0x34404a,0x604e43,0x354e4c][i],.78);fx.fillCircle(x,y-29,4);
+   fx.fillTriangle(x-6,y-23,x+6,y-23,x+8,y-7);fx.lineStyle(2.5,0x29323c,.8);
+   fx.lineBetween(x-2,y-8,x-3+step*4,y+4);fx.lineBetween(x+3,y-8,x+4-step*4,y+4);
+  }}
+  if(haunted||fire||id==='alley'||id==='maw_boss'){
+   for(let i=0;i<6;i++){const x=at(.1+i*.16),y=haunted?H*.48:H*.65,k=.75+Math.sin(t/170+i)*.15;
+    for(let r=3;r>0;r--){fx.fillStyle(haunted?0x99d9ef:0xffc174,.015*k);fx.fillCircle(x,y,r*12);}}
+  }
+  if(id==='marsh'||haunted||id==='mountain'){for(let i=0;i<6;i++){
+   fx.fillStyle(0xb7ced3,.035);fx.fillEllipse(at(i/6,.45),510+Math.sin(t/2700+i)*14,370,25);
+  }}
+  // Footfall dust stays on the road, while its wake drifts behind the party.
+  if(moving&&!haunted&&!water){for(let i=0;i<9;i++){
+   const age=(t+i*123)%1100;fx.fillStyle(0xdccca7,.13*(1-age/1100));fx.fillEllipse(520+i%4*65-age*.05,651-age*.013,9+age*.015,3+age*.004);
+  }}
+ };
+ const stop=()=>root.destroy(true);scene.events.once('shutdown',stop);
+ root.once('destroy',()=>{alive=false;scene.events.off('shutdown',stop);lease.release();});
+ root.ready=lease.ready;return root;
+}
+A.TravelPanorama={acquire,view,INDOOR,pool,motion};
+})();

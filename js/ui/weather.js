@@ -196,7 +196,8 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   const depth = opts.depth == null ? -5 : opts.depth;
   const cont = scene.add.container(0, 0).setDepth(depth);
   const handle = { container: cont, weather, intensity: weather.intensity, _objs: [], _timers: [] };
-  const keep = (o) => { if (o) { handle._objs.push(o); if (o !== cont && o.setDepth == null) cont.add(o); } return o; };
+  const keep = (o) => { if (o) { handle._objs.push(o); if (o !== cont) cont.add(o); if(opts.mask&&o.setMask)o.setMask(opts.mask); } return o; };
+  const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const night = phase === 'night' ? 0.5 : 1;
   const tintDef = TINT[weather.kind] || TINT.clear;
@@ -207,24 +208,36 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   ).setDepth(depth));
   handle.tint = tint;
 
+  if(opts.celestial && ['clear','sunny'].includes(weather.kind)){
+    const sky=keep(scene.add.graphics()),sx=opts.sunX??1080,sy=opts.sunY??(phase==='evening'?160:82);
+    const moon=phase==='night',color=moon?0xdce8fa:phase==='evening'?0xffb36e:0xfff0bd;
+    if(moon){
+      for(let i=0;i<48;i++){const x=bounds.x+(i*193%bounds.w),y=bounds.y+12+(i*47%180);sky.fillStyle(0xe0ebff,.25+i%4*.12);sky.fillCircle(x,y,i%5===0?1.5:.8);}
+    }
+    for(let i=5;i>0;i--){sky.fillStyle(color,moon?.025:.023);sky.fillCircle(sx,sy,20+i*12);}
+    sky.fillStyle(color,moon?.88:.6);sky.fillCircle(sx,sy,moon?25:30);
+    if(moon){sky.fillStyle(0x95acc9,.27);for(const [x,y,r]of [[-9,-7,6],[7,9,8],[10,-11,4],[-8,13,3]])sky.fillCircle(sx+x,sy+y,r);}
+    handle.celestial=sky;
+  }
+
   if (weather.kind === 'sunny' && phase === 'day') {
     const sx = opts.sunX == null ? 1080 : opts.sunX;
     const sy = opts.sunY == null ? 70 : opts.sunY;
-    const rays = scene.add.graphics().setDepth(depth);
+    const rays = scene.add.graphics().setPosition(sx,sy).setDepth(depth);
     rays.setBlendMode && rays.setBlendMode(Phaser.BlendModes.ADD);
     const n = 5;
     for (let i = 0; i < n; i++) {
-      const a = -0.55 + i * 0.22;
+      const a = 1.9 + i * 0.22;
       rays.fillStyle(0xfff4c8, 0.07 + i * 0.006);
       rays.beginPath();
-      rays.moveTo(sx, sy);
-      rays.lineTo(sx + Math.cos(a - 0.04) * 900, sy + Math.sin(a - 0.04) * 900);
-      rays.lineTo(sx + Math.cos(a + 0.04) * 900, sy + Math.sin(a + 0.04) * 900);
+      rays.moveTo(0, 0);
+      rays.lineTo(Math.cos(a - 0.04) * 1200, Math.sin(a - 0.04) * 1200);
+      rays.lineTo(Math.cos(a + 0.04) * 1200, Math.sin(a + 0.04) * 1200);
       rays.closePath(); rays.fillPath();
     }
     keep(rays);
-    scene.tweens.add({ targets: rays, angle: 1.2, duration: 8000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    if (opts.town && ADV.VFX && ADV.VFX.motes) ADV.VFX.motes(scene, sx - 40, sy + 80, 0xf4eee0, 4);
+    handle.rays=rays;
+    if(!reduced())scene.tweens.add({ targets: rays, alpha: .6, duration: 8000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
 
   if (weather.kind === 'overcast' || weather.kind === 'rain' || weather.kind === 'storm') {
@@ -265,11 +278,11 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
       handle.precip = mgr;
       if (opts.mask) { try { mgr.setMask(opts.mask); } catch (e) {} }
     }
-    if (opts.town && ADV.VFX && ADV.VFX.ring) {
+    if (opts.town && !opts.mask && ADV.VFX && ADV.VFX.ring) {
       const splash = scene.time.addEvent({
         delay: 220, loop: true,
         callback: () => {
-          if (Math.random() > 1 / 12) return;
+          if (!cont.visible || Math.random() > 1 / 12) return;
           const x = bounds.x + 20 + Math.random() * (bounds.w - 40);
           ADV.VFX.ring(scene, x, bounds.y + bounds.h - 40, 0x9ab0c0, { r: 3, scale: 1.4, dur: 120 });
         },
@@ -309,31 +322,35 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   }
 
   if (weather.kind === 'storm') {
+    const flash=keep(scene.add.rectangle(bounds.x+bounds.w/2,bounds.y+bounds.h/2,bounds.w,bounds.h,0xd5e7ff,0));
+    const bolt=keep(scene.add.graphics());
     const strike = () => {
-      if (!scene.sys || !scene.sys.isActive()) return;
+      if (handle.destroyed || !cont.visible || document.hidden || reduced() || !scene.sys || !scene.sys.isActive()) return;
       if (opts.combat && scene.__fxBusy) return;
       const x = bounds.x + 80 + Math.random() * (bounds.w - 160);
-      if (ADV.VFX && ADV.VFX.lightningStreak) {
+      if (opts.combat && ADV.VFX && ADV.VFX.lightningStreak) {
         ADV.VFX.lightningStreak(scene, x, bounds.y, x + (Math.random() * 80 - 40), bounds.y + bounds.h * 0.55, { scale: 1.1, impact: false });
+      }else{
+        bolt.clear().setAlpha(.7);bolt.lineStyle(2,0xd5e7ff,.8);let px=x,py=bounds.y;
+        for(let i=1;i<8;i++){const nx=x+(i%2?22:-12)+Math.random()*15,ny=bounds.y+i*bounds.h*.045;bolt.lineBetween(px,py,nx,ny);px=nx;py=ny;}
+        scene.tweens.add({targets:bolt,alpha:0,duration:230});
       }
       if (tint) {
         scene.tweens.add({ targets: tint, alpha: Math.min(0.35, tintA + 0.04), duration: 70, yoyo: true });
       }
-      if (!(opts.combat && scene.__fxBusy) && ADV.VFX && ADV.VFX.flashOverlay) {
-        ADV.VFX.flashOverlay(scene, 0xffffff, 0.25);
-      }
-      scene.time.delayedCall(180, () => { if (ADV.VFX && ADV.VFX.camShake) ADV.VFX.camShake(scene, 0.002); });
+      flash.setAlpha(.14);scene.tweens.add({targets:flash,alpha:0,duration:220});
       if (opts.onLightning) try { opts.onLightning(); } catch (e) {}
       handle._lastFlash = Date.now();
     };
-    const arm = () => {
-      const wait = 6000 + Math.random() * 8000;
+    const arm = (first=false) => {
+      if(handle.destroyed)return;
+      const wait = first ? 2300 + Math.random()*1700 : 6000 + Math.random() * 8000;
       handle._timers.push(scene.time.delayedCall(wait, () => { strike(); arm(); }));
     };
-    arm();
+    arm(true);
     if (handle.clouds) {
       const gust = () => {
-        if (!handle.clouds) return;
+        if (handle.destroyed || !handle.clouds) return;
         scene.tweens.add({
           targets: handle.clouds, alpha: { from: handle.clouds[0].alpha, to: handle.clouds[0].alpha * 0.85 },
           duration: 600, yoyo: true,
@@ -359,14 +376,16 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     if (tint) tint.setAlpha(Math.min(0.35, tintDef.a * night * v));
   };
   handle.destroy = function () {
+    if(handle.destroyed)return;handle.destroyed=true;
+    scene.events.off('shutdown',handle.destroy);
     handle._timers.forEach(t => { try { t.remove(false); } catch (e) {} });
     handle._timers = [];
-    handle._objs.forEach(o => { try { if (o && o.destroy) o.destroy(); } catch (e) {} });
+    handle._objs.forEach(o => { try { scene.tweens.killTweensOf(o);if (o && o.destroy) o.destroy(); } catch (e) {} });
     try { cont.destroy(true); } catch (e) {}
     if (scene.weatherFx === handle) scene.weatherFx = null;
   };
   if (handle._cloudTick) {
-    handle._upd = (t, dt) => { if (handle._cloudTick) handle._cloudTick(dt); };
+    handle._upd = (t, dt) => { if (cont.visible && !document.hidden && !reduced() && handle._cloudTick) handle._cloudTick(Math.min(dt,50)); };
     scene.events.on('update', handle._upd);
     const prev = handle.destroy;
     handle.destroy = function () {
@@ -375,7 +394,7 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     };
   }
   scene.weatherFx = handle;
-  scene.events.once('shutdown', () => { try { handle.destroy(); } catch (e) {} });
+  scene.events.once('shutdown', handle.destroy);
   return handle;
 };
 

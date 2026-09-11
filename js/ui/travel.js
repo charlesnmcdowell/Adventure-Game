@@ -92,8 +92,9 @@ ADV.TravelUI={
   options=options||{};
   const plan=options.__readyPlan||ADV.Travel.plan(game,q,leg);if(plan.bypass){if(done)done();return;}
   // First-view time starts when the illustration is ready, even on a cold cache.
-  if(ADV.AnimeEnvironments&&!game.__artPreview&&!options.__readyPlan){
-   const lease=ADV.AnimeEnvironments.acquire(scene,plan.location.id),oldCut=scene.__cutscene;
+  const panoramaId=plan.location.terrain==='port'&&leg==='midleg'?'sea':plan.location.id;
+  if(ADV.TravelPanorama&&!scene.game.__artPreview&&!options.__readyPlan){
+   const lease=ADV.TravelPanorama.acquire(scene,panoramaId),oldCut=scene.__cutscene;
    scene.__cutscene=true;if(scene.hideChrome)scene.hideChrome();
    const shade=scene.add.rectangle(640,380,1280,760,0x142032).setDepth(990).setInteractive();
    const label=ADV.T.text(scene,640,360,'Preparing the journey…',{size:23,ox:.5,color:ADV.T.css.gold}).setDepth(991);
@@ -118,8 +119,10 @@ ADV.TravelUI={
   const qs=game.quest||(game.travelResolution&&game.travelResolution.q);
   const phase=(qs&&qs.travel&&qs.travel.phase)||ADV.BattleArt.phaseFor(game);
   const layers=[];
-  const illustrated=ADV.AnimeEnvironments&&!scene.game.__artPreview;
-  if(illustrated)root.add(ADV.AnimeEnvironments.view(scene,r.id,phase,{travel:true,depth:0}));
+  const illustrated=ADV.TravelPanorama&&!scene.game.__artPreview;
+  const panorama=illustrated?ADV.TravelPanorama.view(scene,panoramaId,phase,{resume:options.resume}):null;
+  if(panorama)root.add(panorama);
+  scene.travelPanorama=panorama;
   for(let n=0;!illustrated&&n<5;n++){
    const key='journey-'+id+'-'+n,tex=scene.textures.createCanvas(key,W*2,H);keys.push(key);drawStrip(tex.getContext(),W*2,H,r,n,rng,phase);tex.refresh();
    const tile=scene.add.tileSprite(0,0,W,H,key).setOrigin(0);root.add(tile);layers.push(tile);
@@ -149,28 +152,30 @@ ADV.TravelUI={
   }
   const roster=ADV.Travel.roster(game),cards=[];
   roster.forEach((c,i)=>{
-   const cont=keep(scene.add.container(W/2+(i-(roster.length-1)/2)*116,489).setDepth(894));
-   const img=scene.add.image(0,0,ADV.Portraits.key(scene,c)).setDisplaySize(82,104);cont.add(img);
-   const rim=scene.add.rectangle(0,0,86,108,0,0).setStrokeStyle(2,i===0?ADV.T.c.gold:ADV.T.c.panelEdge);cont.add(rim);
-   const name=ADV.T.text(scene,0,62,c.name.split(' ')[0],{size:12,ox:.5});cont.add(name);
-   ADV.Portraits.stand(scene,img,game,c,img.texture.key,'cutscene');cards.push({c,cont,img,base:489});
+   const base=illustrated?576:489;
+   const cont=keep(scene.add.container(W/2+(i-(roster.length-1)/2)*116,base).setDepth(894));
+   if(illustrated){const shadow=scene.add.ellipse(0,75,94,13,0x101922,.32);cont.add(shadow);}
+   const img=scene.add.image(0,0,ADV.Portraits.key(scene,c)).setDisplaySize(illustrated?104:82,illustrated?132:104);cont.add(img);
+   const rim=scene.add.rectangle(0,0,illustrated?108:86,illustrated?136:108,0,0).setStrokeStyle(1,i===0?ADV.T.c.gold:ADV.T.c.panelEdge);cont.add(rim);
+   const name=ADV.T.text(scene,0,illustrated?85:62,c.name.split(' ')[0],{size:12,ox:.5});name.setShadow(1,2,'#102030',3);cont.add(name);
+   ADV.Portraits.stand(scene,img,game,c,img.texture.key,'cutscene');cards.push({c,cont,img,base});
   });
   // Keep the quest's weather snapshot; restore the underlying scene on completion.
   const oldWeather=scene.weatherFx;let weather=null;
   if(oldWeather&&oldWeather.container)oldWeather.container.setVisible(false);
-  const outdoors=!illustrated||!ADV.AnimeEnvironments.INDOOR.has(r.id);
-  if(ADV.WeatherFX&&outdoors){scene.weatherFx=null;weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:570},{depth:885});}
+  const outdoors=!illustrated||!ADV.TravelPanorama.INDOOR.has(r.id);
+  if(ADV.WeatherFX&&outdoors){scene.weatherFx=null;weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:H},{depth:885,celestial:true});}
   if(plan.event==='weather-turn'&&qs&&qs.travel&&outdoors)later(3000,()=>{
     qs.travel.weather={kind:r.terrain==='mountain'?'snow':'rain',intensity:.7,wind:.4};
     if(weather)weather.destroy();scene.weatherFx=null;
-    weather=ADV.WeatherFX.attach(scene,qs.travel.weather,phase,{x:0,y:0,w:W,h:570},{depth:885});
+    weather=ADV.WeatherFX.attach(scene,qs.travel.weather,phase,{x:0,y:0,w:W,h:H},{depth:885,celestial:true});
   });
   const stopSound=ambience(scene,r.terrain);
   const cleanup=()=>{
    if(ended)return;ended=true;timers.forEach(t=>t.remove(false));scene.events.off('update',tick);scene.events.off('shutdown',abort);
    if(box){const b=box;box=null;b.close();}stopSound();if(weather)weather.destroy();scene.weatherFx=oldWeather;
    if(oldWeather&&oldWeather.container)oldWeather.container.setVisible(true);
-   owned.forEach(o=>{scene.tweens.killTweensOf(o);o.destroy();});keys.forEach(k=>scene.textures.remove(k));
+   owned.forEach(o=>{scene.tweens.killTweensOf(o);o.destroy();});keys.forEach(k=>scene.textures.remove(k));scene.travelPanorama=null;
    scene.__cutscene=oldCut;if(!oldCut&&scene.showChrome)scene.showChrome();if(ADV.Notices)ADV.Notices.unblock(scene);
   };
   const abort=()=>cleanup();scene.events.once('shutdown',abort);
@@ -186,7 +191,8 @@ ADV.TravelUI={
    later(wait,()=>{ADV.Travel.mark(game,plan.key);if(plan.event&&plan.event!=='companion'){game.meta.travelLastRare=game.meta.travelLastRare||{};game.meta.travelLastRare[r.id]=game.meta.travelJourneyCount||0;game.meta.travelLastEvent=game.meta.travelLastEvent||{};game.meta.travelLastEvent[r.id]=plan.event;ADV.Save.saveMeta(game);}cleanup();if(done)done();});
   };
   function tick(time,dt){
-   elapsed+=dt;const velocity=72*Math.min(1,elapsed/400)*(ending?Math.max(0,1-(elapsed-endAt)/600):1);
+   dt=Math.min(50,dt);elapsed+=dt;const velocity=72*Math.min(1,elapsed/400)*(ending?Math.max(0,1-(elapsed-endAt)/600):1);
+   if(panorama)panorama.advance(dt,velocity);
    layers.forEach((tile,n)=>tile.tilePositionX+=velocity*[0,.15,.4,1,1.8][n]*dt/1000);
    mark.x-=velocity*.45*dt/1000;
    if(water){
@@ -198,17 +204,17 @@ ADV.TravelUI={
     if(seaCrossing){mark.y=Math.sin(elapsed/900)*5;}
    }
    life.clear();
-   if(['forest','mountain','coast','port'].includes(r.terrain)&&phase!=='night'){
+   if(!illustrated&&['forest','mountain','coast','port'].includes(r.terrain)&&phase!=='night'){
     life.lineStyle(2,0x263f49,.65);
     for(let i=0;i<4;i++){const bx=((elapsed*.023+i*32)%(W+100))-50,by=190+i%2*12,flap=Math.sin(elapsed/160+i)*5;life.lineBetween(bx-7,by+flap,bx,by);life.lineBetween(bx,by,bx+7,by+flap);}
    }
-   if(r.terrain==='dungeon'||r.id==='pyre'){
+   if(!illustrated&&(r.terrain==='dungeon'||r.id==='pyre')){
     for(let i=0;i<20;i++){const xx=(i*137+elapsed*.009)%W,yy=200+(i*61-elapsed*.025)%310;life.fillStyle(r.id==='pyre'?0xffb764:0xa8c3c4,.2+.15*Math.sin(elapsed/700+i));life.fillCircle(xx,yy,1.5);}
    }
-   if(r.terrain==='city'){
+   if(!illustrated&&r.terrain==='city'){
     for(let i=0;i<3;i++){const xx=(i*427+elapsed*(i%2?-.018:.012)+W*2)%(W+100)-50,yy=467;life.fillStyle(0x202830,.65);life.fillCircle(xx,yy-32,5);life.fillRect(xx-6,yy-26,12,20);life.lineStyle(3,0x202830,.65);life.lineBetween(xx-3,yy-6,xx-4+Math.sin(elapsed/130+i)*4,yy+9);life.lineBetween(xx+3,yy-6,xx+4-Math.sin(elapsed/130+i)*4,yy+9);}
    }
-   cards.forEach(({c,cont,base},i)=>{const hurt=(c.combatHp??ADV.Character.maxHp(c))<ADV.Character.maxHp(c)*.4;cont.y=base+(hurt?7:0)+(c.isUndead?0:Math.sin(elapsed/(hurt?170:112)+i*1.7)*(hurt?2:3.5));});
+   cards.forEach(({c,cont,base},i)=>{const hurt=(c.combatHp??ADV.Character.maxHp(c))<ADV.Character.maxHp(c)*.4,moving=!illustrated||ADV.TravelPanorama.motion();cont.y=base+(hurt?7:0)+(!moving||c.isUndead?0:Math.sin(elapsed/(hurt?170:112)+i*1.7)*(hurt?2:3.5));cont.angle=moving&&illustrated?Math.sin(elapsed/224+i*1.7)*.65:0;});
   }
   let endAt=0;scene.events.on('update',tick);
   const end=()=>{endAt=elapsed;finish();};
