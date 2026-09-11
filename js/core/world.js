@@ -19,6 +19,7 @@ World.create = function (seed) {
     pendingHeroInvites: [], pendingPlayerJilt: null,
     playerId: null, metIds: [],
     lastPlayerHelpAt: -99, lastPlayerProposalAt: -99, lastRivalAt: -99,
+    lastRivalOuting: null, travelSpoke: [],
     genRng: rng.seed,
   };
   // Starting population (request 15): a diverse roster — healers and tanks on

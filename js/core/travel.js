@@ -69,6 +69,27 @@ Travel.plan = function(game,q,leg) {
  return {key:contentKey,visits:Travel.views(game,contentKey),skip:Travel.views(game,contentKey)>0,
   bypass:!event&&visits>=2,event,location:L()[q.travelLocation],leg};
 };
+Travel.rememberTalk = function(game, speakers) {
+ const w = game && game.world;
+ if (!w) return;
+ const ids = (speakers || []).map(c => c && c.id).filter(Boolean);
+ w.travelSpoke = (w.travelSpoke || []).concat(ids);
+ if (w.travelSpoke.length > 16) w.travelSpoke = w.travelSpoke.slice(-16);
+};
+Travel.pickTalkers = function(game, eligible, seed) {
+ if (!eligible || !eligible.length) return { a: null, b: null };
+ const recent = (game.world && game.world.travelSpoke) || [];
+ const recency = (c) => {
+  let n = 0;
+  for (let i = 0; i < recent.length; i++) if (recent[i] === c.id) n += i + 1;
+  return n;
+ };
+ const rng = new ADV.RNG(seed >>> 0);
+ const ranked = rng.shuffle(eligible).sort((x, y) => recency(x) - recency(y));
+ let a = ranked[0], b = ranked[1] || null;
+ if (b && (seed & 1)) { const t = a; a = b; b = t; }
+ return { a, b };
+};
 Travel.dialogue = function(game,q,leg,plan) {
  const roster=Travel.roster(game), p=ADV.Game.player(game);
  if(roster.length<2) return [];
@@ -81,12 +102,13 @@ Travel.dialogue = function(game,q,leg,plan) {
  }
  const eligible=roster.filter(c=>!c.isPlayer&&!c.isUndead&&!c.isMonster&&!c.campaign&&/^[MF]\d\d$/.test(c.personalityId));
  if(!eligible.length) return [];
- const seed=ADV.hashStr(q.id+':'+leg+':'+plan.visits)>>>0;
- let a=eligible.find(c=>c.id===p.partnerId)||eligible[seed%eligible.length];
- // Captive silence is intentional; only occasional practical speech.
- if(a.isConscript&&seed%4) return [];
- const others=eligible.filter(c=>c!==a);let b=others[(seed>>>3)%Math.max(1,others.length)];
+ const voices=eligible.filter(c=>!c.isConscript);
+ const pool=voices.length?voices:eligible;
+ const seed=ADV.hashStr([q.id,leg,plan.visits,(game.meta&&game.meta.travelJourneyCount)||0,(game.world&&game.world.questClock)||0,pool.map(c=>c.id).join(',')].join(':'))>>>0;
+ let {a,b}=Travel.pickTalkers(game,pool,seed);
  if(plan.event==='party-friction')for(const one of eligible){const two=eligible.find(c=>c!==one&&ADV.Rel.tierBetween(game.world,c.id,one.id)==='hatred');if(two){a=one;b=two;break;}}
+ // Captive silence is intentional; only occasional practical speech.
+ if(a&&a.isConscript&&seed%4) return [];
  let band=leg==='return'?'travel_'+((game.quest||(game.travelResolution&&game.travelResolution.q)||{}).failed?'return_loss':'return_win'):
   leg==='midleg'?'travel_midleg':plan.visits===0?'travel_'+q.travelLocation:'travel_'+(q.factionAlignment||'neutral');
  const make=(c,band,idx,to)=>({speaker:c,band,idx,text:ADV.DATA.DIALOGUE[c.personalityId][band][idx],to});
@@ -101,6 +123,7 @@ Travel.dialogue = function(game,q,leg,plan) {
   const response=ADV.Rel.tier(score)==='hatred'?'travel_hatred':ADV.Rel.isPartner(a,b)?'travel_romantic':'travel_response';
   lines.push(say(b,response,a));
  }
+ Travel.rememberTalk(game, [a, b].filter(Boolean));
  return lines;
 };
 ADV.Travel=Travel;

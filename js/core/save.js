@@ -42,6 +42,8 @@ Save.saveGame = function (game) {
     parties: w.parties, campaignWorld: w.campaignWorld || null, mawContracts: w.mawContracts || [], pendingRaises: w.pendingRaises || [], hiroId: w.hiroId || null,
     sharedQuests: w.sharedQuests || {}, pendingProposals: w.pendingProposals || [], cooldowns: w.cooldowns || {},
     lastPlayerHelpAt: w.lastPlayerHelpAt, lastPlayerProposalAt: w.lastPlayerProposalAt, lastRivalAt: w.lastRivalAt,
+    lastRivalOuting: w.lastRivalOuting != null ? w.lastRivalOuting : null,
+    travelSpoke: w.travelSpoke || [],
     friendlyAskWait: w.friendlyAskWait || 0,
     board: game.board, life: game.life, campaign: game.campaign || null, campaign2: game.campaign2 || null, tutorial: game.tutorial || null,
     campaignProgress: w.campaignProgress || [],
@@ -111,6 +113,8 @@ Save.loadGame = function () {
     lastPlayerHelpAt: ws.lastPlayerHelpAt != null ? ws.lastPlayerHelpAt : -99,
     lastPlayerProposalAt: ws.lastPlayerProposalAt != null ? ws.lastPlayerProposalAt : -99,
     lastRivalAt: ws.lastRivalAt != null ? ws.lastRivalAt : -99,
+    lastRivalOuting: ws.lastRivalOuting != null ? ws.lastRivalOuting : null,
+    travelSpoke: ws.travelSpoke || [],
     friendlyAskWait: ws.friendlyAskWait || 0,
   };
   const loaded = { world, board: ws.board || null, life: ws.life || 1, meta: Save.loadMeta(), campaign: ws.campaign || null, campaign2: ws.campaign2 || null, tutorial: ws.tutorial || null };

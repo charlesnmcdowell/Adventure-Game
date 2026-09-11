@@ -247,7 +247,7 @@ Game.stayHome = function (game) {
   return { ok: true };
 };
 
-// ---- rival companies (at most one outing every PLAYER_CONTACT_GAP) ----------
+// ---- rival companies (grace, outing cooldown, rare Hiro intercepts) ----------
 Game.rivalAlignment = function (quest) {
   if (quest && quest.factionAlignment === 'criminal') return 'law';
   if (quest && quest.factionAlignment === 'law') return 'criminal';
@@ -259,8 +259,15 @@ Game.shouldMeetRival = function (game, quest) {
   if (game.tutorial && game.tutorial.step && game.tutorial.step !== 'done') return false;
   const p = Game.player(game);
   const outings = (p.questsCompleted || 0) + (p.questsFailed || 0);
-  if (outings < (C().PLAYER_CONTACT_GAP || 2)) return false;
-  return ADV.World.playerContactReady(game.world, 'lastRivalAt');
+  const grace = C().RIVAL_GRACE_QUESTS != null ? C().RIVAL_GRACE_QUESTS : 5;
+  if (outings < grace) return false;
+  const last = game.world && game.world.lastRivalOuting;
+  if (last != null && last !== -99) {
+    const cool = C().RIVAL_COOLDOWN_QUESTS != null ? C().RIVAL_COOLDOWN_QUESTS : 2;
+    if ((outings - last) < cool + 1) return false;
+  }
+  const chance = C().RIVAL_CHANCE != null ? C().RIVAL_CHANCE : 0.22;
+  return game.rng.chance(chance);
 };
 Game.pickRivalParty = function (game, quest) {
   const world = game.world;
@@ -270,7 +277,20 @@ Game.pickRivalParty = function (game, quest) {
   const others = (world.parties || []).filter(x => x !== mine && ADV.Party.leader(world, x) && ADV.Party.leader(world, x).alive);
   const aligned = others.filter(x => ADV.Party.alignment && ADV.Party.alignment(world, x) === want);
   const pool = aligned.length ? aligned : others;
-  return pool.length ? game.rng.pick(pool) : null;
+  if (!pool.length) return null;
+  const isHiroParty = (party) => {
+    const lead = ADV.Party.leader(world, party);
+    return !!(ADV.Hiro && ADV.Hiro.isHiro(lead));
+  };
+  const hiroPool = pool.filter(isHiroParty);
+  const rest = pool.filter(x => !isHiroParty(x));
+  const hiroChance = C().HIRO_RIVAL_CHANCE != null ? C().HIRO_RIVAL_CHANCE : 0.05;
+  if (rest.length) {
+    if (hiroPool.length && game.rng.chance(hiroChance)) return game.rng.pick(hiroPool);
+    return game.rng.pick(rest);
+  }
+  if (hiroPool.length && game.rng.chance(hiroChance)) return game.rng.pick(hiroPool);
+  return null;
 };
 Game.attachRival = function (game, quest) {
   if (!Game.shouldMeetRival(game, quest)) return null;
@@ -278,6 +298,9 @@ Game.attachRival = function (game, quest) {
   if (!party) return null;
   const leader = ADV.Party.leader(game.world, party);
   if (!leader) return null;
+  const p = Game.player(game);
+  game.world.lastRivalOuting = (p.questsCompleted || 0) + (p.questsFailed || 0);
+  ADV.World.markPlayerContact(game.world, 'lastRivalAt');
   return { partyId: party.id, alignment: Game.rivalAlignment(quest), leaderId: leader.id, resolved: false };
 };
 Game.rivalAIChoice = function (leader) {
@@ -404,7 +427,6 @@ Game.startQuest = function (game, quest, opts) {
     game.quest.rival = rival;
     game.quest.rivalPending = true;
     game.quest.rivalResolved = true;
-    ADV.World.markPlayerContact(game.world, 'lastRivalAt');
   }
   return { ok: true, quest: game.quest };
 };

@@ -165,7 +165,11 @@ ADV.DATA.CONST = {
   SHARED_STREAK_TARGET: 3,
 
   // ---- Misc systems ------------------------------------------------------
-  PLAYER_CONTACT_GAP: 2,          // quests that must pass between player-facing asks / rescues / rival teams
+  PLAYER_CONTACT_GAP: 2,          // quests that must pass between player-facing asks / rescues
+  RIVAL_GRACE_QUESTS: 5,          // no rival intercepts until this many contracts are done
+  RIVAL_COOLDOWN_QUESTS: 2,       // raid-free contracts after an intercept
+  RIVAL_CHANCE: 0.22,             // eligible party jobs that actually draw a rival
+  HIRO_RIVAL_CHANCE: 0.05,        // among intercepts, Hiro's share (else another lead, or skip)
   RESCUE_EXPIRES_IN: 2,           // world ticks before a rescue offer lapses
   ASSASSINATION_PER_RETURN: 1,    // queue rule: at most one attempt per quest return
   THEFT_REL_PENALTY: -20,
