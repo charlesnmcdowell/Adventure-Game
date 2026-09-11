@@ -9,7 +9,7 @@ const LANE_X = { a: { front: 520, mid: 396, back: 272 }, b: { front: 760, mid: 8
 const SLOT_Y = [170, 330, 490];
 
 class CombatScene extends Phaser.Scene {
-  constructor() { super('Combat'); }
+  constructor(key = 'Combat') { super(key); }
   init(data) { this.mode = (data && data.mode) || 'quest'; }
 
   st() {

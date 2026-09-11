@@ -579,12 +579,24 @@ Combat.BEASTS = BEASTS;
 // C1: the portrait becomes the beast. Some forms have a fixed animal; the rest roll.
 function beastFor(st, skillId) {
   if (skillId === 'bear_stance') return 'werebear';
-  if (skillId === 'warhound_form') return 'werewolf';
-  if (skillId === 'serpent_form' || skillId === 'fox_form') return 'panther';
+  if (skillId === 'warhound_form') return 'hound';
+  if (skillId === 'serpent_form') return 'serpent';
+  if (skillId === 'fox_form') return 'fox';
+  if (skillId === 'storm_shape') return 'storm';
+  // These are disciplined human stances, not an arbitrary animal disguise.
+  if (skillId === 'marine_form') return 'marine';
+  if (skillId === 'sea_dog_form') return 'sea_dog';
+  if (skillId === 'spellblade_form') return 'spellblade';
+  if (skillId === 'unbroken_form') return 'unbroken';
+  if (skillId === 'wild_form') return 'wild';
   return st.rng.pick(BEASTS);
 }
 function applyForm(st, u, skillId, rounds) {
-  const beast = beastFor(st, skillId);
+  let beast = beastFor(st, skillId);
+  if(skillId==='fox_form'){
+    const tier=manifestFor(u,skillId)?.tier;
+    beast=tier==='advanced'?'fox_nine':tier==='intermediate'?'fox_three':'fox';
+  }
   const old = u.statuses.find(x => x.kind === 'form');
   if (old) removeStatus(u, old);
   u.form = beast;

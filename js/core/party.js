@@ -83,8 +83,26 @@ Party.create = function (world, leaderId) {
   if (held) Party.removeMember(world, held, leaderId);
   const p = { id: Party.allocId(world), leaderId, memberIds: [], wages: {} };
   world.parties.push(p);
-  if (leader) { leader.partyId = p.id; leader.leaderId = null; }
+  if (leader) { leader.partyId = p.id; leader.leaderId = null; if(leader.isPlayer)leader.hasFoundedParty=true; }
   return p;
+};
+
+Party.outfit = function(world,leader,target,setId,ownedOnly) {
+  const party=Party.of(world,leader),set=ADV.DATA.GEAR_SETS[setId];
+  if(!leader||!leader.isPlayer||!leader.alive||!party||party.leaderId!==leader.id)return {ok:false,error:'You must lead the party.'};
+  if(!target||!target.alive||target===leader||!Party.roster(world,party).concat(Party.followers(world,party)).includes(target))return {ok:false,error:'They no longer serve in your party.'};
+  const owns=(target.ownedSets||[]).includes(setId);
+  if(!set||setId===target.equippedSet||(!owns&&(set.campaign||set.unique||ownedOnly)))return {ok:false,error:'That set is not available.'};
+  const old=ADV.DATA.GEAR_SETS[target.equippedSet];
+  if(old&&(old.campaign||old.unique))return {ok:false,error:'Their issued outfit cannot be replaced.'};
+  const cost=owns?0:set.cost;
+  if(!Number.isFinite(cost)||cost<0||leader.inventory.gold<cost)return {ok:false,error:'You do not have enough carried gold.'};
+  leader.inventory.gold-=cost;
+  target.ownedSets=(target.ownedSets||[]).filter(id=>id!==setId);
+  if(target.equippedSet&&!target.ownedSets.includes(target.equippedSet))target.ownedSets.push(target.equippedSet);
+  target.equippedSet=setId;
+  ADV.World.feed(world,leader.name+' outfitted '+target.name+' with '+set.name+'.',[leader.id,target.id]);
+  return {ok:true,cost};
 };
 
 Party.of = function (world, ch) {

@@ -536,6 +536,8 @@ Game.makeQuestThrall = function (src, caster) {
     species: src.species || 'human',
     stats: Object.assign({}, src.stats),
     portraitSeed: src.portraitSeed, portraitKind: src.portraitKind, portraitId: src.portraitId,
+    appearance: src.appearance ? Object.assign({},src.appearance) : null,
+    equippedSet: src.equippedSet || null,
     enemyTypeId: src.enemyTypeId, isMonster: true, isUndead: true, isQuestThrall: true,
     raisedById: caster.id, organic: false, risenPower: power,
     actives: (src.actives || []).map(a => Object.assign({}, a)),

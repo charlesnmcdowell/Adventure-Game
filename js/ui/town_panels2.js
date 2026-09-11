@@ -203,6 +203,7 @@ Panels.createParty = function (scene, r) {
       const before = world.parties.length;
       const founded = ADV.Party.create(world, p.id);
       if (!founded || founded.leaderId !== p.id) { ADV.Notices.toast(scene, 'The guild would not record the company.'); return; }
+      game.meta.partyFounder=true;
       if (world.parties.length > before) p.inventory.gold -= C().GOLD.partyStartupCapital;
       ADV.Save.saveGame(game);
       scene.buildMenu();
@@ -238,6 +239,7 @@ Panels.createParty = function (scene, r) {
       });
     }, { size: 14, sub, subColor: T().relColor(relTier) }));
     y += T().gap(50);
+    if(m.alive){scroll.addBtn(T().button(scene,r.x+36,y,280,32,'Outfit '+m.name,()=>{scene.outfitTargetId=m.id;scene.openPanel('outfit');},{size:12}));y+=T().gap(38);}
     y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, m);
     y += T().gap(10);
   }
@@ -250,6 +252,7 @@ Panels.createParty = function (scene, r) {
         size: 14, sub: (f.isConscript ? 'conscript' : 'undead') + ' · ' + left, subColor: T().css.purple, disabled: true,
       }));
       y += T().gap(50);
+      scroll.addBtn(T().button(scene,r.x+36,y,280,32,'Outfit '+f.name,()=>{scene.outfitTargetId=f.id;scene.openPanel('outfit');},{size:12}));y+=T().gap(38);
       y = Panels.hireSkillBlock(scene, scroll, r.x + 36, y, r.w - 68, f);
       y += T().gap(10);
     }

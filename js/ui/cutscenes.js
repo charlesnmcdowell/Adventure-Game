@@ -38,6 +38,8 @@ function stage(scene, opts) {
   if (scene.hideChrome) scene.hideChrome();
 
   // A funeral wants the light pulled down; the ride home does not.
+  const location=opts.location||(!opts.gloom?'road':null);
+  if(location&&ADV.AnimeEnvironments&&!scene.game.__artPreview)keep(ADV.AnimeEnvironments.view(scene,location,opts.gloom?'evening':ADV.BattleArt.phaseFor(scene.game_),{depth:DEPTH-3,travel:!opts.gloom}));
   if (opts && opts.gloom) {
     keep(scene.add.rectangle(W / 2, H / 2, W, H, 0x0a0c12, opts.gloom).setDepth(DEPTH - 2));
   }
@@ -112,6 +114,13 @@ Cut.grave = function (scene, o) {
   const x = o.x == null ? T().W / 2 : o.x;
   const y = o.y == null ? 566 : o.y;
   const s = o.scale || 1;
+  const art=ADV.AnimeWorld?.prop(scene,'grave');
+  if(art){
+    const root=scene.add.container(x,y).setDepth(o.depth==null?DEPTH-1:o.depth);
+    root.add(scene.add.image(0,-96*s,art).setDisplaySize(225*s,225*s));
+    const lantern=ADV.AnimeWorld.prop(scene,'lantern');if(lantern)root.add(scene.add.image(102*s,-28*s,lantern).setDisplaySize(52*s,65*s));
+    return root;
+  }
   const g = scene.add.graphics().setDepth(o.depth == null ? DEPTH - 1 : o.depth);
   g.fillStyle(0x241f19, 1); g.fillEllipse(x, y, 210 * s, 46 * s);
   g.fillStyle(0x2f2a22, 1); g.fillEllipse(x, y - 6 * s, 190 * s, 36 * s);
@@ -209,13 +218,14 @@ Cut.funeral = function (scene, rec, done) {
 
   if (ADV.WeatherFX && ADV.Weather) {
     const pick = ((ADV.hashStr ? ADV.hashStr((world && world.seed) + ':funeral') : 1) % 2) ? 'rain' : 'overcast';
-    ADV.WeatherFX.attach(scene, { kind: pick, intensity: 0.75, wind: 0.45 }, 'day', { x: 0, y: 0, w: T().W, h: T().H }, { depth: -5, town: true });
+    ADV.WeatherFX.attach(scene, { kind: pick, intensity: 0.75, wind: 0.45 }, 'evening', { x: 0, y: 0, w: T().W, h: T().H }, { depth: DEPTH-1, town: true });
   }
   const st = stage(scene, {
     caption: mourners.length > 1
       ? `They walk ${leaderName} to the ground.`
       : `${shortName(player)} walks ${leaderName} to the ground.`,
     captionColor: T().css.inkDim,
+    location: 'cemetery',
     gloom: 0.45,
   });
   const W = st.W;

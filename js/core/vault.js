@@ -273,7 +273,8 @@ Vault.onDeath = function (world, deceased, killerId) {
       const hv = Vault.ensureOwn(world, heir.ch);
       hv.gold += v.gold; hv.items.push(...v.items);
     } else {
-      heir.child.pendingEstate = { gold: v.gold, items: v.items.slice() };
+      const pending=heir.child.pendingEstate||{gold:0,items:[]};
+      heir.child.pendingEstate = { gold: pending.gold+v.gold, items: pending.items.concat(v.items) };
     }
     v.gold = 0; v.items = [];
     out.vaultTo = 'eldestChild'; out.claimantId = heir.adult ? heir.ch.id : heir.child.id;
@@ -287,7 +288,8 @@ Vault.eldestHeir = function (world, deceased) {
   const adults = world.characters.filter(c => c.alive && !c.isMonster &&
     (c.motherId === deceased.id || c.fatherId === deceased.id));
   if (adults.length) return { adult: true, ch: adults[0] };
-  const deps = (deceased.dependents || []).filter(d => d.age >= C().CHILD_SELF_SUFFICIENT);
+  const young=(world.orphans||[]).concat(...world.characters.map(c=>c.dependents||[]));
+  const deps = young.filter(d => (d.motherId===deceased.id||d.fatherId===deceased.id) && d.age >= C().CHILD_SELF_SUFFICIENT);
   if (deps.length) return { adult: false, child: deps.sort((a, b) => b.age - a.age)[0] };
   return null;
 };

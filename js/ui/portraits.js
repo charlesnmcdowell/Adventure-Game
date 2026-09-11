@@ -1051,6 +1051,7 @@ const SET_LOOK = {
   leathers:          { pattern: 'shinobi',       palette: { base: '#3a3228', trim: '#5a4a38', metal: '#5a5a62' }, extras: 'mask' },
   privateers_kit:    { pattern: 'pirate',        palette: { base: '#5a1f1c', trim: '#c8a24a', metal: '#b08a40' }, extras: 'tricorne', pistol: true },
   kings_uniform:     { pattern: 'navy',          palette: { base: '#1f2c48', trim: '#e8e2d2', metal: '#d4a94e' }, extras: 'bicorne' },
+  wardens_gear:      { pattern: 'leather_plate', palette: { base: '#3a4a3a', trim: '#8a8a6a', metal: '#a8adb8' }, cloak: true },
   mage:              { pattern: 'robe',          palette: { base: '#3a3644', trim: '#a89ab8', metal: '#a8adb8' }, cloak: true },
   battle_mages_gear: { pattern: 'robe',          palette: { base: '#4a3a5a', trim: '#c0a8d8', metal: '#8a8f99' }, cloak: true, gorget: true },
   adept:             { pattern: 'robe',          palette: { base: '#2a3850', trim: '#8aa0c8', metal: '#a8adb8' } },

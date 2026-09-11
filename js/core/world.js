@@ -251,7 +251,8 @@ World.tick = function (world, rng, opts) {
 
   // --- Orphans & children mature into adults at 10 (§6) ---
   for (const o of world.orphans.slice()) {
-    o.age++;
+    if(o.lastAgedAt!==world.questClock)o.age++;
+    o.lastAgedAt=world.questClock;
     if (o.age >= C().CHILD_ADULT) {
       world.orphans.splice(world.orphans.indexOf(o), 1);
       const npc = Ch().matureChild(rng, world, o);
@@ -523,10 +524,11 @@ function tickChildren(world, rng, feed) {
     // age dependents; player's are aged by the game layer identically through here
     for (const d of (w.dependents || [])) {
       d.age++;
+      d.lastAgedAt=world.questClock;
       if (d.age === C().CHILD_SELF_SUFFICIENT && w.isPlayer) world.childSelfSufficientFlag = true;
     }
     // graduation to the orphan pool happens at self-sufficiency+; they mature from world.orphans
-    const grads = (w.dependents || []).filter(d => d.age >= C().CHILD_ADULT - 1);
+    const grads = (w.dependents || []).filter(d => d.age >= C().CHILD_ADULT);
     for (const g of grads) {
       w.dependents.splice(w.dependents.indexOf(g), 1);
       world.orphans.push(g);
@@ -535,7 +537,7 @@ function tickChildren(world, rng, feed) {
     const partner = ADV.World.byId(world, w.partnerId);
     if (!partner || !partner.alive) continue;
     w.relationshipQuests = (w.relationshipQuests || 0) + 1;
-    const kids = (w.dependents || []).length + (w.childIds || []).length;
+    const kids = new Set((w.childIds || []).concat((w.dependents || []).map(d=>d.id))).size;
     if (kids >= C().MAX_CHILDREN_PER_RELATIONSHIP) continue;
     const guaranteed = !w.conceived && w.relationshipQuests >= C().CONCEPTION_GUARANTEE_AT;
     if (guaranteed || rng.chance(C().CONCEPTION_CHANCE)) {

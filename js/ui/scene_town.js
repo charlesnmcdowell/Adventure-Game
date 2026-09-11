@@ -236,6 +236,7 @@ class TownScene extends Phaser.Scene {
             ? ADV.Campaign2.faction(ADV.Campaign2.joined(this.game_)[0]).short
             : 'Allegiances']]
         : []),
+      ...(ADV.Campaign3 && ADV.Campaign3.menuVisible(this.game_) ? [['story', "Varenholm's Gate"]] : []),
       ['store', 'Grocer'],
       ['blacksmith', 'Blacksmith'],
       ['home', 'Home'],
@@ -306,9 +307,9 @@ class TownScene extends Phaser.Scene {
     const P = ADV.Panels;
     const panel = { board: P.questBoard, store: P.store, grocer: P.grocer, blacksmith: P.blacksmith,
        insurance: P.insurance, maw: P.maw, trainer: P.trainer, apply: P.applyParty,
-       create: P.createParty, roster: P.roster, graveyard: P.graveyard, rel: P.relationships,
+       create: P.createParty, outfit: P.outfitPartyMember, roster: P.roster, graveyard: P.graveyard, rel: P.relationships,
        faction: P.factions, journal: P.journal, codex: P.codex, settings: P.settings, campaign: P.campaign,
-       campaign2: P.campaign2, vault: P.vault, home: P.home }[id];
+       campaign2: P.campaign2, story: P.story, vault: P.vault, home: P.home }[id];
     if (panel) panel(this, r);
     if (ADV.Tutor && ADV.Tutor.active(this.game_)) ADV.Tutor.panel(this, this.game_, id, r);
     if (this._chromeHidden) this.applyChromeHidden(false);

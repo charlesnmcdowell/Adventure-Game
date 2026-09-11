@@ -13,7 +13,8 @@ class CreationScene extends Phaser.Scene {
 
   create() {
     const W = T().W, H = T().H;
-    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
+    if(ADV.AnimeEnvironments)ADV.AnimeEnvironments.view(this,'city','day',{depth:-10});
+    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg, ADV.AnimeEnvironments ? .87 : 1);
     this.done = false;             // scene instances are reused — reset run flags
     this.choosingPersonality = false;
     this.beginBtn = null;
@@ -99,7 +100,7 @@ class CreationScene extends Phaser.Scene {
           faceScroll.add(frame);
           faceScroll.add(zone);
           faceScroll.add(sexLabel);
-          this.cards.push({ slot, sex, frame, x, y: cy, cw, chh });
+          this.cards.push({ slot, sex, frame, img, x, y: cy, cw, chh });
         }
       }
       y += 2 * (chh + gap);
@@ -127,6 +128,10 @@ class CreationScene extends Phaser.Scene {
       T().text(this, 98, 566, 'No new free picks — new skills are witnessed in battle or bought at the trainer.', { size: 11, italic: true, color: T().css.inkFaint });
     }
     this.refresh();
+    if(ADV.AnimeCustomization)T().button(this,px+18,438,T().W-px-96,38,'Customize appearance',()=>{
+      if(this.nameField)this.nameField.hide();
+      ADV.AnimeCustomization.open(this,this.sel,()=>{if(this.nameField)this.nameField.show();this.refresh();});
+    },{size:13,color:T().css.gold});
     if (this.firstGame) {
       // pause here: the name is required, and this is where it goes
       ADV.Tutor.callout(this, { x: 100, y: 75, w: 300, h: 38 }, 'Your name', 'Type a name for your character — the world will use it when it speaks to you. A name is required before you go on. Then pick a face: each one says whether it is a woman or a man.', { onNext: () => {}, label: 'Got it' });
@@ -151,6 +156,7 @@ class CreationScene extends Phaser.Scene {
     for (const c of this.cards) {
       c.frame.clear();
       const on = c.slot === this.sel.slot && c.sex === this.sel.sex;
+      if(c.img&&ADV.AnimeWorld){const ch={portraitKind:'player',portraitSlot:c.slot,sex:c.sex,portraitSeed:c.slot*7919+(c.sex==='f'?13:29),appearance:on?this.sel.appearance:null};c.img.setTexture(ADV.Portraits.key(this,ch));}
       c.frame.lineStyle(on ? 3 : 1.5, on ? T().c.gold : T().c.panelEdge, 1);
       c.frame.strokeRect(c.x + 4, c.y + 2, c.cw - 8, 154);
     }
@@ -164,7 +170,7 @@ class CreationScene extends Phaser.Scene {
     if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
     if (this.faceScroll) { this.faceScroll.destroy(); this.faceScroll = null; }
     if (this.skillScroll) { this.skillScroll.destroy(); this.skillScroll = null; }
-    this.children.removeAll(true);
+    this.children.list.slice().forEach(o=>o.destroy());
     const W = T().W, H = T().H;
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
     T().text(this, W / 2, 24, 'Your first three skills — any three', { size: 26, display: true, ox: 0.5, color: T().css.gold });
@@ -236,11 +242,12 @@ class CreationScene extends Phaser.Scene {
   returnPhase1() {
     const kept = {
       slot: this.sel.slot, sex: this.sel.sex,
+      appearance: this.sel.appearance,
       name: this.sel.name, personalityId: this.sel.personalityId, skills: (this.sel.skills || []).slice(),
     };
     if (this.skillScroll) { this.skillScroll.destroy(); this.skillScroll = null; }
     if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
-    this.children.removeAll(true);
+    this.children.list.slice().forEach(o=>o.destroy());
     this.phase = 1;
     this.done = false;
     this.beginBtn = null;
@@ -328,6 +335,7 @@ class CreationScene extends Phaser.Scene {
       portraitSeed: this.sel.slot * 7919 + (this.sel.sex === 'f' ? 13 : 29),
       startingSkills: this.sel.skills,
       personalityId: this.sel.personalityId,
+      appearance: this.sel.appearance,
       password: this.isHiro ? this.password : null,
     };
     const game = ADV.Game.newGame(opts);

@@ -5,7 +5,7 @@
 
 const Save = {};
 const KEYS = ['adv:world', 'adv:characters', 'adv:edges', 'adv:vaults', 'adv:meta', 'adv:backup'];
-Save.VERSION = 1;
+Save.VERSION = 2;
 
 // storage backend: localStorage in the browser, injectable for tests
 let store = null;
@@ -28,10 +28,27 @@ function get(key) {
   catch (e) { return null; }
 }
 
+// The approved art expansion starts a new playthrough. Version the whole save,
+// including the backup and meta that survive death, so a legacy life cannot return.
+Save.ensureCompatible = function () {
+  const w=get('adv:world'),m=get('adv:meta'),b=get('adv:backup');
+  const currentWorld=w&&w.artVersion===Save.VERSION;
+  const currentMeta=m&&m.artVersion===Save.VERSION;
+  const currentBackup=b&&b.v===Save.VERSION&&b.world?.artVersion===Save.VERSION&&b.meta?.artVersion===Save.VERSION;
+  if(!w&&currentBackup){Save.restoreBackup();return true;}
+  if(currentWorld||(!w&&currentMeta)) {
+    if(b&&!currentBackup)try{backend().removeItem('adv:backup');}catch(e){}
+    return true;
+  }
+  if(KEYS.some(k=>{try{return backend().getItem(k)!=null;}catch(e){return false;}}))Save.reset();
+  return false;
+};
+
 // Write once per quest resolution and on town transactions (§19).
 Save.saveGame = function (game) {
   const w = game.world;
   put('adv:world', {
+    artVersion: Save.VERSION,
     seed: w.seed, questClock: w.questClock,
     eventFeed: w.eventFeed, activeHeroes: w.activeHeroes,
     pendingRescues: w.pendingRescues, pendingPopulation: w.pendingPopulation,
@@ -58,7 +75,7 @@ Save.saveGame = function (game) {
 Save.writeBackup = function () {
   const world = get('adv:world');
   const characters = get('adv:characters');
-  if (!world || !characters) return false;
+  if (!world || world.artVersion !== Save.VERSION || !characters) return false;
   return put('adv:backup', {
     v: Save.VERSION,
     world, characters,
@@ -70,7 +87,7 @@ Save.writeBackup = function () {
 
 Save.restoreBackup = function () {
   const bak = get('adv:backup');
-  if (!bak || !bak.world || !bak.characters) return false;
+  if (!bak || bak.v !== Save.VERSION || bak.world?.artVersion !== Save.VERSION || bak.meta?.artVersion !== Save.VERSION || !bak.characters) return false;
   put('adv:world', bak.world);
   put('adv:characters', bak.characters);
   put('adv:edges', bak.edges || []);
@@ -80,14 +97,17 @@ Save.restoreBackup = function () {
 };
 
 Save.saveMeta = function (game) {
+  game.meta.artVersion = Save.VERSION;
   put('adv:meta', game.meta);
 };
 
 Save.loadMeta = function () {
+  Save.ensureCompatible();
   return get('adv:meta') || { journal: {}, skillLevels: {}, promptsSeen: {}, codexUnlocked: [], hiroUnlocked: false, lives: 0 };
 };
 
 Save.loadGame = function () {
+  Save.ensureCompatible();
   let ws = get('adv:world');
   let characters = get('adv:characters');
   if (!ws || !characters) {
@@ -129,7 +149,7 @@ Save.loadGame = function () {
   return loaded;
 };
 
-Save.hasSave = function () { return !!get('adv:world'); };
+Save.hasSave = function () { Save.ensureCompatible(); return !!get('adv:world'); };
 
 Save.peekPlayer = function () {
   try {
@@ -158,7 +178,7 @@ Save.hasVoicedContinue = function () {
 };
 
 ADV.TitleNotice = {
-  text: 'All characters and data will be wiped at 8 PM CST. Sorry for the inconvenience — a new expansion has released. Create a new character and let me know if you like it.',
+  text: 'The anime art expansion is here. Previous characters and save data have been reset. Begin a new game to explore the new world. Your new playthrough will carry on normally through death and reincarnation.',
   visible: () => true,
 };
 

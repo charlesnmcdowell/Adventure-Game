@@ -130,8 +130,8 @@ function stroke(g,x,y,dir,p,offset) {
   const color=p.color, n=p.family==='claw'?3:1;
   for(let i=0;i<n;i++) {
     const yy=y+(i-(n-1)/2)*11+(offset||0);
-    for(const [width,alpha] of [[12,.12],[5,.5],[1.5,.95]]){
-      g.lineStyle(width*(p.intensity||1),color,alpha);
+    for(const [width,alpha,tint] of [[8,.8,0x203049],[5,.94,color],[1.3,.95,0xfff5db]]){
+      g.lineStyle(width*(p.intensity||1),tint,alpha);
       if(p.family==='thrust')g.lineBetween(x-dir*62,yy,x+dir*26,yy-6);
       else if(p.family==='unarmed'){g.strokeCircle(x,yy,13);g.lineBetween(x-dir*35,yy,x-dir*18,yy);}
       else if(p.family==='bite'){for(const side of [-1,1]){g.beginPath();g.moveTo(x-16,yy+side*20);g.lineTo(x-10,yy+side*7);g.lineTo(x,yy+side*15);g.lineTo(x+10,yy+side*7);g.lineTo(x+16,yy+side*20);g.strokePath();}}
@@ -158,6 +158,8 @@ function impact(scene,v,p,phase) {
   graphic(scene,g=>{
     if(phase==='block'){g.lineStyle(4,0xb8d2ef,.9);g.beginPath();g.arc(v.x,v.y,42,-1.35,1.35);g.strokePath();return;}
     if(phase==='miss'){g.lineStyle(1,p.color,.35);for(let i=0;i<3;i++)g.lineBetween(v.x-28,v.y+i*10,v.x+18,v.y+i*10-12);return;}
+    const star=[];for(let i=0;i<16;i++){const a=i*Math.PI/8,r=i%2?5:14+(i%4)*3;star.push({x:v.x+Math.cos(a)*r,y:v.y+Math.sin(a)*r});}
+    g.fillStyle(0xfff3cf,.9);g.lineStyle(1.3,0x223049,.8);g.fillPoints(star,true);g.strokePoints(star,true);
     if(p.family==='blunt'){g.lineStyle(3,p.color,.8);g.strokeCircle(v.x,v.y,24);g.lineStyle(1,p.color,.45);g.strokeCircle(v.x,v.y,37);}
     else stroke(g,v.x,v.y,1,p);
     for(let i=0;i<9;i++){const a=i*Math.PI*2/9;g.lineStyle(i%2?1:2,p.color,.85);g.lineBetween(v.x+Math.cos(a)*12,v.y+Math.sin(a)*12,v.x+Math.cos(a)*(24+i%3*7),v.y+Math.sin(a)*(24+i%3*7));}

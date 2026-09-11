@@ -1,0 +1,895 @@
+{
+  "version": 1,
+  "scope": "opt-in art sample",
+  "assets": [
+    {
+      "id": "mage",
+      "path": "assets/anime/v1/mage.png",
+      "source": "exec-74af0a1f-1eb6-406f-879c-9362fd2891ce.png",
+      "tool": "built-in image_gen",
+      "bytes": 1825506,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "face": [
+          422,
+          178,
+          278,
+          158
+        ],
+        "eyes": [
+          [
+            501,
+            238
+          ],
+          [
+            609,
+            238
+          ]
+        ],
+        "mouth": [
+          555,
+          311
+        ],
+        "nose": [
+          555,
+          278
+        ],
+        "iris": "#628ba5",
+        "female": true,
+        "chest": [
+          395,
+          940
+        ],
+        "compliance": 1
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "oath",
+      "path": "assets/anime/v1/armor-alpha.png",
+      "source": "exec-ac4fb1a6-3646-47f1-b2b6-a3a560f6034f.png",
+      "tool": "built-in image_gen",
+      "bytes": 1960739,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "parent": "mage",
+        "compliance": 0,
+        "face": [
+          422,
+          178,
+          278,
+          158
+        ],
+        "eyes": [
+          [
+            501,
+            238
+          ],
+          [
+            609,
+            238
+          ]
+        ],
+        "mouth": [
+          555,
+          311
+        ],
+        "nose": [
+          555,
+          278
+        ],
+        "iris": "#628ba5",
+        "female": true,
+        "chest": [
+          395,
+          940
+        ],
+        "masked": false,
+        "browsCovered": false
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "shinobi",
+      "path": "assets/anime/v1/ninja-alpha.png",
+      "source": "exec-0a5a931b-10ac-4fef-b5e8-8a71357b048f.png",
+      "tool": "built-in image_gen",
+      "bytes": 1696556,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "parent": "mage",
+        "masked": true,
+        "browsCovered": true,
+        "compliance": 0.3,
+        "face": [
+          422,
+          178,
+          278,
+          158
+        ],
+        "eyes": [
+          [
+            501,
+            238
+          ],
+          [
+            609,
+            238
+          ]
+        ],
+        "mouth": [
+          555,
+          311
+        ],
+        "nose": [
+          555,
+          278
+        ],
+        "iris": "#628ba5",
+        "female": true,
+        "chest": [
+          395,
+          940
+        ]
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "samurai",
+      "path": "assets/anime/v1/samurai.png",
+      "source": "exec-e07bd775-196f-4579-91a1-e406cd7e5e7c.png",
+      "tool": "built-in image_gen",
+      "bytes": 1877501,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "face": [
+          429,
+          189,
+          253,
+          160
+        ],
+        "eyes": [
+          [
+            509,
+            239
+          ],
+          [
+            602,
+            239
+          ]
+        ],
+        "mouth": [
+          554,
+          325
+        ],
+        "iris": "#697e67",
+        "chest": [
+          430,
+          970
+        ],
+        "compliance": 0
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "pirate",
+      "path": "assets/anime/v1/pirate.png",
+      "source": "exec-52d1b8f4-faf8-437a-86c9-68e8cb301273.png",
+      "tool": "built-in image_gen",
+      "bytes": 1719424,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "face": [
+          421,
+          108,
+          272,
+          187
+        ],
+        "eyes": [
+          [
+            496,
+            169
+          ],
+          [
+            604,
+            169
+          ]
+        ],
+        "mouth": [
+          549,
+          266
+        ],
+        "iris": "#b79648",
+        "chest": [
+          355,
+          965
+        ],
+        "compliance": 0.1
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "sentinel",
+      "path": "assets/anime/v1/sentinel.png",
+      "source": "exec-34a28b95-481e-4251-8706-e4fd4dfc4b32.png",
+      "tool": "built-in image_gen",
+      "bytes": 2469504,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "face": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "eyes": [],
+        "masked": true,
+        "browsCovered": true,
+        "rigid": true,
+        "chest": [
+          440,
+          1100
+        ],
+        "compliance": 0
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "werewolf",
+      "path": "assets/anime/v1/werewolf.png",
+      "source": "exec-94775b7a-e0e6-48f7-a6e2-4cb9ccbb8127.png",
+      "tool": "built-in image_gen",
+      "bytes": 2534260,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "face": [
+          420,
+          220,
+          280,
+          138
+        ],
+        "eyes": [
+          [
+            489,
+            286
+          ],
+          [
+            632,
+            286
+          ]
+        ],
+        "fur": "#514d57",
+        "beast": true,
+        "chest": [
+          580,
+          1310
+        ]
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "werebear",
+      "path": "assets/anime/v1/werebear.png",
+      "source": "exec-31a8b54a-be2c-4e83-b4fa-68c31097f4f5.png",
+      "tool": "built-in image_gen",
+      "bytes": 2377683,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "face": [
+          462,
+          90,
+          235,
+          118
+        ],
+        "eyes": [
+          [
+            520,
+            143
+          ],
+          [
+            641,
+            142
+          ]
+        ],
+        "fur": "#4a3329",
+        "beast": true,
+        "chest": [
+          480,
+          1300
+        ]
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "panther",
+      "path": "assets/anime/v1/panther.png",
+      "source": "exec-1e1cb8c5-1419-456a-a768-7373139cfa7e.png",
+      "tool": "built-in image_gen",
+      "bytes": 2074241,
+      "masterSize": [
+        1122,
+        1402
+      ],
+      "alpha": true,
+      "rig": {
+        "face": [
+          479,
+          257,
+          431,
+          171
+        ],
+        "eyes": [
+          [
+            580,
+            326
+          ],
+          [
+            823,
+            372
+          ]
+        ],
+        "fur": "#282435",
+        "beast": true,
+        "chest": [
+          700,
+          1390
+        ]
+      },
+      "status": "review prototype"
+    },
+    {
+      "id": "port",
+      "path": "assets/anime/v1/port.png",
+      "source": "exec-133f8872-02ae-4c80-a52d-d571c44c1f7b.png",
+      "tool": "built-in image_gen",
+      "bytes": 2968835,
+      "masterSize": [
+        1627,
+        967
+      ],
+      "alpha": false,
+      "rig": null,
+      "status": "review prototype"
+    },
+    {
+      "id": "forest",
+      "path": "assets/anime/v1/forest.png",
+      "source": "exec-1c6e13ba-48d0-44fa-9b62-0a34b531de0e.png",
+      "tool": "built-in image_gen",
+      "bytes": 3249220,
+      "masterSize": [
+        1627,
+        967
+      ],
+      "alpha": false,
+      "rig": null,
+      "status": "review prototype"
+    }
+  ],
+  "gear": [
+    {
+      "id": "warrior",
+      "name": "Warrior Set",
+      "cost": 800,
+      "source": "blacksmith",
+      "archetypes": [
+        "tank",
+        "fighter"
+      ],
+      "legacyLook": {
+        "pattern": "plate",
+        "palette": {
+          "base": "#5a5f6e",
+          "trim": "#2a2622",
+          "metal": "#c0c6d0"
+        },
+        "headwear": "helm"
+      },
+      "illustratedStatus": "pending",
+      "design": "Steel plate, broad defensive pauldrons, dark padded layers, open helmet; distinct from ceremonial Oath Plate."
+    },
+    {
+      "id": "ranger",
+      "name": "Ranger Set",
+      "cost": 800,
+      "source": "blacksmith",
+      "archetypes": [
+        "ranger",
+        "rogue"
+      ],
+      "legacyLook": {
+        "pattern": "ranger",
+        "palette": {
+          "base": "#3a4a32",
+          "trim": "#5a4630",
+          "metal": "#8a7a50"
+        },
+        "headwear": "cap",
+        "cloak": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Layered forest-green cloak, reinforced leather, bracer and quiver; agile scout silhouette."
+    },
+    {
+      "id": "mage",
+      "name": "Mage Set",
+      "cost": 800,
+      "source": "blacksmith",
+      "archetypes": [
+        "mage",
+        "druid"
+      ],
+      "legacyLook": {
+        "pattern": "robe",
+        "palette": {
+          "base": "#3a3644",
+          "trim": "#a89ab8",
+          "metal": "#a8adb8"
+        },
+        "cloak": true
+      },
+      "illustratedStatus": "adult female prototype; other bodies pending",
+      "design": "Tailored navy and cream robe or dress, arcane fastenings, structured collar, optional cape."
+    },
+    {
+      "id": "healer",
+      "name": "Healer Set",
+      "cost": 800,
+      "source": "blacksmith",
+      "archetypes": [
+        "healer"
+      ],
+      "legacyLook": {
+        "pattern": "robe",
+        "palette": {
+          "base": "#4a5a48",
+          "trim": "#e8e2d2",
+          "metal": "#a8adb8"
+        },
+        "stole": true,
+        "pendant": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Ivory and green vestments, healing insignia, practical sleeves, embroidered stole."
+    },
+    {
+      "id": "plate",
+      "name": "Plate Harness",
+      "cost": 400,
+      "source": "blacksmith",
+      "archetypes": [
+        "tank"
+      ],
+      "legacyLook": {
+        "pattern": "plate",
+        "palette": {
+          "base": "#8a9098",
+          "trim": "#7a1f1c",
+          "metal": "#d4a94e"
+        },
+        "headwear": "helm",
+        "cloak": true,
+        "centreRidge": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Riveted full plate harness, central ridge, articulated shoulders, burgundy underlayer and helmet."
+    },
+    {
+      "id": "duelist",
+      "name": "Duelist's Kit",
+      "cost": 400,
+      "source": "blacksmith",
+      "archetypes": [
+        "fighter"
+      ],
+      "legacyLook": {
+        "pattern": "duelist",
+        "palette": {
+          "base": "#4a2a32",
+          "trim": "#1c1c22",
+          "metal": "#a8adb8"
+        }
+      },
+      "illustratedStatus": "pending",
+      "design": "Fitted fencing coat, asymmetric shoulder guard, gloves and rapier belt; free sword arm."
+    },
+    {
+      "id": "leathers",
+      "name": "Night Leathers",
+      "cost": 400,
+      "source": "blacksmith",
+      "archetypes": [
+        "rogue"
+      ],
+      "legacyLook": {
+        "pattern": "shinobi",
+        "palette": {
+          "base": "#3a3228",
+          "trim": "#5a4a38",
+          "metal": "#5a5a62"
+        },
+        "extras": "mask"
+      },
+      "illustratedStatus": "pending",
+      "design": "Dark brown fitted leather, soft cowl and lower-face mask; no plate-armor silhouette."
+    },
+    {
+      "id": "adept",
+      "name": "Adept Robes",
+      "cost": 400,
+      "source": "blacksmith",
+      "archetypes": [
+        "mage"
+      ],
+      "legacyLook": {
+        "pattern": "robe",
+        "palette": {
+          "base": "#2a3850",
+          "trim": "#8aa0c8",
+          "metal": "#a8adb8"
+        }
+      },
+      "illustratedStatus": "pending",
+      "design": "Restrained blue apprentice robes, practical sash, book pouch; less ornate than Mage Set."
+    },
+    {
+      "id": "wildhide",
+      "name": "Wildhide",
+      "cost": 400,
+      "source": "blacksmith",
+      "archetypes": [
+        "druid"
+      ],
+      "legacyLook": {
+        "pattern": "hide",
+        "palette": {
+          "base": "#5a4030",
+          "trim": "#e8e2d2",
+          "metal": "#e8e2d2"
+        }
+      },
+      "illustratedStatus": "pending",
+      "design": "Layered hide and fur, leaf or bone clasp, weathered natural fabric; druid identity visible."
+    },
+    {
+      "id": "hunter",
+      "name": "Hunter's Rig",
+      "cost": 400,
+      "source": "blacksmith",
+      "archetypes": [
+        "ranger"
+      ],
+      "legacyLook": {
+        "pattern": "ranger",
+        "palette": {
+          "base": "#3a4a28",
+          "trim": "#4a3a28",
+          "metal": "#8a7a50"
+        },
+        "headwear": "cap"
+      },
+      "illustratedStatus": "pending",
+      "design": "Short leather hunting jacket, hood or cap, quiver and field pouches; no long ranger cloak."
+    },
+    {
+      "id": "street",
+      "name": "Street Steel",
+      "cost": 600,
+      "source": "blacksmith",
+      "archetypes": [
+        "fighter",
+        "rogue"
+      ],
+      "legacyLook": {
+        "pattern": "street",
+        "palette": {
+          "base": "#4a3830",
+          "trim": "#7a3a2a",
+          "metal": "#5a5a62"
+        },
+        "extras": "mask"
+      },
+      "illustratedStatus": "pending",
+      "design": "Patched coat and concealed steel plates, reinforced forearms, urban mask and utility belts."
+    },
+    {
+      "id": "oath",
+      "name": "Oath Plate",
+      "cost": 600,
+      "source": "blacksmith",
+      "archetypes": [
+        "tank",
+        "healer"
+      ],
+      "legacyLook": {
+        "pattern": "plate",
+        "palette": {
+          "base": "#d8d2c2",
+          "trim": "#d4a94e",
+          "metal": "#a8adb8"
+        },
+        "cloak": true,
+        "sunEmblem": true
+      },
+      "illustratedStatus": "adult female prototype; other bodies pending",
+      "design": "Ivory and gold fitted plate, sun insignia, ceremonial cloak and open face."
+    },
+    {
+      "id": "chantry",
+      "name": "Chantry Robes",
+      "cost": 600,
+      "source": "blacksmith",
+      "archetypes": [
+        "mage",
+        "healer"
+      ],
+      "legacyLook": {
+        "pattern": "robe",
+        "palette": {
+          "base": "#4a4a38",
+          "trim": "#e8e2d2",
+          "metal": "#d4a94e"
+        },
+        "stole": true,
+        "pendant": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Gold-trimmed neutral robes, religious stole and pendant; different symbols from arcane gear."
+    },
+    {
+      "id": "greenward",
+      "name": "Greenward Kit",
+      "cost": 600,
+      "source": "blacksmith",
+      "archetypes": [
+        "ranger",
+        "druid"
+      ],
+      "legacyLook": {
+        "pattern": "ranger",
+        "palette": {
+          "base": "#2f4a2a",
+          "trim": "#5a4630",
+          "metal": "#8a7a50"
+        },
+        "headwear": "cap",
+        "cloak": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Green hooded travel coat over leather, vine motif and druid talisman; ranged support silhouette."
+    },
+    {
+      "id": "shadowweave",
+      "name": "Shadowweave",
+      "cost": 600,
+      "source": "blacksmith",
+      "archetypes": [
+        "rogue",
+        "mage"
+      ],
+      "legacyLook": {
+        "pattern": "shinobi",
+        "palette": {
+          "base": "#2a2438",
+          "trim": "#4a3a60",
+          "metal": "#5a5a62"
+        },
+        "headwear": "hood",
+        "cloak": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Layered violet-black fabric, arcane seam markings, masked cowl and flexible armor."
+    },
+    {
+      "id": "ronin",
+      "name": "Ronin Gear",
+      "cost": 0,
+      "source": "unique",
+      "archetypes": [
+        "fighter"
+      ],
+      "legacyLook": {
+        "pattern": "lamellar",
+        "palette": {
+          "base": "#38343e",
+          "trim": "#8a6fd0",
+          "metal": "#1c1c22"
+        },
+        "clanKnot": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Hiro-specific worn lamellar armor, family knot and katana fittings; preserve his authored face and purple accents."
+    },
+    {
+      "id": "assassins_gear",
+      "name": "Assassin's Gear",
+      "cost": 0,
+      "source": "faction",
+      "archetypes": [
+        "rogue",
+        "ranger",
+        "fighter"
+      ],
+      "legacyLook": {
+        "pattern": "shinobi",
+        "palette": {
+          "base": "#2a2d36",
+          "trim": "#4a4a56",
+          "metal": "#5a5a62"
+        },
+        "headwear": "hood"
+      },
+      "illustratedStatus": "pending",
+      "design": "Maw-issued practical concealment hood, knife harness and muted gray plates; distinct from Bell shinobi."
+    },
+    {
+      "id": "mercenarys_gear",
+      "name": "Mercenary's Gear",
+      "cost": 0,
+      "source": "faction",
+      "archetypes": [
+        "tank",
+        "ranger",
+        "fighter"
+      ],
+      "legacyLook": {
+        "pattern": "leather_plate",
+        "palette": {
+          "base": "#6a5a48",
+          "trim": "#b08a40",
+          "metal": "#7a7f88"
+        },
+        "headwear": "helm"
+      },
+      "illustratedStatus": "pending",
+      "design": "Antler-issued leather and plate, contract-company insignia and rugged helmet."
+    },
+    {
+      "id": "battle_mages_gear",
+      "name": "Battle Mage's Gear",
+      "cost": 0,
+      "source": "faction",
+      "archetypes": [
+        "druid",
+        "mage",
+        "healer"
+      ],
+      "legacyLook": {
+        "pattern": "robe",
+        "palette": {
+          "base": "#4a3a5a",
+          "trim": "#c0a8d8",
+          "metal": "#8a8f99"
+        },
+        "cloak": true,
+        "gorget": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Academy-issued battle robes, reinforced gorget, arcane insignia and armored sleeves."
+    },
+    {
+      "id": "shinobi_gear",
+      "name": "Shinobi Gear",
+      "cost": 0,
+      "source": "faction",
+      "archetypes": [
+        "rogue",
+        "druid",
+        "mage"
+      ],
+      "legacyLook": {
+        "pattern": "shinobi",
+        "palette": {
+          "base": "#1a1c22",
+          "trim": "#3a3a48",
+          "metal": "#5a5a62"
+        },
+        "headwear": "hood",
+        "clanKnot": true
+      },
+      "illustratedStatus": "adult female prototype; other bodies pending",
+      "design": "Bell-issued wrapped tunic, layered shoulder guards, clan knot, fitted cloth mask and forehead covering."
+    },
+    {
+      "id": "green_eyed_armour",
+      "name": "Green-Eyed Armour",
+      "cost": 0,
+      "source": "faction",
+      "archetypes": [
+        "fighter",
+        "tank",
+        "ranger"
+      ],
+      "legacyLook": {
+        "pattern": "lamellar",
+        "palette": {
+          "base": "#4a5a38",
+          "trim": "#d4a94e",
+          "metal": "#1c1c22"
+        },
+        "headwear": "kabuto"
+      },
+      "illustratedStatus": "pending",
+      "design": "Green-clan lamellar plates, gold fittings, kabuto and distinct clan insignia."
+    },
+    {
+      "id": "privateers_kit",
+      "name": "Privateer's Kit",
+      "cost": 0,
+      "source": "faction",
+      "archetypes": [
+        "rogue",
+        "fighter",
+        "druid"
+      ],
+      "legacyLook": {
+        "pattern": "pirate",
+        "palette": {
+          "base": "#5a1f1c",
+          "trim": "#c8a24a",
+          "metal": "#b08a40"
+        },
+        "extras": "tricorne",
+        "pistol": true
+      },
+      "illustratedStatus": "pending",
+      "design": "Red Tally coat, tricorne, boarding belt, flintlock and sea-worn materials; pirate study still needs final faction colors and hat."
+    },
+    {
+      "id": "kings_uniform",
+      "name": "King's Uniform",
+      "cost": 0,
+      "source": "faction",
+      "archetypes": [
+        "ranger",
+        "tank",
+        "healer"
+      ],
+      "legacyLook": {
+        "pattern": "navy",
+        "palette": {
+          "base": "#1f2c48",
+          "trim": "#e8e2d2",
+          "metal": "#d4a94e"
+        },
+        "extras": "bicorne"
+      },
+      "illustratedStatus": "pending",
+      "design": "Admiralty navy and ivory officer uniform, bicorne, epaulettes and royal insignia."
+    }
+  ],
+  "identity": "Fixed canonical Aera head is composited across three outfits; source master files are not a finished modular wardrobe.",
+  "fallback": "Unmapped character/gear combinations retain the existing renderer; never silently replace a set with another costume."
+}

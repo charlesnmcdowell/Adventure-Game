@@ -10,7 +10,8 @@ class DeathScene extends Phaser.Scene {
     this.game_ = this.registry.get('game');
     const game = this.game_;
     const W = T().W, H = T().H;
-    this.add.rectangle(W / 2, H / 2, W, H, 0x0b0908);
+    if(ADV.AnimeEnvironments)ADV.AnimeEnvironments.view(this,'cemetery','evening',{depth:-10});
+    this.add.rectangle(W / 2, H / 2, W, H, 0x0b111c, ADV.AnimeEnvironments ? .58 : 1);
     ADV.Music.play('death');
     // Permadeath plus inheritance is the strongest idea in the game and it used
     // to be a wall of text. Play the burial first, then show the ledger.

@@ -90,7 +90,22 @@ function ambience(scene,terrain){
 ADV.TravelUI={
  play(scene,game,q,leg,done,options){
   options=options||{};
-  const plan=ADV.Travel.plan(game,q,leg);if(plan.bypass){if(done)done();return;}
+  const plan=options.__readyPlan||ADV.Travel.plan(game,q,leg);if(plan.bypass){if(done)done();return;}
+  // First-view time starts when the illustration is ready, even on a cold cache.
+  if(ADV.AnimeEnvironments&&!game.__artPreview&&!options.__readyPlan){
+   const lease=ADV.AnimeEnvironments.acquire(scene,plan.location.id),oldCut=scene.__cutscene;
+   scene.__cutscene=true;if(scene.hideChrome)scene.hideChrome();
+   const shade=scene.add.rectangle(640,380,1280,760,0x142032).setDepth(990).setInteractive();
+   const label=ADV.T.text(scene,640,360,'Preparing the journey…',{size:23,ox:.5,color:ADV.T.css.gold}).setDepth(991);
+   let stopped=false,button=null;
+   const clean=()=>{if(stopped)return;stopped=true;scene.events.off('shutdown',clean);shade.destroy();label.destroy();button?.destroy();lease.release();scene.__cutscene=oldCut;};
+   scene.events.once('shutdown',clean);
+   lease.ready.then(ok=>{
+    if(stopped)return;
+    if(ok){clean();ADV.TravelUI.play(scene,game,q,leg,done,Object.assign({},options,{__readyPlan:plan}));}
+    else{label.setText('The scenery could not load. This journey will stay unseen.');button=ADV.T.button(scene,500,420,280,42,'Continue to the quest',()=>{clean();if(!oldCut&&scene.showChrome)scene.showChrome();if(done)done();});button.g.setDepth(991);button.txt.setDepth(992);button.zone.setDepth(993);}
+   });return;
+  }
   const W=ADV.T.W,H=ADV.T.H,r=plan.location,id=++serial;
   const owned=[],keys=[],timers=[],keep=o=>(owned.push(o),o);
   const later=(ms,fn)=>{const t=scene.time.delayedCall(ms,()=>{if(!ended)fn();});timers.push(t);return t;};
@@ -103,19 +118,21 @@ ADV.TravelUI={
   const qs=game.quest||(game.travelResolution&&game.travelResolution.q);
   const phase=(qs&&qs.travel&&qs.travel.phase)||ADV.BattleArt.phaseFor(game);
   const layers=[];
-  for(let n=0;n<5;n++){
+  const illustrated=ADV.AnimeEnvironments&&!scene.game.__artPreview;
+  if(illustrated)root.add(ADV.AnimeEnvironments.view(scene,r.id,phase,{travel:true,depth:0}));
+  for(let n=0;!illustrated&&n<5;n++){
    const key='journey-'+id+'-'+n,tex=scene.textures.createCanvas(key,W*2,H);keys.push(key);drawStrip(tex.getContext(),W*2,H,r,n,rng,phase);tex.refresh();
    const tile=scene.add.tileSprite(0,0,W,H,key).setOrigin(0);root.add(tile);layers.push(tile);
    if(options.resume)tile.tilePositionX=72*[0,.15,.4,1,1.8][n]*3.2;
   }
-  const grade=scene.add.rectangle(W/2,H/2,W,H,phase==='night'?0x101e38:0x9b4b2c,phase==='night'?.4:phase==='evening'?.16:0);root.add(grade);
+  const grade=scene.add.rectangle(W/2,H/2,W,H,phase==='night'?0x101e38:0x9b4b2c,illustrated?0:phase==='night'?.4:phase==='evening'?.16:0);root.add(grade);
   // The water sits behind ships; reflections and ripples move independently.
-  const water=['port','coast'].includes(r.terrain)?scene.add.graphics():null;
+  const water=!illustrated&&['port','coast'].includes(r.terrain)?scene.add.graphics():null;
   if(water)root.addAt(water,2);
   const life=scene.add.graphics();root.add(life);
   const seaCrossing=r.terrain==='port'&&leg==='midleg';
-  if(seaCrossing){layers[2].setAlpha(.25);layers[4].setAlpha(.2);}
-  const mark=scene.add.container(1040,0);root.addAt(mark,3);landmark(scene,mark,r);
+  if(seaCrossing&&!illustrated){layers[2].setAlpha(.25);layers[4].setAlpha(.2);}
+  const mark=scene.add.container(1040,0);root.addAt(mark,Math.min(3,root.length));if(!illustrated)landmark(scene,mark,r);
   if(options.resume)mark.x-=72*.45*3.2;
   if(plan.event==='roadside-candle'){const g=scene.add.graphics();mark.add(g);g.fillStyle(0x161b22);g.fillEllipse(-90,473,85,18);g.fillStyle(0xf5ce88);g.fillRect(-40,451,5,18);g.fillCircle(-38,447,4);}
   if(plan.event==='occupied-landmark'){const g=scene.add.graphics();mark.add(g);g.fillStyle(0x171f26);g.fillCircle(-85,424,9);g.fillRoundedRect(-98,435,25,30,5);g.fillRect(-98,460,44,9);}
@@ -141,8 +158,9 @@ ADV.TravelUI={
   // Keep the quest's weather snapshot; restore the underlying scene on completion.
   const oldWeather=scene.weatherFx;let weather=null;
   if(oldWeather&&oldWeather.container)oldWeather.container.setVisible(false);
-  if(ADV.WeatherFX){scene.weatherFx=null;weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:570},{depth:885});}
-  if(plan.event==='weather-turn'&&qs&&qs.travel)later(3000,()=>{
+  const outdoors=!illustrated||!ADV.AnimeEnvironments.INDOOR.has(r.id);
+  if(ADV.WeatherFX&&outdoors){scene.weatherFx=null;weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:570},{depth:885});}
+  if(plan.event==='weather-turn'&&qs&&qs.travel&&outdoors)later(3000,()=>{
     qs.travel.weather={kind:r.terrain==='mountain'?'snow':'rain',intensity:.7,wind:.4};
     if(weather)weather.destroy();scene.weatherFx=null;
     weather=ADV.WeatherFX.attach(scene,qs.travel.weather,phase,{x:0,y:0,w:W,h:570},{depth:885});

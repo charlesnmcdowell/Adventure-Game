@@ -313,6 +313,7 @@ Character.makePlayer = function (rng, opts) {
     sex: opts.sex,
     stats: Character.rollStats(rng, 'human'),
     portraitSeed: opts.portraitSeed, portraitKind: 'player',
+    appearance: opts.appearance ? Object.assign({},opts.appearance) : null,
     portraitSlot: opts.portraitSlot,
     isPlayer: true,
     personalityId: opts.personalityId && ADV.DATA.DIALOGUE[opts.personalityId] &&

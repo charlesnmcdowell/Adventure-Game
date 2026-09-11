@@ -11,7 +11,7 @@ class QuestScene extends Phaser.Scene {
     const game = this.game_;
     const W = T().W, H = T().H;
     if (game.travelResolution) { this.completeFlow(); return; }
-    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
+    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg).setDepth(-30);
     if (ADV.BattleArt && game.quest) {
       try {
         ADV.BattleArt.paint(this, ADV.BattleArt.groundFor(game, 'quest'), ADV.BattleArt.phaseFor(game));

@@ -147,12 +147,18 @@ function snowTex(scene) {
   });
 }
 function cloudTex(scene, dark) {
-  const key = dark ? 'wx_cloud_d' : 'wx_cloud';
-  return tex(scene, key, 256, 80, (ctx) => {
-    ctx.fillStyle = dark ? 'rgba(40,48,60,0.55)' : 'rgba(210,218,226,0.5)';
-    for (const [x, y, r] of [[40, 48, 28], [80, 36, 34], [130, 44, 30], [180, 38, 36], [220, 50, 24]]) {
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+  const key = dark ? 'wx_cloud_anime_d' : 'wx_cloud_anime';
+  return tex(scene, key, 512, 128, (ctx) => {
+    // A continuous, wispy bank instead of overlapping translucent circles.
+    const data=ctx.createImageData(512,128),p=data.data;
+    const rand=(x,y)=>{const v=Math.sin(x*127.1+y*311.7)*43758.5453;return v-Math.floor(v);};
+    const noise=(x,y)=>{const ix=Math.floor(x),iy=Math.floor(y),fx=x-ix,fy=y-iy,u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);return(rand(ix,iy)*(1-u)+rand(ix+1,iy)*u)*(1-v)+(rand(ix,iy+1)*(1-u)+rand(ix+1,iy+1)*u)*v;};
+    for(let y=0;y<128;y++)for(let x=0;x<512;x++){
+      const n=noise(x/88,y/30)*.6+noise(x/32,y/14)*.28+noise(x/13,y/7)*.12;
+      const envelope=Math.pow(Math.sin(Math.PI*y/128),1.8),seam=Math.min(1,x/40,(511-x)/40),i=(y*512+x)*4;
+      const c=dark?45+n*20:192+n*38;p[i]=c;p[i+1]=c+8;p[i+2]=c+18;p[i+3]=Math.max(0,n-.27)*envelope*seam*(dark?160:125);
     }
+    ctx.putImageData(data,0,0);
   });
 }
 

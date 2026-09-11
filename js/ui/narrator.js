@@ -12,7 +12,10 @@ const N={voice:'C34VRFVgUY3W0ZIN2NQ5',lines:{
  low_gold:'Your purse is becoming a percussion instrument: mostly empty space. Check the better-paying contracts and available faction campaigns. Solo work pays too, but without a party, one bad fight can cost you the lot.',
  broke_marriage:'Less than a hundred gold. You could marry a rich husband or wife, if budgeting continues to be your dump stat. Try some paid work first. Romance has its own requirements.',
  broke_work:'Your finances have entered stealth mode. Hire on with a party for wages, or check faction contracts and campaign work you qualify for. Solo bounties can pay well. They can also end in a funeral for one.',
- brick_spouses:'A brick house. Actual walls, and room for two spouses. You can now marry more than one person without exceeding the housing limit. Apparently the next boss fight is the household calendar.'
+ brick_spouses:'A brick house. Actual walls, and room for two spouses. You can now marry more than one person without exceeding the housing limit. Apparently the next boss fight is the household calendar.',
+ leadership_1:'Six quests played and you still have not founded a party. A follower. A loyal employee. Lovely qualities in someone making another bastard rich. You are never getting to the big leagues until you nut up and start your own company.',
+ leadership_2:'As leader, you choose the contracts, outfit your people with gear, and keep the contract money left after wages and expenses. A properly equipped party gives you a better shot at god-tier quests and an easier time with faction work. Bigger rewards, bigger payroll. Try to remember both.',
+ leadership_3:'Short on volunteers? Learn Conscription and build a forced-labor crew from defeated enemies, or use Necromancy to supplement your ranks with thralls. Conscripts eventually leave; the dead last for the current contract. Both are forbidden arts with consequences. Apparently even cheap labor has a catch.'
 }};
 N.conditions=function(game){
  const p=ADV.Game.player(game);if(!p||!p.alive)return [];
@@ -22,6 +25,11 @@ N.conditions=function(game){
  if(s.sick)add('sick','sickness:'+s.questTicks);
  else {const left=ADV.Survival.shelterDeadline(p);if(left<=2)add(left===2?'shelter_two':'shelter_one','shelter:'+s.questTicks+':'+left);}
  if(ADV.Housing.rank(ADV.Housing.of(p).id)>=ADV.Housing.rank('brick'))add('brick_spouses','brick_spouses');
+ const party=ADV.Party.of(game.world,p);game.meta=game.meta||{};
+ if(p.hasFoundedParty||(party&&party.leaderId===p.id))game.meta.partyFounder=true;
+ if(!game.meta.partyFounder&&Math.max(s.questTicks||0,(p.questsCompleted||0)+(p.questsFailed||0))>=6){
+  for(const id of ['leadership_1','leadership_2','leadership_3'])if(!(game.meta.leadershipReminderSeen||[]).includes(id))add(id,id);
+ }
  const wealth=ADV.Vault.wealthOf(game.world,p);
  if(wealth<200 && tick-(mem.lastGoldAt??-99)>=3){const n=mem.goldCount||0;out.push({id:wealth<100?(n%2?'broke_work':'broke_marriage'):'low_gold',key:'gold:'+tick,gold:true});}
  return out;
@@ -46,6 +54,7 @@ N.town=function(scene,game){
   if((ADV.Tutor&&ADV.Tutor.active(game)) || scene.__embarking || scene._chromeHidden || (scene.__msg&&scene.__msg.blocked) || (ADV.Music.voiceEl&&!ADV.Music.voiceEl.paused&&!ADV.Music.voiceEl.ended)) {scene.time.delayedCall(1200,next);return;}
   const item=N.conditions(game)[0];if(!item){scene.__narratorQueue=false;return;}
   const m=ADV.Game.player(game).narratorMemory;m[item.key]=true;if(item.gold){m.lastGoldAt=game.world.questClock||0;m.goldCount=(m.goldCount||0)+1;}
+  if(item.id.startsWith('leadership_'))game.meta.leadershipReminderSeen=(game.meta.leadershipReminderSeen||[]).concat(item.id);
   ADV.Save.saveGame(game);N.say(scene,game,item.id,()=>scene.time.delayedCall(1200,next));
  };
  scene.events.once('shutdown',()=>{scene.__narratorQueue=false;});scene.time.delayedCall(800,next);

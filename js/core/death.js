@@ -129,7 +129,7 @@ Death.finalize = function (world, ch, killerId, cause) {
   if (killer && killer.alive) {
     killer.inventory.gold += ch.inventory.gold;
     killer.inventory.items = (killer.inventory.items || []).concat(ch.inventory.items || [], ch.equipped || []);
-    if (ch.equippedSet && !killer.equippedSet) killer.ownedSets = (killer.ownedSets || []).concat(ch.equippedSet);
+    killer.ownedSets = Array.from(new Set((killer.ownedSets || []).concat(ch.ownedSets || [], ch.equippedSet || [])));
   }
   ch.inventory.gold = 0; ch.inventory.items = []; ch.equipped = []; ch.equippedSet = null;
   // Nobody holds a relationship slot for the dead: outbound feelings toward

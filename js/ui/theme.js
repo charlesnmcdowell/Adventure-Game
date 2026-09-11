@@ -1,5 +1,4 @@
-// Visual identity (§1a Art Budget Substitutes): palette + typography ARE the
-// art. Faction regions get distinct palettes over identical primitives.
+// Shared slate, ivory and gold chrome for the illustrated world.
 (function () {
 'use strict';
 globalThis.ADV = globalThis.ADV || {};
@@ -13,12 +12,12 @@ const T = {
     mono: 'Consolas, "Courier New", monospace',
   },
 
-  // Base palette — parchment-and-ink storybook
+  // Base palette — warm lettering over cool, inked panels.
   c: {
-    bg: 0x171512, bgPanel: 0x211d18, panelEdge: 0x3a332a,
-    parchment: 0x2b261f, parchmentHi: 0x353024,
-    ink: 0xe8dfc8, inkDim: 0xa89a7c, inkFaint: 0x6b6151,
-    gold: 0xd4a94e, goldDim: 0x8a6f36,
+    bg: 0x142032, bgPanel: 0x1a293b, panelEdge: 0x475c72,
+    parchment: 0x223347, parchmentHi: 0x2e445b,
+    ink: 0xf0e8d9, inkDim: 0xc0c4c9, inkFaint: 0x9aaabc,
+    gold: 0xe0bd77, goldDim: 0x9e865a,
     blood: 0xa8352c, bloodHi: 0xd8574a,
     green: 0x5d8a4a, greenHi: 0x83b56b,
     blue: 0x4a6f8a, blueHi: 0x6fa0bf,
@@ -26,8 +25,8 @@ const T = {
     hp: 0xa8352c, tempHp: 0xd4a94e, xp: 0x5d8a4a,
   },
   css: {
-    ink: '#e8dfc8', inkDim: '#a89a7c', inkFaint: '#6b6151',
-    gold: '#d4a94e', blood: '#d8574a', green: '#83b56b', blue: '#6fa0bf',
+    ink: '#f0e8d9', inkDim: '#c0c4c9', inkFaint: '#9aaabc',
+    gold: '#e0bd77', blood: '#ee8275', green: '#a4c892', blue: '#9ac4df',
     purple: '#9a70c0', white: '#f4eee0',
   },
   // Faction palettes recolor panel chrome per quest region (§1a)
@@ -70,10 +69,10 @@ const T = {
     const g = scene.add.graphics();
     const draw = (hover) => {
       g.clear();
-      const fill = opts.disabled ? 0x241f19 : hover ? (opts.hoverFill || 0x3a3226) : (opts.fill || 0x2b261f);
+      const fill = opts.disabled ? 0x1b2431 : hover ? (opts.hoverFill || 0x344b61) : (opts.fill || 0x233448);
       g.fillStyle(fill, 1);
       g.fillRoundedRect(x, y, w, h, 5);
-      g.lineStyle(1.5, opts.disabled ? 0x35302a : (hover ? T.c.gold : (opts.edge || T.c.panelEdge)), 1);
+      g.lineStyle(1.5, opts.disabled ? 0x384553 : (hover ? T.c.gold : (opts.edge || T.c.panelEdge)), 1);
       g.strokeRoundedRect(x, y, w, h, 5);
     };
     draw(false);

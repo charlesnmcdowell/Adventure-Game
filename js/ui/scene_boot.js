@@ -7,12 +7,31 @@ const T = () => ADV.T;
 class TitleScene extends Phaser.Scene {
   constructor() { super('Title'); }
 
+  preload() {
+    if (ADV.AnimeWorld) {
+      const label = this.add.text(640,380,'Preparing your next adventure…',{fontFamily:'Georgia',fontSize:'24px',color:'#e9d5a2'}).setOrigin(.5);
+      this.load.on('progress',p=>label.setText('Preparing your next adventure… '+Math.round(p*100)+'%'));
+      this.load.once('complete',()=>label.destroy());
+      ADV.AnimeWorld.load(this);
+    }
+  }
+
   create() {
+    if (ADV.AnimeArt && !this.game.__openedArtPreview && new URLSearchParams(location.search).get('artPreview') === '1') {
+      this.game.__openedArtPreview = true;
+      this.scene.start('AnimePreview');
+      return;
+    }
     const W = T().W, H = T().H;
-    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
+    if(ADV.AnimeEnvironments)ADV.AnimeEnvironments.view(this,'road','evening',{depth:-10});
+    this.add.rectangle(W / 2, H / 2, W, H, T().c.bg, ADV.AnimeEnvironments ? .78 : 1);
     ADV.Music.play('title');
     ADV.Music.button(this, W - 44, 44);
     if (ADV.Display) ADV.Display.button(this, W - 44, 72);
+    if (ADV.AnimeArt) T().button(this, 54, H - 112, 224, 40, 'Anime art fitting room', () => {
+      if (this.pwField) { this.pwField.destroy(); this.pwField = null; }
+      this.scene.start('AnimePreview');
+    }, { size: 14, color: T().css.gold });
     // decorative frame
     const g = this.add.graphics();
     g.lineStyle(2, T().c.goldDim, 0.8); g.strokeRect(28, 28, W - 56, H - 56);

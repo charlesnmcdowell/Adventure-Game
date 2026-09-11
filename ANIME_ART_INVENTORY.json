@@ -1,0 +1,5151 @@
+{
+  "version": 2,
+  "engine": "3.87",
+  "logicalSize": [
+    1280,
+    760
+  ],
+  "gear": [
+    {
+      "id": "warrior",
+      "name": "Warrior Set",
+      "source": "blacksmith",
+      "archetypes": [
+        "tank",
+        "fighter"
+      ],
+      "cost": 800,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f1",
+          "frame": 0
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m1",
+          "frame": 0
+        }
+      ]
+    },
+    {
+      "id": "ranger",
+      "name": "Ranger Set",
+      "source": "blacksmith",
+      "archetypes": [
+        "ranger",
+        "rogue"
+      ],
+      "cost": 800,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f1",
+          "frame": 1
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m1",
+          "frame": 1
+        }
+      ]
+    },
+    {
+      "id": "mage",
+      "name": "Mage Set",
+      "source": "blacksmith",
+      "archetypes": [
+        "mage",
+        "druid"
+      ],
+      "cost": 800,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f1",
+          "frame": 2
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m1",
+          "frame": 2
+        }
+      ]
+    },
+    {
+      "id": "healer",
+      "name": "Healer Set",
+      "source": "blacksmith",
+      "archetypes": [
+        "healer"
+      ],
+      "cost": 800,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f1",
+          "frame": 3
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m1",
+          "frame": 3
+        }
+      ]
+    },
+    {
+      "id": "plate",
+      "name": "Plate Harness",
+      "source": "blacksmith",
+      "archetypes": [
+        "tank"
+      ],
+      "cost": 400,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f2",
+          "frame": 0
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m2",
+          "frame": 0
+        }
+      ]
+    },
+    {
+      "id": "duelist",
+      "name": "Duelist's Kit",
+      "source": "blacksmith",
+      "archetypes": [
+        "fighter"
+      ],
+      "cost": 400,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f2",
+          "frame": 1
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m2",
+          "frame": 1
+        }
+      ]
+    },
+    {
+      "id": "leathers",
+      "name": "Night Leathers",
+      "source": "blacksmith",
+      "archetypes": [
+        "rogue"
+      ],
+      "cost": 400,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f2",
+          "frame": 2
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m2",
+          "frame": 2
+        }
+      ]
+    },
+    {
+      "id": "adept",
+      "name": "Adept Robes",
+      "source": "blacksmith",
+      "archetypes": [
+        "mage"
+      ],
+      "cost": 400,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f2",
+          "frame": 3
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m2",
+          "frame": 3
+        }
+      ]
+    },
+    {
+      "id": "wildhide",
+      "name": "Wildhide",
+      "source": "blacksmith",
+      "archetypes": [
+        "druid"
+      ],
+      "cost": 400,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f3",
+          "frame": 0
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m3",
+          "frame": 0
+        }
+      ]
+    },
+    {
+      "id": "hunter",
+      "name": "Hunter's Rig",
+      "source": "blacksmith",
+      "archetypes": [
+        "ranger"
+      ],
+      "cost": 400,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f3",
+          "frame": 1
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m3",
+          "frame": 1
+        }
+      ]
+    },
+    {
+      "id": "street",
+      "name": "Street Steel",
+      "source": "blacksmith",
+      "archetypes": [
+        "fighter",
+        "rogue"
+      ],
+      "cost": 600,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f3",
+          "frame": 2
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m3",
+          "frame": 2
+        }
+      ]
+    },
+    {
+      "id": "oath",
+      "name": "Oath Plate",
+      "source": "blacksmith",
+      "archetypes": [
+        "tank",
+        "healer"
+      ],
+      "cost": 600,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f3",
+          "frame": 3
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m3",
+          "frame": 3
+        }
+      ]
+    },
+    {
+      "id": "chantry",
+      "name": "Chantry Robes",
+      "source": "blacksmith",
+      "archetypes": [
+        "mage",
+        "healer"
+      ],
+      "cost": 600,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f4",
+          "frame": 0
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m4",
+          "frame": 0
+        }
+      ]
+    },
+    {
+      "id": "greenward",
+      "name": "Greenward Kit",
+      "source": "blacksmith",
+      "archetypes": [
+        "ranger",
+        "druid"
+      ],
+      "cost": 600,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f4",
+          "frame": 1
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m4",
+          "frame": 1
+        }
+      ]
+    },
+    {
+      "id": "shadowweave",
+      "name": "Shadowweave",
+      "source": "blacksmith",
+      "archetypes": [
+        "rogue",
+        "mage"
+      ],
+      "cost": 600,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f4",
+          "frame": 2
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m4",
+          "frame": 2
+        }
+      ]
+    },
+    {
+      "id": "ronin",
+      "name": "Ronin Gear",
+      "source": "unique",
+      "archetypes": [
+        "fighter"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f4",
+          "frame": 3
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m4",
+          "frame": 3
+        }
+      ]
+    },
+    {
+      "id": "assassins_gear",
+      "name": "Assassin's Gear",
+      "source": "faction",
+      "archetypes": [
+        "rogue",
+        "ranger",
+        "fighter"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f5",
+          "frame": 0
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m5",
+          "frame": 0
+        }
+      ]
+    },
+    {
+      "id": "mercenarys_gear",
+      "name": "Mercenary's Gear",
+      "source": "faction",
+      "archetypes": [
+        "tank",
+        "ranger",
+        "fighter"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f5",
+          "frame": 1
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m5",
+          "frame": 1
+        }
+      ]
+    },
+    {
+      "id": "battle_mages_gear",
+      "name": "Battle Mage's Gear",
+      "source": "faction",
+      "archetypes": [
+        "druid",
+        "mage",
+        "healer"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f5",
+          "frame": 2
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m5",
+          "frame": 2
+        }
+      ]
+    },
+    {
+      "id": "shinobi_gear",
+      "name": "Shinobi Gear",
+      "source": "faction",
+      "archetypes": [
+        "rogue",
+        "druid",
+        "mage"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f5",
+          "frame": 3
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m5",
+          "frame": 3
+        }
+      ]
+    },
+    {
+      "id": "green_eyed_armour",
+      "name": "Green-Eyed Armour",
+      "source": "faction",
+      "archetypes": [
+        "fighter",
+        "tank",
+        "ranger"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f6",
+          "frame": 0
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m6",
+          "frame": 0
+        }
+      ]
+    },
+    {
+      "id": "privateers_kit",
+      "name": "Privateer's Kit",
+      "source": "faction",
+      "archetypes": [
+        "rogue",
+        "fighter",
+        "druid"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f6",
+          "frame": 1
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m6",
+          "frame": 1
+        }
+      ]
+    },
+    {
+      "id": "kings_uniform",
+      "name": "King's Uniform",
+      "source": "faction",
+      "archetypes": [
+        "ranger",
+        "tank",
+        "healer"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_f6",
+          "frame": 2
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_m6",
+          "frame": 2
+        }
+      ]
+    },
+    {
+      "id": "wardens_gear",
+      "name": "Warden's Gear",
+      "source": "faction",
+      "archetypes": [
+        "fighter",
+        "rogue",
+        "healer"
+      ],
+      "cost": 0,
+      "frames": [
+        {
+          "sex": "f",
+          "sheet": "wardrobe_gate",
+          "frame": 0
+        },
+        {
+          "sex": "m",
+          "sheet": "wardrobe_gate",
+          "frame": 1
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "hedge_mage",
+      "name": "Hedge Mage",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "cutthroat",
+      "name": "Cutthroat",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "plague_knave",
+      "name": "Plague Knave",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "bleed_sister",
+      "name": "Bleed Sister",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "dire_wolf",
+      "name": "Dire Wolf",
+      "portrait": "dire_wolf",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "cave_boar",
+      "name": "Cave Boar",
+      "portrait": "boar",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "thorn_lurker",
+      "name": "Thorn Lurker",
+      "portrait": "plant",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "cliff_raptor",
+      "name": "Cliff Raptor",
+      "portrait": "raptor",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "town_watch",
+      "name": "Town Watch",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "plated_sentinel",
+      "name": "Plated Sentinel",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "construct",
+      "faction": null
+    },
+    {
+      "id": "storm_bailiff",
+      "name": "Storm Bailiff",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "pyre_justicar",
+      "name": "Pyre Justicar",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "rime_justicar",
+      "name": "Rime Justicar",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "grave_acolyte",
+      "name": "Grave Acolyte",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "marsh_stalker",
+      "name": "Marsh Stalker",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "ember_cultist",
+      "name": "Ember Cultist",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "frost_hag",
+      "name": "Frost Hag",
+      "portrait": "hag",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "gravewarden",
+      "name": "Gravewarden",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "shadow_beast",
+      "name": "Shadow Beast",
+      "portrait": "shadow",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "field_chaplain",
+      "name": "Field Chaplain",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "cutpurse_leech",
+      "name": "Cutpurse Leech",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "moss_matron",
+      "name": "Moss Matron",
+      "portrait": "plant",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "bandit_king",
+      "name": "Bandit King",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "archmagister",
+      "name": "Archmagister",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "alpha",
+      "name": "Alpha",
+      "portrait": "dire_wolf",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "sentinel_prime",
+      "name": "Sentinel Prime",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "construct",
+      "faction": null
+    },
+    {
+      "id": "grave_bishop",
+      "name": "Grave Bishop",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": null
+    },
+    {
+      "id": "goblin_king",
+      "name": "Goblin King",
+      "portrait": "goblin",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "orc_king",
+      "name": "Orc King",
+      "portrait": "orc",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "giant_raptor",
+      "name": "Giant Raptor",
+      "portrait": "raptor",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "alpha_worg",
+      "name": "Alpha Worg",
+      "portrait": "dire_wolf",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "cave_troll",
+      "name": "Cave Troll",
+      "portrait": "troll",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "swamp_hydra",
+      "name": "Swamp Hydra",
+      "portrait": "hydra",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "bone_stag",
+      "name": "Bone Stag",
+      "portrait": "stag",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "plague_boar",
+      "name": "Plague Boar",
+      "portrait": "boar",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "frost_wyrm",
+      "name": "Frost Wyrm",
+      "portrait": "wyrm",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "thunder_roc",
+      "name": "Thunder Roc",
+      "portrait": "roc",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "mire_hag",
+      "name": "Mire Hag",
+      "portrait": "hag",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "stone_golem",
+      "name": "Stone Golem",
+      "portrait": "golem",
+      "skin": null,
+      "species": "construct",
+      "faction": null
+    },
+    {
+      "id": "night_panther",
+      "name": "Night Panther",
+      "portrait": "panther",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "carrion_drake",
+      "name": "Carrion Drake",
+      "portrait": "drake",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "iron_beetle",
+      "name": "Iron Beetle",
+      "portrait": "beetle",
+      "skin": null,
+      "species": "construct",
+      "faction": null
+    },
+    {
+      "id": "blood_ape",
+      "name": "Blood Ape",
+      "portrait": "ape",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "dune_scorpion",
+      "name": "Dune Scorpion",
+      "portrait": "scorpion",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "river_serpent",
+      "name": "River Serpent",
+      "portrait": "serpent",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "ash_salamander",
+      "name": "Ash Salamander",
+      "portrait": "salamander",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "moss_giant",
+      "name": "Moss Giant",
+      "portrait": "moss_giant",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "hollow_owl",
+      "name": "Hollow Owl",
+      "portrait": "owl",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "brine_crab",
+      "name": "Brine Crab",
+      "portrait": "crab",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "grave_hound",
+      "name": "Grave Hound",
+      "portrait": "hound",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "crystal_spider",
+      "name": "Crystal Spider",
+      "portrait": "spider",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "ember_boar",
+      "name": "Ember Boar",
+      "portrait": "boar",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "storm_elk",
+      "name": "Storm Elk",
+      "portrait": "stag",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "maw_toad",
+      "name": "Maw Toad",
+      "portrait": "toad",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "shard_wolf",
+      "name": "Shard Wolf",
+      "portrait": "dire_wolf",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "king_vulture",
+      "name": "King Vulture",
+      "portrait": "vulture",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "basilisk_queen",
+      "name": "Basilisk Queen",
+      "portrait": "basilisk",
+      "skin": null,
+      "species": "beast",
+      "faction": null
+    },
+    {
+      "id": "house_guard",
+      "name": "House Guard",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "maw"
+    },
+    {
+      "id": "bonded_courier",
+      "name": "Bonded Courier",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "maw"
+    },
+    {
+      "id": "watch_investigator",
+      "name": "Watch Investigator",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "maw"
+    },
+    {
+      "id": "lamplit_witness",
+      "name": "Lamplit Witness",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "maw"
+    },
+    {
+      "id": "candle_bearer",
+      "name": "Candle-Bearer",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "maw"
+    },
+    {
+      "id": "rival_company_spear",
+      "name": "Rival Company Spear",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "antler"
+    },
+    {
+      "id": "contract_breaker",
+      "name": "Contract Breaker",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "antler"
+    },
+    {
+      "id": "road_warden",
+      "name": "Road Warden",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "antler"
+    },
+    {
+      "id": "free_company_burner",
+      "name": "Free Company Burner",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "antler"
+    },
+    {
+      "id": "sanctioned_adept",
+      "name": "Sanctioned Adept",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "antler"
+    },
+    {
+      "id": "hedge_practitioner",
+      "name": "Hedge Practitioner",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "varenholm"
+    },
+    {
+      "id": "unlicensed_warder",
+      "name": "Unlicensed Warder",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "varenholm"
+    },
+    {
+      "id": "struck_scholar",
+      "name": "Struck Scholar",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "varenholm"
+    },
+    {
+      "id": "grave_touched",
+      "name": "Grave-Touched",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "varenholm"
+    },
+    {
+      "id": "academy_proctor",
+      "name": "Academy Proctor",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "varenholm"
+    },
+    {
+      "id": "risen",
+      "name": "The Risen",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "varenholm"
+    },
+    {
+      "id": "bell_initiate",
+      "name": "Bell-Initiate",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "bell"
+    },
+    {
+      "id": "clan_watcher",
+      "name": "Clan Watcher",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "bell"
+    },
+    {
+      "id": "chain_hand",
+      "name": "Chain-Hand",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "bell"
+    },
+    {
+      "id": "poison_sister",
+      "name": "Poison Sister",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "bell"
+    },
+    {
+      "id": "the_refused",
+      "name": "The Refused",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "bell"
+    },
+    {
+      "id": "green_recruit",
+      "name": "Green Recruit",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "green"
+    },
+    {
+      "id": "clan_archer",
+      "name": "Clan Archer",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "green"
+    },
+    {
+      "id": "stone_bannerman",
+      "name": "Stone Bannerman",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "construct",
+      "faction": "green"
+    },
+    {
+      "id": "sworn_blade",
+      "name": "Sworn Blade",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "green"
+    },
+    {
+      "id": "clan_physician",
+      "name": "Clan Physician",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "green"
+    },
+    {
+      "id": "tally_hand",
+      "name": "Tally Hand",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "tally"
+    },
+    {
+      "id": "powder_monkey",
+      "name": "Powder Monkey",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "tally"
+    },
+    {
+      "id": "gun_captain",
+      "name": "Gun Captain",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "tally"
+    },
+    {
+      "id": "ships_surgeon",
+      "name": "Ship's Surgeon",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "tally"
+    },
+    {
+      "id": "sea_dog",
+      "name": "Sea-Dog",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "tally"
+    },
+    {
+      "id": "pressed_hand",
+      "name": "Pressed Hand",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "navy"
+    },
+    {
+      "id": "marine_of_the_line",
+      "name": "Marine of the Line",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "navy"
+    },
+    {
+      "id": "gunnery_officer",
+      "name": "Gunnery Officer",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "navy"
+    },
+    {
+      "id": "signal_officer",
+      "name": "Signal Officer",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "navy"
+    },
+    {
+      "id": "ships_master",
+      "name": "Ship's Master",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "navy"
+    },
+    {
+      "id": "drowned_hand",
+      "name": "Drowned Hand",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "god"
+    },
+    {
+      "id": "house_guard_terrified",
+      "name": "House Guard",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "god"
+    },
+    {
+      "id": "hired_knife",
+      "name": "Hired Knife",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "gate_bandit",
+      "name": "Road Bandit",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "bandit_archer",
+      "name": "Bandit Archer",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "hob_sergeant",
+      "name": "Hobgoblin Sergeant",
+      "portrait": "orc",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "consortium_guard",
+      "name": "Consortium Guard",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "consortium_mage",
+      "name": "Consortium Mage",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "slave_driver",
+      "name": "Slave Driver",
+      "portrait": "bandit",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "veylan_acolyte",
+      "name": "Acolyte of Veylan",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "umbra_druid",
+      "name": "Umbra Druid",
+      "portrait": "hedge_mage",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "gauntlet_soldier",
+      "name": "Burning Gauntlet Soldier",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "gauntlet_traitor",
+      "name": "Gauntlet Turncoat",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "morrak_cultist",
+      "name": "Cultist of Morrak",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "palace_doppelganger",
+      "name": "Palace Guard",
+      "portrait": "plated_sentinel",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "tomb_ghoul",
+      "name": "Tomb Ghoul",
+      "portrait": "grave_acolyte",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    },
+    {
+      "id": "road_wolf",
+      "name": "Road Wolf",
+      "portrait": "dire_wolf",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "tunnel_kobold",
+      "name": "Tunnel Kobold",
+      "portrait": "goblin",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "kobold_shaman",
+      "name": "Kobold Shaman",
+      "portrait": "goblin",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "gnoll_raider",
+      "name": "Gnoll Raider",
+      "portrait": "hound",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "web_spider",
+      "name": "Giant Spider",
+      "portrait": "spider",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "wyvern",
+      "name": "Wyvern",
+      "portrait": "drake",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "sewer_crawler",
+      "name": "Sewer Crawler",
+      "portrait": "beetle",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "sewer_ogre",
+      "name": "Sewer Ogre",
+      "portrait": "troll",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "phase_spider",
+      "name": "Phase Spider",
+      "portrait": "spider",
+      "skin": null,
+      "species": "beast",
+      "faction": "gate"
+    },
+    {
+      "id": "shadow_double",
+      "name": "Shape-Thief",
+      "portrait": "shadow",
+      "skin": null,
+      "species": "human",
+      "faction": "gate"
+    }
+  ],
+  "namedCharacters": [
+    {
+      "id": "wren",
+      "name": "Wren Pell",
+      "head": {
+        "sheet": "heads_named_maw",
+        "frame": 0,
+        "nx": 317,
+        "ny": 383,
+        "chin": 520,
+        "eyeUp": 76,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "street",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 3,
+      "iris": "#956b38",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "kite",
+      "name": "Kite",
+      "head": {
+        "sheet": "heads_named_maw",
+        "frame": 1,
+        "nx": 275,
+        "ny": 374,
+        "chin": 510,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "assassins_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#9b873c",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "vane",
+      "name": "Ossian Vane",
+      "head": {
+        "sheet": "heads_named_maw",
+        "frame": 2,
+        "nx": 327,
+        "ny": 369,
+        "chin": 530,
+        "eyeUp": 68,
+        "mouthDown": 67,
+        "spread": 61
+      },
+      "defaultSet": "duelist",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#72908c",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "arden",
+      "name": "Vesna Arden",
+      "head": {
+        "sheet": "heads_named_maw",
+        "frame": 3,
+        "nx": 243,
+        "ny": 391,
+        "chin": 518,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "hunter",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 2,
+      "iris": "#8d6143",
+      "lipColor": "#99412e",
+      "reserved": true
+    },
+    {
+      "id": "holt",
+      "name": "Bregga Holt",
+      "head": {
+        "sheet": "heads_named_antler",
+        "frame": 0,
+        "nx": 361,
+        "ny": 382,
+        "chin": 518,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "warrior",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 3,
+      "iris": "#9c733f",
+      "lipColor": "#aa7476",
+      "reserved": true
+    },
+    {
+      "id": "roscarrow",
+      "name": "Dain Roscarrow",
+      "head": {
+        "sheet": "heads_named_antler",
+        "frame": 1,
+        "nx": 296,
+        "ny": 369,
+        "chin": 517,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "mercenarys_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 3,
+      "iris": "#596850",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "crane",
+      "name": "Aldis Crane",
+      "head": {
+        "sheet": "heads_named_antler",
+        "frame": 2,
+        "nx": 346,
+        "ny": 403,
+        "chin": 540,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "oath",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 4,
+      "iris": "#67848e",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "holloway",
+      "name": "Hargrave",
+      "head": {
+        "sheet": "heads_named_antler",
+        "frame": 3,
+        "nx": 300,
+        "ny": 409,
+        "chin": 549,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "warrior",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#9a7374",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "lirien",
+      "name": "Adept Lirien",
+      "head": {
+        "sheet": "heads_named_academy",
+        "frame": 0,
+        "nx": 322,
+        "ny": 391,
+        "chin": 506,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "adept",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 0,
+      "mouthType": 2,
+      "iris": "#779dcc",
+      "lipColor": "#813f68",
+      "reserved": true
+    },
+    {
+      "id": "vaunt",
+      "name": "Cassiel Vaunt",
+      "head": {
+        "sheet": "heads_named_academy",
+        "frame": 1,
+        "nx": 295,
+        "ny": 365,
+        "chin": 487,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "mage",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 2,
+      "iris": "#ad80c5",
+      "lipColor": "#574553",
+      "reserved": true
+    },
+    {
+      "id": "venn",
+      "name": "Ilaria Venn",
+      "head": {
+        "sheet": "heads_named_academy",
+        "frame": 2,
+        "nx": 345,
+        "ny": 355,
+        "chin": 482,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "battle_mages_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 1,
+      "iris": "#b8a667",
+      "lipColor": "#813f68",
+      "reserved": true
+    },
+    {
+      "id": "quiet",
+      "name": "The Quiet",
+      "head": {
+        "sheet": "heads_named_academy",
+        "frame": 3,
+        "nx": 307,
+        "ny": 350,
+        "chin": 478,
+        "eyeUp": 90,
+        "mouthDown": 61,
+        "spread": 61
+      },
+      "defaultSet": "shadowweave",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#a3bdc3",
+      "lipColor": "#574553",
+      "reserved": true
+    },
+    {
+      "id": "obaasan",
+      "name": "Obaa-San",
+      "head": {
+        "sheet": "heads_named_bell",
+        "frame": 0,
+        "nx": 346,
+        "ny": 397,
+        "chin": 515,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true,
+        "eyeHeight": 12
+      },
+      "defaultSet": "chantry",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 4,
+      "iris": "#7b6a57",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "suzume",
+      "name": "Suzume",
+      "head": {
+        "sheet": "heads_named_bell",
+        "frame": 1,
+        "nx": 251,
+        "ny": 413,
+        "chin": 522,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "shinobi_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 2,
+      "iris": "#926f46",
+      "lipColor": "#b84e64",
+      "reserved": true
+    },
+    {
+      "id": "kaede",
+      "name": "Kaede",
+      "head": {
+        "sheet": "heads_named_bell",
+        "frame": 2,
+        "nx": 352,
+        "ny": 371,
+        "chin": 484,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "shadowweave",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#827490",
+      "lipColor": "#574553",
+      "reserved": true
+    },
+    {
+      "id": "jiro",
+      "name": "Jiro",
+      "head": {
+        "sheet": "heads_named_bell",
+        "frame": 3,
+        "nx": 281,
+        "ny": 375,
+        "chin": 510,
+        "eyeUp": 73,
+        "mouthDown": 65,
+        "spread": 61,
+        "cloudy": true,
+        "browsCovered": true,
+        "ragged": true
+      },
+      "defaultSet": "shinobi_gear",
+      "bodySheet": null,
+      "cloudyEyes": true,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#c5d4cc",
+      "lipColor": "#586966",
+      "reserved": true
+    },
+    {
+      "id": "takeda",
+      "name": "Master Takeda",
+      "head": {
+        "sheet": "heads_named_green",
+        "frame": 0,
+        "nx": 315,
+        "ny": 397,
+        "chin": 535,
+        "eyeUp": 68,
+        "mouthDown": 59,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "ronin",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 3,
+      "iris": "#696741",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "ayame",
+      "name": "Ayame",
+      "head": {
+        "sheet": "heads_named_green",
+        "frame": 1,
+        "nx": 261,
+        "ny": 427,
+        "chin": 548,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "green_eyed_armour",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 0,
+      "mouthType": 2,
+      "iris": "#628c64",
+      "lipColor": "#aa7476",
+      "reserved": true
+    },
+    {
+      "id": "isamu",
+      "name": "Lord Isamu",
+      "head": {
+        "sheet": "heads_named_green",
+        "frame": 2,
+        "nx": 310,
+        "ny": 402,
+        "chin": 540,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "green_eyed_armour",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#95ad79",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "kira",
+      "name": "Tomoe",
+      "head": {
+        "sheet": "heads_named_green",
+        "frame": 3,
+        "nx": 277,
+        "ny": 386,
+        "chin": 516,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "browsCovered": true
+      },
+      "defaultSet": "ronin",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 2,
+      "iris": "#92738e",
+      "lipColor": "#813f68",
+      "reserved": true
+    },
+    {
+      "id": "hallow",
+      "name": "Quartermaster Cask",
+      "head": {
+        "sheet": "heads_named_tally",
+        "frame": 0,
+        "nx": 324,
+        "ny": 320,
+        "chin": 532,
+        "eyeUp": 80,
+        "mouthDown": 90,
+        "spread": 61
+      },
+      "defaultSet": "privateers_kit",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 3,
+      "iris": "#b39054",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "beau",
+      "name": "Beau Castell",
+      "head": {
+        "sheet": "heads_named_tally",
+        "frame": 1,
+        "nx": 319,
+        "ny": 361,
+        "chin": 506,
+        "eyeUp": 68,
+        "mouthDown": 63,
+        "spread": 61
+      },
+      "defaultSet": "privateers_kit",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 0,
+      "mouthType": 2,
+      "iris": "#8496ad",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "saintcloud",
+      "name": "Captain Meriel Saint-Cloud",
+      "head": {
+        "sheet": "heads_named_tally",
+        "frame": 2,
+        "nx": 329,
+        "ny": 340,
+        "chin": 494,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "privateers_kit",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 1,
+      "iris": "#b89a57",
+      "lipColor": "#99412e",
+      "reserved": true
+    },
+    {
+      "id": "vanekessler",
+      "name": "Admiral August Kessler",
+      "head": {
+        "sheet": "heads_named_tally",
+        "frame": 3,
+        "nx": 320,
+        "ny": 363,
+        "chin": 535,
+        "eyeUp": 78,
+        "mouthDown": 75,
+        "spread": 61
+      },
+      "defaultSet": "kings_uniform",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#708197",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "crell",
+      "name": "Boatswain Crell",
+      "head": {
+        "sheet": "heads_named_navy",
+        "frame": 0,
+        "nx": 347,
+        "ny": 315,
+        "chin": 509,
+        "eyeUp": 86,
+        "mouthDown": 86,
+        "spread": 61
+      },
+      "defaultSet": "kings_uniform",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 3,
+      "iris": "#848e9e",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "fane",
+      "name": "Lieutenant Isolde Merrow",
+      "head": {
+        "sheet": "heads_named_navy",
+        "frame": 1,
+        "nx": 286,
+        "ny": 385,
+        "chin": 511,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "kings_uniform",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 0,
+      "mouthType": 4,
+      "iris": "#679c9e",
+      "lipColor": "#aa7476",
+      "reserved": true
+    },
+    {
+      "id": "ash",
+      "name": "Dorian Ash",
+      "head": {
+        "sheet": "heads_named_navy",
+        "frame": 2,
+        "nx": 347,
+        "ny": 331,
+        "chin": 512,
+        "eyeUp": 82,
+        "mouthDown": 72,
+        "spread": 61
+      },
+      "defaultSet": "privateers_kit",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 3,
+      "iris": "#a780b1",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "hiro",
+      "name": "Hiro",
+      "head": {
+        "sheet": "heads_named_navy",
+        "frame": 3,
+        "nx": 294,
+        "ny": 358,
+        "chin": 510,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "ronin",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#9c82d3",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "pale_mother",
+      "name": "The Pale Mother",
+      "head": {
+        "sheet": "heads_named_gods",
+        "frame": 0,
+        "nx": 328,
+        "ny": 356,
+        "chin": 461,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "cloudy": true
+      },
+      "defaultSet": "healer",
+      "bodySheet": null,
+      "cloudyEyes": true,
+      "eyeType": 4,
+      "mouthType": 4,
+      "iris": "#bdc6d5",
+      "lipColor": "#9b818a",
+      "reserved": true
+    },
+    {
+      "id": "drowned_king",
+      "name": "The Drowned King",
+      "head": {
+        "sheet": "heads_named_gods",
+        "frame": 1,
+        "nx": 301,
+        "ny": 358,
+        "chin": 532,
+        "eyeUp": 68,
+        "mouthDown": 67,
+        "spread": 61,
+        "cloudy": true
+      },
+      "defaultSet": "oath",
+      "bodySheet": null,
+      "cloudyEyes": true,
+      "eyeType": 2,
+      "mouthType": 3,
+      "iris": "#80bbb9",
+      "lipColor": "#567774",
+      "reserved": true
+    },
+    {
+      "id": "first_bloom",
+      "name": "The First Bloom",
+      "head": {
+        "sheet": "heads_named_gods",
+        "frame": 2,
+        "nx": 330,
+        "ny": 309,
+        "chin": 458,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61
+      },
+      "defaultSet": "greenward",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 1,
+      "mouthType": 1,
+      "iris": "#a5ba63",
+      "lipColor": "#b84e64",
+      "reserved": true
+    },
+    {
+      "id": "wren_ward",
+      "name": "Wren",
+      "head": {
+        "sheet": "heads_named_gate1",
+        "frame": 0,
+        "nx": 326,
+        "ny": 402,
+        "chin": 535,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.87
+      },
+      "defaultSet": "street",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 3,
+      "iris": "#968146",
+      "lipColor": "#ae5d80",
+      "reserved": true
+    },
+    {
+      "id": "dorran",
+      "name": "Dorran",
+      "head": {
+        "sheet": "heads_named_gate1",
+        "frame": 1,
+        "nx": 292,
+        "ny": 400,
+        "chin": 544,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.915
+      },
+      "defaultSet": "wardens_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#6e7952",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "selene",
+      "name": "Selene",
+      "head": {
+        "sheet": "heads_named_gate1",
+        "frame": 2,
+        "nx": 321,
+        "ny": 377,
+        "chin": 517,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.96
+      },
+      "defaultSet": "greenward",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#7c9c57",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "vess",
+      "name": "Vess",
+      "head": {
+        "sheet": "heads_named_gate1",
+        "frame": 3,
+        "nx": 293,
+        "ny": 381,
+        "chin": 531,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.005
+      },
+      "defaultSet": "shadowweave",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 1,
+      "mouthType": 3,
+      "iris": "#9f86bf",
+      "lipColor": "#845f70",
+      "reserved": true
+    },
+    {
+      "id": "fennick",
+      "name": "Fennick",
+      "head": {
+        "sheet": "heads_named_gate2",
+        "frame": 0,
+        "nx": 318,
+        "ny": 357,
+        "chin": 530,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.05
+      },
+      "defaultSet": "hunter",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#956a37",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "cassian",
+      "name": "Cassian",
+      "head": {
+        "sheet": "heads_named_gate2",
+        "frame": 1,
+        "nx": 301,
+        "ny": 361,
+        "chin": 523,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.87
+      },
+      "defaultSet": "oath",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 0,
+      "mouthType": 4,
+      "iris": "#7998ad",
+      "lipColor": "#aa7476",
+      "reserved": true
+    },
+    {
+      "id": "ithrel",
+      "name": "Ithrel",
+      "head": {
+        "sheet": "heads_named_gate2",
+        "frame": 2,
+        "nx": 314,
+        "ny": 349,
+        "chin": 491,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.915
+      },
+      "defaultSet": "ranger",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#789394",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "bramm",
+      "name": "Bramm",
+      "head": {
+        "sheet": "heads_named_gate2",
+        "frame": 3,
+        "nx": 295,
+        "ny": 295,
+        "chin": 522,
+        "eyeUp": 82,
+        "mouthDown": 125,
+        "spread": 61,
+        "mouthScale": 0.96,
+        "bodySheet": "wardrobe_gate",
+        "bodyFrame": 3,
+        "bodyWidth": 1110,
+        "companion": "pip"
+      },
+      "defaultSet": "wildhide",
+      "bodySheet": "wardrobe_gate",
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 1,
+      "iris": "#71947c",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "ysolde",
+      "name": "Ysolde",
+      "head": {
+        "sheet": "heads_named_gate3",
+        "frame": 0,
+        "nx": 324,
+        "ny": 398,
+        "chin": 520,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.005,
+        "clothColor": "#533660"
+      },
+      "defaultSet": "mage",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#ba9e58",
+      "lipColor": "#813f68",
+      "reserved": true
+    },
+    {
+      "id": "aurelius",
+      "name": "Aurelius",
+      "head": {
+        "sheet": "heads_named_gate3",
+        "frame": 1,
+        "nx": 311,
+        "ny": 382,
+        "chin": 535,
+        "eyeUp": 68,
+        "mouthDown": 52,
+        "spread": 61,
+        "mouthScale": 1.05,
+        "clothColor": "#782c36"
+      },
+      "defaultSet": "mage",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 3,
+      "iris": "#a67938",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "ilvara",
+      "name": "Ilvara",
+      "head": {
+        "sheet": "heads_named_gate3",
+        "frame": 2,
+        "nx": 333,
+        "ny": 363,
+        "chin": 506,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.87,
+        "clothColor": "#302337"
+      },
+      "defaultSet": "shadowweave",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 2,
+      "iris": "#bc718f",
+      "lipColor": "#813f68",
+      "reserved": true
+    },
+    {
+      "id": "faelen",
+      "name": "Faelen",
+      "head": {
+        "sheet": "heads_named_gate3",
+        "frame": 3,
+        "nx": 283,
+        "ny": 384,
+        "chin": 510,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.915
+      },
+      "defaultSet": "ranger",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 0,
+      "mouthType": 1,
+      "iris": "#8d9d5e",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "nettle",
+      "name": "Nettle",
+      "head": {
+        "sheet": "heads_named_gate4",
+        "frame": 0,
+        "nx": 308,
+        "ny": 346,
+        "chin": 477,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.96,
+        "browsCovered": true
+      },
+      "defaultSet": "wildhide",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#c49f49",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "durnik",
+      "name": "Durnik",
+      "head": {
+        "sheet": "heads_named_gate4",
+        "frame": 1,
+        "nx": 310,
+        "ny": 295,
+        "chin": 490,
+        "eyeUp": 68,
+        "mouthDown": 72,
+        "spread": 61,
+        "mouthScale": 1.005,
+        "beardFront": true,
+        "bodyWidth": 1110
+      },
+      "defaultSet": "warrior",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 3,
+      "iris": "#9d854e",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "head": {
+        "sheet": "heads_named_gate4",
+        "frame": 2,
+        "nx": 308,
+        "ny": 380,
+        "chin": 516,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.05,
+        "browsCovered": true
+      },
+      "defaultSet": "duelist",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#a88a49",
+      "lipColor": "#99412e",
+      "reserved": true
+    },
+    {
+      "id": "aldric",
+      "name": "Aldric",
+      "head": {
+        "sheet": "heads_named_gate4",
+        "frame": 3,
+        "nx": 301,
+        "ny": 373,
+        "chin": 514,
+        "eyeUp": 84,
+        "mouthDown": 63,
+        "spread": 61,
+        "mouthScale": 0.87
+      },
+      "defaultSet": "adept",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 3,
+      "iris": "#709995",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "torvald",
+      "name": "Torvald",
+      "head": {
+        "sheet": "heads_named_gate5",
+        "frame": 0,
+        "nx": 303,
+        "ny": 287,
+        "chin": 465,
+        "eyeUp": 83,
+        "mouthDown": 72,
+        "spread": 61,
+        "mouthScale": 0.915,
+        "browsCovered": true,
+        "beardFront": true
+      },
+      "defaultSet": "adept",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 3,
+      "iris": "#809bb5",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "tollan",
+      "name": "Tollan Ashgrave",
+      "head": {
+        "sheet": "heads_named_gate5",
+        "frame": 1,
+        "nx": 296,
+        "ny": 313,
+        "chin": 500,
+        "eyeUp": 68,
+        "mouthDown": 79,
+        "spread": 61,
+        "mouthScale": 0.96,
+        "browsCovered": true
+      },
+      "defaultSet": "plain",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 1,
+      "mouthType": 4,
+      "iris": "#8a783f",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "halloran",
+      "name": "Halloran",
+      "head": {
+        "sheet": "heads_named_gate5",
+        "frame": 2,
+        "nx": 316,
+        "ny": 313,
+        "chin": 490,
+        "eyeUp": 84,
+        "mouthDown": 80,
+        "spread": 61,
+        "mouthScale": 1.005
+      },
+      "defaultSet": "mercenarys_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#8a7551",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "halvard",
+      "name": "Duke Halvard",
+      "head": {
+        "sheet": "heads_named_gate5",
+        "frame": 3,
+        "nx": 306,
+        "ny": 363,
+        "chin": 524,
+        "eyeUp": 89,
+        "mouthDown": 70,
+        "spread": 61,
+        "mouthScale": 1.05
+      },
+      "defaultSet": "kings_uniform",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#688594",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "orlan",
+      "name": "Duke Orlan",
+      "head": {
+        "sheet": "heads_named_gate6",
+        "frame": 0,
+        "nx": 317,
+        "ny": 321,
+        "chin": 524,
+        "eyeUp": 68,
+        "mouthDown": 102,
+        "spread": 61,
+        "mouthScale": 0.87
+      },
+      "defaultSet": "kings_uniform",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 1,
+      "iris": "#8d784f",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "mira",
+      "name": "Duke Mira Vashti",
+      "head": {
+        "sheet": "heads_named_gate6",
+        "frame": 1,
+        "nx": 310,
+        "ny": 396,
+        "chin": 535,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.915,
+        "clothColor": "#67365f"
+      },
+      "defaultSet": "mage",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 2,
+      "iris": "#a88149",
+      "lipColor": "#813f68",
+      "reserved": true
+    },
+    {
+      "id": "ambrose",
+      "name": "Ambrose",
+      "head": {
+        "sheet": "heads_named_gate6",
+        "frame": 2,
+        "nx": 317,
+        "ny": 341,
+        "chin": 524,
+        "eyeUp": 84,
+        "mouthDown": 78,
+        "spread": 61,
+        "mouthScale": 0.96
+      },
+      "defaultSet": "healer",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 3,
+      "iris": "#8a9a88",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "hadrian",
+      "name": "Hadrian",
+      "head": {
+        "sheet": "heads_named_gate6",
+        "frame": 3,
+        "nx": 313,
+        "ny": 369,
+        "chin": 513,
+        "eyeUp": 84,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.005
+      },
+      "defaultSet": "chantry",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#6f8492",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "cael",
+      "name": "Cael Voss",
+      "head": {
+        "sheet": "heads_named_gate7",
+        "frame": 0,
+        "nx": 334,
+        "ny": 343,
+        "chin": 497,
+        "eyeUp": 84,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.05
+      },
+      "defaultSet": "hunter",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 3,
+      "iris": "#7b8a65",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "fen",
+      "name": "Fen Nightstep",
+      "head": {
+        "sheet": "heads_named_gate7",
+        "frame": 1,
+        "nx": 318,
+        "ny": 343,
+        "chin": 500,
+        "eyeUp": 79,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.87
+      },
+      "defaultSet": "duelist",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 2,
+      "iris": "#b09058",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "lysandra",
+      "name": "Lysandra",
+      "head": {
+        "sheet": "heads_named_gate7",
+        "frame": 2,
+        "nx": 335,
+        "ny": 340,
+        "chin": 467,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.915,
+        "clothColor": "#733b53"
+      },
+      "defaultSet": "mage",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 1,
+      "iris": "#88a39b",
+      "lipColor": "#b84e64",
+      "reserved": true
+    },
+    {
+      "id": "ostwin",
+      "name": "Ostwin Verlaine",
+      "head": {
+        "sheet": "heads_named_gate7",
+        "frame": 3,
+        "nx": 319,
+        "ny": 357,
+        "chin": 515,
+        "eyeUp": 100,
+        "mouthDown": 72,
+        "spread": 61,
+        "mouthScale": 0.96
+      },
+      "defaultSet": "adept",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 4,
+      "iris": "#8194a2",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "sarn",
+      "name": "Sarn",
+      "head": {
+        "sheet": "heads_named_gate8",
+        "frame": 0,
+        "nx": 322,
+        "ny": 335,
+        "chin": 472,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.005
+      },
+      "defaultSet": "plain",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#839aa4",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "korvath",
+      "name": "Korvath Dreyne",
+      "head": {
+        "sheet": "heads_named_gate8",
+        "frame": 1,
+        "nx": 301,
+        "ny": 332,
+        "chin": 477,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.05,
+        "bodySheet": "wardrobe_gate",
+        "bodyFrame": 2,
+        "bodyWidth": 1120
+      },
+      "defaultSet": "plate",
+      "bodySheet": "wardrobe_gate",
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#839aa4",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "morwin",
+      "name": "Morwin",
+      "head": {
+        "sheet": "heads_named_gate8",
+        "frame": 2,
+        "nx": 309,
+        "ny": 371,
+        "chin": 517,
+        "eyeUp": 68,
+        "mouthDown": 67,
+        "spread": 61,
+        "mouthScale": 0.87,
+        "clothColor": "#6b2d39"
+      },
+      "defaultSet": "mage",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 1,
+      "mouthType": 3,
+      "iris": "#b49648",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "lessa",
+      "name": "Lessa",
+      "head": {
+        "sheet": "heads_named_gate8",
+        "frame": 3,
+        "nx": 281,
+        "ny": 383,
+        "chin": 517,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.915
+      },
+      "defaultSet": "street",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 1,
+      "iris": "#96855a",
+      "lipColor": "#99412e",
+      "reserved": true
+    },
+    {
+      "id": "verlan",
+      "name": "Verlan",
+      "head": {
+        "sheet": "heads_named_gate9",
+        "frame": 0,
+        "nx": 308,
+        "ny": 362,
+        "chin": 533,
+        "eyeUp": 68,
+        "mouthDown": 83,
+        "spread": 61,
+        "mouthScale": 0.96
+      },
+      "defaultSet": "duelist",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 1,
+      "mouthType": 4,
+      "iris": "#8c775b",
+      "lipColor": "#aa7476",
+      "reserved": true
+    },
+    {
+      "id": "grukhar",
+      "name": "Grukhar",
+      "head": {
+        "sheet": "heads_named_gate9",
+        "frame": 1,
+        "nx": 312,
+        "ny": 335,
+        "chin": 536,
+        "eyeUp": 84,
+        "mouthDown": 102,
+        "spread": 61,
+        "mouthScale": 0.78
+      },
+      "defaultSet": "chantry",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#b39a51",
+      "lipColor": "#65644f",
+      "reserved": true
+    },
+    {
+      "id": "gorruk",
+      "name": "Gorruk",
+      "head": {
+        "sheet": "heads_named_gate9",
+        "frame": 2,
+        "nx": 302,
+        "ny": 329,
+        "chin": 536,
+        "eyeUp": 82,
+        "mouthDown": 105,
+        "spread": 61,
+        "mouthScale": 1.05,
+        "bodyWidth": 1120
+      },
+      "defaultSet": "mercenarys_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 3,
+      "iris": "#af9b46",
+      "lipColor": "#686c4f",
+      "reserved": true
+    },
+    {
+      "id": "thornwise",
+      "name": "Thornwise",
+      "head": {
+        "sheet": "heads_named_gate9",
+        "frame": 3,
+        "nx": 312,
+        "ny": 325,
+        "chin": 512,
+        "eyeUp": 82,
+        "mouthDown": 77,
+        "spread": 61,
+        "mouthScale": 0.87,
+        "beardFront": true
+      },
+      "defaultSet": "wildhide",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#a2aa67",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "malvane",
+      "name": "Malvane",
+      "head": {
+        "sheet": "heads_named_gate10",
+        "frame": 0,
+        "nx": 327,
+        "ny": 394,
+        "chin": 543,
+        "eyeUp": 68,
+        "mouthDown": 69,
+        "spread": 61,
+        "mouthScale": 0.915
+      },
+      "defaultSet": "battle_mages_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 4,
+      "iris": "#798fae",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "grell",
+      "name": "Grell",
+      "head": {
+        "sheet": "heads_named_gate10",
+        "frame": 1,
+        "nx": 310,
+        "ny": 380,
+        "chin": 540,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.96
+      },
+      "defaultSet": "assassins_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#a18a61",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "idris",
+      "name": "Idris",
+      "head": {
+        "sheet": "heads_named_gate10",
+        "frame": 2,
+        "nx": 331,
+        "ny": 385,
+        "chin": 518,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.005
+      },
+      "defaultSet": "healer",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 4,
+      "iris": "#a2bbc0",
+      "lipColor": "#8c7b84",
+      "reserved": true
+    },
+    {
+      "id": "ravel",
+      "name": "Ravel",
+      "head": {
+        "sheet": "heads_named_gate10",
+        "frame": 3,
+        "nx": 316,
+        "ny": 384,
+        "chin": 544,
+        "eyeUp": 68,
+        "mouthDown": 60,
+        "spread": 61,
+        "mouthScale": 1.05
+      },
+      "defaultSet": "duelist",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 1,
+      "iris": "#bf8a63",
+      "lipColor": "#99412e",
+      "reserved": true
+    },
+    {
+      "id": "kessa",
+      "name": "Kessa",
+      "head": {
+        "sheet": "heads_named_gate11",
+        "frame": 0,
+        "nx": 333,
+        "ny": 409,
+        "chin": 536,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.87,
+        "clothColor": "#514261"
+      },
+      "defaultSet": "mage",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#9ca0c2",
+      "lipColor": "#813f68",
+      "reserved": true
+    },
+    {
+      "id": "jarem",
+      "name": "Jarem",
+      "head": {
+        "sheet": "heads_named_gate11",
+        "frame": 1,
+        "nx": 303,
+        "ny": 388,
+        "chin": 541,
+        "eyeUp": 100,
+        "mouthDown": 59,
+        "spread": 61,
+        "mouthScale": 0.915
+      },
+      "defaultSet": "adept",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 2,
+      "mouthType": 3,
+      "iris": "#b59a5e",
+      "lipColor": "#795651",
+      "reserved": true
+    },
+    {
+      "id": "lucan",
+      "name": "Lucan Marr",
+      "head": {
+        "sheet": "heads_named_gate11",
+        "frame": 2,
+        "nx": 346,
+        "ny": 369,
+        "chin": 518,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.96
+      },
+      "defaultSet": "mercenarys_gear",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#849476",
+      "lipColor": "#825452",
+      "reserved": true
+    },
+    {
+      "id": "maddox",
+      "name": "Maddox Dreyne",
+      "head": {
+        "sheet": "heads_named_gate11",
+        "frame": 3,
+        "nx": 313,
+        "ny": 392,
+        "chin": 541,
+        "eyeUp": 68,
+        "mouthDown": 64,
+        "spread": 61,
+        "mouthScale": 1.005
+      },
+      "defaultSet": "duelist",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 3,
+      "mouthType": 4,
+      "iris": "#8196a8",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "vask",
+      "name": "Dorin Vask",
+      "head": {
+        "sheet": "heads_named_gate12",
+        "frame": 0,
+        "nx": 320,
+        "ny": 350,
+        "chin": 530,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 1.05
+      },
+      "defaultSet": "duelist",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 4,
+      "mouthType": 1,
+      "iris": "#a48a58",
+      "lipColor": "#986d63",
+      "reserved": true
+    },
+    {
+      "id": "rennick",
+      "name": "Rennick",
+      "head": {
+        "sheet": "heads_named_gate12",
+        "frame": 1,
+        "nx": 310,
+        "ny": 365,
+        "chin": 521,
+        "eyeUp": 68,
+        "mouthDown": 65,
+        "spread": 61,
+        "mouthScale": 0.87
+      },
+      "defaultSet": "plain",
+      "bodySheet": null,
+      "cloudyEyes": false,
+      "eyeType": 1,
+      "mouthType": 4,
+      "iris": "#8e9a64",
+      "lipColor": "#795651",
+      "reserved": true
+    }
+  ],
+  "creation": {
+    "heads": {
+      "f": [
+        "Sleek side part",
+        "Long waves",
+        "Natural curls",
+        "Wavy bob",
+        "Auburn waves",
+        "Silver waves",
+        "Swept locs & gold rings",
+        "Box-braid bun",
+        "Hime cut",
+        "Long woven braid",
+        "High ponytail",
+        "Curly updo",
+        "Blond wolf cut",
+        "Auburn crown braid"
+      ],
+      "m": [
+        "Topknot",
+        "Waves & beard",
+        "Short curls",
+        "Swept hair & stubble",
+        "Blond swept hair",
+        "Locs & chin stubble",
+        "High fade & beard",
+        "Wavy fade & goatee",
+        "Two-block cut",
+        "Thick waves & full beard",
+        "Long half-up hair",
+        "Flow cut & short beard",
+        "Red undercut & mustache"
+      ]
+    },
+    "eyeShapes": 5,
+    "mouthShapes": 5,
+    "eyeColors": [
+      "#64887f",
+      "#8b663b",
+      "#547aa0",
+      "#7b6953",
+      "#53575c",
+      "#8a719d"
+    ],
+    "lipColors": [
+      "#986d63",
+      "#aa7476",
+      "#825452",
+      "#795651",
+      "#b84e64",
+      "#813f68",
+      "#99412e",
+      "#574553"
+    ]
+  },
+  "backgrounds": [
+    {
+      "id": "bandit_road",
+      "illustration": "road"
+    },
+    {
+      "id": "crypt",
+      "illustration": "crypt"
+    },
+    {
+      "id": "shallows",
+      "illustration": "coast"
+    },
+    {
+      "id": "green",
+      "illustration": "green"
+    },
+    {
+      "id": "green_boss",
+      "illustration": "green_boss"
+    },
+    {
+      "id": "salt_court",
+      "illustration": "salt_court"
+    },
+    {
+      "id": "ossuary",
+      "illustration": "ossuary"
+    },
+    {
+      "id": "birthing_house",
+      "illustration": "birthing_house"
+    },
+    {
+      "id": "low_tide",
+      "illustration": "low_tide"
+    },
+    {
+      "id": "deep_wood",
+      "illustration": "forest"
+    },
+    {
+      "id": "marsh",
+      "illustration": "marsh"
+    },
+    {
+      "id": "tavern",
+      "illustration": "tavern"
+    },
+    {
+      "id": "alley",
+      "illustration": "alley"
+    },
+    {
+      "id": "maw",
+      "illustration": "maw"
+    },
+    {
+      "id": "maw_boss",
+      "illustration": "maw_boss"
+    },
+    {
+      "id": "road",
+      "illustration": "road"
+    },
+    {
+      "id": "forest",
+      "illustration": "forest"
+    },
+    {
+      "id": "ruins",
+      "illustration": "ruins"
+    },
+    {
+      "id": "city",
+      "illustration": "city"
+    },
+    {
+      "id": "prison",
+      "illustration": "prison"
+    },
+    {
+      "id": "coast",
+      "illustration": "coast"
+    },
+    {
+      "id": "port",
+      "illustration": "port"
+    },
+    {
+      "id": "mountain",
+      "illustration": "mountain"
+    },
+    {
+      "id": "antler",
+      "illustration": "antler"
+    },
+    {
+      "id": "academy",
+      "illustration": "academy"
+    },
+    {
+      "id": "bell",
+      "illustration": "bell"
+    },
+    {
+      "id": "tally",
+      "illustration": "tally"
+    },
+    {
+      "id": "navy",
+      "illustration": "navy"
+    },
+    {
+      "id": "green_altar",
+      "illustration": "green_altar"
+    },
+    {
+      "id": "pyre",
+      "illustration": "pyre"
+    }
+  ],
+  "travel": [
+    {
+      "id": "road",
+      "name": "The County Road",
+      "illustration": "road"
+    },
+    {
+      "id": "forest",
+      "name": "The Deep Wood",
+      "illustration": "forest"
+    },
+    {
+      "id": "marsh",
+      "name": "The Reed Marsh",
+      "illustration": "marsh"
+    },
+    {
+      "id": "ruins",
+      "name": "The Old Ruins",
+      "illustration": "ruins"
+    },
+    {
+      "id": "crypt",
+      "name": "The Crypt Steps",
+      "illustration": "crypt"
+    },
+    {
+      "id": "city",
+      "name": "The Watch District",
+      "illustration": "city"
+    },
+    {
+      "id": "alley",
+      "name": "The Back Alleys",
+      "illustration": "alley"
+    },
+    {
+      "id": "prison",
+      "name": "The Lockup Quarter",
+      "illustration": "prison"
+    },
+    {
+      "id": "tavern",
+      "name": "The Tavern Quarter",
+      "illustration": "tavern"
+    },
+    {
+      "id": "coast",
+      "name": "The Tidelands",
+      "illustration": "coast"
+    },
+    {
+      "id": "port",
+      "name": "The Outer Harbor",
+      "illustration": "port"
+    },
+    {
+      "id": "mountain",
+      "name": "The High Pass",
+      "illustration": "mountain"
+    },
+    {
+      "id": "maw",
+      "name": "Behind the Laundry",
+      "illustration": "maw"
+    },
+    {
+      "id": "antler",
+      "name": "The Antler Toll Road",
+      "illustration": "antler"
+    },
+    {
+      "id": "academy",
+      "name": "Varenholm Approach",
+      "illustration": "academy"
+    },
+    {
+      "id": "bell",
+      "name": "The Paper Shop Lanes",
+      "illustration": "bell"
+    },
+    {
+      "id": "green",
+      "name": "The Green-Eyed Pass",
+      "illustration": "green"
+    },
+    {
+      "id": "tally",
+      "name": "The Red Tally Anchorage",
+      "illustration": "tally"
+    },
+    {
+      "id": "navy",
+      "name": "The Admiralty Docks",
+      "illustration": "navy"
+    },
+    {
+      "id": "ossuary",
+      "name": "The Ossuary",
+      "illustration": "ossuary"
+    },
+    {
+      "id": "salt_court",
+      "name": "The Salt Court",
+      "illustration": "salt_court"
+    },
+    {
+      "id": "green_altar",
+      "name": "The Green Altar",
+      "illustration": "green_altar"
+    },
+    {
+      "id": "birthing_house",
+      "name": "The Birthing House",
+      "illustration": "birthing_house"
+    },
+    {
+      "id": "low_tide",
+      "name": "The Low Tide Coves",
+      "illustration": "low_tide"
+    },
+    {
+      "id": "pyre",
+      "name": "The Ash Fields",
+      "illustration": "pyre"
+    },
+    {
+      "id": "maw_boss",
+      "name": "The Lamplighter Quarter",
+      "illustration": "maw_boss"
+    },
+    {
+      "id": "green_boss",
+      "name": "The Widow’s Courtyard",
+      "illustration": "green_boss"
+    }
+  ],
+  "gateTravel": {
+    "road": "road",
+    "crypt": "crypt",
+    "forest": "forest",
+    "city": "city",
+    "alley": "alley",
+    "ruins": "ruins"
+  },
+  "housing": [
+    "camp",
+    "inn",
+    "cottage",
+    "brick",
+    "mansion",
+    "castle"
+  ],
+  "creatureFrames": {
+    "dire_wolf": {
+      "sheet": "creatures_1",
+      "frame": 0,
+      "source": "creatures_1.png"
+    },
+    "boar": {
+      "sheet": "creatures_1",
+      "frame": 1,
+      "source": "creatures_1.png"
+    },
+    "plant": {
+      "sheet": "creatures_1",
+      "frame": 2,
+      "source": "creatures_1.png"
+    },
+    "raptor": {
+      "sheet": "creatures_1",
+      "frame": 3,
+      "source": "creatures_1.png"
+    },
+    "hag": {
+      "sheet": "creatures_2",
+      "frame": 0,
+      "source": "creatures_2.png"
+    },
+    "shadow": {
+      "sheet": "creatures_2",
+      "frame": 1,
+      "source": "creatures_2.png"
+    },
+    "goblin": {
+      "sheet": "creatures_2",
+      "frame": 2,
+      "source": "creatures_2.png"
+    },
+    "orc": {
+      "sheet": "creatures_2",
+      "frame": 3,
+      "source": "creatures_2.png"
+    },
+    "troll": {
+      "sheet": "creatures_3",
+      "frame": 0,
+      "source": "creatures_3.png"
+    },
+    "hydra": {
+      "sheet": "creatures_3",
+      "frame": 1,
+      "source": "creatures_3.png"
+    },
+    "stag": {
+      "sheet": "creatures_3",
+      "frame": 2,
+      "source": "creatures_3.png"
+    },
+    "wyrm": {
+      "sheet": "creatures_3",
+      "frame": 3,
+      "source": "creatures_3.png"
+    },
+    "roc": {
+      "sheet": "creatures_4",
+      "frame": 0,
+      "source": "creatures_4.png"
+    },
+    "golem": {
+      "sheet": "creatures_4",
+      "frame": 1,
+      "source": "creatures_4.png"
+    },
+    "drake": {
+      "sheet": "creatures_4",
+      "frame": 2,
+      "source": "creatures_4.png"
+    },
+    "beetle": {
+      "sheet": "creatures_4",
+      "frame": 3,
+      "source": "creatures_4.png"
+    },
+    "ape": {
+      "sheet": "creatures_5",
+      "frame": 0,
+      "source": "creatures_5.png"
+    },
+    "scorpion": {
+      "sheet": "creatures_5",
+      "frame": 1,
+      "source": "creatures_5.png"
+    },
+    "serpent": {
+      "sheet": "creatures_5",
+      "frame": 2,
+      "source": "creatures_5.png"
+    },
+    "salamander": {
+      "sheet": "creatures_5",
+      "frame": 3,
+      "source": "creatures_5.png"
+    },
+    "moss_giant": {
+      "sheet": "creatures_6",
+      "frame": 0,
+      "source": "creatures_6.png"
+    },
+    "owl": {
+      "sheet": "creatures_6",
+      "frame": 1,
+      "source": "creatures_6.png"
+    },
+    "crab": {
+      "sheet": "creatures_6",
+      "frame": 2,
+      "source": "creatures_6.png"
+    },
+    "hound": {
+      "sheet": "creatures_6",
+      "frame": 3,
+      "source": "creatures_6.png"
+    },
+    "spider": {
+      "sheet": "creatures_7",
+      "frame": 0,
+      "source": "creatures_7.png"
+    },
+    "toad": {
+      "sheet": "creatures_7",
+      "frame": 1,
+      "source": "creatures_7.png"
+    },
+    "vulture": {
+      "sheet": "creatures_7",
+      "frame": 2,
+      "source": "creatures_7.png"
+    },
+    "basilisk": {
+      "sheet": "creatures_7",
+      "frame": 3,
+      "source": "creatures_7.png"
+    },
+    "fox": {
+      "sheet": "forms_extra",
+      "frame": 0,
+      "source": "forms_extra.png"
+    },
+    "fox_three": {
+      "sheet": "forms_extra",
+      "frame": 1,
+      "source": "forms_extra.png"
+    },
+    "fox_nine": {
+      "sheet": "forms_extra",
+      "frame": 2,
+      "source": "forms_extra.png"
+    },
+    "storm": {
+      "sheet": "forms_extra",
+      "frame": 3,
+      "source": "forms_extra.png"
+    }
+  },
+  "retainedIllustrations": [
+    "werewolf",
+    "werebear",
+    "panther",
+    "sentinel"
+  ],
+  "transformationVisuals": {
+    "beast_shape": [
+      "werewolf",
+      "werebear",
+      "panther"
+    ],
+    "bear_stance": [
+      "werebear"
+    ],
+    "serpent_form": [
+      "serpent"
+    ],
+    "warhound_form": [
+      "hound"
+    ],
+    "fox_form": [
+      "fox",
+      "fox_three",
+      "fox_nine"
+    ],
+    "storm_shape": [
+      "storm"
+    ],
+    "marine_form": [
+      "human"
+    ],
+    "sea_dog_form": [
+      "human"
+    ],
+    "spellblade_form": [
+      "human"
+    ],
+    "unbroken_form": [
+      "human"
+    ],
+    "wild_form": [
+      "human"
+    ]
+  },
+  "environments": {
+    "road": {
+      "file": "road.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_1.png",
+      "panel": 0
+    },
+    "marsh": {
+      "file": "marsh.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_1.png",
+      "panel": 1
+    },
+    "ruins": {
+      "file": "ruins.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_2.png",
+      "panel": 0
+    },
+    "crypt": {
+      "file": "crypt.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_2.png",
+      "panel": 1
+    },
+    "city": {
+      "file": "city.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_3.png",
+      "panel": 0
+    },
+    "alley": {
+      "file": "alley.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_3.png",
+      "panel": 1
+    },
+    "prison": {
+      "file": "prison.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_4.png",
+      "panel": 0
+    },
+    "tavern": {
+      "file": "tavern.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_4.png",
+      "panel": 1
+    },
+    "coast": {
+      "file": "coast.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_5.png",
+      "panel": 0
+    },
+    "mountain": {
+      "file": "mountain.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_5.png",
+      "panel": 1
+    },
+    "maw": {
+      "file": "maw.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_6.png",
+      "panel": 0
+    },
+    "antler": {
+      "file": "antler.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_6.png",
+      "panel": 1
+    },
+    "academy": {
+      "file": "academy.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_7.png",
+      "panel": 0
+    },
+    "bell": {
+      "file": "bell.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_7.png",
+      "panel": 1
+    },
+    "green": {
+      "file": "green.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_8.png",
+      "panel": 0
+    },
+    "tally": {
+      "file": "tally.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_8.png",
+      "panel": 1
+    },
+    "navy": {
+      "file": "navy.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_9.png",
+      "panel": 0
+    },
+    "ossuary": {
+      "file": "ossuary.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_9.png",
+      "panel": 1
+    },
+    "salt_court": {
+      "file": "salt_court.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_10.png",
+      "panel": 0
+    },
+    "green_altar": {
+      "file": "green_altar.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_10.png",
+      "panel": 1
+    },
+    "birthing_house": {
+      "file": "birthing_house.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_11.png",
+      "panel": 0
+    },
+    "low_tide": {
+      "file": "low_tide.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_11.png",
+      "panel": 1
+    },
+    "pyre": {
+      "file": "pyre.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_12.png",
+      "panel": 0
+    },
+    "maw_boss": {
+      "file": "maw_boss.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_12.png",
+      "panel": 1
+    },
+    "green_boss": {
+      "file": "green_boss.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_13.png",
+      "panel": 0
+    },
+    "cemetery": {
+      "file": "cemetery.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_13.png",
+      "panel": 1
+    },
+    "camp": {
+      "file": "camp.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_14.png",
+      "panel": 0
+    },
+    "inn": {
+      "file": "inn.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_14.png",
+      "panel": 1
+    },
+    "cottage": {
+      "file": "cottage.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_15.png",
+      "panel": 0
+    },
+    "brick": {
+      "file": "brick.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_15.png",
+      "panel": 1
+    },
+    "mansion": {
+      "file": "mansion.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_16.png",
+      "panel": 0
+    },
+    "castle": {
+      "file": "castle.webp",
+      "size": [
+        1024,
+        760
+      ],
+      "source": "places_16.png",
+      "panel": 1
+    },
+    "port": {
+      "file": "port.webp",
+      "size": [
+        1279,
+        760
+      ],
+      "source": "../v1/port.png"
+    },
+    "forest": {
+      "file": "forest.webp",
+      "size": [
+        1279,
+        760
+      ],
+      "source": "../v1/forest.png"
+    }
+  },
+  "parts": {
+    "children": {
+      "file": "children.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "headgear": {
+      "file": "headgear.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "headgear_2": {
+      "file": "headgear_2.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "heads_extra": {
+      "file": "heads_extra.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9755591572123177,
+          "x": 6.267967585089141,
+          "y": 3.7599675850891408
+        },
+        {
+          "scale": 0.9724071082390954,
+          "x": 8.80433602584814,
+          "y": 5.733150242326333
+        },
+        {
+          "scale": 0.963072,
+          "x": 11.466575999999987,
+          "y": 11.576928
+        },
+        {
+          "scale": 0.9615335463258785,
+          "x": 8.441463258785943,
+          "y": 12.54
+        }
+      ]
+    },
+    "heads_f": {
+      "file": "heads_f.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9965562913907284,
+          "x": 1.1377350993377517,
+          "y": -7.391125827814569
+        },
+        {
+          "scale": 0.9584713375796179,
+          "x": 6.134216560509552,
+          "y": -1.8370700636942687
+        },
+        {
+          "scale": 0.9835294117647059,
+          "x": -2.458823529411765,
+          "y": 9.589411764705881
+        },
+        {
+          "scale": 1.0202033898305085,
+          "x": -9.606915254237288,
+          "y": -5.823661016949153
+        }
+      ]
+    },
+    "heads_f_styles1": {
+      "file": "heads_f_styles1.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 1.0133333333333334,
+          "x": -54.06133333333334,
+          "y": 0.37999999999999967
+        },
+        {
+          "scale": 0.99,
+          "x": 55.571999999999996,
+          "y": 12.54
+        },
+        {
+          "scale": 1.0133333333333334,
+          "x": -62.57333333333333,
+          "y": 12.54
+        },
+        {
+          "scale": 0.9346583850931677,
+          "x": 50.65069565217392,
+          "y": 28.42919254658385
+        }
+      ]
+    },
+    "heads_f_styles2": {
+      "file": "heads_f_styles2.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9509004739336492,
+          "x": 47.527194312796205,
+          "y": 11.589099526066349
+        },
+        {
+          "scale": 0.9260307692307692,
+          "x": 24.192553846153842,
+          "y": 11.613969230769229
+        },
+        {
+          "scale": 0.9835294117647059,
+          "x": -28.15352941176471,
+          "y": 7.62235294117647
+        },
+        {
+          "scale": 1.0116302521008405,
+          "x": 2.3710084033613406,
+          "y": 2.4236974789915973
+        }
+      ]
+    },
+    "heads_m": {
+      "file": "heads_m.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9569475357710653,
+          "x": -3.8856057233704315,
+          "y": 12.54
+        },
+        {
+          "scale": 1.0767799642218248,
+          "x": 19.77910196779964,
+          "y": -60.68103756708408
+        },
+        {
+          "scale": 1.037793103448276,
+          "x": -36.53896551724139,
+          "y": -11.329241379310346
+        },
+        {
+          "scale": 1.0254173764906303,
+          "x": 21.238957410562186,
+          "y": -8.993764906303236
+        }
+      ]
+    },
+    "heads_m_styles1": {
+      "file": "heads_m_styles1.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 1.0082412060301509,
+          "x": -16.163366834170855,
+          "y": 0.44110552763818983
+        },
+        {
+          "scale": 0.9965562913907284,
+          "x": 3.0478013245033138,
+          "y": 6.56066225165563
+        },
+        {
+          "scale": 0.9646153846153847,
+          "x": -0.38584615384615245,
+          "y": 19.29230769230769
+        },
+        {
+          "scale": 0.9692753623188406,
+          "x": 10.237971014492757,
+          "y": 17.386376811594204
+        }
+      ]
+    },
+    "heads_m_styles2": {
+      "file": "heads_m_styles2.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9819249592169658,
+          "x": -8.235895595432314,
+          "y": 10.576150081566068
+        },
+        {
+          "scale": 0.9569475357710653,
+          "x": 20.562410174880764,
+          "y": 9.669157392686804
+        },
+        {
+          "scale": 0.9692753623188406,
+          "x": -11.885739130434784,
+          "y": 16.41710144927536
+        },
+        {
+          "scale": 0.9932673267326733,
+          "x": 23.155544554455442,
+          "y": 2.6073267326732674
+        }
+      ]
+    },
+    "heads_named_academy": {
+      "file": "heads_named_academy.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9803257328990228,
+          "x": -3.888625407166121,
+          "y": 12.54
+        },
+        {
+          "scale": 0.9787317073170732,
+          "x": 12.417658536585366,
+          "y": -23.67307317073171
+        },
+        {
+          "scale": 0.9479055118110237,
+          "x": -17.79297637795276,
+          "y": 22.265905511811024
+        },
+        {
+          "scale": 1.0167567567567568,
+          "x": -5.964972972972975,
+          "y": -8.811891891891893
+        }
+      ]
+    },
+    "heads_named_antler": {
+      "file": "heads_named_antler.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9755591572123177,
+          "x": 18.37912803889789,
+          "y": 5.711085899513776
+        },
+        {
+          "scale": 1.0271672354948804,
+          "x": 2.5122798634812264,
+          "y": -19.302184300341295
+        },
+        {
+          "scale": 0.9965562913907284,
+          "x": -51.546874172185426,
+          "y": 5.564105960264901
+        },
+        {
+          "scale": 0.9819249592169658,
+          "x": 23.457778140293637,
+          "y": 11.558075040783034
+        }
+      ]
+    },
+    "heads_named_bell": {
+      "file": "heads_named_bell.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9867540983606556,
+          "x": -25.01832786885246,
+          "y": 8.592983606557377
+        },
+        {
+          "scale": 0.9708387096774193,
+          "x": 0.6472258064516123,
+          "y": 12.54
+        },
+        {
+          "scale": 0.963072,
+          "x": -22.632192000000003,
+          "y": 15.429216
+        },
+        {
+          "scale": 0.9615335463258785,
+          "x": 18.51352715654952,
+          "y": 13.501533546325877
+        }
+      ]
+    },
+    "heads_named_gate1": {
+      "file": "heads_named_gate1.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9932673267326733,
+          "x": 11.360495049504943,
+          "y": 2.6073267326732674
+        },
+        {
+          "scale": 0.99,
+          "x": 22.769999999999996,
+          "y": 4.62
+        },
+        {
+          "scale": 0.9819249592169658,
+          "x": 2.518228384991835,
+          "y": 11.558075040783034
+        },
+        {
+          "scale": 0.9739805825242719,
+          "x": 17.458601941747574,
+          "y": 11.56601941747573
+        }
+      ]
+    },
+    "heads_named_gate10": {
+      "file": "heads_named_gate10.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9965562913907284,
+          "x": -13.578079470198663,
+          "y": 4.567549668874173
+        },
+        {
+          "scale": 1.0167567567567568,
+          "x": -0.5422702702702736,
+          "y": -22.02972972972973
+        },
+        {
+          "scale": 0.9755591572123177,
+          "x": -5.599303079416546,
+          "y": 17.417795786061586
+        },
+        {
+          "scale": 0.9787317073170732,
+          "x": 15.934975609756096,
+          "y": 11.561268292682925
+        }
+      ]
+    },
+    "heads_named_gate11": {
+      "file": "heads_named_gate11.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9787317073170732,
+          "x": -25.355268292682926,
+          "y": 5.688878048780487
+        },
+        {
+          "scale": 1.0943999999999998,
+          "x": -18.60479999999999,
+          "y": -60.7848
+        },
+        {
+          "scale": 0.9998671096345515,
+          "x": -24.375926910299004,
+          "y": 6.540797342192691
+        },
+        {
+          "scale": 1.0065551839464884,
+          "x": 2.8980401337792654,
+          "y": 9.520334448160535
+        }
+      ]
+    },
+    "heads_named_gate12": {
+      "file": "heads_named_gate12.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 1.0065551839464884,
+          "x": -7.809190635451515,
+          "y": -4.571438127090301
+        },
+        {
+          "scale": 1.0306849315068494,
+          "x": -14.137561643835607,
+          "y": -8.073698630136985
+        },
+        {
+          "scale": 0.99,
+          "x": -4.026000000000001,
+          "y": 11.55
+        },
+        {
+          "scale": 0.9867540983606556,
+          "x": 1.6651475409836058,
+          "y": 15.500262295081965
+        }
+      ]
+    },
+    "heads_named_gate2": {
+      "file": "heads_named_gate2.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 1.0082412060301509,
+          "x": -11.027638190954784,
+          "y": -16.698994974874374
+        },
+        {
+          "scale": 1.0032,
+          "x": 20.816399999999994,
+          "y": 1.504799999999999
+        },
+        {
+          "scale": 0.9803257328990228,
+          "x": -0.6127035830618883,
+          "y": 11.559674267100975
+        },
+        {
+          "scale": 0.9851391162029459,
+          "x": 3.501348608837976,
+          "y": 8.599443535188216
+        }
+      ]
+    },
+    "heads_named_gate3": {
+      "file": "heads_named_gate3.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9787317073170732,
+          "x": -10.551951219512205,
+          "y": 8.625073170731707
+        },
+        {
+          "scale": 1.0504712041884816,
+          "x": -11.161256544502615,
+          "y": -43.13497382198953
+        },
+        {
+          "scale": 1.0065551839464884,
+          "x": -25.74264882943144,
+          "y": -11.61732441471572
+        },
+        {
+          "scale": 1.004874791318865,
+          "x": -20.43036060100167,
+          "y": 11.535125208681135
+        }
+      ]
+    },
+    "heads_named_gate4": {
+      "file": "heads_named_gate4.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9708387096774193,
+          "x": 1.9821290322580705,
+          "y": 12.54
+        },
+        {
+          "scale": 1.0360068846815833,
+          "x": -8.076537005163503,
+          "y": -39.26034423407917
+        },
+        {
+          "scale": 0.937570093457944,
+          "x": 20.415588785046733,
+          "y": 35.04168224299065
+        },
+        {
+          "scale": 1.0202033898305085,
+          "x": -4.675932203389832,
+          "y": -12.965084745762715
+        }
+      ]
+    },
+    "heads_named_gate5": {
+      "file": "heads_named_gate5.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9739805825242719,
+          "x": -3.4576310679611657,
+          "y": -0.1217475728155328
+        },
+        {
+          "scale": 1.0615873015873014,
+          "x": -16.348444444444446,
+          "y": -8.69174603174603
+        },
+        {
+          "scale": 1.0082412060301509,
+          "x": -5.595738693467344,
+          "y": 4.474070351758794
+        },
+        {
+          "scale": 0.9708387096774193,
+          "x": 19.538129032258063,
+          "y": 22.24838709677419
+        }
+      ]
+    },
+    "heads_named_gate6": {
+      "file": "heads_named_gate6.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 1.0184771573604061,
+          "x": -34.97832487309644,
+          "y": -7.8295431472081205
+        },
+        {
+          "scale": 0.99,
+          "x": -4.223999999999996,
+          "y": -0.33000000000000046
+        },
+        {
+          "scale": 1.1024175824175826,
+          "x": -68.9010989010989,
+          "y": -33.761538461538464
+        },
+        {
+          "scale": 1.0099328859060401,
+          "x": -1.5401476510067045,
+          "y": 4.460536912751679
+        }
+      ]
+    },
+    "heads_named_gate7": {
+      "file": "heads_named_gate7.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9819249592169658,
+          "x": -13.217119086460032,
+          "y": -0.22502446982055563
+        },
+        {
+          "scale": 0.9803257328990228,
+          "x": 5.481654723127033,
+          "y": 6.6580456026058625
+        },
+        {
+          "scale": 0.9615335463258785,
+          "x": -15.973476038338655,
+          "y": 11.578466453674123
+        },
+        {
+          "scale": 0.9835294117647059,
+          "x": 6.663411764705881,
+          "y": 11.556470588235294
+        }
+      ]
+    },
+    "heads_named_gate8": {
+      "file": "heads_named_gate8.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9883743842364532,
+          "x": -5.528719211822662,
+          "y": 3.644630541871921
+        },
+        {
+          "scale": 1.0167567567567568,
+          "x": 6.880054054054051,
+          "y": -22.02972972972973
+        },
+        {
+          "scale": 0.9755591572123177,
+          "x": 27.854246353322527,
+          "y": 15.466677471636952
+        },
+        {
+          "scale": 0.9708387096774193,
+          "x": -37.53909677419355,
+          "y": 11.569161290322581
+        }
+      ]
+    },
+    "heads_named_gate9": {
+      "file": "heads_named_gate9.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9755591572123177,
+          "x": 12.659912479740674,
+          "y": 3.7599675850891408
+        },
+        {
+          "scale": 0.99,
+          "x": 11.286,
+          "y": -5.280000000000001
+        },
+        {
+          "scale": 0.9867540983606556,
+          "x": -1.4595737704918028,
+          "y": 11.553245901639341
+        },
+        {
+          "scale": 0.9835294117647059,
+          "x": 10.941764705882354,
+          "y": 11.556470588235294
+        }
+      ]
+    },
+    "heads_named_gods": {
+      "file": "heads_named_gods.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9569475357710653,
+          "x": 2.838944356120826,
+          "y": 10.626104928457869
+        },
+        {
+          "scale": 0.9260307692307692,
+          "x": 25.42726153846154,
+          "y": 12.54
+        },
+        {
+          "scale": 0.7514606741573034,
+          "x": 12.54,
+          "y": 76.99653932584269
+        },
+        {
+          "scale": 1.0133333333333334,
+          "x": -13.603999999999994,
+          "y": 11.526666666666666
+        }
+      ]
+    },
+    "heads_named_green": {
+      "file": "heads_named_green.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9835294117647059,
+          "x": -0.44258823529412494,
+          "y": 9.589411764705881
+        },
+        {
+          "scale": 0.9092447129909365,
+          "x": -11.263268882175225,
+          "y": 0.7198187311178252
+        },
+        {
+          "scale": 0.9739805825242719,
+          "x": 11.322524271844662,
+          "y": 18.38388349514563
+        },
+        {
+          "scale": 0.9569475357710653,
+          "x": 24.023370429252783,
+          "y": 6.469364069952302
+        }
+      ]
+    },
+    "heads_named_maw": {
+      "file": "heads_named_maw.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 1.0082412060301509,
+          "x": -6.477949748743728,
+          "y": 12.54
+        },
+        {
+          "scale": 1.0202033898305085,
+          "x": -6.227491525423726,
+          "y": 12.54
+        },
+        {
+          "scale": 0.963072,
+          "x": 20.675952000000002,
+          "y": 33.727584
+        },
+        {
+          "scale": 0.9092447129909365,
+          "x": 3.5687854984894294,
+          "y": 44.36356495468278
+        }
+      ]
+    },
+    "heads_named_navy": {
+      "file": "heads_named_navy.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 1.0202033898305085,
+          "x": -39.06528813559322,
+          "y": 6.4187796610169485
+        },
+        {
+          "scale": 1.0032,
+          "x": 4.7651999999999965,
+          "y": 9.5304
+        },
+        {
+          "scale": 0.9189618320610686,
+          "x": -12.750595419847333,
+          "y": 38.27093129770993
+        },
+        {
+          "scale": 0.943448275862069,
+          "x": -0.14151724137931498,
+          "y": 28.578620689655175
+        }
+      ]
+    },
+    "heads_named_tally": {
+      "file": "heads_named_tally.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500,
+      "registration": [
+        {
+          "scale": 0.9692753623188406,
+          "x": 0.7875362318840593,
+          "y": 10.60144927536232
+        },
+        {
+          "scale": 0.9755591572123177,
+          "x": 7.521967585089141,
+          "y": 6.6866450567260936
+        },
+        {
+          "scale": 0.9346583850931677,
+          "x": -8.02248447204969,
+          "y": 20.064
+        },
+        {
+          "scale": 0.9677170418006431,
+          "x": 6.8748231511254,
+          "y": 12.54
+        }
+      ]
+    },
+    "props_story": {
+      "file": "props_story.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_f1": {
+      "file": "wardrobe_f1.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_f2": {
+      "file": "wardrobe_f2.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_f3": {
+      "file": "wardrobe_f3.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_f4": {
+      "file": "wardrobe_f4.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_f5": {
+      "file": "wardrobe_f5.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_f6": {
+      "file": "wardrobe_f6.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_gate": {
+      "file": "wardrobe_gate.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_m1": {
+      "file": "wardrobe_m1.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_m2": {
+      "file": "wardrobe_m2.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_m3": {
+      "file": "wardrobe_m3.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_m4": {
+      "file": "wardrobe_m4.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_m5": {
+      "file": "wardrobe_m5.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "wardrobe_m6": {
+      "file": "wardrobe_m6.webp",
+      "size": [
+        1000,
+        1000
+      ],
+      "cell": 500
+    },
+    "creatures_1": {
+      "file": "creatures_1.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    },
+    "creatures_2": {
+      "file": "creatures_2.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    },
+    "creatures_3": {
+      "file": "creatures_3.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    },
+    "creatures_4": {
+      "file": "creatures_4.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    },
+    "creatures_5": {
+      "file": "creatures_5.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    },
+    "creatures_6": {
+      "file": "creatures_6.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    },
+    "creatures_7": {
+      "file": "creatures_7.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    },
+    "forms_extra": {
+      "file": "forms_extra.webp",
+      "size": [
+        1024,
+        1024
+      ],
+      "cell": 512
+    }
+  },
+  "saveVersion": 2,
+  "runtimeBytes": 58171264,
+  "summary": {
+    "gearSets": 24,
+    "wardrobeVariants": 48,
+    "ordinaryHeads": 27,
+    "reservedHeads": 77,
+    "enemies": 120,
+    "battleGrounds": 30,
+    "travelTypes": 27,
+    "homes": 6,
+    "environmentIllustrations": 34,
+    "atlasSheets": 52
+  }
+}

@@ -62,9 +62,12 @@ VFX.projectile = function (scene, x1, y1, x2, y2, color, done) {
   });
 };
 VFX.slashArc = function (scene, x, y, color) {
-  const g = scene.add.graphics().setDepth(500);
-  g.lineStyle(4, color || 0xe8dfc8, 1);
-  g.beginPath(); g.arc(x, y, 40, -2.2, -0.4); g.strokePath();
+  const g = scene.add.graphics().setPosition(x,y).setDepth(500);
+  // A tapered, ink-edged crescent rotates around the contact point.
+  const outer=[],inner=[];
+  for(let i=0;i<=18;i++){const t=i/18,a=-2.4+t*2.2,w=Math.sin(t*Math.PI)*9;outer.push({x:Math.cos(a)*(43+w),y:Math.sin(a)*(43+w)});inner.unshift({x:Math.cos(a)*(43-w),y:Math.sin(a)*(43-w)});}
+  g.fillStyle(color||0xe8dfc8);g.lineStyle(1.4,0x24334c,.9);g.fillPoints(outer.concat(inner),true);g.strokePoints(outer.concat(inner),true);
+  g.lineStyle(2,0xfff9df,.9);g.beginPath();g.arc(0,0,44,-2.1,-.6);g.strokePath();
   g.setAngle(-20);
   scene.tweens.add({ targets: g, angle: 50, alpha: 0, duration: 240, onComplete: () => g.destroy() });
 };

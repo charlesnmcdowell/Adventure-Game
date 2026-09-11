@@ -650,6 +650,13 @@ Panels.settings = function (scene, r) {
     ADV.Prefs.setPauseEnemy(!pause);
     scene.openPanel('settings');
   }, { size: 14, fill: pause ? 0x2a3a22 : undefined, color: pause ? T().css.green : T().css.ink, edge: pause ? T().c.green : undefined }));
+  if(ADV.AnimeArt){
+    y+=58;
+    for(const [key,label]of [['breathing','Ambient motion'],['secondary','Cloth & body motion']]){
+      const on=ADV.AnimeArt.motion[key];
+      ADV.UI.keepBtn(scene,T().button(scene,r.x+24,y,320,36,label+' — '+(on?'on':'off'),()=>{ADV.AnimeArt.motion[key]=!on;scene.openPanel('settings');},{size:13}));y+=43;
+    }
+  }
 };
 
 // ============================================================== FACTIONS
@@ -682,7 +689,7 @@ Panels.homeFamily = function (scene, scroll, r, y, p, game) {
     return y + 40;
   }
   for (const f of family) {
-    const face = f.ch || { sex: f.role === 'wife' || f.role === 'daughter' ? 'f' : 'm', portraitSeed: ADV.hashStr ? ADV.hashStr(f.id || f.name) : 1 };
+    const face = f.young ? {id:f.id,sex:f.role==='daughter'?'f':'m',isChild:true,portraitSeed:ADV.hashStr(f.id||f.name)} : f.ch || { sex: f.role === 'wife' || f.role === 'daughter' ? 'f' : 'm', portraitSeed: ADV.hashStr ? ADV.hashStr(f.id || f.name) : 1 };
     try {
       const pk = ADV.Portraits.key(scene, face);
       const img = scene.add.image(r.x + 48, y + 22, pk).setDisplaySize(28, 36);
