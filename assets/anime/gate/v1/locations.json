@@ -1,0 +1,162 @@
+{
+  "lanternhold": [
+    "Lanternhold",
+    "Fortified library on an Ethiopian-highland-inspired coastal cliff. Massive pale stone arches, woven geometric borders, lamplit reading room and stacked scroll cases, open arch overlooking the sea at night.",
+    true
+  ],
+  "griffon": [
+    "The Griffon Road",
+    "Bare wind-bent trees arching over an empty dirt road, ditch on one side, distant approaching orange torches beneath a clouded full moon. Threatening night.",
+    false
+  ],
+  "shore": [
+    "The Shore Road",
+    "Southern frontier coastal road through sand dunes and wind-bent scrub, ocean glittering beyond grass and old fenceposts. Clear adventurous late morning.",
+    false
+  ],
+  "open_hand": [
+    "The Open Hand Inn",
+    "Warm frontier walled coaching inn at blue dusk, heavy oak door reached by broad steps, amber lanterns, green Warden banner, horses stable visible. Welcoming but fortified.",
+    false
+  ],
+  "thornbury": [
+    "Thornbury",
+    "Southern frontier timber trading town, covered porches, low-beamed smoky inn open at the roadside, canvas merchant stalls and wet cobbles. No modern objects.",
+    false
+  ],
+  "ford": [
+    "The river crossing",
+    "Shallow brown river ford in a steep green valley, sharpened stakes and a gnoll hillfort visible up the opposite bank, ropes and bone warning charms. Windy afternoon.",
+    false
+  ],
+  "dunmere": [
+    "Dunmere",
+    "Poor Welsh-valley-inspired mining town under slate hills, stone cottages, garrison, simple protective temple, muddy central square and deep stone well, wool awnings.",
+    false
+  ],
+  "dunmere_mine": [
+    "The Dunmere Mines",
+    "Descending timber-shored iron mine, split shafts with wooden braces, mine carts, ore seams, puddles, lanterns and a flooded lower tunnel. Ominous but readable.",
+    true
+  ],
+  "holloway": [
+    "Holloway Vale",
+    "Steep lush green valley road, Nigerian-inspired Burning Gauntlet patrol camp, flame-red flags, disciplined canvas tents and wooden watchpost beneath high hills.",
+    false
+  ],
+  "bandit_camp": [
+    "The bandit camp",
+    "Hidden rough palisade deep in the Gnashing Wood, muddy rutted yard, haphazard tents, large dark command tent with empty chains and iron shackles. No people.",
+    false
+  ],
+  "mirkhollow": [
+    "Mirkhollow",
+    "Ancient enormous gnarled forest, white webs between roots, standing stones with ochre markings and red-black checked cloth offerings, shafts of green light, high crags behind.",
+    false
+  ],
+  "iron_mine": [
+    "The Iron Mine",
+    "Oppressive Consortium industrial mine gate, iron bars and empty cages, ledger checkpoint, wet dark stone, pulley ropes, gold-black merchant seals, torch-lit.",
+    true
+  ],
+  "span": [
+    "Serpent’s Span",
+    "Grand fortified bridge over a wide luminous river, Nigerian-inspired fantasy metropolis beyond with monumental terracotta and stone buildings, woven awnings, coral-red and gold flags.",
+    false
+  ],
+  "sewers": [
+    "The Gate sewers",
+    "Dwarven-carved foundations below Nigerian fantasy city docks, broad brick vaults and geometric stonework, flowing black-green water, dry stone walkway, amber lamps and outlet light.",
+    true
+  ],
+  "nine_lanterns": [
+    "The Nine Lanterns",
+    "Rich Nigerian-inspired merchant house with exactly NINE distinct hanging amber lanterns across its front above the carved door, geometric facade, counting desks visible inside. Night.",
+    false
+  ],
+  "palace": [
+    "The Ducal Palace",
+    "Nigerian-inspired grand ducal hall, high carved stone pillars, aso-oke-inspired geometric banners of four houses, four distinct banners behind broad dais, ceremonial throne, polished amber stone.",
+    true
+  ],
+  "tower": [
+    "The Consortium Tower",
+    "Six-floor Nigerian-inspired merchant tower interior, grand marble counting hall, brass ledger cages, rich woven silk hangings, upper galleries, geometric carved wood, cool gold-black luxury.",
+    true
+  ],
+  "catacombs": [
+    "Lanternhold catacombs",
+    "Ancient pale coastal limestone catacombs, solemn carved faces on tomb niches, a narrow low passage toward blue shore light, dust in amber lamp beams. Quiet dread.",
+    true
+  ],
+  "hunted_city": [
+    "The hunted city",
+    "Nigerian-inspired city dockside at wet dusk, wanted posters as illegible sketch marks on rain-dark walls, fishing skiffs, indigo cloth awnings, narrow cellar-market entrance and hidden amber lanterns.",
+    false
+  ],
+  "undercity": [
+    "The Undercity",
+    "Buried older Nigerian-inspired city, collapsed carved stone streets under a cavern roof, monumental gate, broken geometric mosaic, temple stairway in the distance, cool ash and old gold light.",
+    true
+  ],
+  "temple": [
+    "Temple of Morrak",
+    "Black-stone sanctum meticulously swept and lit, tall austere pillars, ritual lamps, throne-shaped altar above broad steps, ash on the floor, no people, heavy oppressive silence.",
+    true
+  ],
+  "gnoll_fort": [
+    "Gnoll fortress",
+    "Interior of a crude hillfort made of sharpened stakes, enormous animal bones, hide banners, scavenged shields and rough watchtowers overlooking a brown river.",
+    false
+  ],
+  "black_altar": [
+    "Grukhar’s chamber",
+    "Deepest iron mine chamber with a squat black altar, rust-red mineral veins, ritual bowls and poison-black runoff, torchlight under rotting timber braces.",
+    true
+  ],
+  "grove": [
+    "The druid grove",
+    "Ancient Kenyan-inspired fantasy forest grove ringed by tall standing stones, red-black checked offerings, tiny colored beads, twisting roots and rich green canopy, no people.",
+    false
+  ],
+  "cliffs": [
+    "The wyvern cliffs",
+    "High jagged cliffs above ancient green forest, giant wyvern nest of branches and bone on broad rock ledge, blue sky and rolling distant mountains, wind-torn grasses.",
+    false
+  ],
+  "valve": [
+    "The valve room",
+    "Enormous iron mine valve room, GREAT RUSTED HANDWHEEL on a central platform, heavy chains descending through gratings, black water rising below, amber industrial lanterns. Wheel clear on right half.",
+    true
+  ],
+  "study": [
+    "Olamide’s study",
+    "Meticulous underground mine mage office, leather-bound name ledgers in locked cases, magical ore testing table, narrow window onto barred cages, woven Nigerian-inspired collar motifs on wall seal.",
+    true
+  ],
+  "sickroom": [
+    "Adebayo’s sick-room",
+    "Quiet Nigerian ducal sick-room with empty canopied bed, indigo-and-coral woven coverlet, medicine table, carved geometric screens, early light, somber but not horror.",
+    true
+  ],
+  "undervault": [
+    "The Undervault",
+    "Hidden cellar-market beneath a Nigerian fantasy city, vaulted stone, crowded EMPTY stalls with unusual goods, indigo cloth, quiet lanterns, secret passage, ledgers and lockboxes.",
+    true
+  ],
+  "mirrors": [
+    "The hall of mirrors",
+    "Deep black-stone temple hall lined with tall tarnished mirrors at unsettling angles, sparse ritual lamps and drifting ash. NO humans in reflections. Central aisle remains uncluttered.",
+    true
+  ],
+  "counting": [
+    "The counting room",
+    "Rich Nigerian-inspired merchant counting chamber with ledger desks, brass balances, strongboxes, carved shutters, intricate geometric wall friezes and soft amber lanterns.",
+    true
+  ],
+  "silk_floor": [
+    "Folake’s floor",
+    "Private Nigerian-inspired tower apartment, burgundy silk hangings, carved ebony screens, coral jewelry on dressing table, low couches and balcony over city. Elegant controlled luxury.",
+    true
+  ]
+}

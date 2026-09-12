@@ -14,10 +14,11 @@ const EYES=['#64887f','#8b663b','#547aa0','#7b6953','#53575c','#8a719d'];
 const LIPS=['#986d63','#aa7476','#825452','#795651','#b84e64','#813f68','#99412e','#574553'];
 const cache=new Map(),partCache=new Map(),sources=new Map();
 const HEADS=A.AnimeIdentities.heads,NAMED=A.AnimeIdentities.named;
+function namedFor(ch){const base=NAMED[ch.campaignId||ch.portraitId];return A.GateArt?.named(ch,base)||base;}
 function hash(s){return A.hashStr(String(s))>>>0;}
 function identity(ch){
  const seed=ch.portraitSeed==null?hash(ch.portraitId||ch.id||'wanderer'):ch.portraitSeed>>>0;
- const named=NAMED[ch.campaignId||ch.portraitId],sex=ch.sex==='f'?'f':'m';
+ const named=namedFor(ch),sex=ch.sex==='f'?'f':'m';
  const n=hash(ch.enemyTypeId?seed+':'+ch.enemyTypeId+':'+(ch.skin||'')+':'+(ch.id||''):seed);
  const look=ch.appearance||{};
  const result={seed,sex,head:Number.isInteger(look.head)?Math.abs(look.head)%HEADS[sex].length:n%HEADS[sex].length,iris:EYES.includes(look.iris)?look.iris:EYES[Math.floor(n/11)%EYES.length],eyeType:Number.isInteger(look.eyeType)?Math.abs(look.eyeType)%5:Math.floor(n/13)%5,mouthType:Number.isInteger(look.mouthType)?Math.abs(look.mouthType)%5:Math.floor(n/29)%5,lipColor:LIPS.includes(look.lipColor)?look.lipColor:LIPS[Math.floor(n/31)%4],build:Math.floor(n/41)%3,mark:Math.floor(n/331)%6===0?1:0};
@@ -27,7 +28,7 @@ function identity(ch){
 function outfit(ch){
  if(SETS.includes(ch.equippedSet))return ch.equippedSet;
  if(SET_ALIAS[ch.equippedSet])return SET_ALIAS[ch.equippedSet];
- const named=NAMED[ch.campaignId||ch.portraitId];if(named)return named.set;
+ const named=namedFor(ch);if(named)return named.set;
  const cd=A.DATA.CAMPAIGN_CHARS?.[ch.campaignId||ch.portraitId],ed=A.DATA.CAMPAIGN_ENEMIES?.[ch.enemyTypeId];
  if(FACTION[cd?.faction||ed?.faction])return FACTION[cd?.faction||ed?.faction];
  if(ch.isMonster)return ({bandit:'street',hedge_mage:'shadowweave',grave_acolyte:'chantry'})[ch.portraitId]||'warrior';
@@ -97,11 +98,22 @@ function composeHuman(scene,ch,id,set){
  const registration=M.parts[h.sheet].registration?.[h.frame];
  if(registration){const p=registration;h.nx=h.nx*p.scale+p.x;h.ny=h.ny*p.scale+p.y;h.chin=h.chin*p.scale+p.y;for(const k of ['eyeUp','mouthDown','spread'])h[k]*=p.scale;}
  const index=SETS.indexOf(set),special=named&&!ch.equippedSet&&named.bodySheet;
- const body=cell(scene,special|| (set==='wardens_gear'?'wardrobe_gate':'wardrobe_'+id.sex+(Math.floor(index/4)+1)),special?named.bodyFrame:set==='wardens_gear'?(id.sex==='f'?0:1):index%4);
+ const warden=set==='wardens_gear'&&A.GateArt?.warden(ch);
+ const body=cell(scene,special||warden?.sheet|| (set==='wardens_gear'?'wardrobe_gate':'wardrobe_'+id.sex+(Math.floor(index/4)+1)),special?named.bodyFrame:warden?warden.frame:set==='wardens_gear'?(id.sex==='f'?0:1):index%4);
  if(!head||!body)return null;
  const master=document.createElement('canvas');master.width=1122;master.height=1402;const ctx=master.getContext('2d');
  const hp=head.getContext('2d').getImageData(Math.round((h.nx+34*(registration?.scale||1))*500/627),Math.round((h.ny+15*(registration?.scale||1))*500/627),1,1).data;
- const flesh=skinBody(body,hp,set);
+ let flesh=special&&named.authoredSkin?body:skinBody(body,hp,set);
+ const bodyW=named?.bodyWidth||[1020,1060,980][id.build];
+ let bodyY=528;
+ if(named?.authoredSkin){
+  // The generated modular collar opening is hollow. Expose the neck beneath it.
+  const c=document.createElement('canvas');c.width=c.height=body.width;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(flesh,0,0);
+  const top=x.getImageData(245,0,10,110).data;let collar=0;for(let yy=0;yy<110;yy++){if(Array.from({length:10},(_,xx)=>top[(yy*10+xx)*4+3]).filter(a=>a>180).length>5){collar=yy;break;}}
+  bodyY=500-collar*bodyW/500;
+  const d=x.getImageData(210,0,80,90);for(let i=0;i<d.data.length;i+=4){const p=d.data;if(p[i]+p[i+1]+p[i+2]<145&&Math.max(p[i],p[i+1],p[i+2])-Math.min(p[i],p[i+1],p[i+2])<50)p[i+3]=0;}x.putImageData(d,210,0);flesh=c;
+  ctx.fillStyle=`rgb(${hp[0]},${hp[1]},${hp[2]})`;ctx.beginPath();ctx.moveTo(500,465);ctx.lineTo(622,465);ctx.lineTo(655,700);ctx.lineTo(468,700);ctx.closePath();ctx.fill();
+ }
  if(named&&!ch.equippedSet)clothColor(flesh,named.clothColor);
  const S=Math.min(1.13,Math.max(.83,127/(authored.chin-authored.ny)))/(registration?.scale||1),hw=627*S,hx=561-h.nx*S,hy=378-h.ny*S;
  const covered=!named||!!ch.equippedSet;
@@ -109,19 +121,22 @@ function composeHuman(scene,ch,id,set){
  function drawHead(topOnly){
   if(covered&&set==='plate')return;
   ctx.save();
+  if(named?.authoredSkin){ctx.beginPath();ctx.rect(0,0,1122,525);ctx.clip();}
+  if(h.clipRight){ctx.beginPath();ctx.rect(hx,hy,h.clipRight*S,hw);ctx.clip();}
+  if(h.clipPolygon){ctx.beginPath();h.clipPolygon.forEach(([x,y],i)=>i?ctx.lineTo(hx+x*S,hy+y*S):ctx.moveTo(hx+x*S,hy+y*S));ctx.closePath();ctx.clip();}
   if(covered&&['warrior','green_eyed_armour','assassins_gear','privateers_kit','kings_uniform'].includes(set)){ctx.beginPath();ctx.ellipse(561,395,147,194,0,0,Math.PI*2);ctx.clip();}
   if(topOnly){ctx.beginPath();ctx.rect(0,0,1122,520);if(named?.beardFront)ctx.rect(385,510,350,180);ctx.clip();ctx.drawImage(head,hx,hy,hw,hw);}
   else ctx.drawImage(head,hx,hy,hw,hw);
   ctx.restore();
  }
  drawHead(false);
- const bodyW=named?.bodyWidth||[1020,1060,980][id.build];ctx.drawImage(flesh,561-bodyW/2,528,bodyW,bodyW);
+ ctx.drawImage(flesh,561-bodyW/2,bodyY,bodyW,bodyW);
  drawHead(true);
- if(named?.companion==='pip'){const pip=cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
+ if(named?.companion==='pip'&&(!named.authoredSkin||ch.equippedSet)){const pip=cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
  const point=(x,y)=>[hx+x*S,hy+y*S];
  const eyes=[point(h.nx-h.spread,h.ny-h.eyeUp),point(h.nx+h.spread,h.ny-h.eyeUp)],mouth=point(h.nx,h.ny+h.mouthDown);
  const featureScale=S*(registration?.scale||1);
- const r={face:[390,210,350,330],eyes,mouth,nose:null,iris:id.iris,female:id.sex==='f',eyeW:(named?.eyeWidth||(id.sex==='f'?40:36))*featureScale,eyeH:(named?.eyeHeight||(id.sex==='f'?22:17))*featureScale,browOffset:40*featureScale,chest:[580,1320],compliance:PLATE.has(set)?0:set==='shinobi_gear'?.25:.65,browsCovered:!!h.browsCovered,cloudy:!!named?.cloudy,mouthScale:named?.mouthScale||1};
+ const r={face:[390,210,350,330],eyes:h.noEyes?[]:eyes,mouth,nose:null,iris:id.iris,female:id.sex==='f',eyeW:(named?.eyeWidth||(id.sex==='f'?40:36))*featureScale,eyeH:(named?.eyeHeight||(id.sex==='f'?22:17))*featureScale,browOffset:40*featureScale,chest:[580,1320],compliance:PLATE.has(set)?0:set==='shinobi_gear'?.25:.65,browsCovered:!!h.browsCovered,masked:!!h.masked,cloudy:!!named?.cloudy,mouthScale:named?.mouthScale||1};
  // Tiny permanent marks belong to the identity, not to its current equipment.
  if(id.mark===1){ctx.strokeStyle='#9c665a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(eyes[1][0]+18,eyes[1][1]+8);ctx.lineTo(eyes[1][0]+11,eyes[1][1]+61);ctx.stroke();}
  if(id.mark===2){ctx.fillStyle='#885d4b';for(let i=0;i<9;i++){ctx.beginPath();ctx.arc(495+i*16,384+(i%3)*5,1.9,0,Math.PI*2);ctx.fill();}}
@@ -152,8 +167,10 @@ function makeKey(scene,ch,form){
  let creature=form||(!human?family:null);
  if(creature==='marine'||creature==='sea_dog'||creature==='spellblade'||creature==='unbroken'||creature==='wild')creature=null;
  if(creature==='plated_sentinel')creature='sentinel';
+ const gateEnemy=!form&&!id.named&&A.GateArt?.enemy(ch);
+ if(gateEnemy)creature='gate_'+(ch.campaignMiniId||ch.enemyTypeId);
  if(['werewolf','werebear','panther','sentinel'].includes(creature))return Art.key(scene,ch,creature);
- const entry=M.creatures[creature];
+ const entry=gateEnemy||M.creatures[creature];
  if(creature&&!entry)throw new Error('Missing illustrated creature: '+creature);
  const childFrame=(id.sex==='f'?0:2)+id.seed%2;
  const signature=child?['child',childFrame]:entry?[creature,ch.enemyTypeId||'',ch.skin||'',ch.skinTint||'',ch.boss?1:0,ch.isUndead?1:0]:[id.sex,id.head,id.iris,id.eyeType,id.mouthType,id.lipColor,id.build,id.mark,set,ch.equippedSet?'equipped':'default',ch.skinTint||'',ch.isUndead?1:0,form||''];

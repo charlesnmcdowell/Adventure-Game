@@ -1,0 +1,396 @@
+[
+  {
+    "id": "cast_1",
+    "kind": "cast",
+    "items": [
+      {
+        "id": "wren_ward",
+        "name": "Hiwot",
+        "sex": "f",
+        "desc": "young ADULT woman, playful almond eyes, asymmetrical short braids gathered to one side, warm expressive lips, practical white shawl, burgundy rogue jerkin; a foster-sister with quick hands. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases"
+      },
+      {
+        "id": "dorran",
+        "name": "Beau",
+        "sex": "m",
+        "desc": "adult broad-shouldered brown-skinned man, cropped curls, guarded kind eyes, weathered frontier mail with green sash, battered shield edge. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified"
+      },
+      {
+        "id": "selene",
+        "name": "Delphine",
+        "sex": "f",
+        "desc": "adult brown-skinned woman, long tied braids, strong feminine figure, practical druid leathers and green sash, protective thoughtful eyes. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified"
+      },
+      {
+        "id": "vess",
+        "name": "Desmond",
+        "sex": "m",
+        "desc": "adult deep-brown man, long locs, narrow mischievous eyes, unsettling little smile, faded linen under charcoal-violet necromancer coat. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build"
+      }
+    ],
+    "prompt": "Use case: stylized-concept. Production fantasy RPG character art in the approved premium ANIME CEL-SHADED style: crisp expressive ink lines, elegant controlled cel shading, detailed believable textiles and armor, refined varied faces, consistent soft upper-left key light. All human-looking people are ADULTS. Women are clearly adult and feminine, with defined covered busts and flattering role-appropriate armor or dresses; males look distinctive and capable. No nudity. Preserve real regional variety respectfully; no caricatures. Create one transparent-background RGBA character ATLAS: four completely separate WAIST-UP portrait busts arranged in an exact 2 by 2 grid, TL/TR/BL/BR. Overall canvas portrait aspect, each cell a vertical portrait. Leave clear transparent margins between characters. Front-facing head and upper body, shoulders level, complete head including hair/headwear, fixed eye line at 29% down EACH cell, chin at 42%, waist at 94%. Hands below chest or out of crop; no pointing or arms across face. Busts fill their own cells without touching the edges. Real transparent alpha background; NO checkerboard, solid background, text, numbers, labels, frames or ground shadow. Four subjects in order: TOP LEFT: young ADULT woman, playful almond eyes, asymmetrical short braids gathered to one side, warm expressive lips, practical white shawl, burgundy rogue jerkin; a foster-sister with quick hands. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases\nTOP RIGHT: adult broad-shouldered brown-skinned man, cropped curls, guarded kind eyes, weathered frontier mail with green sash, battered shield edge. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified\nBOTTOM LEFT: adult brown-skinned woman, long tied braids, strong feminine figure, practical druid leathers and green sash, protective thoughtful eyes. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified\nBOTTOM RIGHT: adult deep-brown man, long locs, narrow mischievous eyes, unsettling little smile, faded linen under charcoal-violet necromancer coat. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-de952c60-a4ef-432b-afb5-690a603008bc.png",
+    "rejected": true,
+    "reason": "Opaque background and excessive realism; regenerate in clean anime style with alpha."
+  },
+  {
+    "id": "heads_1",
+    "kind": "head",
+    "items": [
+      {
+        "id": "wren_ward",
+        "name": "Hiwot",
+        "sex": "f",
+        "desc": "young ADULT woman, playful almond eyes, asymmetrical short braids gathered to one side, warm expressive lips, practical white shawl, burgundy rogue jerkin; a foster-sister with quick hands. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases"
+      },
+      {
+        "id": "dorran",
+        "name": "Beau",
+        "sex": "m",
+        "desc": "adult broad-shouldered brown-skinned man, cropped curls, guarded kind eyes, weathered frontier mail with green sash, battered shield edge. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified"
+      },
+      {
+        "id": "selene",
+        "name": "Delphine",
+        "sex": "f",
+        "desc": "adult brown-skinned woman, long tied braids, strong feminine figure, practical druid leathers and green sash, protective thoughtful eyes. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified"
+      },
+      {
+        "id": "vess",
+        "name": "Desmond",
+        "sex": "m",
+        "desc": "adult deep-brown man, long locs, narrow mischievous eyes, unsettling little smile, faded linen under charcoal-violet necromancer coat. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG sprite sheet with real alpha. 2D anime RPG modular HEAD sprites, exactly FOUR separate heads arranged evenly in a 2x2 square grid. ONLY heads with a short neck. NO shoulders, NO torsos, NO background, NO frames, NO text. Every head straight-on and symmetrical in pose, entire hair silhouette inside its quadrant with transparent margin. Crisp black anime outlines and FLAT TWO-TONE CEL SHADOWS, attractive stylized anime design, NOT realism, NOT a painting. For animation: the face has a rendered NOSE but the EYELIDS, EYES, EYEBROWS and MOUTH are OMITTED entirely leaving smooth plain skin where they would be; these features will be added by the game engine. Each adult has distinctive hair, face shape and ethnicity. Four adults: TOP LEFT: Hiwot, Ethiopian woman warm brown skin, feminine face, asymmetrical short natural braids gathered to one side, small silver earring. TOP RIGHT: Beau, broad-faced brown-skinned adult man with cropped natural curls and short black beard on chin and jaw only, no moustache, scar by temple. BOTTOM LEFT: Delphine, brown-skinned adult woman, elegant feminine face, long tied natural braids, small green Warden bead. BOTTOM RIGHT: Desmond, Jamaican deep brown-skinned adult man, long black locs, angular face, narrow goatee on chin only. Maximum simple clean anime styling and genuine transparency.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-f4bbebe9-dbc5-47e3-b215-53bcdf92a7ae.png"
+  },
+  {
+    "id": "heads_2",
+    "kind": "head",
+    "items": [
+      {
+        "id": "fennick",
+        "name": "Winston",
+        "sex": "m",
+        "desc": "adult brown-skinned male HALFLING, cropped hair, compact broad face, skeptical brow, short chin beard, worn linen and leather, dour expression. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build"
+      },
+      {
+        "id": "cassian",
+        "name": "Santiago",
+        "sex": "m",
+        "desc": "young ADULT man, neat black side-part hair, clean-shaven, wide earnest eyes, upright white sunrise tabard and finely stitched leather over mail. Mexican-inspired paladin: olive skin, neat black hair, charro-style embroidered leather over mail, white tabard with stylized sunrise emblem, rosary of small red beads"
+      },
+      {
+        "id": "ithrel",
+        "name": "Itsuki",
+        "sex": "m",
+        "desc": "adult male ELF, long black hair tied high, long narrow eyes, restrained grieving expression, moss and charcoal traveling layers. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance"
+      },
+      {
+        "id": "bramm",
+        "name": "Bahadır",
+        "sex": "m",
+        "desc": "very large adult olive-skinned man, shaved head, thick dark beard, open friendly smile, embroidered ranger kaftan and wolf fur; tiny golden hamster Findik clearly perched on his shoulder. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEAD AND SHORT NECK ONLY, absolutely NO shoulders, torsos or arms. Front-facing, upright, centered, full hair silhouette. IMPORTANT facial animation template: draw the nose and the head shape, but OMIT ALL EYES, EYELIDS, EYEBROWS, AND MOUTHS, leaving smooth plain skin for the game to draw them later. Do not draw a moustache across the mouth area. Keep facial hair only on chin and jaw. Ignore clothing descriptions below; render only head details and head accessories. Each character has a unique face shape and hair. TOP LEFT: adult brown-skinned male HALFLING, cropped hair, compact broad face, skeptical brow, short chin beard, worn linen and leather, dour expression. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build\nTOP RIGHT: young ADULT man, neat black side-part hair, clean-shaven, wide earnest eyes, upright white sunrise tabard and finely stitched leather over mail. Mexican-inspired paladin: olive skin, neat black hair, charro-style embroidered leather over mail, white tabard with stylized sunrise emblem, rosary of small red beads\nBOTTOM LEFT: adult male ELF, long black hair tied high, long narrow eyes, restrained grieving expression, moss and charcoal traveling layers. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance\nBOTTOM RIGHT: very large adult olive-skinned man, shaved head, thick dark beard, open friendly smile, embroidered ranger kaftan and wolf fur; tiny golden hamster Findik clearly perched on his shoulder. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-903ffc30-4369-4f1e-9c9a-4f1e25ebdeb1.png"
+  },
+  {
+    "id": "bodies_1",
+    "kind": "body",
+    "items": [
+      {
+        "id": "wren_ward",
+        "name": "Hiwot",
+        "sex": "f",
+        "desc": "young ADULT woman, playful almond eyes, asymmetrical short braids gathered to one side, warm expressive lips, practical white shawl, burgundy rogue jerkin; a foster-sister with quick hands. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases"
+      },
+      {
+        "id": "dorran",
+        "name": "Beau",
+        "sex": "m",
+        "desc": "adult broad-shouldered brown-skinned man, cropped curls, guarded kind eyes, weathered frontier mail with green sash, battered shield edge. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified"
+      },
+      {
+        "id": "selene",
+        "name": "Delphine",
+        "sex": "f",
+        "desc": "adult brown-skinned woman, long tied braids, strong feminine figure, practical druid leathers and green sash, protective thoughtful eyes. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified"
+      },
+      {
+        "id": "vess",
+        "name": "Desmond",
+        "sex": "m",
+        "desc": "adult deep-brown man, long locs, narrow mischievous eyes, unsettling little smile, faded linen under charcoal-violet necromancer coat. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEADLESS MODULAR CLOTHING TORSOS, neck opening at TOP CENTER of each quadrant, shoulders at 15%, waist at 65%, hem at 98%; render from collar to upper thighs. NO heads, faces, hair, necks or stand/mannequin, hollow neck opening. Arms rest down at sides, hands relaxed. Match clear feminine ADULT silhouettes with covered defined busts and feminine waist shaping on women, broad cool practical silhouettes on men. Clothing names, cultural embroidery, props and profession must read clearly at small size. Ignore descriptions of faces and hair. No floating particles or weapon covering the chest. TOP LEFT: young ADULT woman, playful almond eyes, asymmetrical short braids gathered to one side, warm expressive lips, practical white shawl, burgundy rogue jerkin; a foster-sister with quick hands. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases\nTOP RIGHT: adult broad-shouldered brown-skinned man, cropped curls, guarded kind eyes, weathered frontier mail with green sash, battered shield edge. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified\nBOTTOM LEFT: adult brown-skinned woman, long tied braids, strong feminine figure, practical druid leathers and green sash, protective thoughtful eyes. Southern American frontier-inspired fantasy: practical waxed canvas coat, homespun and leather, green Warden sash where relevant; natural braids or locs when specified\nBOTTOM RIGHT: adult deep-brown man, long locs, narrow mischievous eyes, unsettling little smile, faded linen under charcoal-violet necromancer coat. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-4d925f96-0278-4f69-a540-8911cab8b040.png"
+  },
+  {
+    "id": "bodies_2",
+    "kind": "body",
+    "items": [
+      {
+        "id": "fennick",
+        "name": "Winston",
+        "sex": "m",
+        "desc": "adult brown-skinned male HALFLING, cropped hair, compact broad face, skeptical brow, short chin beard, worn linen and leather, dour expression. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build"
+      },
+      {
+        "id": "cassian",
+        "name": "Santiago",
+        "sex": "m",
+        "desc": "young ADULT man, neat black side-part hair, clean-shaven, wide earnest eyes, upright white sunrise tabard and finely stitched leather over mail. Mexican-inspired paladin: olive skin, neat black hair, charro-style embroidered leather over mail, white tabard with stylized sunrise emblem, rosary of small red beads"
+      },
+      {
+        "id": "ithrel",
+        "name": "Itsuki",
+        "sex": "m",
+        "desc": "adult male ELF, long black hair tied high, long narrow eyes, restrained grieving expression, moss and charcoal traveling layers. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance"
+      },
+      {
+        "id": "bramm",
+        "name": "Bahadır",
+        "sex": "m",
+        "desc": "very large adult olive-skinned man, shaved head, thick dark beard, open friendly smile, embroidered ranger kaftan and wolf fur; tiny golden hamster Findik clearly perched on his shoulder. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEADLESS MODULAR CLOTHING TORSOS, neck opening at TOP CENTER of each quadrant, shoulders at 15%, waist at 65%, hem at 98%; render from collar to upper thighs. NO heads, faces, hair, necks or stand/mannequin, hollow neck opening. Arms rest down at sides, hands relaxed. Match clear feminine ADULT silhouettes with covered defined busts and feminine waist shaping on women, broad cool practical silhouettes on men. Clothing names, cultural embroidery, props and profession must read clearly at small size. Ignore descriptions of faces and hair. No floating particles or weapon covering the chest. TOP LEFT: adult brown-skinned male HALFLING, cropped hair, compact broad face, skeptical brow, short chin beard, worn linen and leather, dour expression. Jamaican-inspired fantasy travellers: brown skin, sea-faded linen, hidden red-gold-green sash; Desmond has long locs, Winston has cropped hair and a compact HALFLING build\nTOP RIGHT: young ADULT man, neat black side-part hair, clean-shaven, wide earnest eyes, upright white sunrise tabard and finely stitched leather over mail. Mexican-inspired paladin: olive skin, neat black hair, charro-style embroidered leather over mail, white tabard with stylized sunrise emblem, rosary of small red beads\nBOTTOM LEFT: adult male ELF, long black hair tied high, long narrow eyes, restrained grieving expression, moss and charcoal traveling layers. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance\nBOTTOM RIGHT: very large adult olive-skinned man, shaved head, thick dark beard, open friendly smile, embroidered ranger kaftan and wolf fur; tiny golden hamster Findik clearly perched on his shoulder. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-eb78eab0-3d00-4fdb-b048-659686860260.png"
+  },
+  {
+    "id": "heads_3",
+    "kind": "head",
+    "items": [
+      {
+        "id": "ysolde",
+        "name": "Yasemin",
+        "sex": "f",
+        "desc": "adult olive-skinned woman, dark twisted hair under an embroidered felt headdress, watchful amber eyes, beautiful fitted violet kaftan with long layered sleeves. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes"
+      },
+      {
+        "id": "aurelius",
+        "name": "Devendra",
+        "sex": "m",
+        "desc": "adult brown-skinned man, elegant trimmed mustache, stern heavy-lidded eyes, crimson embroidered sherwani and elaborate turban-pin, aristocratic contempt. Indian-inspired mage: brown skin, crimson silk sherwani-cut robes, intricate gold embroidery, jeweled turban pin, many rings, polished imperious bearing"
+      },
+      {
+        "id": "ilvara",
+        "name": "Layla",
+        "sex": "f",
+        "desc": "adult dark-elf woman, ashen skin, long white hair, violet kohl-lined eyes, genuinely opaque half-veil concealing mouth, elegant black-indigo dress with silver geometric embroidery. Arab-inspired DARK ELF: ashen grey skin, long white hair, pointed ears, flowing black and indigo robes, intricate silver geometric embroidery, a half veil that really covers the mouth, kohl-lined eyes"
+      },
+      {
+        "id": "faelen",
+        "name": "Kaito",
+        "sex": "m",
+        "desc": "adult male ELF, olive skin, black ponytail, playful upturned eyes and crooked grin, understated woodland kimono-cut jacket and bow-case. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEAD AND SHORT NECK ONLY, absolutely NO shoulders, torsos or arms. Front-facing, upright, centered, full hair silhouette. IMPORTANT facial animation template: draw the nose and the head shape, but OMIT ALL EYES, EYELIDS, EYEBROWS, AND MOUTHS, leaving smooth plain skin for the game to draw them later. Do not draw a moustache across the mouth area. Keep facial hair only on chin and jaw. Ignore clothing descriptions below; render only head details and head accessories. Each character has a unique face shape and hair. TOP LEFT: adult olive-skinned woman, dark twisted hair under an embroidered felt headdress, watchful amber eyes, beautiful fitted violet kaftan with long layered sleeves. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes\nTOP RIGHT: adult brown-skinned man, elegant trimmed mustache, stern heavy-lidded eyes, crimson embroidered sherwani and elaborate turban-pin, aristocratic contempt. Indian-inspired mage: brown skin, crimson silk sherwani-cut robes, intricate gold embroidery, jeweled turban pin, many rings, polished imperious bearing\nBOTTOM LEFT: adult dark-elf woman, ashen skin, long white hair, violet kohl-lined eyes, genuinely opaque half-veil concealing mouth, elegant black-indigo dress with silver geometric embroidery. Arab-inspired DARK ELF: ashen grey skin, long white hair, pointed ears, flowing black and indigo robes, intricate silver geometric embroidery, a half veil that really covers the mouth, kohl-lined eyes\nBOTTOM RIGHT: adult male ELF, olive skin, black ponytail, playful upturned eyes and crooked grin, understated woodland kimono-cut jacket and bow-case. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-ad4736fe-84da-40ec-ac7d-dcf0450241bf.png"
+  },
+  {
+    "id": "bodies_3",
+    "kind": "body",
+    "items": [
+      {
+        "id": "ysolde",
+        "name": "Yasemin",
+        "sex": "f",
+        "desc": "adult olive-skinned woman, dark twisted hair under an embroidered felt headdress, watchful amber eyes, beautiful fitted violet kaftan with long layered sleeves. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes"
+      },
+      {
+        "id": "aurelius",
+        "name": "Devendra",
+        "sex": "m",
+        "desc": "adult brown-skinned man, elegant trimmed mustache, stern heavy-lidded eyes, crimson embroidered sherwani and elaborate turban-pin, aristocratic contempt. Indian-inspired mage: brown skin, crimson silk sherwani-cut robes, intricate gold embroidery, jeweled turban pin, many rings, polished imperious bearing"
+      },
+      {
+        "id": "ilvara",
+        "name": "Layla",
+        "sex": "f",
+        "desc": "adult dark-elf woman, ashen skin, long white hair, violet kohl-lined eyes, genuinely opaque half-veil concealing mouth, elegant black-indigo dress with silver geometric embroidery. Arab-inspired DARK ELF: ashen grey skin, long white hair, pointed ears, flowing black and indigo robes, intricate silver geometric embroidery, a half veil that really covers the mouth, kohl-lined eyes"
+      },
+      {
+        "id": "faelen",
+        "name": "Kaito",
+        "sex": "m",
+        "desc": "adult male ELF, olive skin, black ponytail, playful upturned eyes and crooked grin, understated woodland kimono-cut jacket and bow-case. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEADLESS MODULAR CLOTHING TORSOS, neck opening at TOP CENTER of each quadrant, shoulders at 15%, waist at 65%, hem at 98%; render from collar to upper thighs. NO heads, faces, hair, necks or stand/mannequin, hollow neck opening. Arms rest down at sides, hands relaxed. Match clear feminine ADULT silhouettes with covered defined busts and feminine waist shaping on women, broad cool practical silhouettes on men. Clothing names, cultural embroidery, props and profession must read clearly at small size. Ignore descriptions of faces and hair. No floating particles or weapon covering the chest. TOP LEFT: adult olive-skinned woman, dark twisted hair under an embroidered felt headdress, watchful amber eyes, beautiful fitted violet kaftan with long layered sleeves. Turkish-inspired steppe fantasy: olive skin, embroidered kaftan, felt details and evil-eye bead jewelry; ranger has wolf-fur collar and witch has elegant embroidered violet robes\nTOP RIGHT: adult brown-skinned man, elegant trimmed mustache, stern heavy-lidded eyes, crimson embroidered sherwani and elaborate turban-pin, aristocratic contempt. Indian-inspired mage: brown skin, crimson silk sherwani-cut robes, intricate gold embroidery, jeweled turban pin, many rings, polished imperious bearing\nBOTTOM LEFT: adult dark-elf woman, ashen skin, long white hair, violet kohl-lined eyes, genuinely opaque half-veil concealing mouth, elegant black-indigo dress with silver geometric embroidery. Arab-inspired DARK ELF: ashen grey skin, long white hair, pointed ears, flowing black and indigo robes, intricate silver geometric embroidery, a half veil that really covers the mouth, kohl-lined eyes\nBOTTOM RIGHT: adult male ELF, olive skin, black ponytail, playful upturned eyes and crooked grin, understated woodland kimono-cut jacket and bow-case. Japanese-inspired woodland ELF: pointed ears, olive skin, muted layered travelling kimono-cut jacket and hakama, high-tied dark hair, lacquered bow case, understated practical elegance",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-8140f476-ab45-4576-ae03-5322a4927b77.png"
+  },
+  {
+    "id": "bodies_4",
+    "kind": "body",
+    "items": [
+      {
+        "id": "nettle",
+        "name": "Wanjiru",
+        "sex": "f",
+        "desc": "adult deep-brown woman, close shoulder-length locs, fierce round eyes, ochre marks, feminine strong build, checked red-black wrap and forest leathers with beadwork. Kenyan-inspired forest fantasy: deep brown skin, small precise beadwork, red-and-black checked woven cloth, bark and hide, close locs, ochre markings"
+      },
+      {
+        "id": "durnik",
+        "name": "Dai Morgan",
+        "sex": "m",
+        "desc": "mature fair-skinned male DWARF, bald, massive braided reddish-grey beard, broad compact head and shoulders, mining priest wool and slate-trimmed mail. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard"
+      },
+      {
+        "id": "amara",
+        "name": "Amara",
+        "sex": "f",
+        "desc": "adult deep-brown Nigerian woman, close braids tied in a low bun, strong feminine shoulders and defined bust under fitted dark red temple armor, exact almond eyes and composed full lips. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats"
+      },
+      {
+        "id": "aldric",
+        "name": "Tesfaye",
+        "sex": "m",
+        "desc": "mature brown-skinned Ethiopian-inspired man, salt-and-pepper close curls and short beard, gentle tired eyes, white woven-bordered shawl over indigo library robes. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEADLESS MODULAR CLOTHING TORSOS, neck opening at TOP CENTER of each quadrant, shoulders at 15%, waist at 65%, hem at 98%; render from collar to upper thighs. NO heads, faces, hair, necks or stand/mannequin, hollow neck opening. Arms rest down at sides, hands relaxed. Match clear feminine ADULT silhouettes with covered defined busts and feminine waist shaping on women, broad cool practical silhouettes on men. Clothing names, cultural embroidery, props and profession must read clearly at small size. Ignore descriptions of faces and hair. No floating particles or weapon covering the chest. TOP LEFT: adult deep-brown woman, close shoulder-length locs, fierce round eyes, ochre marks, feminine strong build, checked red-black wrap and forest leathers with beadwork. Kenyan-inspired forest fantasy: deep brown skin, small precise beadwork, red-and-black checked woven cloth, bark and hide, close locs, ochre markings\nTOP RIGHT: mature fair-skinned male DWARF, bald, massive braided reddish-grey beard, broad compact head and shoulders, mining priest wool and slate-trimmed mail. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard\nBOTTOM LEFT: adult deep-brown Nigerian woman, close braids tied in a low bun, strong feminine shoulders and defined bust under fitted dark red temple armor, exact almond eyes and composed full lips. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats\nBOTTOM RIGHT: mature brown-skinned Ethiopian-inspired man, salt-and-pepper close curls and short beard, gentle tired eyes, white woven-bordered shawl over indigo library robes. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-35523fe3-a8ef-489f-8baf-d32d435f1e6f.png"
+  },
+  {
+    "id": "heads_4",
+    "kind": "head",
+    "items": [
+      {
+        "id": "nettle",
+        "name": "Wanjiru",
+        "sex": "f",
+        "desc": "adult deep-brown woman, close shoulder-length locs, fierce round eyes, ochre marks, feminine strong build, checked red-black wrap and forest leathers with beadwork. Kenyan-inspired forest fantasy: deep brown skin, small precise beadwork, red-and-black checked woven cloth, bark and hide, close locs, ochre markings"
+      },
+      {
+        "id": "durnik",
+        "name": "Dai Morgan",
+        "sex": "m",
+        "desc": "mature fair-skinned male DWARF, bald, massive braided reddish-grey beard, broad compact head and shoulders, mining priest wool and slate-trimmed mail. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard"
+      },
+      {
+        "id": "amara",
+        "name": "Amara",
+        "sex": "f",
+        "desc": "adult deep-brown Nigerian woman, close braids tied in a low bun, strong feminine shoulders and defined bust under fitted dark red temple armor, exact almond eyes and composed full lips. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats"
+      },
+      {
+        "id": "aldric",
+        "name": "Tesfaye",
+        "sex": "m",
+        "desc": "mature brown-skinned Ethiopian-inspired man, salt-and-pepper close curls and short beard, gentle tired eyes, white woven-bordered shawl over indigo library robes. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEAD AND SHORT NECK ONLY, absolutely NO shoulders, torsos or arms. Front-facing, upright, centered, full hair silhouette. IMPORTANT facial animation template: draw the nose and the head shape, but OMIT ALL EYES, EYELIDS, EYEBROWS, AND MOUTHS, leaving smooth plain skin for the game to draw them later. Do not draw a moustache across the mouth area. Keep facial hair only on chin and jaw. Ignore clothing descriptions below; render only head details and head accessories. Each character has a unique face shape and hair. TOP LEFT: adult deep-brown woman, close shoulder-length locs, fierce round eyes, ochre marks, feminine strong build, checked red-black wrap and forest leathers with beadwork. Kenyan-inspired forest fantasy: deep brown skin, small precise beadwork, red-and-black checked woven cloth, bark and hide, close locs, ochre markings\nTOP RIGHT: mature fair-skinned male DWARF, bald, massive braided reddish-grey beard, broad compact head and shoulders, mining priest wool and slate-trimmed mail. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard\nBOTTOM LEFT: adult deep-brown Nigerian woman, close braids tied in a low bun, strong feminine shoulders and defined bust under fitted dark red temple armor, exact almond eyes and composed full lips. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats\nBOTTOM RIGHT: mature brown-skinned Ethiopian-inspired man, salt-and-pepper close curls and short beard, gentle tired eyes, white woven-bordered shawl over indigo library robes. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-2ba5b3d1-b8c4-4b88-95ab-2f6726773d85.png"
+  },
+  {
+    "id": "environment_1",
+    "kind": "environment",
+    "items": [
+      {
+        "id": "lanternhold",
+        "name": "Lanternhold",
+        "desc": "Fortified library on an Ethiopian-highland-inspired coastal cliff. Massive pale stone arches, woven geometric borders, lamplit reading room and stacked scroll cases, open arch overlooking the sea at night.",
+        "indoor": true
+      },
+      {
+        "id": "griffon",
+        "name": "The Griffon Road",
+        "desc": "Bare wind-bent trees arching over an empty dirt road, ditch on one side, distant approaching orange torches beneath a clouded full moon. Threatening night.",
+        "indoor": false
+      }
+    ],
+    "prompt": "Production game background painting. Premium ANIME background art with clean perspective, refined linework, layered cel-shaded color and atmospheric light, detailed believable architecture and materials, adventurous fantasy world. No text, captions, border, UI, people or foreground character silhouettes. Do not make a collage. Create a SQUARE atlas containing TWO stacked WIDE 2:1 landscape backgrounds. Each panel is a complete distinct wide composition. Camera around human eye height. The bottom third is walkable ground with space for battle portraits.  EXACTLY TWO equal-height panels, edge-to-edge, no gutter or border. TOP HALF: Fortified library on an Ethiopian-highland-inspired coastal cliff. Massive pale stone arches, woven geometric borders, lamplit reading room and stacked scroll cases, open arch overlooking the sea at night. BOTTOM HALF: Bare wind-bent trees arching over an empty dirt road, ditch on one side, distant approaching orange torches beneath a clouded full moon. Threatening night.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-b0522c54-f4b6-4a49-9875-05b27e38da2c.png"
+  },
+  {
+    "id": "bodies_5",
+    "kind": "body",
+    "items": [
+      {
+        "id": "torvald",
+        "name": "Yohannes",
+        "sex": "m",
+        "desc": "elderly brown-skinned Ethiopian-inspired man, silver short locs and long wispy silver beard, smiling knowing eyes, grey cloak over white bordered shawl. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases"
+      },
+      {
+        "id": "tollan",
+        "name": "Gethin Pryce",
+        "sex": "m",
+        "desc": "middle-aged fair-skinned Welsh-inspired man, receding brown hair beneath wool flat cap, round harried face, knitted wool and plain leather mayor coat. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard"
+      },
+      {
+        "id": "halloran",
+        "name": "Emeka Obi",
+        "sex": "m",
+        "desc": "adult deep-brown Nigerian man, short hair, clearly burn-scarred jaw, firm kind eyes, flame-red tabard over practical mail. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats"
+      },
+      {
+        "id": "halvard",
+        "name": "Duke Adebayo",
+        "sex": "m",
+        "desc": "mature deep-brown Nigerian man, silver temples, tired precise eyes, rich red-and-gold agbada over ceremonial armor, coral bead collar. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEADLESS MODULAR CLOTHING TORSOS, neck opening at TOP CENTER of each quadrant, shoulders at 15%, waist at 65%, hem at 98%; render from collar to upper thighs. NO heads, faces, hair, necks or stand/mannequin, hollow neck opening. Arms rest down at sides, hands relaxed. Match clear feminine ADULT silhouettes with covered defined busts and feminine waist shaping on women, broad cool practical silhouettes on men. Clothing names, cultural embroidery, props and profession must read clearly at small size. Ignore descriptions of faces and hair. No floating particles or weapon covering the chest. TOP LEFT: elderly brown-skinned Ethiopian-inspired man, silver short locs and long wispy silver beard, smiling knowing eyes, grey cloak over white bordered shawl. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases\nTOP RIGHT: middle-aged fair-skinned Welsh-inspired man, receding brown hair beneath wool flat cap, round harried face, knitted wool and plain leather mayor coat. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard\nBOTTOM LEFT: adult deep-brown Nigerian man, short hair, clearly burn-scarred jaw, firm kind eyes, flame-red tabard over practical mail. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats\nBOTTOM RIGHT: mature deep-brown Nigerian man, silver temples, tired precise eyes, rich red-and-gold agbada over ceremonial armor, coral bead collar. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-16a922b1-5826-4c65-83ce-22b5d2092ea4.png"
+  },
+  {
+    "id": "heads_5",
+    "kind": "head",
+    "items": [
+      {
+        "id": "torvald",
+        "name": "Yohannes",
+        "sex": "m",
+        "desc": "elderly brown-skinned Ethiopian-inspired man, silver short locs and long wispy silver beard, smiling knowing eyes, grey cloak over white bordered shawl. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases"
+      },
+      {
+        "id": "tollan",
+        "name": "Gethin Pryce",
+        "sex": "m",
+        "desc": "middle-aged fair-skinned Welsh-inspired man, receding brown hair beneath wool flat cap, round harried face, knitted wool and plain leather mayor coat. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard"
+      },
+      {
+        "id": "halloran",
+        "name": "Emeka Obi",
+        "sex": "m",
+        "desc": "adult deep-brown Nigerian man, short hair, clearly burn-scarred jaw, firm kind eyes, flame-red tabard over practical mail. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats"
+      },
+      {
+        "id": "halvard",
+        "name": "Duke Adebayo",
+        "sex": "m",
+        "desc": "mature deep-brown Nigerian man, silver temples, tired precise eyes, rich red-and-gold agbada over ceremonial armor, coral bead collar. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats"
+      }
+    ],
+    "prompt": "Generate a TRANSPARENT BACKGROUND PNG with genuine RGBA alpha, NOT a checkerboard. Exactly four completely separate sprites in an exact 2x2 SQUARE atlas, one per quadrant, with generous transparent margins. Crisp clean black anime outlines, beautiful two-tone CEL SHADOWS and controlled detailed textile linework, premium Japanese 2D fantasy RPG art, NOT photorealism. Consistent upper-left light. No text, labels, frames, ground or scenery. All characters are adults. HEAD AND SHORT NECK ONLY, absolutely NO shoulders, torsos or arms. Front-facing, upright, centered, full hair silhouette. IMPORTANT facial animation template: draw the nose and the head shape, but OMIT ALL EYES, EYELIDS, EYEBROWS, AND MOUTHS, leaving smooth plain skin for the game to draw them later. Do not draw a moustache across the mouth area. Keep facial hair only on chin and jaw. Ignore clothing descriptions below; render only head details and head accessories. Each character has a unique face shape and hair. TOP LEFT: elderly brown-skinned Ethiopian-inspired man, silver short locs and long wispy silver beard, smiling knowing eyes, grey cloak over white bordered shawl. Ethiopian highland-inspired fantasy: warm brown skin, braided or closely cropped natural hair, white woven cotton shawl with rich colored woven borders over library robes, small silver filigree jewelry and scroll cases\nTOP RIGHT: middle-aged fair-skinned Welsh-inspired man, receding brown hair beneath wool flat cap, round harried face, knitted wool and plain leather mayor coat. Welsh valley-inspired fantasy: fair skin, wool flat cap, thick knitted wool and leather apron, slate embroidery; dwarf has a broad compact build and elaborately braided beard\nBOTTOM LEFT: adult deep-brown Nigerian man, short hair, clearly burn-scarred jaw, firm kind eyes, flame-red tabard over practical mail. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats\nBOTTOM RIGHT: mature deep-brown Nigerian man, silver temples, tired precise eyes, rich red-and-gold agbada over ceremonial armor, coral bead collar. Yoruba and Igbo-inspired Nigerian fantasy city: deep brown skin, distinct individual African facial features, woven aso-oke panels, coral beads, carefully fitted layered cloth; rulers in grand agbada or gele; soldiers flame-red tabards; merchants dark tailored city coats",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-8b400145-751b-4731-846c-6ed33dfde9a5.png"
+  },
+  {
+    "id": "panorama_1",
+    "kind": "panorama",
+    "items": [
+      {
+        "id": "lanternhold",
+        "name": "Lanternhold",
+        "desc": "Fortified library on an Ethiopian-highland-inspired coastal cliff. Massive pale stone arches, woven geometric borders, lamplit reading room and stacked scroll cases, open arch overlooking the sea at night.",
+        "indoor": true
+      },
+      {
+        "id": "griffon",
+        "name": "The Griffon Road",
+        "desc": "Bare wind-bent trees arching over an empty dirt road, ditch on one side, distant approaching orange torches beneath a clouded full moon. Threatening night.",
+        "indoor": false
+      }
+    ],
+    "prompt": "Production game background painting. Premium ANIME background art with clean perspective, refined linework, layered cel-shaded color and atmospheric light, detailed believable architecture and materials, adventurous fantasy world. No text, captions, border, UI, people or foreground character silhouettes. Do not make a collage. Create a LANDSCAPE 3:2 atlas containing TWO stacked EXTRA WIDE 3:1 panoramic backgrounds for SIDE-SCROLLING travel. Each is viewed SIDE-ON along a horizontal route, never a road going into the screen. Continuous near-horizontal ground at bottom 20%, far scenery and sky above. Left and right edges have matching terrain and horizon height for horizontal looping. Distant scenery and close framing foliage create parallax. Water surface where appropriate, cloth flags where appropriate, no painted birds (birds animated separately).  EXACTLY TWO equal-height panels, edge-to-edge, no gutter or border. TOP HALF: Fortified library on an Ethiopian-highland-inspired coastal cliff. Massive pale stone arches, woven geometric borders, lamplit reading room and stacked scroll cases, open arch overlooking the sea at night. BOTTOM HALF: Bare wind-bent trees arching over an empty dirt road, ditch on one side, distant approaching orange torches beneath a clouded full moon. Threatening night.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-f4e34c5b-c08d-4cbd-8677-4399141b7566.png"
+  }
+]

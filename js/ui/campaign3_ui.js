@@ -53,6 +53,8 @@ function speak(who, key, idx) {
 
 // ---------------------------------------------------------------- beat playback (§2)
 UI3.playBeat = function (scene, game, beat, done) {
+  if (beat.artChapter !== undefined && ADV.GateArt) return ADV.GateArt.chapter(scene, game, beat, done);
+  if (!beat.__gateReady && ADV.GateArt) return ADV.GateArt.withScene(scene, game, beat, done, next => UI3.playBeat(scene, game, Object.assign({}, beat, { __gateReady: true }), next));
   const who = beat.who;
   const def = D().CAMPAIGN_CHARS[who];
   if (!def) { if (done) done(); return; }
@@ -60,7 +62,8 @@ UI3.playBeat = function (scene, game, beat, done) {
   const listener = beat.to && beat.to !== 'player' ? D().CAMPAIGN_CHARS[beat.to] : p;
   const context = { target: listener ? listener.name : '', them: beat.subject ? (D().CAMPAIGN_CHARS[beat.subject] || {}).name : undefined, self: def.name };
   const lines = beat.lines || C3().lines(C3().FID, who, beat.key);
-  const spk = ADV.CampaignUI.speaker(game, who);
+  const actor = ADV.CampaignUI.speaker(game, who);
+  const spk = ADV.GateArt ? ADV.GateArt.speaker(game, beat, actor) : actor;
   const recipient = listener ? 'To ' + listener.name : 'To the company';
   const finish = () => {
     C3().applyBeat(game, beat);
@@ -142,6 +145,7 @@ UI3.pickModal = function (scene, game, beat, opts, onPick) {
   const lines = beat.lines || C3().lines(C3().FID, beat.who, beat.key);
   const last = beat.promptText || (lines.length ? ADV.CampaignUI.fill(game, lines[lines.length - 1].t, beat.who) : '');
   ADV.Notices.custom(scene, (keep, Dp, close) => {
+    ADV.GateArt?.choiceFrame(scene, keep, Dp, { x: W / 2 - bw / 2, y: by, w: bw, h: bh });
     keep(T().text(scene, W / 2, by + 22, who ? who.name : '', { size: 14, ox: 0.5, color: T().css.gold }).setDepth(Dp));
     keep(T().text(scene, W / 2, by + 46, last, { size: 13, ox: 0.5, wrap: bw - 60, align: 'center', italic: true, color: T().css.inkDim }).setDepth(Dp));
     let y = by + 84;
@@ -176,7 +180,9 @@ UI3.endCard = function (scene, game, done) {
   const W = T().W, H = T().H;
   const objs = [];
   const k = o => { objs.push(o); return o; };
-  k(scene.add.rectangle(W / 2, H / 2, W, H, 0x0c0a08, 0.97).setDepth(960).setInteractive());
+  const painting = ADV.GateArt?.view(scene, 'stills', ADV.GateArt.endingId(s.ending), { depth: 959 });
+  if (painting) k(painting);
+  k(scene.add.rectangle(W / 2, H / 2, W, H, 0x0c0a08, painting ? 0.70 : 0.97).setDepth(960).setInteractive());
   k(T().text(scene, W / 2, 60, E.title, { size: 34, display: true, ox: 0.5, color: T().css.gold }).setDepth(961));
   k(T().text(scene, W / 2, 104, E.line, { size: 15, ox: 0.5, italic: true, color: T().css.inkDim }).setDepth(961));
   const scroll = ADV.UI.scrollArea(scene, { x: 160, y: 136, w: W - 320, h: H - 136 - 110 }, { keep: k });
@@ -196,6 +202,7 @@ Panels.story = function (scene, r) {
   const game = scene.g();
   const v = C3().hallView(game);
   const s = C3().state(game);
+  ADV.GateArt?.hallBanner(scene, r);
   ADV.UI.header(scene, r, "Varenholm's Gate", v.ending ? 'The road is finished. The company is still yours.' : 'Fourteen quests, one road, and every word you say is yours to pick.', { reserveRight: 300 });
 
   // right column: company picker + meters
@@ -213,6 +220,8 @@ Panels.story = function (scene, r) {
   cy += 6;
   const her = s.heritage;
   const herLabel = her <= -2 ? 'starved' : her < 0 ? 'resisting' : her === 0 ? 'quiet' : her < 2 ? 'stirring' : 'awake';
+  const emblem = ADV.GateArt?.icon(scene, herLabel === 'awake' ? 'extras' : 'emblem', herLabel);
+  if (emblem) scene.keep(scene.add.image(cx + cw - 22, cy + 14, emblem).setDisplaySize(42, 42));
   scene.keep(T().text(scene, cx, cy, `The blood: ${herLabel}`, { size: 12, color: her > 0 ? T().css.blood : T().css.purple })); cy += 18;
   if (s.allegiance) { scene.keep(T().text(scene, cx, cy, `Allegiance: ${({ gauntlet: 'the Burning Gauntlet', consortium: 'Folake', thieves: 'the Undervault' })[s.allegiance]}`, { size: 12, color: T().css.inkDim })); cy += 18; }
   scene.keep(T().text(scene, cx, cy, s.stage ? 'The road remembers you: progress survives death.' : 'Progress survives death.', { size: 11, italic: true, color: T().css.inkFaint })); cy += 20;

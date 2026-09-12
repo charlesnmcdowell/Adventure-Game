@@ -20,10 +20,12 @@ const DETAILS={
  maw_boss:{cloth:[.48,.21,.07,.23]},green_boss:{cloth:[.17,.08,.045,.34]},
  sea:{water:[.12,.39,.77,.17]},
 };
+const LIFE={};
 const pool=new Map();
+const files={};
 function purge(scene){const free=[...pool.values()].filter(v=>v.loaded&&!v.refs).sort((a,b)=>a.used-b.used);while(free.length>2){const old=free.shift();scene.textures.remove(old.key);pool.delete(old.id);}}
 function acquire(scene,id){
- if(id!=='sea'&&!A.DATA.TRAVEL_LOCATIONS[id])throw Error('Unknown travel panorama: '+id);
+ if(id!=='sea'&&!A.DATA.TRAVEL_LOCATIONS[id]&&!files[id])throw Error('Unknown travel panorama: '+id);
  let e=pool.get(id);
  if(e?.failed){pool.delete(id);e=null;}
  if(!e){
@@ -31,7 +33,7 @@ function acquire(scene,id){
   e.ready=new Promise(resolve=>{
    const img=new Image();img.decoding='async';
    img.onload=()=>{if(!scene.textures.exists(e.key))scene.textures.addImage(e.key,img);e.loaded=true;resolve(true);purge(scene);};
-   img.onerror=()=>{e.failed=true;resolve(false);};img.src=ROOT+id+'.webp';
+   img.onerror=()=>{e.failed=true;resolve(false);};img.src=files[id]||ROOT+id+'.webp';
   });
  }
  e.refs++;e.used=performance.now();let released=false;
@@ -47,8 +49,8 @@ function view(scene,id,phase,opts={}){
  root.add(scene.add.rectangle(W/2,H/2,W,H,0x18283c));
  root.add(fx);root.locationId=id;root.distance=distance;
  const terrain=id==='sea'?'coast':A.DATA.TRAVEL_LOCATIONS[id].terrain;
- const leafy=['forest','mountain'].includes(terrain),water=['coast','port'].includes(terrain)||id==='marsh'||id==='maw';
- const haunted=INDOOR.has(id),city=terrain==='city',fire=id==='pyre';
+ const leafy=['forest','mountain'].includes(terrain),water=!!DETAILS[id]?.water||['coast','port'].includes(terrain)||id==='marsh'||id==='maw';
+ const inside=INDOOR.has(id),haunted=['crypt','ossuary','birthing_house','gate_catacombs','gate_undercity','gate_temple'].includes(id),city=terrain==='city',fire=id==='pyre';
  lease.ready.then(ok=>{
   if(!alive||!ok)return;
   const frame=scene.textures.get(lease.entry.key).get(),scale=H/frame.realHeight;
@@ -90,17 +92,17 @@ function view(scene,id,phase,opts={}){
    fx.fillStyle(fire?0xffb76a:haunted?0xa4d2de:['green','green_boss','bell'].includes(id)?0xc7d99a:0xc9cb8b,fire?.6:.32);
    fx.fillEllipse(x,y,haunted?2:5+Math.sin(t/220+i)*2,fire?3:2);
   }}
-  if(!haunted&&phase!=='night'){
+  if(!inside&&phase!=='night'){
    fx.lineStyle(1.7,0x273e50,.68);
    for(let i=0;i<5;i++){const x=((i*34+t*.042)%(W+250))-125,y=130+i%3*12,flap=Math.sin(t/145+i)*4;
     fx.lineBetween(x-7,y+flap,x,y);fx.lineBetween(x,y,x+7,y+flap);}
   }
-  if(water){for(let i=0;i<28;i++){
+  if(water&&!id.startsWith('gate_')){for(let i=0;i<28;i++){
    const x=at(i/28,.9),y=H*(id==='sea'?.42:.61)+(i%5)*9;
    fx.lineStyle(1,phase==='night'?0xa6bbdc:0xf5edd1,.08+Math.max(0,Math.sin(t/600+i))*.15);
    fx.lineBetween(x,y,x+14+i%4*9,y);
   }}
-  if(city){for(let i=0;i<3;i++){
+  if(city&&!inside){for(let i=0;i<3;i++){
    const x=at(.2+i*.28)-t*.008*(i%2?1:-1),y=606,step=Math.sin(t/150+i);
    fx.fillStyle([0x34404a,0x604e43,0x354e4c][i],.78);fx.fillCircle(x,y-29,4);
    fx.fillTriangle(x-6,y-23,x+6,y-23,x+8,y-7);fx.lineStyle(2.5,0x29323c,.8);
@@ -113,8 +115,18 @@ function view(scene,id,phase,opts={}){
   if(id==='marsh'||haunted||id==='mountain'){for(let i=0;i<6;i++){
    fx.fillStyle(0xb7ced3,.035);fx.fillEllipse(at(i/6,.45),510+Math.sin(t/2700+i)*14,370,25);
   }}
+  // Lights and smoke stay anchored to the painted lanterns and chimneys as they pass.
+  const life=LIFE[id]||{};
+  const sourceX=x=>at((x-.055)/.945);
+  for(const [x,y]of life.lights||[]){const px=sourceX(x),py=y*H,k=.84+Math.sin(t/160+x*19)*.09+Math.sin(t/93+y*31)*.07;
+   for(let r=3;r>0;r--){fx.fillStyle(0xffba66,.035*k);fx.fillCircle(px,py,r*11);}
+   fx.fillStyle(0xffdc9c,.24*k);fx.fillEllipse(px,py,3,7*k);
+  }
+  for(const [x,y]of life.smoke||[])for(let i=0;i<8;i++){const age=(t+i*450)%3600,px=sourceX(x)+age*.011+Math.sin(age/650)*5,py=y*H-age*.025;
+   fx.fillStyle(0xc4c5c1,.07*(1-age/3600));fx.fillEllipse(px,py,11+age*.009,8+age*.007);
+  }
   // Footfall dust stays on the road, while its wake drifts behind the party.
-  if(moving&&!haunted&&!water){for(let i=0;i<9;i++){
+  if(moving&&!inside&&!water){for(let i=0;i<9;i++){
    const age=(t+i*123)%1100;fx.fillStyle(0xdccca7,.13*(1-age/1100));fx.fillEllipse(520+i%4*65-age*.05,651-age*.013,9+age*.015,3+age*.004);
   }}
  };
@@ -122,5 +134,5 @@ function view(scene,id,phase,opts={}){
  root.once('destroy',()=>{alive=false;scene.events.off('shutdown',stop);sky?.destroy();lease.release();});
  root.ready=lease.ready;return root;
 }
-A.TravelPanorama={acquire,view,INDOOR,DETAILS,pool,motion};
+A.TravelPanorama={acquire,view,INDOOR,DETAILS,LIFE,files,pool,motion};
 })();

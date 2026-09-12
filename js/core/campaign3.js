@@ -55,7 +55,7 @@ C3.isAlive = function (game, who) { return !C3.state(game).dead.includes(who); }
 C3.companyIds = function (game) { const s = C3.state(game); return s.company.filter(id => C3.isRecruited(game, id)); };
 C3.roster = function (game) { const s = C3.state(game); return s.recruited.filter(id => C3.isRecruited(game, id)); };
 
-// when: { flag, not, company, noCompany, recruited, notRecruited, alive, dead,
+// when: { flag, not, company, noCompany, companyAll:[...], recruited, notRecruited, alive, dead,
 //         heritageMin, heritageMax, affMin:[who,n], allegiance, romance, any:[...] }
 C3.test = function (game, when) {
   if (!when) return true;
@@ -65,6 +65,7 @@ C3.test = function (game, when) {
   if (when.not && C3.flag(game, when.not)) return false;
   if (when.company && !C3.inCompany(game, when.company)) return false;
   if (when.noCompany && C3.inCompany(game, when.noCompany)) return false;
+  if (when.companyAll && !when.companyAll.every(id => C3.inCompany(game, id))) return false;
   if (when.recruited && !C3.isRecruited(game, when.recruited)) return false;
   if (when.notRecruited && C3.isRecruited(game, when.notRecruited)) return false;
   if (when.alive && !C3.isAlive(game, when.alive)) return false;

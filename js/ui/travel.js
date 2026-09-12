@@ -92,16 +92,17 @@ ADV.TravelUI={
   options=options||{};
   const plan=options.__readyPlan||ADV.Travel.plan(game,q,leg);if(plan.bypass){if(done)done();return;}
   // First-view time starts when the illustration is ready, even on a cold cache.
-  const panoramaId=plan.location.terrain==='port'&&leg==='midleg'?'sea':plan.location.id;
+  const sequence=ADV.GateArt?.travelSequence(q,leg)||[];
+  const panoramaId=sequence[0]||ADV.GateArt?.travelId(q,leg)||(plan.location.terrain==='port'&&leg==='midleg'?'sea':plan.location.id);
   if(ADV.TravelPanorama&&!scene.game.__artPreview&&!options.__readyPlan){
-   const lease=ADV.TravelPanorama.acquire(scene,panoramaId),oldCut=scene.__cutscene;
+   const leases=(sequence.length?sequence:[panoramaId]).map(id=>ADV.TravelPanorama.acquire(scene,id)),oldCut=scene.__cutscene;
    scene.__cutscene=true;if(scene.hideChrome)scene.hideChrome();
    const shade=scene.add.rectangle(640,380,1280,760,0x142032).setDepth(990).setInteractive();
    const label=ADV.T.text(scene,640,360,'Preparing the journey…',{size:23,ox:.5,color:ADV.T.css.gold}).setDepth(991);
    let stopped=false,button=null;
-   const clean=()=>{if(stopped)return;stopped=true;scene.events.off('shutdown',clean);shade.destroy();label.destroy();button?.destroy();lease.release();scene.__cutscene=oldCut;};
+   const clean=()=>{if(stopped)return;stopped=true;scene.events.off('shutdown',clean);shade.destroy();label.destroy();if(button){button.g.destroy();button.txt.destroy();button.zone.destroy();}leases.forEach(l=>l.release());scene.__cutscene=oldCut;};
    scene.events.once('shutdown',clean);
-   lease.ready.then(ok=>{
+   Promise.all(leases.map(l=>l.ready)).then(loaded=>{const ok=loaded.every(Boolean);
     if(stopped)return;
     if(ok){clean();ADV.TravelUI.play(scene,game,q,leg,done,Object.assign({},options,{__readyPlan:plan}));}
     else{label.setText('The scenery could not load. This journey will stay unseen.');button=ADV.T.button(scene,500,420,280,42,'Continue to the quest',()=>{clean();if(!oldCut&&scene.showChrome)scene.showChrome();if(done)done();});button.g.setDepth(991);button.txt.setDepth(992);button.zone.setDepth(993);}
@@ -117,10 +118,10 @@ ADV.TravelUI={
   const shield=keep(scene.add.rectangle(W/2,H/2,W,H,0x000000,.001).setDepth(890).setInteractive());
   const rng=new ADV.RNG(ADV.hashStr(r.id+':'+q.id)>>>0);
   const qs=game.quest||(game.travelResolution&&game.travelResolution.q);
-  const phase=(qs&&qs.travel&&qs.travel.phase)||ADV.BattleArt.phaseFor(game);
+  const phase=ADV.GateArt?.travelPhase(q)||(qs&&qs.travel&&qs.travel.phase)||ADV.BattleArt.phaseFor(game);
   const layers=[];
   const illustrated=ADV.TravelPanorama&&!scene.game.__artPreview;
-  const panorama=illustrated?ADV.TravelPanorama.view(scene,panoramaId,phase,{resume:options.resume}):null;
+  let panorama=illustrated?ADV.TravelPanorama.view(scene,panoramaId,phase,{resume:options.resume}):null;
   if(panorama)root.add(panorama);
   scene.travelPanorama=panorama;
   for(let n=0;!illustrated&&n<5;n++){
@@ -163,9 +164,19 @@ ADV.TravelUI={
   // Keep the quest's weather snapshot; restore the underlying scene on completion.
   const oldWeather=scene.weatherFx;let weather=null;
   if(oldWeather&&oldWeather.container)oldWeather.container.setVisible(false);
-  const outdoors=!illustrated||!ADV.TravelPanorama.INDOOR.has(r.id);
+  let outdoors=!illustrated||!ADV.TravelPanorama.INDOOR.has(panoramaId);
   if(ADV.WeatherFX&&outdoors){scene.weatherFx=null;weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:H},{depth:885,celestial:true});}
   if(panorama){panorama.weather=weather;if(panorama.skyMask&&weather?.celestial)weather.celestial.setMask(panorama.skyMask);}
+  if(illustrated&&sequence.length>1)later(4500,()=>{
+   const previous=panorama,next=ADV.TravelPanorama.view(scene,sequence[1],phase);root.addAt(next,1);next.setAlpha(0);
+   next.ready.then(ok=>{if(ended||!next.active)return;if(!ok){next.destroy(true);return;}
+    panorama=next;scene.travelPanorama=next;outdoors=!ADV.TravelPanorama.INDOOR.has(sequence[1]);
+    if(weather)weather.destroy();scene.weatherFx=null;weather=null;
+    if(outdoors&&ADV.WeatherFX)weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:H},{depth:885,celestial:true});
+    next.weather=weather;if(next.skyMask&&weather?.celestial)weather.celestial.setMask(next.skyMask);
+    scene.tweens.add({targets:next,alpha:1,duration:700,onComplete:()=>previous.destroy(true)});
+   });
+  });
   if(plan.event==='weather-turn'&&qs&&qs.travel&&outdoors)later(3000,()=>{
     qs.travel.weather={kind:r.terrain==='mountain'?'snow':'rain',intensity:.7,wind:.4};
     if(weather)weather.destroy();scene.weatherFx=null;
