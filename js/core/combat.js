@@ -1425,7 +1425,10 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   const bp = tgt.statuses.find(x => x.kind === 'railGuard');
   if (bp && src && tag === 'attack') { removeStatus(tgt, bp); Combat.moveLane(st, src, tgt.lane); }
   if (src && src.ch && tag !== 'dot' && tag !== 'reflect' && tag !== 'retaliation') applyRankRiders(st, src, tgt);
-  ev(st, { t: 'damage', uid: tgt.uid, by: src ? src.uid : null, dmg, tag });
+  const hitEvent = { t: 'damage', uid: tgt.uid, by: src ? src.uid : null, dmg, tag };
+  // Keep the visual cause after a final tick removes its status or lane hazard.
+  if (opts.visual) hitEvent.visual = opts.visual;
+  ev(st, hitEvent);
   if (tgt.chp <= 0) {
     // Vital Anchor: cannot drop below 1 HP
     // Vital Anchor: holds at 1 HP — but an anchor is spent by the blow it
@@ -1848,7 +1851,7 @@ function endRoundTicks(st) {
       if (h.heal) healUnit(st, null, u, Math.max(1, Math.round(h.srcAtk * h.power)));
       else {
         const srcH = h.srcUid ? st.units.find(x => x.uid === h.srcUid) : null;
-        applyRawDamage(st, srcH || null, u, Math.max(1, Math.round(h.srcAtk * h.power * 0.5)), 'dot');
+        applyRawDamage(st, srcH || null, u, Math.max(1, Math.round(h.srcAtk * h.power * 0.5)), 'dot', {visual:{skillId:h.skillId,tier:h.tier,hazard:h.kind}});
       }
     }
     if (h.fresh) h.fresh = false; else { h.rounds--; if (h.rounds <= 0) st.hazards.splice(st.hazards.indexOf(h), 1); }
@@ -1870,7 +1873,7 @@ function endRoundTicks(st) {
         const srcU = s.srcUid ? st.units.find(x => x.uid === s.srcUid) : null;
         const srcSeptic = srcU && (s.kind === 'bleed' || s.kind === 'poison') ? perkVal(srcU.ch, 'septic_sanguine', null) : null;
         if (srcSeptic) dot = Math.round(dot * srcSeptic.dotMult);
-        const dealt = applyRawDamage(st, srcU, u, dot, 'dot');
+        const dealt = applyRawDamage(st, srcU, u, dot, 'dot', {visual:{dotKind:s.kind,tier:s.tier}});
         if ((s.kind === 'bleed' || s.kind === 'poison') && dealt > 0) feedSepticLeech(st, dealt, srcU, u);
         if (srcU && s.kind === 'burn' && dealt > 0 && !srcU.downed) {
           const py = perkVal(srcU.ch, 'pyromaniac', null);                     // burns feed the Pyromaniac too
@@ -2142,7 +2145,7 @@ Combat.act = function (st, u, action) {
     const side = h.on === 'allyLane' ? u.side : tgt.side;
     const lane = h.on === 'allyLane' ? (tgt.side === u.side ? tgt.lane : u.lane) : tgt.lane;
     st.hazards = st.hazards.filter(x => !(x.side === side && x.lane === lane && x.kind === h.kind));
-    st.hazards.push({ side, lane, kind: h.kind, power: h.power * C().TIER_MULT[m.tier], heal: !!h.heal, rounds: h.rounds || 3, fresh: true, srcUid: u.uid, srcAtk: Ch().effStat(u.ch, 'atk') });
+    st.hazards.push({ side, lane, kind: h.kind, power: h.power * C().TIER_MULT[m.tier], heal: !!h.heal, rounds: h.rounds || 3, fresh: true, srcUid: u.uid, srcAtk: Ch().effStat(u.ch, 'atk'), skillId, tier:m.tier });
     ev(st, { t: 'hazard', side, lane, kind: h.kind });
     // a druid's healing terrain also lays the heal-over-time and thorn shield on the lane (A3)
     if (d.archetype === 'druid' && d.heal && h.heal) {

@@ -175,8 +175,8 @@ function event(scene,e) {
   const reflected=e.tag==='reflect'||e.tag==='retaliation';
   const p=reflected?Object.assign(profile('thorn_skin'),{family:'magic',melee:false}):actions.get(e.by) || scene.__lastSkill || profile('basic_attack');
   const v=e.uid?scene.view(e.uid):null;
-  const ctx={src:e.by?scene.view(e.by):null,tgt:v};
-  if(e.t==='damage' && e.tag!=='dot') {sound(scene,p,'hit');if(A.SkillArt||p.melee)impact(scene,v,p,'hit',ctx);}
+  const ctx={src:e.by?scene.view(e.by):null,tgt:v,previous:p.lastContact};
+  if(e.t==='damage' && e.tag!=='dot') {sound(scene,p,'hit');if(A.SkillArt||p.melee)impact(scene,v,p,'hit',ctx);p.lastContact=v;}
   else if(e.t==='evade'){sound(scene,p,'miss');if(A.SkillArt||p.melee)impact(scene,v,p,'miss',ctx);}
   else if(['ward','shieldAbsorb','shieldBreak','immune'].includes(e.t)){sound(scene,profile('crossing_guard'),'block');impact(scene,v,p,'block',ctx);}
   else if(e.t==='counter'){const counter=Object.assign(profile('basic_attack'),{family:'thrust'});actions.set(e.uid,counter);sound(scene,counter,'use');if(v)swing(scene,v,scene.view(e.by),counter);}

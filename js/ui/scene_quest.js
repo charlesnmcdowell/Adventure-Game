@@ -22,7 +22,7 @@ class QuestScene extends Phaser.Scene {
     }
     if (!game.quest) { this.scene.start('Town'); return; }
     // one track per quest: chosen on the first screen of the run, kept until town
-    if (!game.quest.musicStarted) { game.quest.musicStarted = true; ADV.Music.startRun(!!game.quest.quest.isBoss); }
+    if (!game.quest.musicStarted) { game.quest.musicStarted = true; ADV.Music.startRun(!!game.quest.quest.isBoss, ADV.Campaign3 && ADV.Campaign3.musicFor(game.quest.quest)); }
     else ADV.Music.play('quest');
 
     const q = game.quest;

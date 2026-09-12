@@ -50,7 +50,8 @@ class CombatScene extends Phaser.Scene {
     // music: bosses, ambushes and divine business get the heavy themes;
     // ordinary encounters rotate the battle pool ("switch it up often")
     const heavy = this.mode !== 'quest' || st.units.some(u => u.ch.boss);
-    ADV.Music.play(heavy ? 'boss' : 'combat');
+    const scored = this.mode === 'quest' && this.game_.quest && this.game_.quest.quest && this.game_.quest.quest.campaign3;
+    ADV.Music.play(scored ? (st.units.some(u => u.ch.isBossFight) ? 'boss' : 'combat') : (heavy ? 'boss' : 'combat'));
     // battlefield ground
     const g = this.add.graphics();
     // translucent so the ground reads at the edges without costing lane clarity
@@ -793,7 +794,7 @@ class CombatScene extends Phaser.Scene {
       case 'shapeshift': {
         if (!v) return 10;
         const key = this.unitKey(v.u);
-        const ms = V.transform ? V.transform(this, v, key) : 0;
+        const ms = V.transform ? V.transform(this, v, key, {form:e.beast,tier:ADV.Combat.manifestFor(v.u,e.skillId)?.tier || 'basic'}) : 0;
         if (!V.transform) { try { v.img.setTexture(key); } catch (err) {} }
         this.reactAt(v, 'furious', { ms: 900, intensity: 1 });
         for (const o of this.unitViews.values()) if (o !== v && !o.u.downed && o.u.side !== v.u.side) this.reactAt(o, 'afraid', { ms: 700, intensity: 0.6 });
@@ -1060,17 +1061,17 @@ class CombatScene extends Phaser.Scene {
     const rot = ADV.Combat.autoList(u.ch);
     keep(T().text(this, 56, H - 104, rot.length ? ('AUTO · ' + this.autoRotationLabel(u)) : 'Your move', { size: 12, color: T().css.gold }));
     // Long loadouts stay reachable, including Flee, with wheel or touch scrolling.
-    const scroll = ADV.UI.scrollArea(this, {x:48,y:H-88,w:W-96,h:76}, {horizontal:true,keep:o=>o});
+    const scroll = ADV.UI.scrollArea(this, {x:48,y:H-88,w:W-210,h:76}, {horizontal:true,keep:o=>o});
     this.skillBarScroll = scroll;
     let x = 56;
-    const mkBtn = (label, sub, fn, disabled, tipSkillId) => {
+    const mkBtn = (label, sub, fn, disabled, tipSkillId, offensive) => {
       const w = Math.max(96, label.length * 8 + (tipSkillId ? 46 : 22));
       const b = T().button(this, x, H - 86, w, 60, label, fn, { size: 13, sub, disabled });
       if (tipSkillId) ADV.Tooltip.attach(this, b.zone, () => ADV.SkillInfo.describe(u.ch, tipSkillId));
       scroll.addBtn(b);
       if (tipSkillId && ADV.SkillArt) {
         const tier = ADV.Combat.manifestFor(u, tipSkillId)?.tier || 'basic';
-        scroll.add(this.add.image(x + 20, H - 57, ADV.SkillArt.icon(this, tipSkillId, tier)).setDisplaySize(28, 28).setAlpha(disabled ? 0.4 : 1));
+        scroll.add(this.add.image(x + 20, H - 57, ADV.SkillArt.icon(this, tipSkillId, tier, {offensive,src:{u}})).setDisplaySize(28, 28).setAlpha(disabled ? 0.4 : 1));
         b.txt.setX(x + w / 2 + 15); b.txt.setScale(Math.min(1, (w - 44) / Math.max(1, b.txt.width)));
         if (b.sub) { b.sub.setX(b.txt.x); b.sub.setScale(Math.min(1, (w - 44) / Math.max(1, b.sub.width))); }
       }
@@ -1118,7 +1119,7 @@ class CombatScene extends Phaser.Scene {
           return;
         }
         this.beginTargeting(u, a);
-      }, conscriptDry ? false : !a.pool.length, a.skillId);
+      }, conscriptDry ? false : !a.pool.length, a.skillId, a.off);
       if (autoable) {
         const on = autoOn;
         const ab = T().button(this, x, H - 86, 40, 60, 'AUTO', () => this.toggleSkillAuto(u, a), {
@@ -1151,13 +1152,15 @@ class CombatScene extends Phaser.Scene {
     if (!ADV.Combat.hasLegalCombatAction(st, u)) {
       mkBtn('Wait', 'no target', () => this.commitHold(u));
     }
-    mkBtn('Flee', 'costs the turn', () => {
+    const flee = T().button(this, W - 154, H - 86, 106, 60, 'Flee', () => {
       this.clearActionBar();
       ADV.Combat.act(st, u, { kind: 'flee' });
       ADV.Combat.advance(st);
       this.loop();
-    });
+    }, {size:13,sub:'costs the turn'});
+    keep(flee.g); keep(flee.txt); keep(flee.sub); keep(flee.zone);
     scroll.extend(x);
+    if (scroll.maxOffset() > 0) keep(T().text(this, W - 170, H - 104, 'scroll skills ↔', {size:11,ox:1,color:T().css.inkDim}));
   }
 
   commitHold(u) {

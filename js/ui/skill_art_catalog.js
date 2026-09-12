@@ -61,7 +61,7 @@ group('shadow','curse','whisper_of_ending');
 group('shadow','lance','shadow_lance');
 group('shadow','mark','marked_for_the_knife spiders_patience');
 group('gold','mark','contract_mark');
-group('gold','command','taunt signal_flags');
+group('gold','command','taunt signal_flags volley_fire');
 group('gold','guard','shield_wall hold_the_road bulwark_formation crossing_guard stone_stance iron_fan_guard boarding_plate close_order');
 group('steel','counter','counter_attack riposte_line');
 group('gold','bond','contract_bound articles_of_war');
@@ -77,7 +77,7 @@ group('arcane','transform','spellblade_form');
 group('lightning','transform','storm_shape');
 group('gold','transform','sea_dog_form marine_form');
 group('powder','bullet','flintlock_shot');
-group('powder','scatter','grapeshot volley_fire');
+group('powder','scatter','grapeshot');
 group('powder','cannon','ranging_cannon');
 group('powder','chainshot','chain_shot');
 group('powder','keg','powder_keg');
@@ -115,8 +115,19 @@ const PALETTES={
  shadow:[0x171b32,0x51406e,0x9b83d4,0xe5cafa],holy:[0x302838,0xaf8752,0xf6d987,0xffffe4],gold:[0x1d2940,0x87643b,0xe7bf68,0xffedbc],
  necromancy:[0x172b32,0x3c6175,0x8ae0c3,0xe8fbd2],powder:[0x262536,0x886252,0xe5aa60,0xffe1a0],earth:[0x222a34,0x636d64,0xb8ad8b,0xebe1bc]
 };
+// Tier names denote different choreography as well as stronger effects.
+const TIER_MOTIONS={
+ fire_bolt:{advanced:'siege'},frost_touch:{basic:'grasp',intermediate:'chain',advanced:'storm'},
+ spark:{intermediate:'chain',advanced:'descent'},aimed_shot:{advanced:'volley'},
+ cleave:{advanced:'whirlwind'},snare:{intermediate:'web',advanced:'rootField'},
+ magma_spit:{intermediate:'spray',advanced:'wave'},pack_snap:{intermediate:'claw'},
+ umbral_rake:{advanced:'bite'},glass_web:{advanced:'iceTomb'}
+};
 function hash(s){let n=2166136261;for(const ch of s)n=Math.imul(n^ch.charCodeAt(0),16777619);return n>>>0;}
 function passive(d){
+ if(d.id==='charm')return{family:'blood',motion:'heart'};
+ if(d.id==='persuade'||d.id==='quiet_word')return{family:'holy',motion:'speech'};
+ if(d.id==='intimidate')return{family:'shadow',motion:'gaze'};
  if(/rich|pay|commission|corpse|muster|trade|papers/.test(d.id))return{family:'gold',motion:'coin'};
  if(/sight|sense|watch|look|room|invis|terms/.test(d.id))return{family:'arcane',motion:'eye'};
  if(/blood|sanguine|opportunist/.test(d.id))return{family:'blood',motion:'drain'};
@@ -137,9 +148,19 @@ function describe(id,tier,ctx){
  const t=tier||'basic',s=Object.assign({},d,d.tiers?.[t]||d.tiers?.basic),base=entries[id]||(d.kind==='perk'?passive(d):null);
  if(!base)return null;
  const p=Object.assign({id,tier:t,rank:t==='advanced'?2:t==='intermediate'?1:0,seed:hash(id),passive:d.kind==='perk',definition:s},base);
- if(d.heal&&ctx?.src?.u&&ctx?.tgt?.u&&ctx.src.u.side!==ctx.tgt.u.side){p.family=id==='triage'?'blood':id==='regenerate'?'poison':'necromancy';p.motion=id==='regenerate'?'curse':'drain';p.offensive=true;}
+ if(TIER_MOTIONS[id]?.[t])p.motion=TIER_MOTIONS[id][t];
+ if(id==='snare'&&t==='advanced')p.family='nature';
+ if(id==='fox_form')p.family='arcane';
+ if(id==='serpent_form')p.family='poison';
+ if(id==='basic_attack'&&ctx?.src?.u){
+  const u=ctx.src.u,form=u.form||u.ch?.portraitId||u.ch?.enemyTypeId||'';
+  if(/serpent|snake|wolf|hound/.test(form)){p.motion='bite';p.family='blood';}
+  else if(/panther|bear|raptor|harpy|fox/.test(form)){p.motion='claw';p.family='blood';}
+  else if(/boar|elk|stag|minotaur/.test(form)){p.motion='gore';p.family='earth';}
+ }
+ if(d.heal&&(ctx?.offensive||ctx?.src?.u&&ctx?.tgt?.u&&ctx.src.u.side!==ctx.tgt.u.side)){p.family=id==='triage'?'blood':id==='regenerate'?'poison':'necromancy';p.motion=id==='regenerate'?'curse':'drain';p.offensive=true;}
  p.palette=PALETTES[p.family];p.scale=1+p.rank*.23;
  return p;
 }
-A.SkillArtCatalog={entries,PALETTES,describe,hash,missing:()=>Object.values(A.DATA.SKILLS).filter(d=>d.kind!=='perk'&&!entries[d.id]).map(d=>d.id)};
+A.SkillArtCatalog={entries,PALETTES,TIER_MOTIONS,describe,hash,missing:()=>Object.values(A.DATA.SKILLS).filter(d=>d.kind!=='perk'&&!entries[d.id]).map(d=>d.id)};
 })();

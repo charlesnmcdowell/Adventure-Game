@@ -24,6 +24,8 @@ class TownScene extends Phaser.Scene {
     this.noticeQueue = [];
     this.campaignArrivalDone = false;
     this.tutorDone = false; this.tutorObjs = [];
+    // the hub keeps the home theme unless a story campaign is under way
+    ADV.Music.homeOverride = (ADV.Campaign3 && ADV.Campaign3.hubMusic) ? ADV.Campaign3.hubMusic(this.game_) : null;
     ADV.Music.play('town');
     this.musicBtn = ADV.Music.button(this, W - 26, T().H - 30);
     if (ADV.Display) this.fsBtn = ADV.Display.button(this, W - 26, T().H - 52);
@@ -515,7 +517,7 @@ class TownScene extends Phaser.Scene {
   playEmbark(quest, done) {
     if (ADV.TravelUI) {
       const game=this.game_;
-      ADV.Music.startRun(!!quest.isBoss);
+      ADV.Music.startRun(!!quest.isBoss, ADV.Campaign3 && ADV.Campaign3.musicFor(quest));
       if(game.quest)game.quest.musicStarted=true;
       ADV.TravelUI.play(this,game,quest,'outbound',()=>{
         const qs=game.quest;
@@ -533,7 +535,7 @@ class TownScene extends Phaser.Scene {
     if (ADV.Music) {
       if (qstate && !qstate.musicStarted) {
         qstate.musicStarted = true;
-        ADV.Music.startRun(!!(qstate.quest && qstate.quest.isBoss));
+        ADV.Music.startRun(!!(qstate.quest && qstate.quest.isBoss), ADV.Campaign3 && ADV.Campaign3.musicFor(qstate.quest));
       } else if (ADV.Music.leaveHome) ADV.Music.leaveHome();
     }
     const W = T().W, H = T().H;

@@ -159,6 +159,23 @@ C3.buildQuest = function (game, n) {
   if (ADV.BalanceSupport && ADV.BalanceSupport.quest) ADV.BalanceSupport.quest(q);
   return q;
 };
+// The scored run for a quest (Music.startRun's second argument): the quest's
+// underscore, the battle cue for its half of the road, Kolade's theme only on
+// the last quest. Null for anything that is not ours.
+C3.musicFor = function (quest) {
+  const M = D().CAMPAIGN3_MUSIC;
+  if (!M || !quest || !quest.campaign3) return null;
+  const n = quest.n;
+  const combat = n >= M.cityFrom ? M.combat.city : M.combat.road;
+  return { quest: M.quest[n] || M.quest[1], combat, boss: n === C3.QUEST_COUNT ? M.boss : combat };
+};
+// The hub plays the camp cue while the road is still open.
+C3.hubMusic = function (game) {
+  const M = D().CAMPAIGN3_MUSIC;
+  if (!M || !M.camp) return null;
+  const s = C3.state(game);
+  return s.started && !s.ending ? M.camp : null;
+};
 C3.hallView = function (game) {
   const s = C3.state(game);
   return {

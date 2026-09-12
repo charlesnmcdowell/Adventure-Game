@@ -65,6 +65,7 @@ UI3.playBeat = function (scene, game, beat, done) {
   const actor = ADV.CampaignUI.speaker(game, who);
   const spk = ADV.GateArt ? ADV.GateArt.speaker(game, beat, actor) : actor;
   const recipient = listener ? 'To ' + listener.name : 'To the company';
+  UI3.cueFor(beat);
   const finish = () => {
     C3().applyBeat(game, beat);
     if (beat.choice) UI3.choice(scene, game, beat, done);
@@ -92,6 +93,15 @@ UI3.playBeat = function (scene, game, beat, done) {
   next();
 };
 
+// The throne dreams play under their own cue; the first waking beat brings the
+// quest's underscore back (replies to a dream choice stay in the dream).
+UI3.cueFor = function (beat) {
+  const M = D().CAMPAIGN3_MUSIC, Mu = ADV.Music;
+  if (!M || !Mu || !Mu.cue) return;
+  if (beat.dream) { if (Mu.cued !== M.dream) Mu.cue(M.dream); }
+  else if (Mu.cued === M.dream) Mu.cue(null);
+};
+
 // The silent protagonist picks a line; it shows in the box as theirs, then the reply plays.
 UI3.choice = function (scene, game, beat, done) {
   const opts = C3().options(game, beat.choice);
@@ -99,7 +109,7 @@ UI3.choice = function (scene, game, beat, done) {
   UI3.pickModal(scene, game, beat, opts, (opt) => {
     C3().applyOption(game, beat.choice, opt);
     UI3.playerLine(scene, game, opt.text, beat.who, () => {
-      if (opt.reply) UI3.playBeat(scene, game, C3().replyBeat(opt.reply, beat.who, game, opt, beat.choice), done);
+      if (opt.reply) UI3.playBeat(scene, game, Object.assign(C3().replyBeat(opt.reply, beat.who, game, opt, beat.choice), beat.dream ? { dream: true } : {}), done);
       else if (done) done();
     });
   });
@@ -178,6 +188,8 @@ UI3.endCard = function (scene, game, done) {
   const E = D().CAMPAIGN3_ENDINGS[s.ending] || { title: 'The End', line: '' };
   const paras = s.epilogue || C3().epilogue(game);
   const W = T().W, H = T().H;
+  const M = D().CAMPAIGN3_MUSIC;
+  if (M && M.ending && ADV.Music && ADV.Music.cue) ADV.Music.cue(M.ending);
   const objs = [];
   const k = o => { objs.push(o); return o; };
   const painting = ADV.GateArt?.view(scene, 'stills', ADV.GateArt.endingId(s.ending), { depth: 959 });
@@ -193,7 +205,11 @@ UI3.endCard = function (scene, game, done) {
     y += (t.height || 40) + 16;
   }
   scroll.finish && scroll.finish();
-  const b = T().button(scene, W / 2 - 110, H - 80, 220, 42, 'Back to the hall', () => { objs.forEach(o => { try { o.destroy(); } catch (e) {} }); if (done) done(); }, { size: 14, bold: true, color: T().css.ink });
+  const b = T().button(scene, W / 2 - 110, H - 80, 220, 42, 'Back to the hall', () => {
+    objs.forEach(o => { try { o.destroy(); } catch (e) {} });
+    if (ADV.Music && ADV.Music.cued) { ADV.Music.homeOverride = C3().hubMusic(game); ADV.Music.cue(null); }
+    if (done) done();
+  }, { size: 14, bold: true, color: T().css.ink });
   b.g.setDepth(962); b.txt.setDepth(963); b.zone.setDepth(964); objs.push(b.g, b.txt, b.zone);
 };
 

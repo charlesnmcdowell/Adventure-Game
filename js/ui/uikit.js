@@ -271,11 +271,13 @@ const UI = {
     scene.input.on('pointerdown', onDown);
     scene.input.on('pointermove', onMove);
     scene.input.on('pointerup', onUp);
-    scene.events.once('shutdown', () => destroy());
+    const onShutdown = () => destroy();
+    scene.events.once('shutdown', onShutdown);
 
     function destroy() {
       if (dead) return;
       dead = true;
+      scene.events.off('shutdown', onShutdown);
       scene.input.off('wheel', onWheel);
       scene.input.off('pointerdown', onDown);
       scene.input.off('pointermove', onMove);
@@ -286,7 +288,7 @@ const UI = {
       try { barZone.destroy(); } catch (e) {}
       try { container.destroy(); } catch (e) {}
     }
-    container.once('destroy', () => { if (!dead) { dead = true; scene.input.off('wheel', onWheel); scene.input.off('pointerdown', onDown); scene.input.off('pointermove', onMove); scene.input.off('pointerup', onUp); try { maskG.destroy(); } catch (e) {} try { barG.destroy(); } catch (e) {} try { barZone.destroy(); } catch (e) {} } });
+    container.once('destroy', () => { if (!dead) { dead = true; scene.events.off('shutdown', onShutdown); scene.input.off('wheel', onWheel); scene.input.off('pointerdown', onDown); scene.input.off('pointermove', onMove); scene.input.off('pointerup', onUp); try { maskG.destroy(); } catch (e) {} try { barG.destroy(); } catch (e) {} try { barZone.destroy(); } catch (e) {} } });
 
     const area = {
       rect, container, add, addBtn, extend, show, destroy, contains,

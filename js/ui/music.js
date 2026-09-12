@@ -46,11 +46,38 @@ function killEl(el) {
   live.delete(el);
 }
 
+// Music sits under dialogue: while a voice clip plays the music channel drops
+// to `duck` of its level (request: the score was drowning the campaign lines).
+function voiceActive() {
+  const v = Music.voiceEl;
+  return !!(v && v.__wantPlay && !v.ended);
+}
+function musicGain() {
+  return Music.volume * (voiceActive() ? Music.duck : 1);
+}
+let rampTimer = null;
+function rampMusic(ms) {
+  const el = Music.el;
+  if (rampTimer) { clearInterval(rampTimer); rampTimer = null; }
+  if (!el || Music.muted) return;
+  const target = musicGain();
+  if (typeof setInterval !== 'function' || !ms) { try { el.volume = target; } catch (e) {} return; }
+  const from = el.volume, steps = Math.max(1, Math.round(ms / 25));
+  let i = 0;
+  rampTimer = setInterval(() => {
+    i++;
+    const v = from + (target - from) * (i / steps);
+    try { el.volume = Math.max(0, Math.min(1, v)); } catch (e) {}
+    if (i >= steps) { clearInterval(rampTimer); rampTimer = null; }
+  }, 25);
+}
+
 function playEl(el) {
   if (!el) return;
   const gen = bumpGen(el);
   el.__wantPlay = true;
-  el.volume = Music.muted ? 0 : (el === Music.voiceEl ? 1 : Music.volume);
+  el.volume = Music.muted ? 0 : (el === Music.voiceEl ? 1 : musicGain());
+  if (el === Music.voiceEl) rampMusic(120);
   if (Music.muted || Music.hidden) return;
   const p = el.play();
   if (p && p.then) {
@@ -68,6 +95,10 @@ function watch(el) {
   live.add(el);
   el.addEventListener('ended', () => {
     if (!el.__wantPlay) live.delete(el);
+    if (el === Music.voiceEl) { el.__wantPlay = false; rampMusic(400); }   // voice done: music comes back up
+  });
+  el.addEventListener('error', () => {
+    if (el === Music.voiceEl) { el.__wantPlay = false; rampMusic(200); }
   });
   return el;
 }
@@ -104,6 +135,7 @@ const Music = {
   context: null, track: null,
   queues: {}, muted: false, unlocked: false,
   volume: 0.4,
+  duck: 0.45,                      // music level under a voice line (fraction of `volume`)
   hidden: false,
 
   init() {
@@ -190,9 +222,21 @@ const Music = {
   // starts and keeps it through every encounter and fight; boss quests draw
   // from the boss pool. Town/death/creation end the run.
   RUN_CONTEXTS: ['quest', 'combat', 'boss'],
-  run: null,                       // {track} while a quest is in progress
+  run: null,                       // {track} or {story:{quest,combat,boss}} while a quest is in progress
 
-  startRun(isBoss) {
+  // `story` (optional) is a scored run: {quest, combat, boss} track names. The
+  // quest track carries every screen and dialogue; the combat track is heard
+  // only inside a fight and the quest track resumes where it left off after
+  // (request: no battle themes under the dialogue-heavy sections).
+  startRun(isBoss, story) {
+    if (story && story.quest) {
+      Music.run = { story, track: story.quest };
+      Music.storyEls = {};
+      Music.context = 'quest';
+      Music.cued = null;
+      Music.playStory(story.quest);
+      return;
+    }
     const pool = isBoss ? POOLS.boss : POOLS.quest.concat(POOLS.combat);
     let name = pool[Math.floor(Math.random() * pool.length)];
     if (name === Music.lastRunTrack && pool.length > 1) name = pool[(pool.indexOf(name) + 1) % pool.length];
@@ -201,10 +245,60 @@ const Music = {
     Music.context = 'quest';
     Music.startNamed(name, true);
   },
-  endRun() { Music.run = null; },
+  endRun() { Music.run = null; Music.storyEls = null; },
+
+  // Story tracks are cached per run so leaving a fight resumes the underscore
+  // mid-phrase instead of restarting it.
+  storyEls: null,
+  playStory(name) {
+    pauseEl(Music.homeEl);
+    const els = Music.storyEls || (Music.storyEls = {});
+    let el = els[name];
+    if (!el || !el.src) {
+      el = els[name] = watch(new Audio('audio/music/' + name + '.mp3'));
+      el.__name = name; el.loop = true;
+    }
+    pauseOthers(el);
+    Music.el = el; Music.track = name;
+    if (el.paused || !el.__wantPlay) playEl(el);
+    else { try { el.volume = Music.muted ? 0 : musicGain(); } catch (e) {} }
+  },
+  storyTrackFor(context) {
+    const s = Music.run && Music.run.story;
+    if (!s) return null;
+    if (Music.cued) return Music.cued;
+    if (context === 'boss') return s.boss || s.combat || s.quest;
+    if (context === 'combat') return s.combat || s.quest;
+    return s.quest;
+  },
+
+  // A cue overrides the run's quest track (a dream, the ending) until cleared
+  // or until the next context change.
+  cued: null,
+  cue(name) {
+    Music.cued = name || null;
+    if (name) {
+      if (Music.run && Music.run.story) Music.playStory(name);
+      else { if (!Music.cueReturn) Music.cueReturn = { context: Music.context }; Music.context = 'cue'; Music.startNamed(name, true); }
+    } else if (Music.run && Music.run.story) {
+      Music.playStory(Music.storyTrackFor(Music.context));
+    } else if (Music.cueReturn) {
+      const back = Music.cueReturn; Music.cueReturn = null;
+      Music.context = null;
+      if (back.context) Music.play(back.context);
+      else pauseEl(Music.el);
+    }
+  },
 
   play(context) {
+    if (Music.cued && Music.context === 'cue') Music.cueReturn = null;
+    Music.cued = null;
     if (Music.RUN_CONTEXTS.includes(context)) {
+      if (Music.run && Music.run.story) {                // scored run: quest track outside fights, battle track inside
+        Music.context = context;
+        Music.playStory(Music.storyTrackFor(context));
+        return;
+      }
       if (Music.run) {                                   // mid-quest: keep the quest's track going
         Music.context = context;
         Music.leaveHome();
@@ -215,10 +309,12 @@ const Music = {
         return;
       }
     } else Music.endRun();
-    if (Music.context === context && Music.el && !Music.el.paused && Music.el.__wantPlay) return;
+    // the one track a context can want (home contexts may be overridden by a story hub)
+    const want = (Music.HOME.includes(context) && Music.homeOverride) || ((POOLS[context] || []).length === 1 ? POOLS[context][0] : null);
+    if (Music.context === context && Music.el && !Music.el.paused && Music.el.__wantPlay && (!want || want === Music.el.__name)) return;
     // seamless carry-over when both contexts sit on the same single track
-    if (Music.el && !Music.el.paused && Music.el.__wantPlay && Music.context && (POOLS[context] || []).length === 1 &&
-        (POOLS[Music.context] || []).length === 1 && POOLS[context][0] === Music.track) {
+    if (Music.el && !Music.el.paused && Music.el.__wantPlay && Music.context && want && want === Music.el.__name &&
+        (Music.homeOverride || (POOLS[Music.context] || []).length === 1)) {
       Music.context = context;
       return;
     }
@@ -241,10 +337,14 @@ const Music = {
     pauseOthers(keep);
   },
 
+  // A story hub can swap the home theme for its own camp cue (homeOverride);
+  // pause/resume behaviour stays the same.
+  homeOverride: null,
+
   start(context, force) {
-    const name = Music.nextTrack(context);
-    if (!name) return;
     const isHome = Music.HOME.includes(context);
+    const name = (isHome && Music.homeOverride) || Music.nextTrack(context);
+    if (!name) return;
     let el;
     if (isHome && Music.homeEl && Music.homeEl.__name === name && Music.homeEl.src) {
       el = Music.homeEl;                                   // resume where it left off
@@ -347,7 +447,7 @@ const Music = {
   stopVoice() {
     Music._voiceHeld = false;
     Music.voiceKind = null;
-    if (Music.voiceEl) { killEl(Music.voiceEl); Music.voiceEl = null; }
+    if (Music.voiceEl) { killEl(Music.voiceEl); Music.voiceEl = null; rampMusic(300); }
   },
   // Close a tutor card without killing an NPC / campaign line that just started.
   stopTutorial() {
