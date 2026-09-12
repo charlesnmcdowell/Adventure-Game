@@ -346,6 +346,8 @@ Cut.conscription = function (scene, game, victor, c, done, extra) {
   let openBox = null;
   const bind = () => {
     const g = st.keep(scene.add.graphics().setDepth(DEPTH + 6));
+    if (ADV.SkillArt) st.keep(ADV.SkillArt.ritual(scene, 'conscript', vCard, nCard, DEPTH + 6));
+    else {
     const dummy = { a: 0 };
     scene.tweens.add({
       targets: dummy, a: Math.PI * 2, duration: 600,
@@ -360,6 +362,7 @@ Cut.conscription = function (scene, game, victor, c, done, extra) {
         if (ADV.VFX && ADV.VFX.beam) ADV.VFX.beam(scene, vCard.x + 40, vCard.y, nCard.x - 40, nCard.y - 10 + i * 10, 0x3a2a48, { w: 3, dur: 180 });
         if (ADV.VFX && ADV.VFX.camShake) ADV.VFX.camShake(scene, 0.002);
       });
+    }
     }
     scene.time.delayedCall(640, () => {
       try { if (nCard.__img) nCard.__img.setTint(CONSCRIPT_TINT); } catch (e) {}
@@ -418,6 +421,8 @@ Cut.raising = function (scene, game, victor, c, done, extra) {
   const nCard = card(scene, st, c, W - 220, 340, { lead: true, z: 3, tint: 0x9aa0aa, mood: 'neutral', moodK: 0.2 });
   scene.tweens.add({ targets: vCard, alpha: 1, x: 360, duration: 360 });
   scene.tweens.add({ targets: nCard, alpha: 1, x: W - 360, duration: 360 });
+  if (ADV.SkillArt) scene.time.delayedCall(360, () => { if (!st.done) st.keep(ADV.SkillArt.ritual(scene, 'necromancy', vCard, nCard, DEPTH + 6)); });
+  else {
   const g = st.keep(scene.add.graphics().setDepth(DEPTH + 6));
   const dummy = { a: 0 };
   scene.tweens.add({
@@ -428,6 +433,7 @@ Cut.raising = function (scene, game, victor, c, done, extra) {
     },
   });
   if (ADV.VFX && ADV.VFX.motes) ADV.VFX.motes(scene, W - 360, 360, 0x5d8a4a, 8);
+  }
   scene.time.delayedCall(500, () => {
     if (nCard.__img && ADV.Portraits.express) {
       ADV.Portraits.express(scene, nCard.__img, c, nCard.__img.texture && nCard.__img.texture.key, 'dazed', 1);

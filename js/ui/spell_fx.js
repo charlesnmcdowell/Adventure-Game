@@ -823,6 +823,7 @@ function genericSchool(scene, ctx, p) {
 function play(scene, ctx) {
   try {
     ctx = ctx || {};
+    if (ADV.SkillArt?.has(ctx.skillId)) return ADV.SkillArt.play(scene, ctx);
     if (scene) scene.__fxBusy = true;
     const rec = RECIPES[ctx.skillId];
     const tier = ctx.tier || 'basic';
@@ -988,12 +989,14 @@ const STATUS = {
 };
 
 function clearStatus(v) {
+  if (ADV.SkillArt) ADV.SkillArt.clearStatus(v);
   if (!v || !v._fxMarks) return;
   for (const k of Object.keys(v._fxMarks)) killMark(v._fxMarks[k]);
   v._fxMarks = {};
 }
 
 function syncStatus(scene, v) {
+  if (ADV.SkillArt) return ADV.SkillArt.syncStatus(scene, v);
   try {
     if (!v || !v.u) return;
     const kinds = [];
@@ -1017,6 +1020,7 @@ function syncStatus(scene, v) {
 }
 
 function tick(scene, v, e) {
+  if (ADV.SkillArt) return ADV.SkillArt.tick(scene, v, e);
   try {
     if (!v) return 140;
     const kinds = (v.u && v.u.statuses || []).map(s => s.kind);

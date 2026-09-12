@@ -485,6 +485,14 @@ Panels.trainer = function (scene, r) {
          edge: witnessedFree ? T().c.gold : undefined, disabled: locked });
     ADV.Tooltip.attach(scene, b.zone, () => ADV.SkillInfo.describe(p, id));
     scroll.addBtn(b);
+    if (ADV.SkillArt) {
+      const entry = ADV.SkillSys.entryFor(p, id);
+      const tier = entry ? ADV.SkillSys.manifest(p, entry).tier : 'basic';
+      scroll.add(scene.add.image(x + 20, colY[col] + 20, ADV.SkillArt.icon(scene, id, tier)).setDisplaySize(28, 28).setAlpha(locked ? 0.45 : 1));
+      b.txt.setX(x + (cw3 - 6) / 2 + 15);
+      b.txt.setScale(Math.min(1, (cw3 - 52) / Math.max(1, b.txt.width)));
+      if (b.sub) { b.sub.setX(b.txt.x); b.sub.setScale(Math.min(1, (cw3 - 52) / Math.max(1, b.sub.width))); }
+    }
     colY[col] += 46;
     col = colY.indexOf(Math.min(...colY));
     }
@@ -573,9 +581,10 @@ Panels.journal = function (scene, r) {
     const lvl = (p.skillLevels[id] || {}).level || (ADV.SkillSys.entryFor(p, id) || {}).level || 0;
     let line = `${sk.name}`;
     if (je.sawTier && je.sawTier !== 'basic') line = `${sk.tiers[je.sawTier].name} → ${sk.name} (root)`;
-    const row1 = scroll.add(T().text(scene, cols[col], colY[col], line, { size: 14, wrap: Math.floor(r.w / 2) - 48 }));
+    if (ADV.SkillArt) scroll.add(scene.add.image(cols[col] + 13, colY[col] + 16, ADV.SkillArt.icon(scene, id, je.sawTier || 'basic')).setDisplaySize(28, 28));
+    const row1 = scroll.add(T().text(scene, cols[col] + 34, colY[col], line, { size: 14, wrap: Math.floor(r.w / 2) - 82 }));
     const seenFrom = je.from ? ' · seen at ' + je.from : '';
-    const row2 = scroll.add(T().text(scene, cols[col], colY[col] + (row1.height || T().gap(16)) + 2, `${st}${lvl ? ' · L' + lvl : ''}${seenFrom}`, { size: 11, color: states[st] }));
+    const row2 = scroll.add(T().text(scene, cols[col] + 34, colY[col] + (row1.height || T().gap(16)) + 2, `${st}${lvl ? ' · L' + lvl : ''}${seenFrom}`, { size: 11, color: states[st], wrap: Math.floor(r.w / 2) - 82 }));
     const rowH = (row1.height || T().gap(16)) + (row2.height || T().gap(14)) + T().gap(12);
     scroll.add(ADV.Tooltip.attachZone(scene, cols[col], colY[col], Math.floor(r.w / 2) - 40, rowH, () => ADV.SkillInfo.describe(p, id)));
     colY[col] += rowH;

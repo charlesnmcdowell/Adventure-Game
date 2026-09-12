@@ -219,13 +219,15 @@ class CreationScene extends Phaser.Scene {
       const x = gx + col * (cw + 16);
       const b = { id, x, y, w: cw, h: rh - 6 };
       b.g = this.add.graphics();
-      b.txt = T().text(this, x + 14, y + (rh - 6) / 2, `${sk.name}${sk.kind === 'perk' ? ' ◆' : ''}`, { size: 14, oy: 0.5 });
+      b.txt = T().text(this, x + 42, y + (rh - 6) / 2, `${sk.name}${sk.kind === 'perk' ? ' ◆' : ''}`, { size: 14, oy: 0.5 });
+      if (ADV.SkillArt) b.icon = this.add.image(x + 22, y + (rh - 6) / 2, ADV.SkillArt.icon(this, id)).setDisplaySize(28, 28);
       b.tag = T().text(this, x + cw - 14, y + (rh - 6) / 2, sk.archetype || 'social', { size: 11, ox: 1, oy: 0.5, color: T().css.inkFaint });
+      b.txt.setScale(Math.min(1, (cw - 60 - b.tag.width) / Math.max(1, b.txt.width)));
       const zone = this.add.zone(x, y, cw, rh - 6).setOrigin(0).setInteractive({ useHandCursor: true });
       zone.on('pointerdown', () => { this.descText.setText(sk.name + ' — ' + sk.desc); this.toggleSkill(id); });
       zone.on('pointerover', () => this.descText.setText(sk.name + ' — ' + sk.desc));
       ADV.Tooltip.attach(this, zone, () => ADV.SkillInfo.describe(null, id));
-      scroll.add(b.g); scroll.add(b.txt); scroll.add(b.tag); scroll.add(zone);
+      scroll.add(b.g); if (b.icon) scroll.add(b.icon); scroll.add(b.txt); scroll.add(b.tag); scroll.add(zone);
       this.skillButtons.push(b);
       col++;
       if (col >= cols) { col = 0; y += rh; }

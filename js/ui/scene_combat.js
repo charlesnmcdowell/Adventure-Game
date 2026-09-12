@@ -845,6 +845,11 @@ class CombatScene extends Phaser.Scene {
 
   // ------------------------------------------------------------ player turn
   clearActionBar() {
+    if (this.skillBarScroll) {
+      this.skillBarScroll.destroy();
+      this.panelScrolls = (this.panelScrolls || []).filter(s => s !== this.skillBarScroll);
+      this.skillBarScroll = null;
+    }
     if (this.autoTimer) { try { this.autoTimer.remove(false); } catch (e) {} this.autoTimer = null; }
     if (this._targetClicks) {
       for (const { img, fn } of this._targetClicks) {
@@ -1054,12 +1059,21 @@ class CombatScene extends Phaser.Scene {
     keep(T().panel(this, 40, H - 110, W - 80, 96));
     const rot = ADV.Combat.autoList(u.ch);
     keep(T().text(this, 56, H - 104, rot.length ? ('AUTO · ' + this.autoRotationLabel(u)) : 'Your move', { size: 12, color: T().css.gold }));
+    // Long loadouts stay reachable, including Flee, with wheel or touch scrolling.
+    const scroll = ADV.UI.scrollArea(this, {x:48,y:H-88,w:W-96,h:76}, {horizontal:true,keep:o=>o});
+    this.skillBarScroll = scroll;
     let x = 56;
     const mkBtn = (label, sub, fn, disabled, tipSkillId) => {
-      const w = Math.max(96, label.length * 8 + 22);
+      const w = Math.max(96, label.length * 8 + (tipSkillId ? 46 : 22));
       const b = T().button(this, x, H - 86, w, 60, label, fn, { size: 13, sub, disabled });
       if (tipSkillId) ADV.Tooltip.attach(this, b.zone, () => ADV.SkillInfo.describe(u.ch, tipSkillId));
-      keep(b.g); keep(b.txt); if (b.sub) keep(b.sub); keep(b.zone);
+      scroll.addBtn(b);
+      if (tipSkillId && ADV.SkillArt) {
+        const tier = ADV.Combat.manifestFor(u, tipSkillId)?.tier || 'basic';
+        scroll.add(this.add.image(x + 20, H - 57, ADV.SkillArt.icon(this, tipSkillId, tier)).setDisplaySize(28, 28).setAlpha(disabled ? 0.4 : 1));
+        b.txt.setX(x + w / 2 + 15); b.txt.setScale(Math.min(1, (w - 44) / Math.max(1, b.txt.width)));
+        if (b.sub) { b.sub.setX(b.txt.x); b.sub.setScale(Math.min(1, (w - 44) / Math.max(1, b.sub.width))); }
+      }
       x += w + 8;
     };
     const seal = u.statuses.find(x => x.kind === 'sealed');
@@ -1113,7 +1127,7 @@ class CombatScene extends Phaser.Scene {
           color: on ? T().css.green : T().css.inkDim,
           edge: on ? T().c.green : undefined,
         });
-        keep(ab.g); keep(ab.txt); if (ab.sub) keep(ab.sub); keep(ab.zone);
+        scroll.addBtn(ab);
         ADV.Tooltip.attach(this, ab.zone, () => {
           const heal = !a.off && ADV.DATA.SKILLS[a.skillId] && ADV.DATA.SKILLS[a.skillId].heal;
           return on
@@ -1143,6 +1157,7 @@ class CombatScene extends Phaser.Scene {
       ADV.Combat.advance(st);
       this.loop();
     });
+    scroll.extend(x);
   }
 
   commitHold(u) {

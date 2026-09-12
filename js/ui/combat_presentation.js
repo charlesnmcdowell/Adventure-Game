@@ -146,6 +146,7 @@ function stroke(g,x,y,dir,p,offset) {
 }
 function swing(scene,src,tgt,p) {
   const dir=src.u.side==='a'?1:-1;
+  if (A.SkillArt?.has(p.id)) return A.SkillArt.play(scene,{skillId:p.id,tier:p.tier,src,tgt,dir});
   if (A.VFX && A.VFX.lunge) A.VFX.lunge(scene,src.img,dir);
   // Motion lives between portraits; no contact burst until combat confirms an outcome.
   const x=src.x+dir*((src.img.displayWidth||92)*.5+28),y=src.y;
@@ -155,8 +156,9 @@ function swing(scene,src,tgt,p) {
   },220);
   return 240;
 }
-function impact(scene,v,p,phase) {
+function impact(scene,v,p,phase,ctx) {
   if(!v)return;
+  if(A.SkillArt?.has(p.id)) { A.SkillArt.outcome(scene,v,p.id,p.tier,phase,ctx); return; }
   graphic(scene,g=>{
     if(phase==='block'){g.lineStyle(4,0xb8d2ef,.9);g.beginPath();g.arc(v.x,v.y,42,-1.35,1.35);g.strokePath();return;}
     if(phase==='miss'){g.lineStyle(1,p.color,.35);for(let i=0;i<3;i++)g.lineBetween(v.x-28,v.y+i*10,v.x+18,v.y+i*10-12);return;}
@@ -173,15 +175,18 @@ function event(scene,e) {
   const reflected=e.tag==='reflect'||e.tag==='retaliation';
   const p=reflected?Object.assign(profile('thorn_skin'),{family:'magic',melee:false}):actions.get(e.by) || scene.__lastSkill || profile('basic_attack');
   const v=e.uid?scene.view(e.uid):null;
-  if(e.t==='damage' && e.tag!=='dot') {sound(scene,p,'hit');if(p.melee)impact(scene,v,p,'hit');}
-  else if(e.t==='evade'){sound(scene,p,'miss');if(p.melee)impact(scene,v,p,'miss');}
-  else if(['ward','shieldAbsorb','shieldBreak','immune'].includes(e.t)){sound(scene,profile('crossing_guard'),'block');impact(scene,v,p,'block');}
+  const ctx={src:e.by?scene.view(e.by):null,tgt:v};
+  if(e.t==='damage' && e.tag!=='dot') {sound(scene,p,'hit');if(A.SkillArt||p.melee)impact(scene,v,p,'hit',ctx);}
+  else if(e.t==='evade'){sound(scene,p,'miss');if(A.SkillArt||p.melee)impact(scene,v,p,'miss',ctx);}
+  else if(['ward','shieldAbsorb','shieldBreak','immune'].includes(e.t)){sound(scene,profile('crossing_guard'),'block');impact(scene,v,p,'block',ctx);}
   else if(e.t==='counter'){const counter=Object.assign(profile('basic_attack'),{family:'thrust'});actions.set(e.uid,counter);sound(scene,counter,'use');if(v)swing(scene,v,scene.view(e.by),counter);}
   else if(['heal','extraTurn','surviveLethal','arenaChampion','bulwarkKill','poisonHop'].includes(e.t) && !e.tick) sound(scene,profile(e.t==='heal'?'mend':'crossing_guard'),'use');
   else if(['shapeshift','revive','grantTurn','thornShield','exposedBurst','venomDraw','trueRest','npcSmite'].includes(e.t)) {
     const id=e.t==='shapeshift'?'beast_shape':e.t==='revive'?'raise':e.t==='venomDraw'?'venom_fang':e.t==='exposedBurst'?'sunder':'crossing_guard';
     sound(scene,profile(id),'use');
   }
+  const triggers={extraTurn:'lightning_king',surviveLethal:'stand_fast',arenaChampion:'arena_champion',bulwarkKill:'bulwark',poisonHop:'venom_draw',grantTurn:'signal_flags',exposedBurst:'sunder',trueRest:'true_rest',npcSmite:'gods_edict'};
+  if(v&&triggers[e.t]&&!e.tick) A.SkillArt?.perk(scene,v,triggers[e.t]);
 }
 A.CombatPresentation={profile,event,swing,impact,sound,stop,synth,preload,sampleKey,coverage:()=>Object.keys(A.DATA.SKILLS).map(id=>profile(id)),get loadedSamples(){return buffers.size;},get activeVoices(){return active.size;}};
 })();

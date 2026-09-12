@@ -963,6 +963,7 @@ VFX.grove = function (scene, view, rounds, opts) {
 
 // C1. Transformation beat: shake, stretch and snap twice, swap the texture at the second snap.
 VFX.transform = function (scene, view, beastKey, opts) {
+  if (ADV.SkillArt) return ADV.SkillArt.transform(scene, view, beastKey, opts);
   opts = opts || {};
   if (!view || !view.img) return 0;
   const img = view.img, x = view.x, y = view.y;
@@ -989,6 +990,7 @@ VFX.transform = function (scene, view, beastKey, opts) {
 };
 // reverse beat: the human face comes back
 VFX.revertForm = function (scene, view, humanKey) {
+  if (ADV.SkillArt) return ADV.SkillArt.transform(scene, view, humanKey, {revert:true});
   if (!view || !view.img) return 0;
   const img = view.img, w0 = img.displayWidth, h0 = img.displayHeight;
   scene.tweens.add({ targets: img, displayHeight: h0 * 1.1, duration: 120, yoyo: true, onYoyo: () => { try { img.setTexture(humanKey); img.setDisplaySize(w0, h0); } catch (e) {} } });
