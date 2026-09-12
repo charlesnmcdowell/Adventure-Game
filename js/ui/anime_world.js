@@ -132,7 +132,7 @@ function composeHuman(scene,ch,id,set){
  drawHead(false);
  ctx.drawImage(flesh,561-bodyW/2,bodyY,bodyW,bodyW);
  drawHead(true);
- if(named?.companion==='pip'&&(!named.authoredSkin||ch.equippedSet)){const pip=cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
+ if(named?.companion==='pip'&&(!named.authoredSkin||ch.equippedSet)){const f=A.GateManifest?.frames['extras:findik'],pip=f?cell(scene,f.sheet,f.frame):cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
  const point=(x,y)=>[hx+x*S,hy+y*S];
  const eyes=[point(h.nx-h.spread,h.ny-h.eyeUp),point(h.nx+h.spread,h.ny-h.eyeUp)],mouth=point(h.nx,h.ny+h.mouthDown);
  const featureScale=S*(registration?.scale||1);

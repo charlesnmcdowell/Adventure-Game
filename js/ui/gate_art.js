@@ -49,7 +49,7 @@ G.named=(ch,base)=>N[ch.gateAppearance]||base;
 G.enemy=ch=>frame('mini',ch.campaignMiniId)||frame('enemy',ch.enemyTypeId);
 G.warden=ch=>{
  const role=ch.archetype||(ch.archetypeInclination||[])[0]||'fighter',sex=ch.sex==='f'?'f':'m';
- const kind=['healer','druid'].includes(role)?'healer':['rogue','ranger'].includes(role)?'rogue':'fighter';
+ const kind=['healer','druid','mage','necromancer'].includes(role)?'healer':['rogue','ranger','assassin'].includes(role)?'rogue':'fighter';
  return frame('warden',kind+'_'+sex)||frame('warden_extra',kind+'_'+sex)||frame('extras','wardens_'+kind+'_'+sex);
 };
 G.icon=function(scene,kind,id){const f=frame(kind,id);if(!f)return null;const k='gate_icon_'+kind+'_'+id;if(!scene.textures.exists(k)){const c=A.AnimeWorld.cell(scene,f.sheet,f.frame);if(!c)return null;const t=scene.textures.createCanvas(k,160,160);t.getContext().drawImage(c,0,0,160,160);t.refresh();}return k;};

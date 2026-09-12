@@ -215,11 +215,13 @@ Panels.story = function (scene, r) {
   for (const id of v.roster) {
     const ch = D().CAMPAIGN_CHARS[id];
     const on = v.company.includes(id);
+    const description = (s.romance === id ? 'yours · ' : '') + (ch.desc || '').split('.')[0];
+    const subtitle = description.length > 38 ? description.slice(0, 35).replace(/\s+\S*$/, '') + '…' : description;
     companyScroll.addBtn(T().button(scene, cx, cy, cw, 34, (on ? '● ' : '○ ') + ch.name, () => { C3().toggleCompany(game, id); scene.openPanel('story'); },
-      { size: 12, color: on ? T().css.gold : T().css.inkDim, sub: (s.romance === id ? 'yours · ' : '') + (ch.desc || '').split('.')[0], subColor: T().css.inkFaint }));
+      { size: 12, color: on ? T().css.gold : T().css.inkDim, sub: subtitle, subColor: T().css.inkFaint }));
     cy += 40;
   }
-  if (companyScroll) { companyScroll.finish(); cy = companyTop + companyH; }
+  if (companyScroll) { companyScroll.finish?.(); cy = companyTop + companyH; }
   cy += 6;
   const her = s.heritage;
   const herLabel = her <= -2 ? 'starved' : her < 0 ? 'resisting' : her === 0 ? 'quiet' : her < 2 ? 'stirring' : 'awake';

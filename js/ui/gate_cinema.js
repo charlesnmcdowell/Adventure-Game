@@ -13,7 +13,10 @@ G.view=function(scene,kind,id,opts={}){
  const label=A.T.text(scene,x+w/2,y+h/2,'Preparing the scene…',{size:18,ox:.5,color:A.T.css.gold});root.add(label);
  const fx=scene.add.graphics();root.add(fx);
  lease.ready.then(ok=>{if(!alive)return;if(!ok){label.setText('Illustration unavailable');return;}label.destroy();bg=scene.add.image(x+w/2,y+h/2,lease.entry.key);const scale=Math.max(w/spec.width,h/spec.height);bg.setScale(scale);root.addAt(bg,1);root.background=bg;root.baseScale=scale;
-  if(opts.banner){bg.setDisplaySize(w,h);return;}
+  if(opts.banner){
+   if(opts.cover){const scale=w/spec.width,sh=h/scale,sy=Math.max(0,Math.min(spec.height-sh,spec.height*.55));bg.setOrigin(0).setPosition(x,y-sy*scale).setScale(scale).setCrop(0,sy,spec.width,sh);root.add(scene.add.rectangle(x+w/2,y+h/2,w,h,0x0b1420,.58));}
+   else bg.setDisplaySize(w,h);return;
+  }
   root.add(scene.add.rectangle(W/2,26,W,52,0x080b12,.94));
   root.add(scene.add.rectangle(W/2,H-25,W,50,0x080b12,.94));
  });
@@ -63,6 +66,6 @@ G.chapter=function(scene,game,beat,done){const chapter=beat.artChapter,id=G.chap
 const departure=A.Campaign3.departureBeats;
 A.Campaign3.departureBeats=function(game,q){const beats=departure(game,q),chapter=firstQuest[q?.n],s=A.Campaign3.state(game);if(q?.campaign3&&chapter!==undefined&&!s.artChapters?.[chapter])beats.unshift({c3:true,who:'aldric',key:'art_chapter',artChapter:chapter,artTitle:q.name});return beats;};
 G.endingId=ending=>({hero:'ending_hero',monster:'ending_vengeance',usurper:'ending_usurper',mercy:'ending_mercy',ascetic:'ending_empty'})[ending];
-G.hallBanner=function(scene,r){const view=G.view(scene,'ui','story_banner',{depth:0,x:r.x+4,y:r.y+4,w:r.w-8,h:58,banner:true});if(view)scene.keep(view);};
+G.hallBanner=function(scene,r){const view=G.view(scene,'ui','story_banner',{depth:0,x:r.x+4,y:r.y+4,w:r.w-8,h:66,banner:true,cover:true});if(view)scene.keep(view);};
 G.choiceFrame=function(scene,keep,depth,rect){const view=G.view(scene,'ui','choice_frame',{depth:depth-1,...rect,banner:true});if(view){view.setAlpha(.25);keep(view);}};
 })();
