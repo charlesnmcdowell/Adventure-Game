@@ -36,6 +36,7 @@ class TownScene extends Phaser.Scene {
       return;
     }
 
+    this._arrivalPending = true;
     this.buildCharacterPanel();
     this.buildMenu();
     this.openPanel('board');
@@ -167,7 +168,14 @@ class TownScene extends Phaser.Scene {
       }
     }
     yy += T().gap(8);
-    const perkH = put(T().text(this, x + 16, yy, `Perks (${ADV.SkillSys.slottedCount(p, 'perk')}/${ADV.SkillSys.capFor(p, 'perk')})`, { size: 13, color: T().css.inkDim }));
+    const perkOver = ADV.SkillSys.overBy(p, 'perk');
+    const perkH = put(T().text(this, x + 16, yy, perkOver
+      ? `Perks (${ADV.SkillSys.slottedCount(p, 'perk')}/${ADV.SkillSys.capFor(p, 'perk')}) — drop ${perkOver}`
+      : `Perks (${ADV.SkillSys.slottedCount(p, 'perk')}/${ADV.SkillSys.capFor(p, 'perk')})`, { size: 13, color: perkOver ? T().css.blood : T().css.inkDim }));
+    if (perkOver && ADV.Panels && ADV.Panels.requireCapacity) {
+      perkH.setInteractive({ useHandCursor: true });
+      perkH.on('pointerdown', () => ADV.Panels.requireCapacity(this));
+    }
     yy += after(perkH, 4);
     for (const e of p.perks) {
       if (ADV.SkillSys.inArmorSlot(p, e.skillId)) continue;
@@ -178,7 +186,14 @@ class TownScene extends Phaser.Scene {
       yy += after(t, 4);
     }
     yy += T().gap(6);
-    const actH = put(T().text(this, x + 16, yy, `Actives (${ADV.SkillSys.slottedCount(p, 'active')}/${ADV.SkillSys.capFor(p, 'active')})`, { size: 13, color: T().css.inkDim }));
+    const actOver = ADV.SkillSys.overBy(p, 'active');
+    const actH = put(T().text(this, x + 16, yy, actOver
+      ? `Actives (${ADV.SkillSys.slottedCount(p, 'active')}/${ADV.SkillSys.capFor(p, 'active')}) — drop ${actOver}`
+      : `Actives (${ADV.SkillSys.slottedCount(p, 'active')}/${ADV.SkillSys.capFor(p, 'active')})`, { size: 13, color: actOver ? T().css.blood : T().css.inkDim }));
+    if (actOver && ADV.Panels && ADV.Panels.requireCapacity) {
+      actH.setInteractive({ useHandCursor: true });
+      actH.on('pointerdown', () => ADV.Panels.requireCapacity(this));
+    }
     yy += after(actH, 4);
     for (const e of p.actives) {
       if (ADV.SkillSys.inArmorSlot(p, e.skillId)) continue;
@@ -313,6 +328,9 @@ class TownScene extends Phaser.Scene {
     if (panel) panel(this, r);
     if (ADV.Tutor && ADV.Tutor.active(this.game_)) ADV.Tutor.panel(this, this.game_, id, r);
     if (this._chromeHidden) this.applyChromeHidden(false);
+    if (!this._arrivalPending && id !== 'blacksmith' && ADV.SkillSys.isOverCapacity(this.player()) && ADV.Panels.requireCapacity) {
+      ADV.Panels.requireCapacity(this);
+    }
   }
 
   refreshAll() {
@@ -450,9 +468,13 @@ class TownScene extends Phaser.Scene {
   nextNotice() {
     const n = this.noticeQueue.shift();
     if (!n) {
+      this._arrivalPending = false;
       const finishArrival = () => {
         if (this._arrivalChrome) { this._arrivalChrome = false; this.showChrome(); }
         this.refreshAll();
+        if (ADV.SkillSys.isOverCapacity(this.player()) && ADV.Panels.requireCapacity) {
+          ADV.Panels.requireCapacity(this);
+        }
       };
       if (ADV.Tutor && !this.tutorDone) {
         this.tutorDone = true;

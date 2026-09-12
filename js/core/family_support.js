@@ -19,6 +19,7 @@ F.gear=function(ch,sets){
  const current=A.DATA.GEAR_SETS[ch.equippedSet];
  if(all.length&&!(current&&(current.campaign||current.unique)))ch.equippedSet=all[0];
  ch.ownedSets=all.filter(id=>id!==ch.equippedSet);
+ if(A.SkillSys&&A.SkillSys.trimToCap&&!ch.isPlayer)A.SkillSys.trimToCap(ch);
 };
 const born=A.Character.makeDependent;
 A.Character.makeDependent=function(rng,world,mother,fatherId){const child=born.apply(this,arguments);child.familySkills=F.mergeSkills(F.skills(mother),F.skills(A.World.byId(world,fatherId)));return child;};

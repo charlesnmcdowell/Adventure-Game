@@ -101,6 +101,7 @@ Party.outfit = function(world,leader,target,setId,ownedOnly) {
   target.ownedSets=(target.ownedSets||[]).filter(id=>id!==setId);
   if(target.equippedSet&&!target.ownedSets.includes(target.equippedSet))target.ownedSets.push(target.equippedSet);
   target.equippedSet=setId;
+  if(ADV.SkillSys&&ADV.SkillSys.trimToCap&&!target.isPlayer)ADV.SkillSys.trimToCap(target);
   ADV.World.feed(world,leader.name+' outfitted '+target.name+' with '+set.name+'.',[leader.id,target.id]);
   return {ok:true,cost};
 };

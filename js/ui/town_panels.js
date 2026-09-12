@@ -84,9 +84,11 @@ Panels.questBoard = function (scene, r) {
   const stayY = r.y + r.h - 48;
   const stayLabel = kids > 0 ? `Stay home with the ${kids > 1 ? 'children' : 'child'}` : 'Stay home';
   keepBtn(scene, T().button(scene, r.x + 24, stayY, 260, 38, stayLabel, () => {
-    ADV.Game.stayHome(game);
-    scene.promptOnce('firstStayHome');
-    scene.scene.restart();
+    Panels.gateCapacity(scene, () => {
+      ADV.Game.stayHome(game);
+      scene.promptOnce('firstStayHome');
+      scene.scene.restart();
+    });
   }, { size: 14 }));
   scene.keep(T().text(scene, r.x + 300, stayY + 10, 'The world moves whether you do or not.', { size: 12, italic: true, color: T().css.inkFaint }));
 };
@@ -121,8 +123,82 @@ function questRow(scene, r, q, y, enabled, note, scroll) {
   return { y: nextY, btn };
 }
 
+// A worn set can park extras. Selling or swapping it puts those skills back
+// on the cap — the player must choose what to set down. No cancel.
+Panels.requireCapacity = function (scene, done) {
+  const p = scene.player();
+  if (!p || !ADV.SkillSys || !ADV.SkillSys.isOverCapacity(p)) {
+    scene._capacityPicking = false;
+    if (done) done();
+    return;
+  }
+  if (scene._capacityPicking) {
+    if (done) (scene._capacityAfter || (scene._capacityAfter = [])).push(done);
+    return;
+  }
+  scene._capacityPicking = true;
+  const kind = ADV.SkillSys.overBy(p, 'perk') > 0 ? 'perk' : 'active';
+  const cap = ADV.SkillSys.capFor(p, kind);
+  const list = ADV.SkillSys.countingEntries(p, kind);
+  if (!list.length) {
+    scene._capacityPicking = false;
+    if (done) done();
+    return;
+  }
+  const noun = kind === 'perk' ? 'perks' : 'skills';
+  const still = ADV.SkillSys.overBy(p, 'perk') + ADV.SkillSys.overBy(p, 'active');
+  const n = list.length;
+  const rowH = 34;
+  const bh = Math.min(T().H - 40, 150 + n * rowH);
+  const by = Math.max(16, Math.floor((T().H - bh) / 2) - 8);
+  ADV.Notices.custom(scene, (keep, D, close) => {
+    const W = T().W;
+    keep(T().text(scene, W / 2, by + 22, kind === 'perk' ? 'Too many perks' : 'Too many skills', {
+      size: 20, display: true, ox: 0.5, color: T().css.gold,
+    }).setDepth(D));
+    keep(T().text(scene, W / 2, by + 54,
+      `Your armor no longer parks these. You can keep ${cap} ${noun}. Set one down — it keeps its level in the journal. ${still} still to drop.`,
+      { size: 13, ox: 0.5, wrap: 560, align: 'center', color: T().css.inkDim }).setDepth(D));
+    let y = by + 96;
+    for (const e of list) {
+      const sk = ADV.DATA.SKILLS[e.skillId];
+      ADV.UI.modalBtn(keep, D, T().button(scene, W / 2 - 180, y, 360, 30, `${sk ? sk.name : e.skillId} · L${e.level}`, () => {
+        close();
+        ADV.SkillSys.forget(p, e.skillId);
+        ADV.Save.saveGame(scene.g());
+        scene.refreshAll();
+        scene._capacityPicking = false;
+        const queued = scene._capacityAfter || [];
+        scene._capacityAfter = null;
+        Panels.requireCapacity(scene, () => {
+          for (const fn of queued) fn();
+          if (done) done();
+        });
+      }, { size: 13 }));
+      y += rowH;
+    }
+  }, { h: bh, y: by });
+  if (ADV.UI && ADV.UI.cardIs && !ADV.UI.cardIs('notice')) {
+    scene._capacityPicking = false;
+    if (scene.time) scene.time.delayedCall(200, () => Panels.requireCapacity(scene, done));
+  }
+};
+
+Panels.gateCapacity = function (scene, then) {
+  if (!ADV.SkillSys || !ADV.SkillSys.isOverCapacity(scene.player())) {
+    if (then) then();
+    return;
+  }
+  ADV.Notices.toast(scene, 'Set down extra skills first — your armor no longer covers them.');
+  Panels.requireCapacity(scene, then);
+};
+
 // Departure confirmation (§8): the carry-vs-vault decision at the moment of risk.
 Panels.departure = function (scene, q) {
+  Panels.gateCapacity(scene, () => Panels.departureConfirm(scene, q));
+};
+
+Panels.departureConfirm = function (scene, q) {
   const game = scene.g();
   const p = scene.player();
   const W = T().W, H = T().H;
@@ -330,6 +406,7 @@ Panels.storeGear = function (scene, r) {
       scroll.addBtn(T().button(scene, r.x + r.w - 280, y, 250, 46, `${spouse.name.split(' ')[0]} buys it (${spouse.inventory.gold}g)`, () => {
         if (spouse.inventory.gold < set.cost) { ADV.Notices.toast(scene, `${spouse.name} cannot afford it.`); return; }
         spouse.inventory.gold -= set.cost; spouse.equippedSet = id;
+        if (ADV.SkillSys && ADV.SkillSys.trimToCap) ADV.SkillSys.trimToCap(spouse);
         ADV.World.feed(world, `${spouse.name} bought a ${set.name}.`, [spouse.id]);
         ADV.Save.saveGame(game); scene.openPanel(scene.currentPanel || 'blacksmith');
       }, { size: 12, disabled: spouse.inventory.gold < set.cost, color: T().css.purple }));
@@ -558,6 +635,7 @@ Panels.forgetDialog = function (scene, id) {
     }
     ADV.Save.saveGame(game);
     scene.refreshAll(); scene.openPanel('trainer');
+    if (v === 'forget' && ADV.SkillSys.isOverCapacity(p)) Panels.requireCapacity(scene);
   });
 };
 

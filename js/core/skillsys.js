@@ -238,6 +238,40 @@ SkillSys.slottedCount = function (ch, kind) {
   return SkillSys.slotList(ch, kind).filter(e => SkillSys.countsTowardCap(ch, e.skillId)).length;
 };
 
+SkillSys.countingEntries = function (ch, kind) {
+  return SkillSys.slotList(ch, kind).filter(e => SkillSys.countsTowardCap(ch, e.skillId));
+};
+
+SkillSys.overBy = function (ch, kind) {
+  return Math.max(0, SkillSys.slottedCount(ch, kind) - SkillSys.capFor(ch, kind));
+};
+
+SkillSys.isOverCapacity = function (ch) {
+  return !!(ch && (SkillSys.overBy(ch, 'perk') > 0 || SkillSys.overBy(ch, 'active') > 0));
+};
+
+// Drop extras until each kind fits its cap. Lowest level first; the most
+// recently learned of that level goes if they tie. Levels stay in the journal.
+// For NPCs after an outfit change — the player chooses in the town UI.
+SkillSys.trimToCap = function (ch) {
+  const dropped = [];
+  if (!ch) return dropped;
+  for (const kind of ['perk', 'active']) {
+    while (SkillSys.overBy(ch, kind) > 0) {
+      const slotted = SkillSys.countingEntries(ch, kind);
+      if (!slotted.length) break;
+      const orig = SkillSys.slotList(ch, kind);
+      const low = Math.min.apply(null, slotted.map(e => e.level || 1));
+      const candidates = slotted.filter(e => (e.level || 1) === low);
+      candidates.sort((a, b) => orig.indexOf(a) - orig.indexOf(b));
+      const pick = candidates[candidates.length - 1];
+      if (!pick || !SkillSys.forget(ch, pick.skillId).ok) break;
+      dropped.push(pick.skillId);
+    }
+  }
+  return dropped;
+};
+
 SkillSys.atCapacity = function (ch, kind) {
   return SkillSys.slottedCount(ch, kind) >= SkillSys.capFor(ch, kind);
 };

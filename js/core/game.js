@@ -374,6 +374,9 @@ Game.maybeStartRivalFinale = function (game) {
 Game.startQuest = function (game, quest, opts) {
   opts = opts || {};
   const p = Game.player(game);
+  if (ADV.SkillSys && ADV.SkillSys.isOverCapacity(p)) {
+    return { ok: false, error: 'Set down extra skills first — your armor no longer covers them.' };
+  }
   // Validate all costs and gates before any gold is moved.
   const travel = ADV.Travel ? ADV.Travel.quote(game, quest, opts.provisions !== false) : null;
   const tuitionDue = Game.youngDependents(p) * C().GOLD.tuitionPerChildPerQuest * (travel ? travel.days : 1);
