@@ -72,7 +72,8 @@ for(const [id,e]of Object.entries(M.environments)){
  const key='gate_'+id;
  A.AnimeManifest.environments[key]={...e,file:'../../gate/v1/runtime/'+e.file.split('/').pop()};
  if(e.indoor)A.AnimeEnvironments.INDOOR.add(key);
- A.AnimeEnvironments.DETAILS[key]={...(e.indoor?{mist:.8}:{leaves:['forest','road'].includes(terrain[id])})};
+ // GateAmbience owns the authored motion for these paintings.
+ A.AnimeEnvironments.DETAILS[key]={};
 }
 for(const [id,e]of Object.entries(M.panoramas)){
  const key='gate_'+id;
@@ -83,33 +84,6 @@ for(const [id,e]of Object.entries(M.panoramas)){
 G.travelId=(q,leg)=>q?.campaign3&&journeys[q.n]?'gate_'+journeys[q.n][leg==='return'?1:0]:null;
 G.travelPhase=(q,leg)=>{const id=G.travelId(q,leg);return ['gate_lanternhold','gate_griffon','gate_nine_lanterns'].includes(id)?'night':['gate_open_hand','gate_hunted_city'].includes(id)?'evening':null;};
 G.travelSequence=(q,leg)=>q?.campaign3&&leg==='outbound'&&q.n===5?['gate_thornbury','gate_holloway']:q?.campaign3&&leg==='outbound'&&q.n===8?['gate_span','gate_sewers']:[G.travelId(q,leg)].filter(Boolean);
-// Calibrated against each panorama's painted water, fabric, lanterns and chimneys.
-const movingDetails={
- lanternhold:{water:[.025,.63,.09,.15],cloth:[.82,.05,.03,.50]},
- griffon:{cloth:[.18,.46,.045,.30]},shore:{water:[.31,.45,.54,.10],cloth:[.948,.10,.042,.43]},
- open_hand:{cloth:[.866,.08,.034,.32]},thornbury:{cloth:[.322,.10,.035,.28]},
- ford:{water:[.59,.78,.27,.075],cloth:[.05,.02,.063,.30]},dunmere:{cloth:[.93,.27,.043,.26]},
- dunmere_mine:{water:[.66,.79,.18,.10]},holloway:{cloth:[.084,.21,.031,.30]},
- bandit_camp:{cloth:[.752,.105,.046,.34]},mirkhollow:{cloth:[.03,.45,.09,.14]},
- iron_mine:{cloth:[.81,.085,.047,.42]},span:{water:[.36,.72,.33,.10],cloth:[.953,.05,.023,.30]},
- sewers:{water:[.355,.64,.26,.13]},nine_lanterns:{cloth:[.835,.29,.11,.08]},
- palace:{cloth:[.388,.05,.034,.28]},tower:{cloth:[.289,0,.04,.27]},
- catacombs:{water:[.72,.80,.065,.05]},hunted_city:{water:[.431,.62,.11,.07],cloth:[.868,.25,.08,.08]},
- temple:{cloth:[.151,.15,.021,.41]}
-};
-const life={
- lanternhold:{lights:[[.84,.54],[.93,.58]]},griffon:{lights:[[.37,.63],[.54,.57]]},
- open_hand:{lights:[[.72,.44],[.86,.43],[.79,.30]]},thornbury:{smoke:[[.13,.19]]},
- dunmere:{smoke:[[.09,.13],[.36,.39]]},dunmere_mine:{lights:[[.19,.20],[.304,.41],[.91,.35]]},
- holloway:{lights:[[.23,.62],[.49,.59]]},bandit_camp:{lights:[[.134,.49],[.458,.54]]},
- iron_mine:{lights:[[.63,.54],[.80,.55],[.074,.62]]},sewers:{lights:[[.03,.44],[.446,.29],[.80,.17],[.87,.56]]},
- nine_lanterns:{lights:[.45,.487,.523,.56,.60,.638,.68,.723,.767].map(x=>[x,.40])},
- palace:{lights:[[.34,.47],[.66,.47]]},tower:{lights:[[.242,.66],[.714,.72],[.863,.62]]},
- catacombs:{lights:[[.105,.64],[.45,.76],[.94,.68]]},hunted_city:{lights:[[.907,.53],[.677,.48]]},
- temple:{lights:[[.031,.53],[.23,.56],[.295,.54],[.851,.57],[.639,.45]]}
-};
-for(const[id,d]of Object.entries(movingDetails))A.TravelPanorama.DETAILS['gate_'+id]=d;
-for(const[id,d]of Object.entries(life))A.TravelPanorama.LIFE['gate_'+id]=d;
 const groundFor=A.BattleArt.groundFor;
 A.BattleArt.groundFor=function(game,mode){const q=game.quest?.quest;if(q?.campaign3){const id=encounterRoutes[q.n]?.[game.quest.encIdx||0];if(id&&M.environments[id])return'gate_'+id;}return groundFor(game,mode);};
 const phaseFor=A.BattleArt.phaseFor;

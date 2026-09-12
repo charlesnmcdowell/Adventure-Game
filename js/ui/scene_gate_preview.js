@@ -9,6 +9,7 @@ class GatePreview extends Phaser.Scene{
   this.game_={__artPreview:true,meta:{c3:A.Campaign3.fresh()},world:{characters:[],day:1},rng:new A.RNG(931)};
   this.groups=['Companions','Cast','Enemies','Mini-bosses','Battle locations','Journeys','Story scenes','Heritage'];
   this.category=0;this.item=0;this.phase='day';this.weatherKind='clear';this.revision=0;this.owned=[];this.cards=[];
+  const query=new URLSearchParams(location.search);if(query.get('gateMotion')==='1'){this.category=4;this.item=Object.keys(M.environments).indexOf('iron_mine');}
   this.g=()=>this.game_;this.ready=true;this.show();
   this.events.once('shutdown',()=>{this.revision++;this.weather?.destroy();this.owned.splice(0).forEach(o=>o.destroy());});
  }
@@ -25,7 +26,8 @@ class GatePreview extends Phaser.Scene{
   this.keep(this.add.rectangle(640,380,1280,760,0x172637));
   const kind=this.category===4?'environments':this.category===6?'stills':null;
   if(kind){const v=kind==='environments'?A.AnimeEnvironments.view(this,'gate_'+id,this.phase,{depth:1}):G.view(this,kind,id,{depth:1});if(v)this.keep(v);
-   if(kind==='environments'&&!M.environments[id].indoor)this.weather=A.WeatherFX.attach(this,{kind:this.weatherKind,intensity:.65,wind:.35},this.phase,{x:0,y:0,w:1280,h:760},{depth:2});
+   if(v)v.ready.then(ok=>{if(!ok||rev!==this.revision||!v.active)return;const profile=A.GateAmbience[kind][id],indoor=kind==='environments'?M.environments[id].indoor:!profile?.outdoor;
+    this.weather=A.GateAmbience.weather(this,v,profile,indoor,{kind:this.weatherKind,intensity:.85,wind:.55},profile?.phase||this.phase,{depth:2});});
   }
   if(this.category===5){const v=A.TravelPanorama.view(this,'gate_'+id,this.phase);v.setDepth(1);this.panorama=v;this.keep(v);
    if(!A.TravelPanorama.INDOOR.has('gate_'+id)){this.weather=A.WeatherFX.attach(this,{kind:this.weatherKind,intensity:.65,wind:.35},this.phase,{x:0,y:0,w:1280,h:760},{depth:2,celestial:true});v.weather=this.weather;v.ready.then(()=>{if(rev===this.revision&&v.skyMask&&this.weather?.celestial)this.weather.celestial.setMask(v.skyMask);});}
@@ -48,7 +50,7 @@ class GatePreview extends Phaser.Scene{
   this.button(252,680,100,'Previous',()=>{this.item--;this.show();});this.button(1090,680,150,'Next',()=>{this.item++;this.show();});
   const name=A.DATA.CAMPAIGN_CHARS[id]?.name||A.DATA.CAMPAIGN_ENEMIES[id]?.name||A.DATA.CAMPAIGN_MINIBOSSES[id]?.name||title(id);
   this.label(716,692,`${this.item+1} / ${ids.length} · ${name}`,{size:18,ox:.5});
-  if(this.category===4||this.category===5){this.button(25,102,140,title(this.phase),()=>{this.phase=['day','evening','night'][(['day','evening','night'].indexOf(this.phase)+1)%3];this.show();});this.button(180,102,140,title(this.weatherKind),()=>{this.weatherKind=['clear','sunny','overcast','rain','storm','snow'][(['clear','sunny','overcast','rain','storm','snow'].indexOf(this.weatherKind)+1)%6];this.show();});}
+  if(this.category>=4&&this.category<=6){this.button(25,102,140,title(this.phase),()=>{this.phase=['day','evening','night'][(['day','evening','night'].indexOf(this.phase)+1)%3];this.show();});this.button(180,102,140,title(this.weatherKind),()=>{this.weatherKind=['clear','sunny','overcast','rain','storm','snow'][(['clear','sunny','overcast','rain','storm','snow'].indexOf(this.weatherKind)+1)%6];this.show();});}
   this.label(25,730,'Use the category button to browse all collections.',{size:12,color:'#a7bcc6'});
   A.Character.resetIds(nextCharacterId);
  }

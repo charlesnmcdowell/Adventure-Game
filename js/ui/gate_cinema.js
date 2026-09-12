@@ -7,6 +7,7 @@ function purge(scene){const free=[...pool.values()].filter(e=>!e.refs&&e.loaded)
 G.acquire=function(scene,url){let e=pool.get(url);if(e?.failed){pool.delete(url);e=null;}if(!e){e={url,key:'gate_scene_'+A.hashStr(url),refs:0,used:performance.now()};pool.set(url,e);e.ready=new Promise(resolve=>{const img=new Image();img.decoding='async';img.onload=()=>{if(!scene.textures.exists(e.key))scene.textures.addImage(e.key,img);e.loaded=true;resolve(true);purge(scene);};img.onerror=()=>{e.failed=true;resolve(false);};img.src=url;});}e.refs++;let released=false;return{entry:e,ready:e.ready,release(){if(released)return;released=true;e.refs--;e.used=performance.now();purge(scene);}};};
 G.view=function(scene,kind,id,opts={}){
  const spec=M[kind]?.[id];if(!spec)return null;
+ if(kind==='environments'&&!opts.banner){const root=A.AnimeEnvironments.view(scene,'gate_'+id,opts.phase||'day',opts);root.artId=id;return root;}
  const root=scene.add.container(0,0).setDepth(opts.depth??400),lease=G.acquire(scene,spec.file);
  let alive=true,elapsed=0,bg=null;const w=opts.w||W,h=opts.h||H,x=opts.x||0,y=opts.y||0;
  root.add(scene.add.rectangle(x+w/2,y+h/2,w,h,0x0c111c));
@@ -17,14 +18,12 @@ G.view=function(scene,kind,id,opts={}){
    if(opts.cover){const scale=w/spec.width,sh=h/scale,sy=Math.max(0,Math.min(spec.height-sh,spec.height*.55));bg.setOrigin(0).setPosition(x,y-sy*scale).setScale(scale).setCrop(0,sy,spec.width,sh);root.add(scene.add.rectangle(x+w/2,y+h/2,w,h,0x0b1420,.58));}
    else bg.setDisplaySize(w,h);return;
   }
+  A.GateAmbience?.attach(scene,root,bg,A.GateAmbience.stills[id]);
   root.add(scene.add.rectangle(W/2,26,W,52,0x080b12,.94));
   root.add(scene.add.rectangle(W/2,H-25,W,50,0x080b12,.94));
  });
  const tick=(_time,dt)=>{if(!alive||!bg||opts.banner)return;const motion=A.TravelPanorama.motion();if(motion&&!document.hidden)elapsed+=Math.min(50,dt||16);const t=elapsed;
   bg.setScale(root.baseScale*(1+Math.min(.025,t/700000))).setPosition(W/2+Math.sin(t/19000)*5,H/2);
-  fx.clear();if(/dream|altar|ending|catacomb|temple/.test(id))for(let i=0;i<28;i++){fx.fillStyle(0xc6c3ba,.11);fx.fillEllipse((i*113+t*.009)%W,(i*57+t*.011)%H,2,1);}
-  if(id==='frost'){fx.lineStyle(2,0xb9e8ff,.10+.04*Math.sin(t/700));fx.strokeEllipse(660,535,490+Math.sin(t/900)*25,90);for(let i=0;i<24;i++){const a=i*Math.PI/12+t/1300;fx.fillStyle(0xc9efff,.4);fx.fillRect(660+Math.cos(a)*240,330+Math.sin(a)*230,2,5);}}
-  if(id==='death'||id==='valve_scene'){for(let i=0;i<12;i++){fx.fillStyle(0xffc281,.28);fx.fillCircle((i*141+t*.012)%W,620-(i*89+t*.027)%540,1.5);}}
  };
  scene.events.on('update',tick);const stop=()=>root.destroy(true);scene.events.once('shutdown',stop);
  root.once('destroy',()=>{alive=false;scene.events.off('update',tick);scene.events.off('shutdown',stop);lease.release();});root.ready=lease.ready;root.artId=id;return root;
@@ -93,9 +92,10 @@ G.withScene=function(scene,game,beat,done,play){
  view.ready.then(()=>{
   if(state.ended||!view.active)return;
   state.weather?.destroy();state.weather=null;state.view?.destroy(true);state.view=view;state.spec=spec;state.pending=null;
-  if(spec.kind==='environments'&&!M.environments[spec.id].indoor){
-   state.weather=A.WeatherFX.attach(scene,A.Weather.at(game.world,{phase:spec.phase,override:game.quest?.travel?.weather}),spec.phase,{x:0,y:0,w:W,h:H},{depth:405,independent:true});
-  }
+  const profile=A.GateAmbience[spec.kind]?.[spec.id],phase=spec.phase||profile?.phase||'day';
+  const indoor=spec.kind==='environments'?M.environments[spec.id].indoor:!profile?.outdoor;
+  state.weather=A.GateAmbience.weather(scene,view,profile,indoor,A.Weather.at(game.world,{phase,override:game.quest?.travel?.weather}),phase,{depth:405,independent:true});
+  if(state.weather&&spec.kind==='stills')view.addAt(state.weather.container,view.length-2);
   play(done);
  });
 };
@@ -106,8 +106,14 @@ A.CampaignUI.playBeats=function(scene,game,beats,done){
 };
 const firstQuest={1:0,2:1,3:2,5:3,6:4,8:5,10:6,11:7};
 G.chapterLocations=['lanternhold','open_hand','dunmere','bandit_camp','mirkhollow','span','catacombs','palace'];
-G.chapter=function(scene,game,beat,done){const chapter=beat.artChapter,id=G.chapterLocations[chapter],root=G.view(scene,'environments',id,{depth:940});if(!root){done?.();return;}
- root.add(scene.add.rectangle(W/2,H/2,W,H,0x08111f,.48).setInteractive());
+G.chapter=function(scene,game,beat,done){const chapter=beat.artChapter,id=G.chapterLocations[chapter],phase=A.BattleArt.phaseFor(game),root=G.view(scene,'environments',id,{depth:940,phase});if(!root){done?.();return;}
+ const shade=scene.add.rectangle(W/2,H/2,W,H,0x08111f,.38).setInteractive();root.add(shade);
+ root.ready.then(ok=>{if(!ok||!root.active)return;
+  // Ambient layers load asynchronously; keep them below the chapter lettering.
+  if(root.ambience)root.moveTo(root.ambience.layer,root.getIndex(shade));
+  const wx=A.GateAmbience.weather(scene,root,A.GateAmbience.environments[id],M.environments[id].indoor,A.Weather.at(game.world,{phase,override:game.quest?.travel?.weather}),phase,{independent:true});
+  if(wx)root.addAt(wx.container,root.getIndex(shade));
+ });
  const title=A.T.text(scene,W/2,295,chapter?'CHAPTER '+chapter:'PROLOGUE',{size:18,ox:.5,color:A.T.css.gold});root.add(title);
  root.add(A.T.text(scene,W/2,335,beat.artTitle,{size:37,display:true,ox:.5,color:'#f5e8d0',wrap:980,align:'center'}));
  const ornament=G.icon(scene,'warden_extra','plate_corner');if(ornament)root.add(scene.add.image(W/2,250,ornament).setDisplaySize(140,70));

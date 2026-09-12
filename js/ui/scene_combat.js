@@ -53,9 +53,9 @@ class CombatScene extends Phaser.Scene {
     const scored = this.mode === 'quest' && this.game_.quest && this.game_.quest.quest && this.game_.quest.quest.campaign3;
     ADV.Music.play(scored ? (st.units.some(u => u.ch.isBossFight) ? 'boss' : 'combat') : (heavy ? 'boss' : 'combat'));
     // battlefield ground
-    const g = this.add.graphics();
+    const g = this.add.graphics().setDepth(-2);
     // translucent so the ground reads at the edges without costing lane clarity
-    g.fillStyle(0x1a1815, ADV.BattleArt ? 0.72 : 1); g.fillRect(40, 120, W - 80, 500);
+    g.fillStyle(0x1a1815, ADV.BattleArt ? (scored ? 0.38 : 0.72) : 1); g.fillRect(40, 120, W - 80, 500);
     g.lineStyle(1, T().c.panelEdge, 0.6);
     for (const side of ['a', 'b']) for (const lane of ['front', 'mid', 'back']) {
       g.strokeRect(LANE_X[side][lane] - 62, 130, 124, 484);

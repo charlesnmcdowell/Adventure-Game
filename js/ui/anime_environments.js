@@ -73,6 +73,7 @@ function view(scene,raw,phase,opts){
    if(!scene.textures.exists(gradKey)){const t=scene.textures.createCanvas(gradKey,4,760),c=t.getContext(),g=c.createLinearGradient(0,0,0,760);g.addColorStop(0,phase==='night'?'rgba(8,18,47,.48)':'rgba(171,87,65,.17)');g.addColorStop(.62,'rgba(24,28,44,.08)');g.addColorStop(1,'rgba(8,15,28,.28)');c.fillStyle=g;c.fillRect(0,0,4,760);t.refresh();}
    const grade=scene.add.image(W/2,H/2,gradKey).setDisplaySize(W,H);root.addAt(grade,root.length-1);
   }
+  if(id.startsWith('gate_'))A.GateAmbience?.attach(scene,root,bg,A.GateAmbience.environments[id.slice(5)]);
  });
  const moving=()=>A.AnimeArt.motion.breathing&&!(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
  const tick=(time)=>{
@@ -96,7 +97,12 @@ A.BattleArt.paint=function(scene,id,phase){
  if(scene.game.__artPreview)return oldBattle(scene,id,phase);
  scene.battleArt?.destroy(true);scene.weatherFx?.destroy();
  const root=view(scene,id||'road',phase||'day',{depth:-10});scene.battleArt=root;scene.battlePlanes=root.planes;
- if(A.WeatherFX&&!INDOOR.has(resolve(id||'road')))A.WeatherFX.attach(scene,A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase,groundId:id,override:scene.game_?.quest?.travel?.weather}),phase,{x:0,y:0,w:W,h:H},{depth:-5,combat:true});return root;
+ const weather=A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase,groundId:id,override:scene.game_?.quest?.travel?.weather});
+ if(id?.startsWith('gate_'))root.ready.then(ok=>{
+  if(!ok||!root.active||scene.battleArt!==root)return;
+  A.GateAmbience.weather(scene,root,A.GateAmbience.environments[id.slice(5)],INDOOR.has(id),weather,phase,{depth:-1,combat:true});
+ });
+ else if(A.WeatherFX&&!INDOOR.has(resolve(id||'road')))A.WeatherFX.attach(scene,weather,phase,{x:0,y:0,w:W,h:H},{depth:-5,combat:true});return root;
 };
 A.HousingArt.paint=function(scene,id){
  if(scene.game.__artPreview)return oldHome(scene,id);

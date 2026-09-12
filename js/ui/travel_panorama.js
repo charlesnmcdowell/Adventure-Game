@@ -32,7 +32,14 @@ function acquire(scene,id){
   e={id,key:'travel_pano_'+id,refs:0,used:performance.now()};pool.set(id,e);
   e.ready=new Promise(resolve=>{
    const img=new Image();img.decoding='async';
-   img.onload=()=>{if(!scene.textures.exists(e.key))scene.textures.addImage(e.key,img);e.loaded=true;resolve(true);purge(scene);};
+   img.onload=()=>{
+    if(!scene.textures.exists(e.key)){
+     // The Griffon band shipped with 68 pixels of the previous room above its sky.
+     // Crop that atlas spill at load time, keeping the approved source file intact.
+     if(id==='gate_griffon'){const c=document.createElement('canvas');c.width=img.width;c.height=img.height-68;c.getContext('2d').drawImage(img,0,68,img.width,c.height,0,0,c.width,c.height);scene.textures.addCanvas(e.key,c);}
+     else scene.textures.addImage(e.key,img);
+    }e.loaded=true;resolve(true);purge(scene);
+   };
    img.onerror=()=>{e.failed=true;resolve(false);};img.src=files[id]||ROOT+id+'.webp';
   });
  }
@@ -42,7 +49,7 @@ function acquire(scene,id){
   purge(scene);
  }};
 }
-function motion(){return !(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);}
+function motion(){return A.Prefs?.get().artMotion!==false&&!(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);}
 function view(scene,id,phase,opts={}){
  // Underground scenery keeps its authored lamplight at every time of day.
  if(INDOOR.has(id))phase='day';
@@ -58,10 +65,10 @@ function view(scene,id,phase,opts={}){
   const frame=scene.textures.get(lease.entry.key).get(),scale=H/frame.realHeight;
   tile=scene.add.tileSprite(0,0,W,H,lease.entry.key).setOrigin(0).setTileScale(scale,scale);
   tile.tilePositionX=distance/scale;root.addAt(tile,1);root.tile=tile;root.tileScale=scale;
-  root.sourceWidth=frame.realWidth;root.sourceHeight=frame.realHeight;root.slices=slices;
+  root.sourceWidth=frame.realWidth;root.sourceHeight=frame.realHeight;root.artTextureKey=lease.entry.key;root.slices=slices;
   if(!INDOOR.has(id)&&A.WeatherFX.skyMask){sky=A.WeatherFX.skyMask(scene,frame.source.image,scale,0,0,true);root.skyMask=sky.mask;if(root.weather?.celestial)root.weather.celestial.setMask(sky.mask);}
   if(phase==='night')tile.setTint(0x7189ba);else if(phase==='evening')tile.setTint(0xffc795);
-  for(const [kind,rect]of Object.entries(DETAILS[id]||{})){
+  for(const [kind,rect]of Object.entries(id.startsWith('gate_')?{}:DETAILS[id]||{})){
    const [nx,ny,nw,nh]=rect,originalW=frame.realWidth/.945,sx=nx*originalW-originalW*.055,sy=ny*frame.realHeight,sw=nw*originalW,sh=nh*frame.realHeight,count=kind==='water'?9:7;
    for(let copy=0;copy<2;copy++)for(let i=0;i<count;i++){
     const strip=scene.add.image(0,0,lease.entry.key).setOrigin(0).setScale(scale).setCrop(sx,sy+sh*i/count,sw,sh/count+.5);
@@ -77,6 +84,7 @@ function view(scene,id,phase,opts={}){
    g.addColorStop(.45,phase==='night'?'rgba(7,17,39,.22)':'rgba(0,0,0,0)');g.addColorStop(1,phase==='night'?'rgba(6,15,30,.40)':'rgba(6,15,23,.28)');c.fillStyle=g;c.fillRect(0,0,4,H);t.refresh();
   }
   root.addAt(scene.add.image(W/2,H/2,key).setDisplaySize(W,H),root.length-1);
+  if(id.startsWith('gate_')){A.GateAmbience?.attach(scene,root,tile,A.GateAmbience.panoramas[id.slice(5)],{panorama:true});root.slices=root.ambience?.strips.map(({s,kind})=>({strip:s,kind}))||[];}
  });
  root.advance=(dt,velocity)=>{
   if(!alive||!tile||document.hidden)return;
@@ -87,6 +95,7 @@ function view(scene,id,phase,opts={}){
   for(const {strip,kind,i,count,copy}of slices){const sway=Math.sin(t/(kind==='water'?640:420)+i*.48)*(kind==='water'?1.5:(i+1)/count*2.8);strip.x=copy*span-(distance%span)+sway;}
   const at=(fraction,speed=1)=>((fraction*span-distance*speed)%(span)+span)%span;
   fx.clear();
+  if(root.ambience){root.ambience.update(0,dt);return;}
   // Screen-space atmosphere passes faster than the painted midground.
   if(leafy||fire||haunted){for(let i=0;i<24;i++){
    const x=((i*127-distance*1.9)%(W+100)+W+100)%(W+100)-50;

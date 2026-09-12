@@ -218,11 +218,12 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   weather = weather || { kind: 'clear', intensity: 0, wind: 0 };
   phase = phase || 'day';
   bounds = bounds || { x: 0, y: 0, w: ADV.T.W, h: ADV.T.H };
+  const precipitationBounds=opts.precipBounds||bounds;
   const depth = opts.depth == null ? -5 : opts.depth;
   const cont = scene.add.container(0, 0).setDepth(depth);
   const handle = { container: cont, weather, intensity: weather.intensity, _objs: [], _timers: [] };
   const keep = (o) => { if (o) { handle._objs.push(o); if (o !== cont) cont.add(o); if(opts.mask&&o.setMask)o.setMask(opts.mask); } return o; };
-  const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduced = () => ADV.Prefs?.get().artMotion===false || typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Recurring weather must retain only pending timers on a long-lived home screen.
   const later = (delay, callback) => {
     const timer = scene.time.delayedCall(delay, () => {
@@ -274,12 +275,13 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     if(!reduced())scene.tweens.add({ targets: rays, alpha: .6, duration: 8000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
 
-  if (opts.celestial || weather.kind === 'overcast' || weather.kind === 'rain' || weather.kind === 'storm') {
+  if (opts.clouds || opts.celestial || weather.kind === 'overcast' || weather.kind === 'rain' || weather.kind === 'storm') {
     const key = cloudTex(scene, weather.kind === 'storm');
     const a = weather.kind === 'storm' ? 0.55 : ['clear','sunny'].includes(weather.kind) ? (phase==='night'?.14:.22) : 0.4;
     const c1 = scene.add.tileSprite(bounds.x, bounds.y + 40, bounds.w + 256, 90, key).setOrigin(0, 0).setAlpha(a).setDepth(depth);
     const c2 = scene.add.tileSprite(bounds.x - 80, bounds.y + 70, bounds.w + 256, 80, key).setOrigin(0, 0).setAlpha(a * 0.7).setDepth(depth);
     keep(c1); keep(c2);
+    if(opts.cloudMask){c1.setMask(opts.cloudMask);c2.setMask(opts.cloudMask);}
     handle.clouds = [c1, c2];
     const spd = Math.max(0.2, Math.abs(weather.wind) * 6);
     handle._cloudTick = (dt) => {
@@ -295,11 +297,11 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     const qty = Math.round((120 + 140 * weather.intensity) * dens * half);
     const ang = -20 * weather.wind;
     const mgr = emit(scene, rainTex(scene), {
-      x: { min: bounds.x - 40, max: bounds.x + bounds.w + 40 },
-      y: bounds.y - 20,
+      x: { min: precipitationBounds.x - 40, max: precipitationBounds.x + precipitationBounds.w + 40 },
+      y: precipitationBounds.y - 20,
       speedY: { min: 900, max: 1200 },
       speedX: weather.wind * 220,
-      lifespan: Math.max(400, (bounds.h / 1000) * 1000 + 200),
+      lifespan: Math.max(400, precipitationBounds.h + 200),
       quantity: Math.max(1,Math.round((weather.kind==='storm'?6:4)*half)),
       frequency: weather.kind==='storm'?24:36,
       alpha: 0.55,
@@ -328,8 +330,8 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   if (weather.kind === 'snow') {
     const qty = Math.round((80 + 80 * weather.intensity) * half);
     const mgr = emit(scene, snowTex(scene), {
-      x: { min: bounds.x, max: bounds.x + bounds.w },
-      y: { min: bounds.y - 30, max: bounds.y + bounds.h * .9 },
+      x: { min: precipitationBounds.x, max: precipitationBounds.x + precipitationBounds.w },
+      y: { min: precipitationBounds.y - 30, max: precipitationBounds.y + precipitationBounds.h * .9 },
       speedY: { min: 40, max: 90 },
       speedX: weather.wind * 40,
       accelerationX: weather.wind * 8,
@@ -362,9 +364,7 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
       if (handle.destroyed || !cont.visible || document.hidden || reduced() || !scene.sys || !scene.sys.isActive()) return;
       if (opts.combat && scene.__fxBusy) return;
       const x = bounds.x + 80 + Math.random() * (bounds.w - 160);
-      if (opts.combat && ADV.VFX && ADV.VFX.lightningStreak) {
-        ADV.VFX.lightningStreak(scene, x, bounds.y, x + (Math.random() * 80 - 40), bounds.y + bounds.h * 0.55, { scale: 1.1, impact: false });
-      }else{
+      {
         bolt.clear().setAlpha(.7);bolt.lineStyle(2,0xd5e7ff,.8);let px=x,py=bounds.y;
         for(let i=1;i<8;i++){const nx=x+(i%2?22:-12)+Math.random()*15,ny=bounds.y+i*bounds.h*.045;bolt.lineBetween(px,py,nx,ny);px=nx;py=ny;}
         scene.tweens.add({targets:bolt,alpha:0,duration:230});
