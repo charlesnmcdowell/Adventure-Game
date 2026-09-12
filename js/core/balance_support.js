@@ -3,7 +3,7 @@
 'use strict';
 const A=ADV,B={bonus:100};
 B.quest=function(q){
- if(q && ['solo','party','campaign'].includes(q.track) && !q.incomeBoostV1){q.incomeBoostV1=true;q.payout=(q.payout||0)+100;}
+ if(q && ['solo','party','campaign'].includes(q.track) && !q.incomeBoostV1){q.incomeBoostV1=true;q.payout=A.Difficulty?A.Difficulty.pay(q.payout||0):(q.payout||0)+100;}
  return q;
 };
 for(const name of ['make','makeSoloPremium','makeHazard','makeWarQuest','makeGodQuest','makeTutorialParty']){

@@ -327,6 +327,12 @@ class CreationScene extends Phaser.Scene {
         () => { this.choosingPersonality = false; });
       return;
     }
+    if (!this.sel.difficulty && ADV.DifficultyUI && ADV.Difficulty) {
+      if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
+      this.choosingPersonality = true;
+      ADV.DifficultyUI.choose(this, id => { this.choosingPersonality = false; this.sel.difficulty = id; this.begin(); });
+      return;
+    }
     this.done = true;
     if (this.nameField) { this.nameField.destroy(); this.nameField = null; }
     const opts = {

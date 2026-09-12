@@ -885,17 +885,19 @@ class CombatScene extends Phaser.Scene {
     const u = st && st.units.find(x => x.ch && x.ch.isPlayer);
     if (!u || u.downed || u.fled || u.chp <= 0) return false;
     const pct = u.chp / Math.max(1, u.maxHp);
-    if (pct >= .5) { this._healthStopNotified = false; return false; }
+    // the safety stop is a difficulty lever: 50% easy, 30% normal, never on hard
+    const stopAt = ADV.Difficulty ? ADV.Difficulty.autoStopPct() : .5;
+    if (!stopAt || pct >= stopAt) { this._healthStopNotified = false; return false; }
     const wasAuto = !this._autoHalted && ADV.Combat.autoList(u.ch).length > 0;
     this._autoHalted = true;
     if (this.autoTimer) { this.autoTimer.remove(false); this.autoTimer = null; }
     if (wasAuto && !this._healthStopNotified) {
       this._healthStopNotified = true;
-      ADV.Notices.toast(this, 'Below 50% health — auto combat stopped. Choose your next action.');
+      ADV.Notices.toast(this, 'Below ' + Math.round(stopAt * 100) + '% health — auto combat stopped. Choose your next action.');
       this.paintAutoHaltToggle();
     }
     const solo = !st.units.some(x => x.side === u.side && x !== u);
-    if (pct < .3 && solo && !this._dangerFleeWarned && ADV.Narrator) {
+    if (pct < .3 && solo && !this._dangerFleeWarned && ADV.Narrator && (!ADV.Difficulty || ADV.Difficulty.fleeWarn())) {
       this._dangerFleeWarned = true;
       ADV.Narrator.say(this, this.game_, 'flee_solo');
     }

@@ -208,6 +208,9 @@ C3.spawnEncounter = function (game, quest, encIdx) {
   const lvl = Math.round(lo + (hi - lo) * (encIdx / Math.max(1, quest.cEnc.length - 1)));
   const out = [];
   const world = game.world;
+  // A companion can appear on the opposing side of a later story branch.
+  // Combat tuning and damage must never change the cached dialogue/ally actor.
+  const enemyActor = id => JSON.parse(JSON.stringify(C3.actor(game, id)));
   for (const t of spec.types || []) {
     if (D().CAMPAIGN_ENEMIES[t]) out.push(C3.spawnEnemy(rng, t, lvl, { world }));
     else out.push(ADV.Character.makeEnemy(rng, t, { level: lvl, world }));
@@ -226,16 +229,26 @@ C3.spawnEncounter = function (game, quest, encIdx) {
   }
   for (const t of spec.with || []) {
     if (D().CAMPAIGN_ENEMIES[t]) out.push(C3.spawnEnemy(rng, t, lvl, { world }));
-    else if (D().CAMPAIGN_CHARS[t]) { const a = C3.actor(game, t); a.combatHp = null; a.campaignExit = !!spec.escapes; out.push(a); }
+    else if (D().CAMPAIGN_CHARS[t]) { const a = enemyActor(t); a.combatHp = null; a.campaignExit = !!spec.escapes; out.push(a); }
   }
   if (spec.boss) {
-    const boss = C3.actor(game, spec.boss);
+    const boss = enemyActor(spec.boss);
     boss.combatHp = null; boss.boss = true; boss.isBossFight = true;
     // §6: a boss that `escapes` walks off at 0 HP; the engine still scores the win
     boss.campaignExit = !!spec.escapes;
     out.unshift(boss);
   }
   if (spec.mini || spec.boss) ADV.Campaign.guardBoss(game, out, quest.factionId, hi, rng, (t, l, o) => C3.spawnEnemy(rng, t, l, Object.assign({ world }, o || {})));
+  const strength = D().CAMPAIGN3_COMBAT;
+  for (const ch of out) {
+    // Include the previous boss floor and undead rounding in the HP guarantee.
+    const hp = Math.max(ADV.Character.maxHp(ch), ch.hpFloor || 0);
+    for (const k of ['hp', 'atk', 'def']) {
+      ch.stats[k] *= strength[k];
+      ch.bonusStats[k] = (ch.bonusStats[k] || 0) * strength[k];
+    }
+    ch.hpFloor = Math.ceil(hp * strength.hp);
+  }
   // Nobody spawned into this campaign barks in a fight: no stock personality voice and no
   // monster roar (Nib was roaring in the hired knife's voice). The scripted openers carry the scene.
   for (const ch of out) { if (ch.campaignEnemy || ch.isMonster) delete ch.personalityId; ch.noCombatVoice = true; }

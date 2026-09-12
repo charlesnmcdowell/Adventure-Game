@@ -96,7 +96,14 @@ Character.effStat = function (ch, key) {
   if (ch.isUndead) v = Math.round(v * (ch.risenPower || C().UNDEAD_STAT_MULT));
   const m = ADV.Survival ? ADV.Survival.statMult(ch) : 1;
   if (m !== 1) v = Math.max(0, Math.round(v * m));
-  return ch.isPlayer && key === 'hp' ? v * 2 : v;
+  const Df = ADV.Difficulty;
+  // the player's health buffer and the enemy's edge are the difficulty setting (§difficulty.js)
+  if (ch.isPlayer) return key === 'hp' ? Math.round(v * (Df ? Df.playerHpMult() : 2)) : v;
+  if (Df && (key === 'hp' || key === 'atk' || key === 'def') && Df.isFoe(ch)) {
+    const m = Df.foeMult(key);
+    if (m !== 1) v = Math.max(0, Math.round(v * m));
+  }
+  return v;
 };
 
 Character.maxHp = function (ch) {
@@ -114,7 +121,7 @@ Character.syncNpcHeroFloor = function (list) {
   const player = chars.find(c => c && c.isPlayer && c.alive !== false);
   if (!player) return;
   // The player safety buffer must not also double enemy hero health.
-  const floor = Character.effStat(player, 'hp') / 2;
+  const floor = Character.effStat(player, 'hp') / (ADV.Difficulty ? ADV.Difficulty.playerHpMult() : 2);
   for (const c of chars) {
     if (c && !c.isPlayer && (c.status === 'hero' || c.status === 'villain')) c.npcHpFloor = floor;
   }
@@ -293,6 +300,7 @@ Character.makeEnemy = function (rng, typeId, opts) {
   }
   ch.enemyLevel = lvl;
   Character.applyEnemyLook(rng, ch, t);
+  if (ADV.Difficulty) ADV.Difficulty.toughen(ch, t);   // veterans on the harder roads
   return ch;
 };
 

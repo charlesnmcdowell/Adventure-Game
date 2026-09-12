@@ -23,6 +23,10 @@ Object.assign(D.FACTIONS, {
 });
 D.CAMPAIGN3_FACTION_ID = 'gate';
 
+// All fourteen quests: enemies must survive an opening party volley.
+// Applied only to spawned opponents, after their authored stats and boss HP floors.
+D.CAMPAIGN3_COMBAT = { hp: 5, atk: 2, def: 2 };
+
 // Issued at the ending, never sold.
 Object.assign(D.GEAR_SETS, {
   wardens_gear: { name: "Warden's Gear", archetypes: ['fighter', 'rogue', 'healer'], cost: 0, floor: 15, advanceTier: true, campaign: 'gate' },

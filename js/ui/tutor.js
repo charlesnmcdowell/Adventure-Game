@@ -35,7 +35,7 @@ Tutor.set = function (game, step) { Tutor.state(game).step = step; ADV.Save.save
 Tutor.allowed = function (game, id) {
   const step = Tutor.step(game);
   if (step === 'done') return true;
-  if (id === 'settings') return true;
+  if (id === 'settings' || id === 'difficulty') return true;
   return (ALLOWED[step] || []).includes(id);
 };
 // Which contracts may be taken right now

@@ -2788,7 +2788,8 @@ Combat.applyPostVictoryRecovery = function (chars) {
   for (const ch of chars) {
     if (ch.combatHp == null) continue;
     const max = Ch().maxHp(ch);
-    ch.combatHp = Math.min(max, ch.combatHp + Math.round(max * C().POST_VICTORY_RECOVERY_PCT));
+    const pct = ADV.Difficulty ? ADV.Difficulty.recoverPct() : C().POST_VICTORY_RECOVERY_PCT;   // a difficulty lever
+    ch.combatHp = Math.min(max, ch.combatHp + Math.round(max * pct));
   }
 };
 

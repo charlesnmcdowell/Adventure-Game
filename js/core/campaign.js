@@ -259,6 +259,7 @@ Campaign.spawnEnemy = function (rng, typeId, level, opts) {
   }
   ch.enemyLevel = level;
   if (t.skins && t.skins.length && ADV.Character.applyEnemyLook) ADV.Character.applyEnemyLook(rng, ch, t);
+  if (ADV.Difficulty) ADV.Difficulty.toughen(ch, t);   // veterans on the harder roads
   return ch;
 };
 
