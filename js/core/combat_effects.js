@@ -19,7 +19,7 @@ E.contractMark = (I, st, u, tgt, d) => { I.addStatus(st, tgt, { kind: 'contractM
 E.ghoststep = (I, st, u, tgt, d) => {
   const want = d.toLane || (u.lane === 'front' ? 'back' : 'front');
   if (I.laneUnits(st, u.side, want).length < C().LANE_CAP) { u.lane = want; u.slot = I.laneUnits(st, u.side, want).length - 1; }
-  u.reflectImmuneNext = true; u.stealth = true; u.stealthRounds = 2;
+  u.reflectImmuneNext = true; I.applyStealth(u, 2);
   I.ev(st, { t: 'stealth', uid: u.uid });
 };
 

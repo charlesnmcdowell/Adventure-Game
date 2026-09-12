@@ -247,7 +247,11 @@ class CombatScene extends Phaser.Scene {
     }
     if (u.downed || u.fled) { if (ADV.SpellFX) ADV.SpellFX.clearStatus(v); }
     else if (ADV.SpellFX) ADV.SpellFX.syncStatus(this, v);
-    if (u.stealth && !u.downed && !u.fled) { v._fxStealthed = true; if (v.img.alpha > 0.5) v.img.setAlpha(0.4); }
+    if ((u.stealth || u.untargetable) && !u.downed && !u.fled) {
+      v._fxStealthed = true;
+      if (v.img.alpha > 0.5) v.img.setAlpha(0.4);
+      if (v.intent) v.intent.setText(u.untargetable ? 'vanished' : 'hidden');
+    }
     else if (v._fxStealthed && !u.downed && !u.fled) { v._fxStealthed = false; v.img.setAlpha(1); }
     if (u.downed) { ADV.VFX.desaturate(v.img); v.intent.setText(''); v.frame.setAlpha(0.4); v.name.setAlpha(0.5); if (v.crown) v.crown.setAlpha(0.4); if (v.threatMark) v.threatMark.setAlpha(0); }
     if (u.fled) { v.img.setAlpha(0.2); v.intent.setText('fled'); if (v.crown) v.crown.setAlpha(0.2); if (v.threatMark) v.threatMark.setAlpha(0); }
@@ -328,7 +332,8 @@ class CombatScene extends Phaser.Scene {
           const l = ADV.Game.prompt(this.game_, 'firstIntentIcon');
           if (l) { ADV.Notices.toast(this, l); shownPrompt = true; }
         }
-      } else v.intent.setText('');
+      } else if (v.u.stealth || v.u.untargetable) v.intent.setText(v.u.untargetable ? 'vanished' : 'hidden');
+      else v.intent.setText('');
     }
   }
 
@@ -368,6 +373,10 @@ class CombatScene extends Phaser.Scene {
       const takeTurn = () => {
         if (this.ended) return;
         if (t.isPlayer) {
+          if (!ADV.Combat.hasOffensiveTarget(st, t.unit)) {
+            this.queueHiddenWait(t.unit);
+            return;
+          }
           if (!this._autoHalted && this.queuePlayerAuto(t.unit)) return;
           this.showActionBar(t.unit);
         } else {
@@ -908,20 +917,30 @@ class CombatScene extends Phaser.Scene {
       return true;
     }
     if (!ADV.Combat.ensureAutoRepeat(u.ch)) return false;
-    // Rotation is armed but nothing in it can fire. If the player still has a
-    // legal skill, hand the turn back so they can pick. Only auto-wait when
-    // the field itself is empty (smoke, stealth, no reach).
-    if (ADV.Combat.hasLegalCombatAction(this.st(), u)) return false;
+    // Rotation cannot fire. Skip only while nobody can be hit (Vanish).
+    // A visible foe still gets the bar — Attack ignores melee reach.
+    if (!ADV.Combat.hasOffensiveTarget(this.st(), u)) {
+      this.queueHiddenWait(u);
+      return true;
+    }
+    return false;
+  }
+
+  queueHiddenWait(u) {
     this.showAutoWaitStrip(u);
     this.autoTimer = this.time.delayedCall(this.autoGap(360), () => {
       this.autoTimer = null;
       if (this.ended) return;
-      if (this.checkPlayerDanger()) { this.showActionBar(u); return; }
-      const again = ADV.Combat.autoReadyAction(this.st(), u);
-      if (again) { this.commitAction(u, again.action, again.tgt); return; }
+      if (ADV.Combat.hasOffensiveTarget(this.st(), u)) {
+        if (this.checkPlayerDanger()) { this.showActionBar(u); return; }
+        const again = ADV.Combat.autoReadyAction(this.st(), u);
+        if (again) { this.commitAction(u, again.action, again.tgt); return; }
+        if (!this._autoHalted && this.queuePlayerAuto(u)) return;
+        this.showActionBar(u);
+        return;
+      }
       this.commitHold(u);
     });
-    return true;
   }
 
   autoRotationLabel(u) {
@@ -1038,8 +1057,8 @@ class CombatScene extends Phaser.Scene {
     const W = T().W, H = T().H;
     const keep = o => { this.actionObjs.push(o); return o; };
     keep(T().panel(this, 40, H - 110, W - 80, 96));
-    keep(T().text(this, 56, H - 88, 'AUTO · waiting', { size: 16, color: T().css.green }));
-    keep(T().text(this, 56, H - 62, 'No target right now (smoke, stealth, or out of reach). Auto will swing when one appears.', { size: 12, color: T().css.inkDim, wrap: W - 360 }));
+    keep(T().text(this, 56, H - 88, 'Waiting — they vanished', { size: 16, color: T().css.green }));
+    keep(T().text(this, 56, H - 62, 'Vanish lasts one round. Next turn they can be hit, with one free evade. Pause to use a self skill.', { size: 12, color: T().css.inkDim, wrap: W - 360 }));
     const stop = T().button(this, W - 348, H - 86, 128, 60, 'PAUSE', () => {
       this._autoPaused = true;
       this.showActionBar(u);
@@ -1116,6 +1135,7 @@ class CombatScene extends Phaser.Scene {
       mkBtn(a.label, sub, () => {
         if (!a.pool.length) {
           if (a.skillId === 'conscript') ADV.Notices.toast(this, 'Conscript only works on a living guild member below 60% health — not monsters.');
+          else if (!ADV.Combat.hasOffensiveTarget(st, u)) ADV.Notices.toast(this, 'They vanished. Waiting until they can be hit.');
           return;
         }
         this.beginTargeting(u, a);
@@ -1149,7 +1169,10 @@ class CombatScene extends Phaser.Scene {
       });
     }
 
-    if (!ADV.Combat.hasLegalCombatAction(st, u)) {
+    if (!ADV.Combat.hasOffensiveTarget(st, u)) {
+      const wait = T().button(this, W - 268, H - 86, 106, 60, 'Wait', () => this.commitHold(u), { size: 13, sub: 'they vanished' });
+      keep(wait.g); keep(wait.txt); if (wait.sub) keep(wait.sub); keep(wait.zone);
+    } else if (!ADV.Combat.hasLegalCombatAction(st, u)) {
       mkBtn('Wait', 'no target', () => this.commitHold(u));
     }
     const flee = T().button(this, W - 154, H - 86, 106, 60, 'Flee', () => {

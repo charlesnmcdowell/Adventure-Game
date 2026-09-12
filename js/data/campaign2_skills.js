@@ -38,7 +38,7 @@ def({ id: 'kunai_line', name: 'Kunai Line', kind: 'active', archetype: 'ranger',
 def({ id: 'smoke_step', name: 'Smoke Step', kind: 'active', archetype: 'rogue', faction: BELL,
   power: 0, reach: 'any', target: 'self', stealthOnUse: true, stealthRounds: 2, laneShift: true, reflectImmuneNext: true,
   desc: 'Vanish, move, and come back out of a direction nothing can answer — your next strike takes no reflect.',
-  tiers: tiers('Smoke Step', 'Ash Step', 'Nowhere', {}, { stealthRounds: 3 }, { stealthRounds: 4, evadeNext: 1 }) });
+  tiers: tiers('Smoke Step', 'Ash Step', 'Nowhere', {}, { stealthRounds: 2 }, { stealthRounds: 2, evadeNext: 1 }) });
 def({ id: 'bell_silence', name: 'Bell-Silence', kind: 'active', archetype: 'rogue', faction: BELL,
   power: 1.2, reach: 'any', target: 'enemy', silent: true,
   desc: 'A struck nerve: the target cannot counter, riposte, guard or interrupt while it holds.',
@@ -86,7 +86,7 @@ def({ id: 'crow_sight', name: 'Crow Sight', kind: 'active', archetype: 'druid', 
 def({ id: 'field_suture', name: 'Field Suture', kind: 'active', archetype: 'healer', faction: BELL,
   power: 2.2, reach: 'any', target: 'ally', heal: true, allyStealth: 2,
   desc: 'Close the wound and put them somewhere nobody is looking.',
-  tiers: tiers('Field Suture', 'Silent Suture', 'Vanished and Whole', {}, { power: 2.6, allyStealth: 3 }, { power: 3.0, allyStealth: 3, cures: ['bleed', 'poison'] }) });
+  tiers: tiers('Field Suture', 'Silent Suture', 'Vanished and Whole', {}, { power: 2.6, allyStealth: 2 }, { power: 3.0, allyStealth: 2, cures: ['bleed', 'poison'] }) });
 def({ id: 'breath_of_the_bell', name: 'Breath of the Bell', kind: 'active', archetype: 'healer', faction: BELL,
   power: 1.8, reach: 'any', target: 'party', heal: true, unactedOnly: true,
   desc: 'A held breath before the work: heals every ally who has not moved yet this round.',

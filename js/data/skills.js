@@ -143,16 +143,16 @@ def({ id: 'smoke_bomb', name: 'Smoke Bomb', kind: 'active', archetype: 'rogue',
   desc: 'A free action: evade, slip into stealth, and still take your turn — the way back to another Backstab. Basic once every three turns; Vanish every two; Shadowstep has no wait.',
   tiers: {
     basic:        { name: 'Smoke Bomb', evadeNext: 1, stealthOnUse: true, stealthRounds: 2, cooldown: 3 },
-    intermediate: { name: 'Vanish', untargetableRounds: 2, stealthOnUse: true, stealthRounds: 2, cooldown: 2 },
-    advanced:     { name: 'Shadowstep', untargetableRounds: 3, freeStrike: true, stealthOnUse: true, stealthRounds: 3 },
+    intermediate: { name: 'Vanish', untargetableRounds: 1, stealthOnUse: true, stealthRounds: 2, cooldown: 2 },
+    advanced:     { name: 'Shadowstep', untargetableRounds: 1, freeStrike: true, stealthOnUse: true, stealthRounds: 2 },
   } });
 def({ id: 'shadow_rise', name: 'Shadow Rise', kind: 'active', archetype: 'rogue',
   power: 0, target: 'self', reach: 'any', selfRevive: true,
   desc: 'Death is a vanishing act. You come back thin, unseen, and hard to hit. Advanced can pull the same trick twice.',
   tiers: {
     basic:        { name: 'Shadow Rise', reviveHp: 0.05, reviveUses: 1, reviveStealthRounds: 2, reviveEvade: 2 },
-    intermediate: { name: 'Fade Back',   reviveHp: 0.25, reviveUses: 1, reviveStealthRounds: 3, reviveEvade: 3 },
-    advanced:     { name: 'Cheat Death', reviveHp: 0.50, reviveUses: 2, reviveStealthRounds: 3, reviveEvade: 3 },
+    intermediate: { name: 'Fade Back',   reviveHp: 0.25, reviveUses: 1, reviveStealthRounds: 2, reviveEvade: 3 },
+    advanced:     { name: 'Cheat Death', reviveHp: 0.50, reviveUses: 2, reviveStealthRounds: 2, reviveEvade: 3 },
   } });
 
 // ============ RANGER ============

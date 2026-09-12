@@ -77,6 +77,51 @@ function rankTurns(ch) {
   return { n: perkN, consecutive: consecPerk && place !== 'distributed' };
 }
 
+const HIDE_CAP = 2;
+const VANISH_CAP = 1;
+Combat.HIDE_CAP = HIDE_CAP;
+Combat.VANISH_CAP = VANISH_CAP;
+
+function hideRounds(n, cap) {
+  const v = Math.floor(Number(n));
+  const top = cap || HIDE_CAP;
+  if (!Number.isFinite(v) || v <= 0) return top;
+  return Math.min(top, v);
+}
+function applyStealth(u, rounds) {
+  if (!u) return;
+  u.stealth = true;
+  u.stealthRounds = Math.min(HIDE_CAP, Math.max(u.stealthRounds || 0, hideRounds(rounds, HIDE_CAP)));
+}
+function applyUntargetable(u) {
+  if (!u) return;
+  // One vanished round, never stacked. The next round they can be hit,
+  // with one free evade granted when this flag falls off.
+  u.untargetable = VANISH_CAP;
+}
+function tickHide(u) {
+  if ((u.untargetable || 0) > VANISH_CAP) u.untargetable = VANISH_CAP;
+  if ((u.stealthRounds || 0) > HIDE_CAP) u.stealthRounds = HIDE_CAP;
+  if (u.stealth && !(u.stealthRounds > 0) && !(u.untargetable > 0)) {
+    u.stealth = false;
+    u.stealthRounds = 0;
+    u.untargetable = 0;
+    return;
+  }
+  if (u.stealthRounds > 0) u.stealthRounds--;
+  if (u.untargetable > 0) {
+    u.untargetable--;
+    if (u.untargetable <= 0) u.evade = Math.max(u.evade || 0, 1);
+  }
+  if (!(u.stealthRounds > 0) && !(u.untargetable > 0)) {
+    u.stealth = false;
+    u.stealthRounds = 0;
+    u.untargetable = 0;
+  }
+}
+Combat.applyStealth = applyStealth;
+Combat.applyUntargetable = applyUntargetable;
+
 function perkVal(ch, perkId, key) {
   const p = ch.perks.find(e => e.skillId === perkId);
   if (!p) return null;
@@ -415,8 +460,7 @@ function applyRevive(st, src, tgt, d, skillId) {
   if (d.shieldHits) addStatus(st, tgt, { kind: 'ward', hits: d.shieldHits, reflect: !!d.wardReflect });
   if (d.reviveAtkMult) addStatus(st, tgt, { kind: 'atkBuff', mult: d.reviveAtkMult, rounds: d.reviveBuffRounds || 2 });
   if (d.reviveStealthRounds) {
-    tgt.stealth = true;
-    tgt.stealthRounds = d.reviveStealthRounds;
+    applyStealth(tgt, d.reviveStealthRounds);
     ev(st, { t: 'stealth', uid: tgt.uid });
   }
   if (d.reviveEvade) tgt.evade += d.reviveEvade;
@@ -761,8 +805,7 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
   if (!m) return [];
   const d = m.data;
   const foeSide = u.side === 'a' ? 'b' : 'a';
-  const seeInvis = !!(perkVal(u.ch, 'see_invisibility', null) || Sys().knownVal(u.ch, 'seeInvis'));
-  const foes = livingUnits(st, foeSide).filter(x => !x.untargetable && (!x.stealth || seeInvis));
+  const foes = livingUnits(st, foeSide).filter(x => !x.untargetable);
   const allies = livingUnits(st, u.side);
   let target = d.target;
   if (offensiveMode && d.offensive) target = d.offensive.target || 'enemy';
@@ -823,8 +866,7 @@ Combat.playerTargets = function (st, u, skillId, offensiveMode) {
     const forced = legal.filter(x => u.marksBy.includes(x.uid));
     if (forced.length) return forced;
   }
-  const seeInvis = !!(perkVal(u.ch, 'see_invisibility', null) || Sys().knownVal(u.ch, 'seeInvis'));
-  let foes = livingUnits(st, foeSideOf(u)).filter(x => !x.untargetable && (!x.stealth || seeInvis));
+  let foes = livingUnits(st, foeSideOf(u)).filter(x => !x.untargetable);
   if (d.openerOnly && u.actedThisEncounter) return [];
   if (d.openerOrStealth && !(u.stealth || !u.actedThisEncounter)) return [];
   if (d.instantKillIfMaxHp) foes = foes.filter(x => (x.maxHp || 0) > d.instantKillIfMaxHp);
@@ -1019,6 +1061,12 @@ Combat.autoReadyAction = function (st, u) {
     return ready;
   }
   return null;
+};
+
+// A living foe the player can actually swing at. Vanish empties this for
+// one round; self-heals can stay legal and are not a hit.
+Combat.hasOffensiveTarget = function (st, u) {
+  return Combat.playerTargets(st, u, 'basic_attack', false).length > 0;
 };
 
 // True if the unit can spend the turn on a skill or a basic attack. Smoke and
@@ -1457,7 +1505,7 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
         Combat.addThreat(st, src, 20, 'kill');
         src.killStreak++;                                        // Executioner's Rhythm
         src.ch.lifeKills = (src.ch.lifeKills || 0) + 1;          // Fifty Names' tally
-        if (src.stealthOnKillPending) { src.stealth = true; src.stealthRounds = 2; src.stealthOnKillPending = false; ev(st, { t: 'stealth', uid: src.uid }); }
+        if (src.stealthOnKillPending) { applyStealth(src, HIDE_CAP); src.stealthOnKillPending = false; ev(st, { t: 'stealth', uid: src.uid }); }
         // Opportunist advanced: kills refund your action
         const opp = perkVal(src.ch, 'opportunist', null);
         if (opp && opp.killRefundsAction && (tag === 'attack' || tag === 'spell')) src.refundAction = true;
@@ -1862,7 +1910,7 @@ function endRoundTicks(st) {
     // Last Breath: the borrowed round ends
     const lb = u.statuses.find(x => x.kind === 'lastBreath');
     if (lb && !lb.fresh) { removeStatus(u, lb); u.chp = 0; u.downed = true; ev(st, { t: 'down', uid: u.uid, by: null }); onUnitDown(st, u); continue; }
-    if (u.stealthRounds > 0) { u.stealthRounds--; if (u.stealthRounds <= 0 && u.untargetable <= 0) u.stealth = false; }
+    tickHide(u);
     u.reloadLock = {};                       // a round is long enough to reload
     if (u.grantedTurns) u.grantedTurns = 0;
     if (!u.attackedThisRound) u.idleRounds++; else u.idleRounds = 0;
@@ -1910,7 +1958,6 @@ function endRoundTicks(st) {
         }
       }
     }
-    if (u.untargetable > 0) { u.untargetable--; if (u.untargetable <= 0 && u.stealthRounds <= 0) u.stealth = false; }
   }
   for (const u of st.units) {
     if (u.reserved) continue;
@@ -2053,9 +2100,9 @@ function resolveSkillTarget(st, u, skillId, action, d, off) {
       return forced[0];
     }
   }
-  if (living && named.side !== u.side) return named;
+  if (living && named.side !== u.side && !named.untargetable) return named;
   const legal = Combat.validTargets(st, u, skillId, !!off).filter(x => x.side !== u.side && !x.downed);
-  return legal[0] || foes[0] || null;
+  return legal[0] || null;
 }
 
 // ---------------------------------------------------------------- actions
@@ -2118,7 +2165,7 @@ Combat.act = function (st, u, action) {
   }
   // stealth bookkeeping: any non-silent hostile act breaks stealth
   if (tgt.side !== u.side && !d.silent && u.stealth) { u.stealth = false; u.stealthRounds = 0; }
-  if (d.stealthOnUse) { u.stealth = true; u.stealthRounds = d.stealthRounds || 2; ev(st, { t: 'stealth', uid: u.uid }); }
+  if (d.stealthOnUse) { applyStealth(u, d.stealthRounds); ev(st, { t: 'stealth', uid: u.uid }); }
   if (d.stealthOnKill) u.stealthOnKillPending = true;
   if (d.reflectImmuneNext) u.reflectImmuneNext = true;
 
@@ -2206,7 +2253,7 @@ Combat.act = function (st, u, action) {
       if (d.purifyRounds && !d.power) { addStatus(st, t, { kind: 'purified', rounds: d.purifyRounds }); continue; }
       if (d.grantEvade) t.evade += d.grantEvade;
       // Field Suture: closed up and put somewhere nobody is looking
-      if (d.allyStealth) { t.stealth = true; t.stealthRounds = d.allyStealth; ev(st, { t: 'stealth', uid: t.uid }); }
+      if (d.allyStealth) { applyStealth(t, d.allyStealth); ev(st, { t: 'stealth', uid: t.uid }); }
       // Paper Charm: the ward answers with poison
       if (d.wardPoison) addStatus(st, t, { kind: 'charmWard', tier: m.tier, power: d.wardPoison.power, rounds: d.wardPoison.rounds });
       // Signal Flags: this ally moves the moment you are done
@@ -2319,7 +2366,7 @@ Combat.act = function (st, u, action) {
   }
   if (d.evadeNext) { addStatus(st, u, { kind: 'evadeS' }); u.evade += d.evadeNext; return finishAction(st, u, skillId); }
   if (d.untargetableRounds) {
-    u.untargetable += d.untargetableRounds;
+    applyUntargetable(u, d.untargetableRounds);
     if (d.freeStrike && tgt && tgt.side !== u.side) {
       const dmg = computeDamage(st, u, tgt, m, { power: 2.0 });
       dealDamage(st, u, tgt, dmg, 'attack');
@@ -2787,6 +2834,7 @@ Combat._internals = {
   applyTakenReduction,
   ev, perkVal, LANE_IDX, checkEnd, onUnitDown, finishAction, addExposed, canHealOther, canWard,
   NEG_STATUSES, POS_STATUSES, DOT_STATUSES, endRoundTicks, applyRawDamage, applyDruidHeal,
+  applyStealth, applyUntargetable, HIDE_CAP,
   hopDots, hopPoison, pickAdjacentFoe,
 };
 ADV.Combat = Combat;
