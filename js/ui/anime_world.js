@@ -72,17 +72,35 @@ function headwear(ctx,scene,set,r,named){
   r.masked=true;
  }
 }
-function skinBody(body,target,set){
+function skinBody(body,target,set,sex){
  // Authored center-neck/chest areas. The selector excludes neutral steel and dark cloth.
  const c=document.createElement('canvas');c.width=c.height=body.width;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(body,0,0);
  const d=x.getImageData(0,0,c.width,c.height),p=d.data;
- const regions=[[190,0,125,48],[18,195,112,280],[370,195,112,280]];
+ let regions=[[190,0,125,48],[18,195,112,280],[370,195,112,280]];
  if(!['plate','oath','green_eyed_armour','ronin','warrior'].includes(set))regions.push([188,38,125,set==='mage'?165:125]);
+ // Cream fabric shares the old hue selector's skin range. These authored
+ // openings keep the blouse, embroidered cuffs and gold trim out of the tint.
+ let skinMask=null,reference=184;
+ if(sex==='f'&&(set==='plain'||set==='mage')){
+  const mask=document.createElement('canvas');mask.width=mask.height=c.width;const m=mask.getContext('2d');
+  const poly=points=>{m.beginPath();points.forEach(([a,b],i)=>i?m.lineTo(a,b):m.moveTo(a,b));m.closePath();m.fill();};
+  if(set==='plain'){
+   poly([[203,0],[253,0],[255,20],[262,32],[259,49],[251,66],[232,106],[218,77],[206,61],[196,45],[196,29],[201,16]]);
+   regions=[[190,0,80,110]];reference=207;
+  }else{
+   poly([[227,0],[276,0],[276,12],[264,17],[252,31],[247,21],[234,15],[227,13]]);
+   poly([[248,65],[248,79],[260,84],[257,72],[290,99],[263,115],[260,122],[231,103],[218,99]]);
+   m.fillRect(42,335,52,101);m.fillRect(403,333,49,102);
+   regions=[[215,0,80,125],[42,335,52,101],[403,333,49,102]];
+  }
+  skinMask=m.getImageData(0,0,c.width,c.height).data;
+ }
  for(const[rx,ry,rw,rh]of regions)for(let yy=ry;yy<ry+rh;yy++)for(let xx=rx;xx<rx+rw;xx++){
   const i=(yy*c.width+xx)*4,r=p[i],g=p[i+1],b=p[i+2];
+  if(skinMask&&!skinMask[i+3])continue;
   if(p[i+3]<240||r<160||r<g*1.12||g<b*1.06||r-b<38)continue;
   const hue=60*(g-b)/(r-b);if(hue<16||hue>37)continue;
-  const l=(r*.3+g*.59+b*.11)/184;
+  const l=(r*.3+g*.59+b*.11)/reference;
   for(let j=0;j<3;j++)p[i+j]=Math.min(255,l<=1?target[j]*l:target[j]+(255-target[j])*Math.min(.55,(l-1)*.65));
  }
  x.putImageData(d,0,0);return c;
@@ -103,10 +121,10 @@ function composeHuman(scene,ch,id,set){
  if(!head||!body)return null;
  const master=document.createElement('canvas');master.width=1122;master.height=1402;const ctx=master.getContext('2d');
  const hp=head.getContext('2d').getImageData(Math.round((h.nx+34*(registration?.scale||1))*500/627),Math.round((h.ny+15*(registration?.scale||1))*500/627),1,1).data;
- let flesh=special&&named.authoredSkin?body:skinBody(body,hp,set);
+ let flesh=special&&named.authoredSkin?body:skinBody(body,hp,set,id.sex);
  const bodyW=named?.bodyWidth||[1020,1060,980][id.build];
  // Overlap the modular collar with the neck rather than leaving the two cut edges adjacent.
- let bodyY=set==='plate'?528:500;
+ let bodyY=set==='plate'?528:474;
  let neckFront=520;
  if(!named?.authoredSkin&&!warden&&set!=='plate'){
   // Headless outfit sheets include the BACK rim of an empty collar. The neck must pass in
@@ -140,11 +158,37 @@ function composeHuman(scene,ch,id,set){
   if(topOnly){
    ctx.beginPath();ctx.rect(0,0,1122,520);
    if(neckFront>520){const half=id.sex==='f'?62:70;ctx.moveTo(561-half,515);ctx.lineTo(561+half,515);ctx.lineTo(606,neckFront);ctx.lineTo(516,neckFront);ctx.closePath();}
-   if(named?.beardFront)ctx.rect(385,510,350,180);ctx.clip();ctx.drawImage(head,hx,hy,hw,hw);
+   if(named?.beardFront)ctx.rect(385,510,350,180);ctx.clip();
+   if(!named&&set!=='plate'){
+    const layer=document.createElement('canvas');layer.width=1122;layer.height=1402;const lc=layer.getContext('2d');
+    lc.drawImage(head,hx,hy,hw,hw);lc.globalCompositeOperation='destination-out';
+    const fade=lc.createLinearGradient(0,500,0,558);fade.addColorStop(0,'rgba(0,0,0,0)');fade.addColorStop(1,'#000');
+    lc.fillStyle=fade;lc.fillRect(0,500,1122,902);ctx.drawImage(layer,0,0);
+   }else ctx.drawImage(head,hx,hy,hw,hw);
   }
   else ctx.drawImage(head,hx,hy,hw,hw);
   ctx.restore();
  }
+ // A cropped head atlas does not necessarily contain enough neck to reach a
+ // low/open collar. Keep continuous skin behind both pieces; an opaque torso
+ // or mask naturally covers it. Feathering alone cannot fill transparent gaps.
+ function drawNeck(front){
+  if(named?.authoredSkin||warden||set==='plate')return;
+  ctx.save();
+  if(front){
+   const half=id.sex==='f'?62:70;ctx.beginPath();ctx.moveTo(561-half,515);
+   ctx.lineTo(561+half,515);ctx.lineTo(606,neckFront);ctx.lineTo(516,neckFront);ctx.closePath();ctx.clip();
+  }
+  const bottom=Math.max(610,neckFront+32),half=id.sex==='f'?55:63;
+  const neck=ctx.createLinearGradient(0,488,0,bottom);
+  const tone=k=>`rgb(${Math.round(hp[0]*k)},${Math.round(hp[1]*k)},${Math.round(hp[2]*k)})`;
+  neck.addColorStop(0,tone(.76));neck.addColorStop(.32,tone(.9));neck.addColorStop(1,tone(1));
+  ctx.fillStyle=neck;ctx.beginPath();ctx.moveTo(561-half,486);ctx.lineTo(561+half,486);
+  ctx.quadraticCurveTo(561+half-8,555,627,bottom);ctx.lineTo(495,bottom);
+  ctx.quadraticCurveTo(561-half+8,555,561-half,486);ctx.closePath();ctx.fill();
+  ctx.restore();
+ }
+ drawNeck(false);
  drawHead(false);
  // The body cell is cropped flat across the neck, so its first rows landed on the head's neck as a
  // hard horizontal line (a 'detached head' once the canvas was scaled to full screen). Feather the
@@ -156,6 +200,8 @@ function composeHuman(scene,ch,id,set){
   const fade=tc.createLinearGradient(0,bodyY,0,bodyY+38);fade.addColorStop(0,'#fff');fade.addColorStop(1,'rgba(255,255,255,0)');
   tc.fillStyle=fade;tc.fillRect(440,bodyY,242,38);
   ctx.drawImage(t,0,0);}
+ // Carry that neck over the back rim too; the head raster alone may end here.
+ drawNeck(true);
  drawHead(true);
  if(named?.companion==='pip'&&(!named.authoredSkin||ch.equippedSet)){const f=A.GateManifest?.frames['extras:findik'],pip=f?cell(scene,f.sheet,f.frame):cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
  const point=(x,y)=>[hx+x*S,hy+y*S];
