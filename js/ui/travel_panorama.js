@@ -44,6 +44,8 @@ function acquire(scene,id){
 }
 function motion(){return !(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);}
 function view(scene,id,phase,opts={}){
+ // Underground scenery keeps its authored lamplight at every time of day.
+ if(INDOOR.has(id))phase='day';
  const lease=acquire(scene,id),root=scene.add.container(0,0),fx=scene.add.graphics();
  let tile=null,alive=true,elapsed=0,distance=opts.resume?310:0,sky=null;const slices=[];
  root.add(scene.add.rectangle(W/2,H/2,W,H,0x18283c));

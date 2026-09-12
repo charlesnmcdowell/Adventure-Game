@@ -100,19 +100,19 @@ ADV.TravelUI={
    const shade=scene.add.rectangle(640,380,1280,760,0x142032).setDepth(990).setInteractive();
    const label=ADV.T.text(scene,640,360,'Preparing the journey…',{size:23,ox:.5,color:ADV.T.css.gold}).setDepth(991);
    let stopped=false,button=null;
-   const clean=()=>{if(stopped)return;stopped=true;scene.events.off('shutdown',clean);shade.destroy();label.destroy();if(button){button.g.destroy();button.txt.destroy();button.zone.destroy();}leases.forEach(l=>l.release());scene.__cutscene=oldCut;};
+   const clean=transfer=>{if(stopped)return;stopped=true;scene.events.off('shutdown',clean);shade.destroy();label.destroy();if(button){button.g.destroy();button.txt.destroy();button.zone.destroy();}leases.forEach(l=>l.release());scene.__cutscene=oldCut;if(transfer!==true)scene.showChrome?.();};
    scene.events.once('shutdown',clean);
    Promise.all(leases.map(l=>l.ready)).then(loaded=>{const ok=loaded.every(Boolean);
     if(stopped)return;
-    if(ok){clean();ADV.TravelUI.play(scene,game,q,leg,done,Object.assign({},options,{__readyPlan:plan}));}
-    else{label.setText('The scenery could not load. This journey will stay unseen.');button=ADV.T.button(scene,500,420,280,42,'Continue to the quest',()=>{clean();if(!oldCut&&scene.showChrome)scene.showChrome();if(done)done();});button.g.setDepth(991);button.txt.setDepth(992);button.zone.setDepth(993);}
+    if(ok){clean(true);ADV.TravelUI.play(scene,game,q,leg,done,Object.assign({},options,{__readyPlan:plan,__chromeHeld:true}));}
+    else{label.setText('The scenery could not load. This journey will stay unseen.');button=ADV.T.button(scene,500,420,280,42,'Continue to the quest',()=>{clean();if(done)done();});button.g.setDepth(991);button.txt.setDepth(992);button.zone.setDepth(993);}
    });return;
   }
   const W=ADV.T.W,H=ADV.T.H,r=plan.location,id=++serial;
   const owned=[],keys=[],timers=[],keep=o=>(owned.push(o),o);
   const later=(ms,fn)=>{const t=scene.time.delayedCall(ms,()=>{if(!ended)fn();});timers.push(t);return t;};
   let ended=false,box=null,elapsed=options.resume?3200:0,ending=false;
-  const oldCut=scene.__cutscene;scene.__cutscene=true;if(scene.hideChrome)scene.hideChrome();
+  const oldCut=scene.__cutscene;scene.__cutscene=true;if(!options.__chromeHeld&&scene.hideChrome)scene.hideChrome();
   if(ADV.Tutor)ADV.Tutor.clear(scene);if(ADV.Notices)ADV.Notices.block(scene);
   const root=keep(scene.add.container(0,0).setDepth(410));
   const shield=keep(scene.add.rectangle(W/2,H/2,W,H,0x000000,.001).setDepth(890).setInteractive());
@@ -162,7 +162,7 @@ ADV.TravelUI={
    ADV.Portraits.stand(scene,img,game,c,img.texture.key,'cutscene');cards.push({c,cont,img,base});
   });
   // Keep the quest's weather snapshot; restore the underlying scene on completion.
-  const oldWeather=scene.weatherFx;let weather=null;
+  const oldWeather=scene.weatherFx,oldWeatherVisible=oldWeather?.container?.visible;let weather=null;
   if(oldWeather&&oldWeather.container)oldWeather.container.setVisible(false);
   let outdoors=!illustrated||!ADV.TravelPanorama.INDOOR.has(panoramaId);
   if(ADV.WeatherFX&&outdoors){scene.weatherFx=null;weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:H},{depth:885,celestial:true});}
@@ -186,10 +186,10 @@ ADV.TravelUI={
   const stopSound=ambience(scene,r.terrain);
   const cleanup=()=>{
    if(ended)return;ended=true;timers.forEach(t=>t.remove(false));scene.events.off('update',tick);scene.events.off('shutdown',abort);
-   if(box){const b=box;box=null;b.close();}stopSound();if(weather)weather.destroy();scene.weatherFx=oldWeather;
-   if(oldWeather&&oldWeather.container)oldWeather.container.setVisible(true);
+   if(box){const b=box;box=null;b.close();}stopSound();if(weather)weather.destroy();scene.weatherFx=oldWeather?.destroyed?null:oldWeather;
+   if(oldWeather&&!oldWeather.destroyed&&oldWeather.container)oldWeather.container.setVisible(oldWeatherVisible);
    owned.forEach(o=>{scene.tweens.killTweensOf(o);o.destroy();});keys.forEach(k=>scene.textures.remove(k));scene.travelPanorama=null;
-   scene.__cutscene=oldCut;if(!oldCut&&scene.showChrome)scene.showChrome();if(ADV.Notices)ADV.Notices.unblock(scene);
+   scene.__cutscene=oldCut;if(scene.showChrome)scene.showChrome();if(ADV.Notices)ADV.Notices.unblock(scene);
   };
   const abort=()=>cleanup();scene.events.once('shutdown',abort);
   const finish=()=>{

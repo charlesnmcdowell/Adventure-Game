@@ -24,7 +24,9 @@ class GatePreview extends Phaser.Scene{
   const ids=this.entries();this.item=(this.item+ids.length)%ids.length;const id=ids[this.item];
   this.keep(this.add.rectangle(640,380,1280,760,0x172637));
   const kind=this.category===4?'environments':this.category===6?'stills':null;
-  if(kind){const v=G.view(this,kind,id,{depth:1});if(v)this.keep(v);}
+  if(kind){const v=kind==='environments'?A.AnimeEnvironments.view(this,'gate_'+id,this.phase,{depth:1}):G.view(this,kind,id,{depth:1});if(v)this.keep(v);
+   if(kind==='environments'&&!M.environments[id].indoor)this.weather=A.WeatherFX.attach(this,{kind:this.weatherKind,intensity:.65,wind:.35},this.phase,{x:0,y:0,w:1280,h:760},{depth:2});
+  }
   if(this.category===5){const v=A.TravelPanorama.view(this,'gate_'+id,this.phase);v.setDepth(1);this.panorama=v;this.keep(v);
    if(!A.TravelPanorama.INDOOR.has('gate_'+id)){this.weather=A.WeatherFX.attach(this,{kind:this.weatherKind,intensity:.65,wind:.35},this.phase,{x:0,y:0,w:1280,h:760},{depth:2,celestial:true});v.weather=this.weather;v.ready.then(()=>{if(rev===this.revision&&v.skyMask&&this.weather?.celestial)this.weather.celestial.setMask(v.skyMask);});}
    ['wren_ward','dorran','selene'].forEach((cid,i)=>this.portrait(A.Campaign3.actor(this.game_,cid),515+i*120,565,100,126));
@@ -46,7 +48,7 @@ class GatePreview extends Phaser.Scene{
   this.button(252,680,100,'Previous',()=>{this.item--;this.show();});this.button(1090,680,150,'Next',()=>{this.item++;this.show();});
   const name=A.DATA.CAMPAIGN_CHARS[id]?.name||A.DATA.CAMPAIGN_ENEMIES[id]?.name||A.DATA.CAMPAIGN_MINIBOSSES[id]?.name||title(id);
   this.label(716,692,`${this.item+1} / ${ids.length} · ${name}`,{size:18,ox:.5});
-  if(this.category===5){this.button(25,102,140,title(this.phase),()=>{this.phase=['day','evening','night'][(['day','evening','night'].indexOf(this.phase)+1)%3];this.show();});this.button(180,102,140,title(this.weatherKind),()=>{this.weatherKind=['clear','rain','storm','snow'][(['clear','rain','storm','snow'].indexOf(this.weatherKind)+1)%4];this.show();});}
+  if(this.category===4||this.category===5){this.button(25,102,140,title(this.phase),()=>{this.phase=['day','evening','night'][(['day','evening','night'].indexOf(this.phase)+1)%3];this.show();});this.button(180,102,140,title(this.weatherKind),()=>{this.weatherKind=['clear','sunny','overcast','rain','storm','snow'][(['clear','sunny','overcast','rain','storm','snow'].indexOf(this.weatherKind)+1)%6];this.show();});}
   this.label(25,730,'Use the category button to browse all collections.',{size:12,color:'#a7bcc6'});
   A.Character.resetIds(nextCharacterId);
  }

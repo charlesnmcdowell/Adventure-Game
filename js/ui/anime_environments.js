@@ -31,6 +31,7 @@ function purge(textures){
 }
 function acquire(scene,raw){
  const id=resolve(raw);let e=pool.get(id);
+ if(e?.failed){pool.delete(id);e=null;}
  if(!e){
   e={id,key:'aw2_env_'+id,refs:0,used:performance.now(),loaded:false,image:null};pool.set(id,e);
   e.ready=new Promise(resolveReady=>{
@@ -44,6 +45,7 @@ function acquire(scene,raw){
 }
 function view(scene,raw,phase,opts){
  opts=opts||{};const id=resolve(raw),lease=acquire(scene,id),detail=DETAILS[id]||{};
+ if(INDOOR.has(id))phase='day';
  const root=scene.add.container(0,0).setDepth(opts.depth??-10),art=scene.add.container(0,0);root.add(art);
  const shade=scene.add.rectangle(W/2,H/2,W,H,0x152235);art.add(shade);
  const status=A.T.text(scene,W/2,H/2,'Preparing the scenery…',{size:16,ox:.5,color:'#e9dbc0'});root.add(status);
@@ -94,7 +96,7 @@ A.BattleArt.paint=function(scene,id,phase){
  if(scene.game.__artPreview)return oldBattle(scene,id,phase);
  scene.battleArt?.destroy(true);scene.weatherFx?.destroy();
  const root=view(scene,id||'road',phase||'day',{depth:-10});scene.battleArt=root;scene.battlePlanes=root.planes;
- if(A.WeatherFX&&!INDOOR.has(resolve(id||'road')))A.WeatherFX.attach(scene,A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase}),phase,{x:0,y:0,w:W,h:H},{depth:-5});return root;
+ if(A.WeatherFX&&!INDOOR.has(resolve(id||'road')))A.WeatherFX.attach(scene,A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase,groundId:id,override:scene.game_?.quest?.travel?.weather}),phase,{x:0,y:0,w:W,h:H},{depth:-5,combat:true});return root;
 };
 A.HousingArt.paint=function(scene,id){
  if(scene.game.__artPreview)return oldHome(scene,id);

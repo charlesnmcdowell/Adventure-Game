@@ -211,7 +211,7 @@ WeatherFX.skyMask = function(scene,source,scale,x=0,y=0,repeat=false){
 
 WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   opts = opts || {};
-  if (scene.weatherFx && scene.weatherFx.destroy) {
+  if (!opts.independent && scene.weatherFx && scene.weatherFx.destroy) {
     try { scene.weatherFx.destroy(); } catch (e) {}
     scene.weatherFx = null;
   }
@@ -223,6 +223,14 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   const handle = { container: cont, weather, intensity: weather.intensity, _objs: [], _timers: [] };
   const keep = (o) => { if (o) { handle._objs.push(o); if (o !== cont) cont.add(o); if(opts.mask&&o.setMask)o.setMask(opts.mask); } return o; };
   const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Recurring weather must retain only pending timers on a long-lived home screen.
+  const later = (delay, callback) => {
+    const timer = scene.time.delayedCall(delay, () => {
+      handle._timers = handle._timers.filter(t => t !== timer);
+      if (!handle.destroyed) callback();
+    });
+    handle._timers.push(timer);return timer;
+  };
 
   const night = phase === 'night' ? 0.5 : 1;
   const tintDef = TINT[weather.kind] || TINT.clear;
@@ -254,7 +262,7 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     const n = 5;
     for (let i = 0; i < n; i++) {
       const a = 1.9 + i * 0.22;
-      rays.fillStyle(0xfff4c8, 0.07 + i * 0.006);
+      rays.fillStyle(0xfff4c8, 0.012 + i * 0.002);
       rays.beginPath();
       rays.moveTo(0, 0);
       rays.lineTo(Math.cos(a - 0.04) * 1200, Math.sin(a - 0.04) * 1200);
@@ -371,7 +379,7 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     const arm = (first=false) => {
       if(handle.destroyed)return;
       const wait = first ? 2300 + Math.random()*1700 : 6000 + Math.random() * 8000;
-      handle._timers.push(scene.time.delayedCall(wait, () => { strike(); arm(); }));
+      later(wait, () => { strike(); arm(); });
     };
     arm(true);
     if (handle.clouds) {
@@ -381,9 +389,9 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
           targets: handle.clouds, alpha: { from: handle.clouds[0].alpha, to: handle.clouds[0].alpha * 0.85 },
           duration: 600, yoyo: true,
         });
-        handle._timers.push(scene.time.delayedCall(3000 + Math.random() * 2000, gust));
+        later(3000 + Math.random() * 2000, gust);
       };
-      handle._timers.push(scene.time.delayedCall(3500, gust));
+      later(3500, gust);
     }
   }
 
@@ -410,8 +418,12 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     try { cont.destroy(true); } catch (e) {}
     if (scene.weatherFx === handle) scene.weatherFx = null;
   };
-  if (handle._cloudTick) {
-    handle._upd = (t, dt) => { if (cont.visible && !document.hidden && !reduced() && handle._cloudTick) handle._cloudTick(Math.min(dt,50)); };
+  if (handle._cloudTick || handle.precip) {
+    handle._upd = (t, dt) => {
+      const paused = !cont.visible || document.hidden || reduced();
+      if (handle.precip) handle.precip.active = !paused;
+      if (!paused && handle._cloudTick) handle._cloudTick(Math.min(dt,50));
+    };
     scene.events.on('update', handle._upd);
     const prev = handle.destroy;
     handle.destroy = function () {
@@ -419,7 +431,7 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
       prev();
     };
   }
-  scene.weatherFx = handle;
+  if (!opts.independent) scene.weatherFx = handle;
   scene.events.once('shutdown', handle.destroy);
   return handle;
 };

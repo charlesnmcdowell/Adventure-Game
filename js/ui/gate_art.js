@@ -112,6 +112,8 @@ for(const[id,d]of Object.entries(movingDetails))A.TravelPanorama.DETAILS['gate_'
 for(const[id,d]of Object.entries(life))A.TravelPanorama.LIFE['gate_'+id]=d;
 const groundFor=A.BattleArt.groundFor;
 A.BattleArt.groundFor=function(game,mode){const q=game.quest?.quest;if(q?.campaign3){const id=encounterRoutes[q.n]?.[game.quest.encIdx||0];if(id&&M.environments[id])return'gate_'+id;}return groundFor(game,mode);};
+const phaseFor=A.BattleArt.phaseFor;
+A.BattleArt.phaseFor=function(game){const q=game.quest?.quest;if(q?.campaign3){if(q.n===1||q.n===12)return'night';if(q.n===11&&game.quest.encIdx===2)return'evening';return game.quest.travel?.phase||phaseFor(game);}return phaseFor(game);};
 // The new paintings have their own viewing history; prices/distance and existing dialogue stay intact.
 const travelKey=A.Travel.key;
 A.Travel.key=(q,leg,event)=>G.travelId(q,leg)?'travel:'+G.travelId(q,leg)+':v1:'+(event?'event:'+event:leg):travelKey(q,leg,event);

@@ -29,7 +29,30 @@ G.view=function(scene,kind,id,opts={}){
  scene.events.on('update',tick);const stop=()=>root.destroy(true);scene.events.once('shutdown',stop);
  root.once('destroy',()=>{alive=false;scene.events.off('update',tick);scene.events.off('shutdown',stop);lease.release();});root.ready=lease.ready;root.artId=id;return root;
 };
-G.sceneForBeat=function(game,beat){
+// Stage locations belong to story beats, including arrival after quest state clears.
+const departures=['','lanternhold','shore','shore','dunmere_mine','thornbury','mirkhollow','iron_mine','span','tower','griffon','hunted_city','palace','undervault','temple'];
+const arrivals=['','shore','open_hand','dunmere','dunmere','thornbury','mirkhollow','mirkhollow','palace','nine_lanterns','catacombs','hunted_city','palace','undercity','temple'];
+const changes={q1_catchup:'shore',q2_morwin:'open_hand',q3_ithrel:'shore',q3_lessa:'dunmere',q5_sage:'thornbury',q5_inn:'thornbury',q8_duke:'palace',q10_ring:'griffon',q10_letter:'lanternhold',q10_arrest:'lanternhold',q10_catacombs:'catacombs',q10_shore:'shore',q11_cured:'sickroom',q11_docks:'hunted_city'};
+const phases={q1_wake:'night',q1_store:'night',q1_road:'night',q1_appear:'night',q1_catchup:'night',q3_lessa:'night',q4_camp_hiwot:'night',q4_camp_selene:'night',q6_fire:'night',q9_romance:'night',q10_ring:'day',q10_shore:'night',q11_posters:'day',q11_docks:'evening',q12_steps:'night'};
+const sceneLocations=new Map();
+function annotate(beats,location,phase){return (beats||[]).map(b=>{
+ location=changes[b.key]||location;phase=phases[b.key]||phase;
+ return {...b,artLocation:location,artPhase:phase};
+});}
+for(let n=1;n<=14;n++){
+ const s=A.Campaign3.script(n),routes=G.encounterRoutes[n];
+ const groups=[annotate(s.departure,departures[n],n===1?'night':null),annotate(s.closing,routes.at(-1),n===1?'night':null),annotate(s.arrival,arrivals[n],null),...Object.entries(s.openers||{}).map(([i,beats])=>annotate(beats,routes[i],n===1?'night':null))];
+ for(const b of groups.flat())if(!sceneLocations.has(b.key))sceneLocations.set(b.key,{id:b.artLocation,phase:b.artPhase});
+}
+const C=A.Campaign3;
+for(const method of ['departureBeats','openerBeats','closingBeats','arrivalBeats']){
+ const original=C[method];C[method]=function(game,q,index){
+  const n=typeof q==='number'?q:q.n,routes=G.encounterRoutes[n];
+  const id=method==='departureBeats'?departures[n]:method==='arrivalBeats'?arrivals[n]:method==='openerBeats'?routes?.[index]:routes?.at(-1);
+  return annotate(original(game,q,index),id,n===1?'night':null);
+ };
+}
+G.sceneForBeat=function(game,beat,context){
  const k=beat.key||'',n=Number((k.match(/^q(\d+)_/)||[])[1]);
  let id=null;
  if(k==='q1_death')id='death';
@@ -43,15 +66,43 @@ G.sceneForBeat=function(game,beat){
  else if(k==='q12_teleport')id='frost';
  else if(n===14&&(/altar|plea/.test(k)))id=A.Campaign3.inCompany(game,'amara')||A.Campaign3.flag(game,'amaraPassed')?'altar_amara':'altar';
  if(id&&M.stills[id])return{kind:'stills',id};
- if(!beat.caption)return null;
- const special={q1_wake:'lanternhold',q1_store:'lanternhold',q1_road:'griffon',q1_appear:'griffon',q1_catchup:'shore',q2_pair:'shore',q2_cassian:'shore',q2_morwin:'open_hand',q2_selene:'open_hand',q3_ithrel:'shore',q3_lessa:'dunmere',q3_bramm:'ford',q3_freed:'gnoll_fort',q3_tollan:'dunmere',q8_span:'span',q11_healer:'sickroom',q11_docks:'hunted_city',q12_steps:'palace',q13_gate:'undercity'};
- id=special[k]||G.encounterRoutes[n]?.[game.quest?.encIdx||0];return id&&M.environments[id]?{kind:'environments',id}:null;
+ const mapped=sceneLocations.get(k);
+ if(!beat.artLocation&&!mapped&&context)return context;
+ id=beat.artLocation||mapped?.id||G.encounterRoutes[n]?.[game.quest?.encIdx||0];
+ const phase=beat.artPhase||mapped?.phase||context?.phase||game.quest?.travel?.phase||A.BattleArt.phaseFor(game);
+ return id&&M.environments[id]?{kind:'environments',id,phase}:null;
 };
-G.withScene=function(scene,game,beat,done,play){const spec=G.sceneForBeat(game,beat);if(!spec){play(done);return;}const view=G.view(scene,spec.kind,spec.id);if(!view){play(done);return;}
- const oldCut=scene.__cutscene;scene.__cutscene=true;scene.hideChrome?.();let ended=false;
- const stop=()=>{ended=true;scene.__cutscene=oldCut;};scene.events.once('shutdown',stop);
- const finish=()=>{if(ended)return;ended=true;scene.events.off('shutdown',stop);view.destroy(true);scene.__cutscene=oldCut;if(!oldCut)scene.showChrome?.();done?.();};
- view.ready.then(()=>{if(view.active&&!ended)play(finish);});
+function sequence(scene,done,play){
+ if(scene.gateSequence){play(done);return;}
+ const oldCut=scene.__cutscene,oldWeather=scene.weatherFx,visible=oldWeather?.container?.visible;
+ const state=scene.gateSequence={view:null,spec:null,weather:null,ended:false};
+ scene.__cutscene=true;scene.hideChrome?.();A.Notices?.block(scene);oldWeather?.container?.setVisible(false);
+ // Block the underlying encounter/home controls, below dialogue and choice controls.
+ const shield=scene.add.rectangle(W/2,H/2,W,H,0,0.001).setDepth(899).setInteractive();
+ const clean=()=>{if(state.ended)return;state.ended=true;scene.events.off('shutdown',clean);state.weather?.destroy();state.pending?.destroy(true);state.view?.destroy(true);shield.destroy();scene.gateSequence=null;scene.__cutscene=oldCut;scene.showChrome?.();A.Notices?.unblock(scene);if(!oldWeather?.destroyed)oldWeather?.container?.setVisible(visible);};
+ scene.events.once('shutdown',clean);
+ play(()=>{if(state.ended)return;clean();done?.();});
+}
+G.withScene=function(scene,game,beat,done,play){
+ if(!scene.gateSequence)return sequence(scene,done,next=>G.withScene(scene,game,beat,next,play));
+ const state=scene.gateSequence,spec=G.sceneForBeat(game,beat,state.spec);
+ if(!spec||JSON.stringify(spec)===JSON.stringify(state.spec)){play(done);return;}
+ const view=spec.kind==='environments'?A.AnimeEnvironments.view(scene,'gate_'+spec.id,spec.phase,{depth:400}):G.view(scene,spec.kind,spec.id);
+ if(!view){play(done);return;}
+ state.pending=view;
+ view.ready.then(()=>{
+  if(state.ended||!view.active)return;
+  state.weather?.destroy();state.weather=null;state.view?.destroy(true);state.view=view;state.spec=spec;state.pending=null;
+  if(spec.kind==='environments'&&!M.environments[spec.id].indoor){
+   state.weather=A.WeatherFX.attach(scene,A.Weather.at(game.world,{phase:spec.phase,override:game.quest?.travel?.weather}),spec.phase,{x:0,y:0,w:W,h:H},{depth:405,independent:true});
+  }
+  play(done);
+ });
+};
+const playBeats=A.CampaignUI.playBeats;
+A.CampaignUI.playBeats=function(scene,game,beats,done){
+ if(!beats.some(b=>b.c3))return playBeats(scene,game,beats,done);
+ sequence(scene,done,next=>playBeats(scene,game,beats,next));
 };
 const firstQuest={1:0,2:1,3:2,5:3,6:4,8:5,10:6,11:7};
 G.chapterLocations=['lanternhold','open_hand','dunmere','bandit_camp','mirkhollow','span','catacombs','palace'];
