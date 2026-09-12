@@ -4,13 +4,15 @@
 const A = globalThis.ADV;
 const colors = {fire:0xff9a45,ice:0xa2dfff,lightning:0xe9d77b,acid:0xa4d776,shadow:0xaf89d3,holy:0xffe4a1,arcane:0x94b7ef,prismatic:0xdab7ee};
 const meleeAny = new Set(['backstab','vanishing_strike','boarding_hook','tongue_lash','sky_pluck']);
+// Blade skills that carry 'fang' in the name: a dagger stab, not a creature's jaws (Venom Fang is 'a shallow, dirty cut').
+const bladeFangs = new Set(['venom_fang']);
 function profile(id, tier) {
   const d = A.DATA.SKILLS[id] || {}, s = Object.assign({}, d, d.tiers && d.tiers[tier || 'basic']);
   const melee = (s.reach === 'front' || meleeAny.has(id)) && !['self','ally','party','allyLane'].includes(s.target);
   let family = 'support';
   if (/shape|_form|bear_stance/.test(id)) family = 'transform';
   else if (s.heal || /mend|triage|raise|restor|medic|suture|stanch|sick_bay|rum_ration/.test(id)) family = 'heal';
-  else if (melee) family = /touch|fist|palm|punch/.test(id) ? 'unarmed' : /bite|fang|snap/.test(id) ? 'bite' : /lash|boarding_hook/.test(id) ? 'whip' : /mace|smash|boulder|weight|crush|treefall|pincer|fault_line|shield_break/.test(id) ? 'blunt' : /gore|tusk|thrust|kunai|sting|throat/.test(id) ? 'thrust' : /claw|rake|talon|shred|pounce/.test(id) ? 'claw' : /dual|tempo|rhythm|frenzy/.test(id) ? 'flurry' : 'slash';
+  else if (melee) family = /touch|fist|palm|punch/.test(id) ? 'unarmed' : /bite|fang|snap/.test(id) && !bladeFangs.has(id) ? 'bite' : bladeFangs.has(id) ? 'thrust' : /lash|boarding_hook/.test(id) ? 'whip' : /mace|smash|boulder|weight|crush|treefall|pincer|fault_line|shield_break/.test(id) ? 'blunt' : /gore|tusk|thrust|kunai|sting|throat/.test(id) ? 'thrust' : /claw|rake|talon|shred|pounce/.test(id) ? 'claw' : /dual|tempo|rhythm|frenzy/.test(id) ? 'flurry' : 'slash';
   else if (/flintlock|grapeshot|cannon|chain_shot/.test(id)) family = 'gun';
   else if (s.element) family = 'magic';
   else if (/shot|quarrel|bow|loosing|shuriken|kunai|volley/.test(id)) family = 'projectile';

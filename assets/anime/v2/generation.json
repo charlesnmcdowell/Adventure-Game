@@ -6,325 +6,379 @@
       "id": "wardrobe_f1",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-37a9205a-8869-4b62-9c10-f7d5db628ea0.png",
       "prompt": "ONE transparent game texture atlas, square canvas, precise TWO COLUMNS by TWO ROWS of FOUR separated headless costume torso sprites, equal-sized cells, transparent gutters. Original polished fantasy anime, tapered ink and two-tone cel shading, ornate believable material detail. FRONT VIEW same adult feminine body in all four cells, pronounced shaped bust and fitted waist, relaxed arms, NECK/COLLAR at top center, crop at upper thighs; NO HEAD, NO FACE, NO HAIR, no mannequin, no background, no words, no frame. Fully clothed. Skin only on neck or hands, warm medium tan. Keep each costume inside its own cell with 5% margin; all collars same normalized location. Top-left: WARRIOR steel plate, articulated broad pauldrons, navy underlayers, utility belt. Top-right: RANGER layered forest green hood-down cloak, leather breast protection, quiver, bracers, scout belt. Bottom-left: MAGE elegant navy cream gold long-sleeved dress/robe with tailored corset bodice, bust volume defined by cloth folds, arcane brooch, high collar with chest keyhole. Bottom-right: HEALER ivory and emerald closed-neck tailored robes, embroidered stole, healing pendant, graceful fitted sleeves. Actual ALPHA transparency, not checkerboard. Professional equipment sprites, original adventurous anime art.",
-      "file": "assets/anime/v2/wardrobe_f1.png"
+      "file": "assets/anime/v2/source/wardrobe_f1.png",
+      "originalFile": "assets/anime/v2/wardrobe_f1.png"
     },
     {
       "id": "wardrobe_m1",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-41457efd-a169-451e-8785-c8695a337cae.png",
       "prompt": "ONE transparent game texture atlas, square canvas, precise TWO COLUMNS by TWO ROWS of FOUR separated headless costume torso sprites, equal-sized cells, transparent gutters. Original polished fantasy anime, tapered ink and two-tone cel shading, ornate believable material detail. FRONT VIEW same adult masculine lean athletic body in all four cells, broad shoulders, cool strong silhouettes, relaxed arms, NECK/COLLAR at top center, crop at upper thighs; NO HEAD, NO FACE, NO HAIR, no mannequin, no background, no words, no frame. Fully clothed. Skin only on neck or hands, warm medium tan. Keep each costume inside its own cell with 5% margin; all collars same normalized location. Top-left: WARRIOR steel plate, articulated broad pauldrons, navy underlayers, utility belt. Top-right: RANGER layered forest green hood-down cloak, leather breast protection, quiver, bracers, scout belt. Bottom-left: MAGE elegant navy cream gold tailored long-sleeved mage coat, arcane brooch, high collar, layered robes. Bottom-right: HEALER ivory and emerald closed-neck robes, embroidered stole, healing pendant, fitted sleeves. Actual ALPHA transparency, not checkerboard. Professional equipment sprites, original adventurous anime art.",
-      "file": "assets/anime/v2/wardrobe_m1.png"
+      "file": "assets/anime/v2/source/wardrobe_m1.png",
+      "originalFile": "assets/anime/v2/wardrobe_m1.png"
     },
     {
       "id": "heads_f",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-b69dbaa7-13ce-42e5-ad86-fa6c9a3f480b.png",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult women's heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. Distinct mature feminine facial structures: top-left East Asian-inspired woman, light beige skin, straight black shoulder-length hair with side part and forehead exposed; top-right South Asian/Indian-inspired woman, warm brown skin, thick long dark waves swept behind ears, forehead exposed; bottom-left Afro-inspired woman, deep brown skin, short rounded natural tight curls, forehead exposed; bottom-right Latina-inspired woman, medium warm tan skin, wavy brown bob with side part, forehead exposed. Attractive adult faces, varied jaw/cheek shapes, no caricatures, not chibi. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders.",
-      "file": "assets/anime/v2/heads_f.png"
+      "file": "assets/anime/v2/source/heads_f.png",
+      "originalFile": "assets/anime/v2/heads_f.png"
     },
     {
       "id": "wardrobe_f2",
       "prompt": "ONE transparent game costume texture ATLAS, square image, precise 2 columns by 2 rows of FOUR separate headless torso sprites in equal cells, generous transparent gutters. Front view, neck socket at top center of EACH cell, shoulders and relaxed arms fully inside each cell, crop at upper thighs, no head/hair/face, no mannequin. Consistent top-left lighting, rich high-quality fantasy anime ink and two/three-tone cel shading, believable seams and material detail. Fully clothed. Actual alpha transparency, no checkerboard, no labels or borders.  All four are adult WOMEN'S costumes: consistent feminine athletic silhouette, pronounced bust fitted by cloth and armor, shaped waist, elegant tailoring.  Top-left PLATE HARNESS: riveted bright steel armor, central breastplate ridge, burgundy underlayers, articulated pauldrons, crimson half cape. Top-right DUELIST KIT: tailored burgundy fencing coat, asymmetric shoulder guard, fitted waist, black gloves and rapier belt. Bottom-left NIGHT LEATHERS: dark brown supple fitted leather armor, layered shoulder guards, buckled straps, knife belt, cowl folded down behind neck. Bottom-right ADEPT ROBES: simple blue apprentice robes with silver piping, sash, practical sleeves, book pouch, less ornament than archmage clothing.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-9f54fea2-c322-4ec5-8771-4ccb5968bcb7.png",
-      "file": "assets/anime/v2/wardrobe_f2.png"
+      "file": "assets/anime/v2/source/wardrobe_f2.png",
+      "originalFile": "assets/anime/v2/wardrobe_f2.png"
     },
     {
       "id": "heads_m",
       "prompt": "ONE transparent modular fantasy anime game HEAD ATLAS, square image, precise 2 columns by 2 rows, FOUR adult male heads and neck stubs, no shoulders, no clothes. Front view at identical scale, heads fully within their equal cells and separated by transparent gutters. Detailed inked hair clumps, confident cool adult faces, two/three-tone cel shading. All faces BLANK eyes/brows/mouth for animation, small painted noses allowed. Foreheads and eye regions exposed, no bangs across eyes. Top-left East Asian-inspired man light tan skin with tied black topknot and sleek side hair; top-right South Asian/Indian-inspired man warm brown skin, swept wavy black hair and short beard; bottom-left deep brown Afro-inspired man with short natural tight curls and a clean jaw; bottom-right Latino-inspired man medium tan skin and wavy brown swept-back hair with subtle jaw stubble. Varied mature jaw and cheek shapes, not caricatures. Actual alpha transparent background, no checkerboard, no labels or frame.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-2221ebc4-687d-456f-a8b7-201f997200ec.png",
-      "file": "assets/anime/v2/heads_m.png"
+      "file": "assets/anime/v2/source/heads_m.png",
+      "originalFile": "assets/anime/v2/heads_m.png"
     },
     {
       "id": "wardrobe_m2",
       "prompt": "ONE transparent game costume texture ATLAS, square image, precise 2 columns by 2 rows of FOUR separate headless torso sprites in equal cells, generous transparent gutters. Front view, neck socket at top center of EACH cell, shoulders and relaxed arms fully inside each cell, crop at upper thighs, no head/hair/face, no mannequin. Consistent top-left lighting, rich high-quality fantasy anime ink and two/three-tone cel shading, believable seams and material detail. Fully clothed. Actual alpha transparency, no checkerboard, no labels or borders.  All four are adult MEN'S costumes: consistent lean athletic masculine silhouette, broad shoulders, flat strong chest, cool practical tailoring.  Top-left PLATE HARNESS: riveted bright steel armor, central breastplate ridge, burgundy underlayers, articulated pauldrons, crimson half cape. Top-right DUELIST KIT: tailored burgundy fencing coat, asymmetric shoulder guard, fitted waist, black gloves and rapier belt. Bottom-left NIGHT LEATHERS: dark brown supple fitted leather armor, layered shoulder guards, buckled straps, knife belt, cowl folded down behind neck. Bottom-right ADEPT ROBES: simple blue apprentice robes with silver piping, sash, practical sleeves, book pouch, less ornament than archmage clothing.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-52634dbf-b590-4f55-a4ef-9354fdb1cc09.png",
-      "file": "assets/anime/v2/wardrobe_m2.png"
+      "file": "assets/anime/v2/source/wardrobe_m2.png",
+      "originalFile": "assets/anime/v2/wardrobe_m2.png"
     },
     {
       "id": "wardrobe_m3",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult masculine athletic silhouette, broad shoulders, flat strong chest, confident cool tailoring.  Top-left WILDHIDE: layered tawny leather and wolf fur, bone and wooden leaf clasps, weathered green natural cloth, druid talisman, covered chest. Top-right HUNTER RIG: short forest green leather hunting jacket, quiver and field pouches, gloves, no long cloak. Bottom-left STREET STEEL: patched dark taupe city coat, concealed riveted steel reinforcement, layered belts, asymmetrical reinforced forearm, urban rogue style. Bottom-right OATH PLATE: luminous ivory and gold fitted plate, sun insignia, white ceremonial cape, navy underlayers, open neck for separate head.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-bb4db3f1-205a-4c0b-919f-b28af595dd24.png",
-      "file": "assets/anime/v2/wardrobe_m3.png"
+      "file": "assets/anime/v2/source/wardrobe_m3.png",
+      "originalFile": "assets/anime/v2/wardrobe_m3.png"
     },
     {
       "id": "wardrobe_f3",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult feminine athletic silhouette, pronounced fitted bust and shaped waist; distinct elegant armor tailoring.  Top-left WILDHIDE: layered tawny leather and wolf fur, bone and wooden leaf clasps, weathered green natural cloth, druid talisman, covered chest. Top-right HUNTER RIG: short forest green leather hunting jacket, quiver and field pouches, gloves, no long cloak. Bottom-left STREET STEEL: patched dark taupe city coat, concealed riveted steel reinforcement, layered belts, asymmetrical reinforced forearm, urban rogue style. Bottom-right OATH PLATE: luminous ivory and gold fitted plate, sun insignia, white ceremonial cape, navy underlayers, open neck for separate head.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-17d19ecc-dae5-482b-9a89-063fb68c6d5c.png",
-      "file": "assets/anime/v2/wardrobe_f3.png"
+      "file": "assets/anime/v2/source/wardrobe_f3.png",
+      "originalFile": "assets/anime/v2/wardrobe_f3.png"
     },
     {
       "id": "heads_extra",
       "prompt": "ONE transparent game HEAD texture ATLAS, square image, exact 2 columns by 2 rows, four separate adult head-and-neck cutouts at same frontal scale. No shoulders or body, no clothes. Top-left: fair woman with long wavy auburn hair pinned back at sides, elegant mature feminine features. Top-right: pale woman with long flowing silver hair swept behind ears, sharp adult feminine jaw. Bottom-left: fair man short swept blonde hair and strong jaw, clean shaven. Bottom-right: pale mature man long silver-black hair tied loosely back, lean angular cheeks and dark jaw stubble. All eye areas and foreheads exposed; deliberately BLANK eyes eyebrows and mouths for runtime animation; small painted noses allowed. Keep each entire hairstyle and neck within its own cell with transparent gutter. Sophisticated fantasy anime ink, directional grouped hair, two/three tone cel shading, warm key light and cool shadow. Actual transparent ALPHA, no checkerboard, no text, no border.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-1cd541ed-ad83-43f1-a3ef-13e2f1c77209.png",
-      "file": "assets/anime/v2/heads_extra.png"
+      "file": "assets/anime/v2/source/heads_extra.png",
+      "originalFile": "assets/anime/v2/heads_extra.png"
     },
     {
       "id": "wardrobe_m4",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult masculine athletic silhouette with broad shoulders, flat chest and cool practical tailoring.  Top-left CHANTRY ROBES: cream and muted olive high-collar religious vestments, embroidered stole, gold pendant, chapel symbols. Top-right GREENWARD KIT: forest green ranger coat and short cloak, vine embroidery, leather plates, wooden druid talisman, bow bracer. Bottom-left SHADOWWEAVE: violet-black wrapped layers, silver arcane seam markings, flexible dark armor, stealth sash. Bottom-right RONIN GEAR: worn dark steel lamellar samurai plates, muted violet silk ties and waist sash, clan knot, katana belt, weathered traveling layers.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-a9cb4857-52c0-4381-8b3f-f3eaa0111f3a.png",
-      "file": "assets/anime/v2/wardrobe_m4.png"
+      "file": "assets/anime/v2/source/wardrobe_m4.png",
+      "originalFile": "assets/anime/v2/wardrobe_m4.png"
     },
     {
       "id": "wardrobe_f4",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult feminine athletic silhouette with pronounced fitted bust, shaped waist and elegant tailoring.  Top-left CHANTRY ROBES: cream and muted olive high-collar religious vestments, embroidered stole, gold pendant, chapel symbols. Top-right GREENWARD KIT: forest green ranger coat and short cloak, vine embroidery, leather plates, wooden druid talisman, bow bracer. Bottom-left SHADOWWEAVE: violet-black wrapped layers, silver arcane seam markings, flexible dark armor, stealth sash. Bottom-right RONIN GEAR: worn dark steel lamellar samurai plates, muted violet silk ties and waist sash, clan knot, katana belt, weathered traveling layers.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-3305ec21-d789-49d6-9def-b080da4969de.png",
-      "file": "assets/anime/v2/wardrobe_f4.png"
+      "file": "assets/anime/v2/source/wardrobe_f4.png",
+      "originalFile": "assets/anime/v2/wardrobe_f4.png"
     },
     {
       "id": "headgear",
       "prompt": "ONE transparent modular fantasy anime HEADGEAR texture ATLAS, square, exact 2 columns by 2 rows equal cells with transparent gutters. Four EQUIPMENT pieces only, no person or mannequin. Front view at same scale, designed to layer over an anime head. TOP LEFT: warrior's open-face steel helmet, raised brow plate covers eyebrows but face opening transparent, cheek guards and central gold ridge. TOP RIGHT: plate harness helmet with fully CLOSED steel faceplate and narrow dark eye slit, burgundy lining, crisp angular metal. BOTTOM LEFT: dark green samurai KABUTO, articulated neck guards, gold crescent crest, open face hole transparent. BOTTOM RIGHT: navy-black pirate TRICORNE hat with gold trim and a red feather, worn leather, no head under it. Detailed fantasy anime ink, two/three-tone cel shading and nuanced metal/cloth material, light top left. Every piece fully within its cell. Actual ALPHA, no checkerboard, labels, frames or background.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-d498da0d-3439-426b-94e3-370f743356fe.png",
-      "file": "assets/anime/v2/headgear.png"
+      "file": "assets/anime/v2/source/headgear.png",
+      "originalFile": "assets/anime/v2/headgear.png"
     },
     {
       "id": "wardrobe_f6",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult WOMEN, feminine shaped bust, fitted waist, tasteful fully clothed adventure costumes. TL green-eyed armour: dark green carved leaf plate, luminous emerald emblem. TR privateer's kit: burgundy pirate captain coat, leather belts, flintlock holster. BL king's uniform: navy blue officer coat, ivory lapels, gold epaulettes. BR plain traveler: modest tan lace collar shirt, dark vest, brown belts. Flat cut neck at cell top; no heads, no hats.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-145586ea-1a8e-4a2a-8b5e-5850e5643dd4.png",
-      "file": "assets/anime/v2/wardrobe_f6.png"
+      "file": "assets/anime/v2/source/wardrobe_f6.png",
+      "originalFile": "assets/anime/v2/wardrobe_f6.png"
     },
     {
       "id": "wardrobe_m5",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult MEN, athletic broad shoulders. TL assassin's gear: charcoal hoodless layered tunic, small knives, muted crimson ties. TR mercenary's gear: rugged leather brigandine, brass antler insignia, red scarf. BL battle mage's gear: purple academic robes under a steel gorget, silver runic bracers. BR shinobi gear: black wrapped ninja tunic, indigo sash, close-fitting sleeves. Upper torso at top center of each cell, neck cut flat at cell top. NO face or head.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-bb769283-71f3-46f6-ad65-258d5669175e.png",
-      "file": "assets/anime/v2/wardrobe_m5.png"
+      "file": "assets/anime/v2/source/wardrobe_m5.png",
+      "originalFile": "assets/anime/v2/wardrobe_m5.png"
     },
     {
       "id": "wardrobe_m6",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult MEN athletic heroic builds. TL green-eyed armour: dark green carved leaf plate, luminous emerald emblem. TR privateer's kit: burgundy pirate captain coat, leather belts, flintlock holster. BL king's uniform: navy blue officer coat, ivory lapels, gold epaulettes. BR plain traveler: tan collar shirt, dark vest, brown belts. Flat cut neck at cell top; no heads, no hats.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-ecf9e9ff-7899-4047-af1c-c0e97128ac11.png",
-      "file": "assets/anime/v2/wardrobe_m6.png"
+      "file": "assets/anime/v2/source/wardrobe_m6.png",
+      "originalFile": "assets/anime/v2/wardrobe_m6.png"
     },
     {
       "id": "wardrobe_f5",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard.  Adult WOMEN, feminine bust and waist, practical fitted armor. TL assassin's gear: charcoal hoodless layered tunic, small knives, muted crimson ties. TR mercenary's gear: rugged leather brigandine, brass antler insignia, red scarf. BL battle mage's gear: purple academic robes under a steel gorget, silver runic bracers. BR shinobi gear: black wrapped ninja tunic, indigo sash, close-fitting sleeves. Upper torso at top center of each cell, neck cut flat at cell top. NO face or head.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-19c10af5-d9f1-426e-bd19-6a76b897c33f.png",
-      "file": "assets/anime/v2/wardrobe_f5.png"
+      "file": "assets/anime/v2/source/wardrobe_f5.png",
+      "originalFile": "assets/anime/v2/wardrobe_f5.png"
     },
     {
       "id": "creatures_5",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL silver-backed giant ape, massive muscular forearms. TR obsidian desert scorpion raised tail and pincers. BL huge emerald cobra hood spread coiled body. BR fire salamander squat six-legged red amphibian with flame fins.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-1ec7d289-0e96-44da-bd11-ca7819ef5033.png",
-      "file": "assets/anime/v2/creatures_5.png"
+      "file": "assets/anime/v2/source/creatures_5.png",
+      "originalFile": "assets/anime/v2/creatures_5.png"
     },
     {
       "id": "creatures_3",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL huge grey troll with moss hair and stone club. TR five-headed jade hydra, distinct serpentine necks, quadruped body. BL majestic white stag with enormous golden branching antlers. BR long coiling wingless violet wyrm, four tiny claws.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-1c1ec06a-2fdc-4021-ba2f-789cab445b0c.png",
-      "file": "assets/anime/v2/creatures_3.png"
+      "file": "assets/anime/v2/source/creatures_3.png",
+      "originalFile": "assets/anime/v2/creatures_3.png"
     },
     {
       "id": "creatures_2",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL elderly green-skinned swamp hag wearing tattered robes, crooked staff. TR smoky violet shadow wraith with hood and ghost claws. BL wiry green goblin thief in patched leather armor, curved dagger. BR hulking green orc warrior, battered iron armor and axe.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-8a3e1e11-c839-4a1f-88c9-f53f846da6ad.png",
-      "file": "assets/anime/v2/creatures_2.png"
+      "file": "assets/anime/v2/source/creatures_2.png",
+      "originalFile": "assets/anime/v2/creatures_2.png"
     },
     {
       "id": "creatures_1",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL huge bristling grey dire wolf. TR tusked muscular brown boar. BL predatory thorn plant, root legs, tendril arms, flower maw. BR green feather-crested raptor dinosaur.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-c59bf044-180b-4ac8-ba8a-62091c39420c.png",
-      "file": "assets/anime/v2/creatures_1.png"
+      "file": "assets/anime/v2/source/creatures_1.png",
+      "originalFile": "assets/anime/v2/creatures_1.png"
     },
     {
       "id": "creatures_4",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL giant gold feather roc eagle wings raised. TR rune-carved stone golem with glowing blue core. BL red drake, four sturdy limbs and small wings. BR iridescent giant rhinoceros beetle six armored legs.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-b03623ed-2085-46c8-9ac5-a810fe8fee6d.png",
-      "file": "assets/anime/v2/creatures_4.png"
+      "file": "assets/anime/v2/source/creatures_4.png",
+      "originalFile": "assets/anime/v2/creatures_4.png"
     },
     {
       "id": "creatures_7",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL huge violet widow spider EIGHT legs, red markings. TR squat giant warty swamp toad, gold eyes. BL bald-necked carrion vulture with ragged brown wings. BR emerald basilisk SIX legs, crownlike dorsal spines, stone-grey belly and long lizard tail.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-5d50fbd8-14ef-401a-b1f2-8aa0449b23d0.png",
-      "file": "assets/anime/v2/creatures_7.png"
+      "file": "assets/anime/v2/source/creatures_7.png",
+      "originalFile": "assets/anime/v2/creatures_7.png"
     },
     {
       "id": "forms_extra",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL luminous red single-tailed fox guardian with gold eyes. TR red three-tailed fox guardian, three flowing separate tails. BL regal white nine-tailed fox spirit, nine elegant flowing tails and vermilion facial marks. BR a STORM ELEMENTAL: floating humanoid made entirely of swirling deep indigo cloud vapor and branching electric-blue lightning, no skin or armor, two luminous eyes.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-629968da-fcf8-4f4e-bb98-7d46cfbe002f.png",
-      "file": "assets/anime/v2/forms_extra.png"
+      "file": "assets/anime/v2/source/forms_extra.png",
+      "originalFile": "assets/anime/v2/forms_extra.png"
     },
     {
       "id": "creatures_6",
       "prompt": "Create ONE original fantasy anime game creature sprite atlas on TRUE transparent alpha, a square exact 2x2 grid, four separate full-body creatures, fully contained with generous transparent margin per cell. Strong clean ink silhouettes, rich natural colors, detailed TWO/THREE TONE CEL SHADING, dramatic believable anatomy; all face three-quarter left, eyes and mouths painted. No text, no frames, no ground, no cast shadows beyond feet, no scenery. Each of the following quadrants a very DIFFERENT species. TL towering moss giant made of roots and tree bark, branch antlers. TR giant horned owl, white speckled plumage and spread wings. BL enormous blue tidal crab, two huge pincers. BR black war hound with iron collar, cropped ears, ember eyes.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-319432d1-fba2-4a06-8377-46257e188d2d.png",
-      "file": "assets/anime/v2/creatures_6.png"
+      "file": "assets/anime/v2/source/creatures_6.png",
+      "originalFile": "assets/anime/v2/creatures_6.png"
     },
     {
       "id": "places_3",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: bustling-looking but unoccupied medieval fantasy city square, coherent cobbled streets, colorful timber houses, shop awnings, fountain, cathedral roofs. BOTTOM: narrow city's back alley with rain drain, crooked doors, stacked crates, laundry ropes, wall lamps and brick texture.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-89bd009d-9ccf-4666-8643-2de29b555455.png",
-      "file": "assets/anime/v2/places_3.png"
+      "file": "assets/anime/v2/source/places_3.png",
+      "originalFile": "assets/anime/v2/places_3.png"
     },
     {
       "id": "places_2",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: ruined hilltop citadel, collapsed arches, mossy weathered marble, wildflowers among stones. BOTTOM: ancient underground crypt, vaulted stone ceiling, niches with sealed coffins, blue ghost lanterns, worn staircase and central open floor.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-58cfd124-b298-405d-92b9-b7f0bc38ad71.png",
-      "file": "assets/anime/v2/places_2.png"
+      "file": "assets/anime/v2/source/places_2.png",
+      "originalFile": "assets/anime/v2/places_2.png"
     },
     {
       "id": "places_1",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: winding country road through grassy hills, old milestone and wooden wagon bridge, distant walled town. BOTTOM: misty marsh causeway, ancient reeds and cypress roots, shallow reflective pools, broken timber walkway.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-1db9218b-5f0a-41c2-bf62-e7f622907643.png",
-      "file": "assets/anime/v2/places_1.png"
+      "file": "assets/anime/v2/source/places_1.png",
+      "originalFile": "assets/anime/v2/places_1.png"
     },
     {
       "id": "places_4",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: fortress prison interior, iron barred cells, guarded empty stone corridor, high dusty windows, wooden stool and keys hanging. BOTTOM: cozy fantasy tavern interior, broad timber beams, bar with bottles, round tables, fireplace, warm window light.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-6540dab7-9ce9-4843-a19d-de906355edc3.png",
-      "file": "assets/anime/v2/places_4.png"
+      "file": "assets/anime/v2/source/places_4.png",
+      "originalFile": "assets/anime/v2/places_4.png"
     },
     {
       "id": "places_7",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: Varenholm mage academy, blue-purple spired university, hovering crystals and arcane observatory in open courtyard. BOTTOM: Bell ninja faction mountain monastery, Japanese-inspired tiled roofs and covered walkways, massive temple bell, bamboo grove and paper charms.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-9c6a2732-2143-4bf9-98b3-34ea489df563.png",
-      "file": "assets/anime/v2/places_7.png"
+      "file": "assets/anime/v2/source/places_7.png",
+      "originalFile": "assets/anime/v2/places_7.png"
     },
     {
       "id": "places_5",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: rocky coastline, turquoise ocean, tidal pools and ruined lighthouse, a shore path. BOTTOM: snowy mountain pass with steep crags, rope bridge, small way shrine, distant peaks.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-f9941a40-7400-47bd-adf3-42bf2d91c16b.png",
-      "file": "assets/anime/v2/places_5.png"
+      "file": "assets/anime/v2/source/places_5.png",
+      "originalFile": "assets/anime/v2/places_5.png"
     },
     {
       "id": "places_8",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: Green samurai faction castle courtyard, curved green tiled roofs, stone defensive walls, emerald crest banners, cherry blossoms and practice field. BOTTOM: Tally pirate faction harbor, red-sailed corsairs, tally-house balconies, rope walkways, crates and busy loading machinery without people.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-710d4a1d-b94c-45e7-97a6-3bd545f94840.png",
-      "file": "assets/anime/v2/places_8.png"
+      "file": "assets/anime/v2/source/places_8.png",
+      "originalFile": "assets/anime/v2/places_8.png"
     },
     {
       "id": "places_6",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: Gaping Maw assassins guild entrance hidden in a gothic city's underground sewer arch, fang-shaped door, concealed dagger marks, dim lanterns. BOTTOM: Antler mercenary guild fortified timber hall in open uplands, antler crest, training dummies and weapon racks.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-0395a259-4f0f-4f62-82de-53902d968e8e.png",
-      "file": "assets/anime/v2/places_6.png"
+      "file": "assets/anime/v2/source/places_6.png",
+      "originalFile": "assets/anime/v2/places_6.png"
     },
     {
       "id": "places_11",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: Birthing House, eerie abandoned alchemical laboratory inside a decayed manor, sealed glass incubation vats, botanical jars, empty bassinets, strange green light, NO gore. BOTTOM: Low Tide, exposed seabed under an abandoned pier, barnacled ship ribs and sunken treasure chapel revealed, tidal channels.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-f3b5eeae-4a01-4e06-aa0c-6ab5e6f8220f.png",
-      "file": "assets/anime/v2/places_11.png"
+      "file": "assets/anime/v2/source/places_11.png",
+      "originalFile": "assets/anime/v2/places_11.png"
     },
     {
       "id": "places_12",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: Pyre, scorched fortress courtyard, ash-swept stone, smoldering braziers and tall ceremonial funeral pyre, threatening burnt red sky. BOTTOM: Maw boss chamber, subterranean assassin king throne hall inside gigantic fang-shaped rock arches, black banners and a long red carpet, torchlit arena floor.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-e027c31c-7ad4-4734-bacf-11dee158e468.png",
-      "file": "assets/anime/v2/places_12.png"
+      "file": "assets/anime/v2/source/places_12.png",
+      "originalFile": "assets/anime/v2/places_12.png"
     },
     {
       "id": "places_9",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: royal Navy shipyard, immaculate white stone admiralty, navy-gold flags, dry dock and warship hulls, cannon stores. BOTTOM: Ossuary, subterranean cathedral of carefully arranged ancient bones, skull niches and vaulted ribs of stone, pale candlelight, broad ceremonial floor.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-81f086be-ccbf-478f-8d07-ef2cc3c0d676.png",
-      "file": "assets/anime/v2/places_9.png"
+      "file": "assets/anime/v2/source/places_9.png",
+      "originalFile": "assets/anime/v2/places_9.png"
     },
     {
       "id": "headgear_2",
       "prompt": "ONE transparent alpha square game headgear atlas, exact 2x2 grid four fully separate hats and hoods, front view, no heads or mannequins inside them. Original fantasy anime clean ink and rich cel shading. TL royal naval captain's BICORNE hat, distinct two points left and right, navy felt, gold braid, white cockade. TR dark charcoal assassin's hood, opening for a face is completely transparent, pointed cloth crown and shoulder flaps. BL emerald ranger hood, transparent open face area, brown leather trim. BR ivory clerical veil and gold circlet, transparent face area. Centered items entirely contained in each equal cell, no text, no floor, no checkerboard.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-5c811be2-8557-41c3-9b4d-adbbabc3ce7d.png",
-      "file": "assets/anime/v2/headgear_2.png"
+      "file": "assets/anime/v2/source/headgear_2.png",
+      "originalFile": "assets/anime/v2/headgear_2.png"
     },
     {
       "id": "places_10",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: Salt Court, grand ruined seaside tribunal with salt-encrusted marble columns, surf breaking beyond open courtroom steps. BOTTOM: Green Altar, sacred forest sanctuary, massive ancient roots encircling a mossy sacrificial stone, carved emerald guardians, glowing motes.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-2055aab3-4edc-44f0-8835-4c82d48bbebd.png",
-      "file": "assets/anime/v2/places_10.png"
+      "file": "assets/anime/v2/source/places_10.png",
+      "originalFile": "assets/anime/v2/places_10.png"
     },
     {
       "id": "places_14",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: humble adventurer camp on grassy outskirts of a fantasy town, patched canvas tent, bedroll, cooking tripod and tiny fire, distant city gates. BOTTOM: affordable rented inn bedroom, small wooden bed, chest, wash basin, rafter ceiling, warm window and candle on desk; no extravagant furniture.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-cdf6d154-1db1-41e6-aaf3-0adb7ed84ccf.png",
-      "file": "assets/anime/v2/places_14.png"
+      "file": "assets/anime/v2/source/places_14.png",
+      "originalFile": "assets/anime/v2/places_14.png"
     },
     {
       "id": "places_16",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: handsome noble mansion, three stories of cream stone, formal gardens, fountains, grand symmetrical entrance and wrought iron railings. BOTTOM: majestic castle home, strong curtain walls, tall blue slate towers, broad courtyard, banners and arched stone bridge over moat.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-c694c2ef-359c-43a5-a747-431187332036.png",
-      "file": "assets/anime/v2/places_16.png"
+      "file": "assets/anime/v2/source/places_16.png",
+      "originalFile": "assets/anime/v2/places_16.png"
     },
     {
       "id": "children",
       "prompt": "ONE transparent alpha texture atlas for an original fantasy anime family RPG, exact 2x2 grid FOUR full separate waist-up CHILD portraits, ages about 9-11, entirely age-appropriate youthful round faces and flat child bodies, modest loose medieval tunics. Clean ink and two-tone cel shading. TL light-skinned girl black bob wearing green wool tunic. TR brown-skinned girl curly hair with ribbons wearing blue modest dress. BL deep brown-skinned boy short natural curls wearing tan tunic. BR pale-skinned boy auburn tousled hair wearing dark blue tunic. Warm neutral expressions, fully drawn anime eyes and closed mouths. No adult proportions, no weapons, no text, no background or scenery, each complete head and shoulders entirely contained in equal quadrant with a transparent gutter.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-f07d45d3-850c-411f-949c-189f14c48b3b.png",
-      "file": "assets/anime/v2/children.png"
+      "file": "assets/anime/v2/source/children.png",
+      "originalFile": "assets/anime/v2/children.png"
     },
     {
       "id": "places_13",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: Green faction final battlefield, shattered jade palace throne dais beneath an enormous ancient cherry tree, broken green armor banners, luminous green storm over distant roofs. BOTTOM: quiet hillside cemetery, weathered headstones, fresh grave with white flowers, small stone chapel and cypress trees, ocean far below.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-47ecf05c-373e-406c-9e12-5657a6773b10.png",
-      "file": "assets/anime/v2/places_13.png"
+      "file": "assets/anime/v2/source/places_13.png",
+      "originalFile": "assets/anime/v2/places_13.png"
     },
     {
       "id": "places_15",
       "prompt": "ONE coordinated environment atlas for an original fantasy anime RPG. Portrait canvas, two wide LANDSCAPE scenes stacked vertically, precisely equal top and bottom halves, no border or text. Each half is a separate complete establishing shot at eye level, with open foreground staging for characters, believable perspective and intricate lived-in details. Rich painterly anime background painting with crisp architectural ink, controlled cel-like light and shadows, clear morning daylight, luminous atmosphere, varied materials, high-end adventure anime. No characters, no interface. TOP: small cozy stone-and-timber cottage beside town, vegetable garden, wooden door, thatched roof, washing line and flower boxes. BOTTOM: sturdy prosperous two-story BRICK HOUSE, clear red brick masonry, glazed windows, slate roof, enclosed garden and iron gate, lantern by oak door.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-38bb6874-2589-4391-bbea-43579c9000bc.png",
-      "file": "assets/anime/v2/places_15.png"
+      "file": "assets/anime/v2/source/places_15.png",
+      "originalFile": "assets/anime/v2/places_15.png"
     },
     {
       "id": "heads_f_styles1",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four adult women. TL deep brown African American woman with long elegant locs swept behind shoulders. TR brown African American woman with box braids in a high bun and laid edges. BL light warm East Asian woman with a sleek straight hime cut and side locks, short forehead bangs ABOVE the eye area. BR medium South Asian woman with a long thick black braid over one shoulder, center part.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-a1a23556-9ef0-4fbd-bda4-2b6c2b15e850.png",
-      "file": "assets/anime/v2/heads_f_styles1.png"
+      "file": "assets/anime/v2/source/heads_f_styles1.png",
+      "originalFile": "assets/anime/v2/heads_f_styles1.png"
     },
     {
       "id": "heads_m_styles2",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four adult men. TL warm brown South Asian man with thick swept wavy black hair and a full neatly groomed beard leaving blank mouth region. TR light East Asian man with long half-up black hair, single silver hairpin, clean shaven. BL fair Caucasian man with swept blond medium-length hair and short blond beard. BR pale Caucasian man with auburn side-part undercut and curled mustache, blank mouth zone.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-b8b64229-74b0-4144-9cfc-57d7e7d77aee.png",
-      "file": "assets/anime/v2/heads_m_styles2.png"
+      "file": "assets/anime/v2/source/heads_m_styles2.png",
+      "originalFile": "assets/anime/v2/heads_m_styles2.png"
     },
     {
       "id": "heads_f_styles2",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four adult women. TL tan Latina woman with long dark loose waves and a high ponytail. TR medium brown Latina woman with a voluminous curly updo and face framing tendrils. BL fair Caucasian woman with a layered blonde wolf cut, bangs swept clear of eyes. BR pale Caucasian woman with an auburn crown braid and short loose waves.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-5f9f9061-ff2b-4ce6-a0a2-c3bbc1ac963f.png",
-      "file": "assets/anime/v2/heads_f_styles2.png"
+      "file": "assets/anime/v2/source/heads_f_styles2.png",
+      "originalFile": "assets/anime/v2/heads_f_styles2.png"
     },
     {
       "id": "heads_m_styles1",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four adult men. TL deep brown African American man with medium freeform locs and chin stubble. TR brown African American man with a high-top curl fade and sharply shaped short beard. BL tan Latino man with dark wavy fade haircut and neat mustache/chin goatee, leaving blank mouth zone. BR light East Asian man with textured black two-block haircut, clean shaven.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-c31b47eb-37c7-4b30-bcc4-d8aa55e668aa.png",
-      "file": "assets/anime/v2/heads_m_styles1.png"
+      "file": "assets/anime/v2/source/heads_m_styles1.png",
+      "originalFile": "assets/anime/v2/heads_m_styles1.png"
     },
     {
       "id": "heads_named_maw",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE named characters reserved for the assassin faction story. TL Wren Pell: adult tan man, angular cheekbones, chestnut forward fringe, pointed goatee and small brass ear hoop. TR Kite: adult brown woman, bold charcoal SIDE SHAVE with short blue-black swept hair, razor scar across right cheek. BL Ossian Vane: mature fair man, long narrow face, slick silver-black side part and sharply tapered beard, aristocratic silver temple clasp. BR Vesna Arden the Lamplighter: adult PALE woman, tightly bound very long auburn ponytail, sharply cut jaw, scar at left eyebrow region. Keep eye and mouth areas blank, no headgear hiding hair.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-a5557d2b-0e2f-4083-b978-a874ef7a0eaf.png",
-      "file": "assets/anime/v2/heads_named_maw.png"
+      "file": "assets/anime/v2/source/heads_named_maw.png",
+      "originalFile": "assets/anime/v2/heads_named_maw.png"
     },
     {
       "id": "heads_named_antler",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE mercenary faction characters. TL Bregga Holt: mature fair woman with copper red side-shaved hair and weathered freckled skin, strong broad jaw. TR Dain Roscarrow: tan athletic adult man with dark buzz cut, broad square jaw, broken crooked nose, chin stubble. BL Aldis Crane: mature fair woman, severe steel-grey braided bun with bronze horn hairpin, dignified strong cheekbones. BR Hargrave: pale adult man, jagged short black fringe and a dramatic white forelock, stern hollow cheeks, short rough black beard and a long cheek scar. No headgear. Eye and mouth regions blank.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-5083d104-2c03-4b21-a17b-ea6c4e08ee19.png",
-      "file": "assets/anime/v2/heads_named_antler.png"
+      "file": "assets/anime/v2/source/heads_named_antler.png",
+      "originalFile": "assets/anime/v2/heads_named_antler.png"
     },
     {
       "id": "heads_named_academy",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE academy faction characters. TL Adept Lirien: brown South Asian adult woman, glossy black braided bun with one blue crystal pin, rounded clever face. TR Cassiel Vaunt: pale adult woman, striking long straight violet-silver hair, elegant pointed cheekbones, small prismatic earrings. BL Magister Ilaria Venn: mature deep DARK African-inspired woman, magnificent silver-threaded round afro and gold temple jewelry, regal strong face. BR The Quiet: ashen grey male necromancer, completely BALD long gaunt head, subtly cracked pale skin, dark recessed EMPTY eye regions for clouded runtime eyes, no beard, no gore. Eyes eyebrows and mouth left blank.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-f08b591a-d976-4b35-9979-9a1d674dd650.png",
-      "file": "assets/anime/v2/heads_named_academy.png"
+      "file": "assets/anime/v2/source/heads_named_academy.png",
+      "originalFile": "assets/anime/v2/heads_named_academy.png"
     },
     {
       "id": "heads_named_tally",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE pirate/admiral story heads. TL Quartermaster Cask: middle-aged brown African-inspired man, thick salt-and-pepper locs with brass rings, broad friendly-weathered face, thick short beard. TR Beau Castell: fair adult Latino-inspired swashbuckler, flowing shoulder-length wavy chestnut hair, narrow pencil mustache and chin tuft, mischievous strong jaw. BL Captain Meriel Saint-Cloud: adult brown woman, elaborate long black captain's braids threaded with red ribbon and gold rings, strong regal cheekbones, healed slash on temple. BR Admiral August Kessler: pale middle-aged man, meticulously clipped iron-grey hair, long narrow stern face, disciplined grey mustache, small scar at bridge of nose. No hats. Blank eye and mouth areas.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-9e1d117f-267e-45e8-adb5-2f4b7a58db11.png",
-      "file": "assets/anime/v2/heads_named_tally.png"
+      "file": "assets/anime/v2/source/heads_named_tally.png",
+      "originalFile": "assets/anime/v2/heads_named_tally.png"
     },
     {
       "id": "heads_named_navy",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE story heads. TL Boatswain Crell: mature tan man, very short sandy buzz cut, broad face, rough stubble and flattened boxer nose. TR Lieutenant Isolde Merrow: adult fair woman, tight neat chestnut naval bun, heart-shaped face, small freckles, navy ribbon. BL Dorian Ash the Tide-Taker: adult tan pirate man, long wild dark auburn hair swept back, rugged cheekbones, black-and-auburn goatee, diagonal healed scar crossing right cheek, one brass ear cuff. BR Hiro the divine ronin: adult pale East Asian man, long flowing blue-black hair half tied, dignified narrow jaw, no beard, single silver temple lock and dark violet hair clasp. No hats. Eyes/mouth blank.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-190a3c4c-8e3e-405b-ba47-f3ad95bb8bc6.png",
-      "file": "assets/anime/v2/heads_named_navy.png"
+      "file": "assets/anime/v2/source/heads_named_navy.png",
+      "originalFile": "assets/anime/v2/heads_named_navy.png"
     },
     {
       "id": "heads_named_bell",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE Hollow Bell ninja faction heads. TL Obaa-San: elderly tan East Asian woman about 75, deeply lined dignified face, small silver-grey bun, thin white temple wisps, no caricature. TR Suzume: young ADULT tan East Asian woman, high black ponytail tied with vermilion cord, rounded spirited face, short side locks. BL Kaede the Bell-Keeper: mature fair East Asian woman, long straight raven hair, refined angular face, small antique bronze bell hairpin, silver temple streak. BR Jiro the Unquiet: UNDEAD adult East Asian male ninja, ashen green-grey corpse complexion, sunken cracked cheeks, stitched scar along jaw, long tangled charcoal hair with white strands, recessed grey empty eye regions for CLOUDY eyes added in game, a broken cloth band around the forehead; no mouth or eyes painted. No gore.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-c329e644-d17a-4e10-a784-14cda35fef89.png",
-      "file": "assets/anime/v2/heads_named_bell.png"
+      "file": "assets/anime/v2/source/heads_named_bell.png",
+      "originalFile": "assets/anime/v2/heads_named_bell.png"
     },
     {
       "id": "heads_named_green",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE Green-Eyed samurai faction heads. TL Master Takeda: mature tan East Asian man, greying warrior topknot, bushy horseshoe mustache and short pointed beard, weathered broad cheeks. TR Ayame: adult fair East Asian woman, dark blue-black high ponytail, short neat bangs above eye region, silver blossom hair clasp, determined round jaw. BL Lord Isamu: adult fair East Asian man, formal black topknot with jade clasp, aristocratic angular jaw, carefully trimmed narrow chin beard. BR Tomoe the Widow: pale adult East Asian woman, waist-long loose ink-black hair with one white mourning ribbon, severe widow's peak and high cheekbones, tiny beauty mark near lower cheek. No helmets. Eye and mouth regions blank.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-eeb7abb9-23fb-442e-aab5-0deae92f0db3.png",
-      "file": "assets/anime/v2/heads_named_green.png"
+      "file": "assets/anime/v2/source/heads_named_green.png",
+      "originalFile": "assets/anime/v2/heads_named_green.png"
     },
     {
       "id": "heads_named_gods",
       "prompt": "ONE transparent modular fantasy anime game HEAD atlas, square image, precise 2 columns by 2 rows equal cells, four adult heads and neck stubs, FRONT VIEW at identical scale. Crisp expressive anime linework, detailed grouped hair, two/three tone cel shading matching a polished fantasy JRPG. Each head occupies 85% of its cell, not touching others, ample transparent gutter. NO shoulders, NO clothes, NO body. All faces deliberately BLANK where the eyes eyebrows and mouths would be, for animation; a subtle small nose may be drawn. All eye regions unobstructed with no bangs over eyes. Actual transparent ALPHA background, no checkerboard, no labels or borders. Four UNIQUE divine heads, original fantasy world, not ordinary NPCs. TL The Pale Mother: ashen ivory adult woman, long white hair like a funeral veil, delicate bone-and-pearl circlet, sculpted mournful face with subtle silver tear tracks, no wounds. TR The Drowned King: undead male ocean monarch, slate blue-grey skin, long seaweed-dark hair braided with shells, long waterlogged dark beard, tarnished coral crown. BL The First Bloom: adult feminine nature deity, warm light skin with subtle leaf veins, enormous cascading rose-gold and green-vine hair adorned with tiny white blossoms, elegant leaf-shaped ears. BR a spare divine statue head: silver stone sexless serene face, sculpted laurel hair, reserved for memorial art. No painted eyes, eyebrows, or mouths, but small noses. No clothes, true transparent alpha.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-0a0ffe55-5bf1-4639-9704-432bfc9fa7a5.png",
-      "file": "assets/anime/v2/heads_named_gods.png"
+      "file": "assets/anime/v2/source/heads_named_gods.png",
+      "originalFile": "assets/anime/v2/heads_named_gods.png"
     },
     {
       "id": "heads_named_gate1",
@@ -402,13 +456,15 @@
       "id": "props_story",
       "prompt": "ONE transparent 2 by 2 game prop atlas. Four independent isolated objects centered in exactly equal square cells, actual transparent ALPHA with clear gutters, NO checkerboard, NO labels, NO borders, NO background. Crisp ink and two-tone cel shaded fantasy anime JRPG style. TL a low grave mound of dark earth with a weathered gray stone headstone carved with an abstract four-point star and a small wreath of white flowers, eye level front view, compact horizontal silhouette. TR a small closed dark wooden fantasy funeral casket with iron corner fittings and one white lily, three quarter front view, no body or person. BL a small black iron lantern with warm amber candle flame inside, full handle and glass visible, front view. BR a cute but natural golden-brown HAMSTER sitting on haunches and holding a seed with both front paws, round small ears, tiny eyes, cream belly, designed to perch on a ranger shoulder, no ground. Each entire object fully inside its own cell, no cast shadows outside object.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-9c7e7444-0d9d-4871-85f2-2746eff65081.png",
-      "file": "assets/anime/v2/props_story.png"
+      "file": "assets/anime/v2/source/props_story.png",
+      "originalFile": "assets/anime/v2/props_story.png"
     },
     {
       "id": "wardrobe_gate",
       "prompt": "ONE transparent game equipment texture ATLAS, square, exact 2 columns by 2 rows of four headless torso sprites in equal cells. Front view, collar at top center, shoulders and relaxed arms fully inside each cell, upper-thigh crop. NO HEAD, HAIR or FACE, no mannequin. Same body proportions in all four cells. High-quality original fantasy anime ink and two/three-tone cel shading, nuanced materials and believable tailoring. Fully clothed, actual ALPHA transparent background and gutters, no words, borders or checkerboard. TL adult WOMAN Warden's Gear: fitted ivory and deep teal long battle coat, bronze protective breastplate shaped for adult feminine bust, layered split skirt over trousers, practical gloves, distinct silver lantern-and-oak branch insignia. TR adult MAN Warden's Gear: matching ivory teal long field coat, broad bronze breastplate, trousers, gloves, SAME lantern-and-oak insignia. BL massive adult MAN Korvath villain torso: huge blackened steel spiked plate, black cloak, severe angular pauldrons, steel gauntlets, dark crimson lining, royal brutal elegance. BR huge adult MAN Bramm ranger torso: rugged deep plum leather and brown hide field harness, fur lining, quiver behind shoulder, pale linen sleeves, thick belt and ranger's utility pouches. Match collars to top center and fill each square to edges without clipping shoulders. NO necks, no heads, no skin, closed collars.",
       "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-ffa9950b-dc40-4c90-954b-1960397e8378.png",
-      "file": "assets/anime/v2/wardrobe_gate.png"
+      "file": "assets/anime/v2/source/wardrobe_gate.png",
+      "originalFile": "assets/anime/v2/wardrobe_gate.png"
     }
   ]
 }

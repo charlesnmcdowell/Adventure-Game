@@ -1,0 +1,1635 @@
+{
+  "date": "2026-09-11",
+  "root": "C:\\Users\\charl\\The Sorcerer Sword ARPG\\adventurer",
+  "completed": true,
+  "note": "All files preserved. sha256 records original bytes; sha256AfterOrganization records final bytes after documented path/link corrections. Existing art archive remains in place. To locate an old file, match its from path to its to path. Reverse moves only after checking destination collisions and reverting dependent tool references.",
+  "moves": [
+    {
+      "from": "GDD.md",
+      "to": "docs/design/GDD.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "CAMPAIGN.md",
+      "to": "docs/design/CAMPAIGN.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "NINJAVSPIRATES.md",
+      "to": "docs/design/NINJAVSPIRATES.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "VARENHOLMS_GATE_CAMPAIGN.md",
+      "to": "docs/design/VARENHOLMS_GATE_CAMPAIGN.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "ANIME_ART_OVERHAUL_PROMPT.md",
+      "to": "docs/prompts/ANIME_ART_OVERHAUL_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "DOT_PROMPT.md",
+      "to": "docs/prompts/DOT_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "EFFECTS_PROMPT.md",
+      "to": "docs/prompts/EFFECTS_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "EXPRESSION_PROMPT.md",
+      "to": "docs/prompts/EXPRESSION_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "FX_WEATHER_PROMPT.md",
+      "to": "docs/prompts/FX_WEATHER_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "HEALER_DRUID_PROMPT.md",
+      "to": "docs/prompts/HEALER_DRUID_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "SURVIVAL_PROMPT.md",
+      "to": "docs/prompts/SURVIVAL_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "UPDATE_PROMPT.md",
+      "to": "docs/prompts/UPDATE_PROMPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "ADVENTURER_SCRIPT_REVISED.md",
+      "to": "docs/dialogue/ADVENTURER_SCRIPT_REVISED.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "DIALOGUE_BONUS_REVIEW.md",
+      "to": "docs/dialogue/DIALOGUE_BONUS_REVIEW.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "DIALOGUE_IMPLEMENTATION_REVIEW.md",
+      "to": "docs/dialogue/DIALOGUE_IMPLEMENTATION_REVIEW.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "DIALOGUE_REVIEW_PROPOSAL.md",
+      "to": "docs/dialogue/DIALOGUE_REVIEW_PROPOSAL.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "DIALOGUE_SCRIPT_SAMPLES.md",
+      "to": "docs/dialogue/DIALOGUE_SCRIPT_SAMPLES.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "PERSONALITY_DIALOGUE_CHANGES.md",
+      "to": "docs/dialogue/PERSONALITY_DIALOGUE_CHANGES.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "PERSONALITY_DIALOGUE_REVIEW.md",
+      "to": "docs/dialogue/PERSONALITY_DIALOGUE_REVIEW.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "VARENHOLMS_GATE_VOICE_SCRIPT.md",
+      "to": "docs/dialogue/VARENHOLMS_GATE_VOICE_SCRIPT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "ANIME_ART_INVENTORY.json",
+      "to": "docs/art/ANIME_ART_INVENTORY.json",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "ANIME_ART_UPDATE.md",
+      "to": "docs/art/ANIME_ART_UPDATE.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "ANIME_GEAR_PLAN.md",
+      "to": "docs/art/ANIME_GEAR_PLAN.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "TRAVEL_CINEMA_UPDATE.md",
+      "to": "docs/art/TRAVEL_CINEMA_UPDATE.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "VARENHOLMS_GATE_ART_AUDIT.md",
+      "to": "docs/art/VARENHOLMS_GATE_ART_AUDIT.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "VARENHOLMS_GATE_ART_REQUIREMENTS.md",
+      "to": "docs/art/VARENHOLMS_GATE_ART_REQUIREMENTS.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "VARENHOLMS_GATE_ART_UPDATE.md",
+      "to": "docs/art/VARENHOLMS_GATE_ART_UPDATE.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "DIFFICULTY_UPDATE_REVIEW.md",
+      "to": "docs/updates/DIFFICULTY_UPDATE_REVIEW.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "LIFECYCLE_PARTY_UPDATE.md",
+      "to": "docs/updates/LIFECYCLE_PARTY_UPDATE.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "TRAVEL_EXPANSION_REVIEW.md",
+      "to": "docs/updates/TRAVEL_EXPANSION_REVIEW.md",
+      "reason": "Documentation grouped by topic"
+    },
+    {
+      "from": "README.md",
+      "to": "docs/history/PROJECT_HISTORY.md",
+      "reason": "Original project history preserved; concise launch guide replaces root README"
+    },
+    {
+      "from": "_snapshot",
+      "to": "archive/backups/snapshot",
+      "reason": "Historical project snapshots"
+    },
+    {
+      "from": "_to_delete_vo.zip",
+      "to": "archive/backups/voice/_to_delete_vo.zip",
+      "reason": "Voice backup retained, not deleted"
+    },
+    {
+      "from": "Claude outputs",
+      "to": "archive/legacy/claude-outputs",
+      "reason": "Legacy exports and voice auditions retained together"
+    },
+    {
+      "from": "ads",
+      "to": "marketing/ads",
+      "reason": "Marketing project kept intact with its relative paths"
+    },
+    {
+      "from": "assets/anime/v2/children.png",
+      "to": "assets/anime/v2/source/children.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/creatures_1.png",
+      "to": "assets/anime/v2/source/creatures_1.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/creatures_2.png",
+      "to": "assets/anime/v2/source/creatures_2.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/creatures_3.png",
+      "to": "assets/anime/v2/source/creatures_3.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/creatures_4.png",
+      "to": "assets/anime/v2/source/creatures_4.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/creatures_5.png",
+      "to": "assets/anime/v2/source/creatures_5.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/creatures_6.png",
+      "to": "assets/anime/v2/source/creatures_6.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/creatures_7.png",
+      "to": "assets/anime/v2/source/creatures_7.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/forms_extra.png",
+      "to": "assets/anime/v2/source/forms_extra.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/headgear_2.png",
+      "to": "assets/anime/v2/source/headgear_2.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/headgear.png",
+      "to": "assets/anime/v2/source/headgear.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_extra.png",
+      "to": "assets/anime/v2/source/heads_extra.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_f_styles1.png",
+      "to": "assets/anime/v2/source/heads_f_styles1.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_f_styles2.png",
+      "to": "assets/anime/v2/source/heads_f_styles2.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_f.png",
+      "to": "assets/anime/v2/source/heads_f.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_m_styles1.png",
+      "to": "assets/anime/v2/source/heads_m_styles1.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_m_styles2.png",
+      "to": "assets/anime/v2/source/heads_m_styles2.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_m.png",
+      "to": "assets/anime/v2/source/heads_m.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_academy.png",
+      "to": "assets/anime/v2/source/heads_named_academy.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_antler.png",
+      "to": "assets/anime/v2/source/heads_named_antler.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_bell.png",
+      "to": "assets/anime/v2/source/heads_named_bell.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_gods.png",
+      "to": "assets/anime/v2/source/heads_named_gods.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_green.png",
+      "to": "assets/anime/v2/source/heads_named_green.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_maw.png",
+      "to": "assets/anime/v2/source/heads_named_maw.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_navy.png",
+      "to": "assets/anime/v2/source/heads_named_navy.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_tally.png",
+      "to": "assets/anime/v2/source/heads_named_tally.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_1.png",
+      "to": "assets/anime/v2/source/places_1.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_10.png",
+      "to": "assets/anime/v2/source/places_10.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_11.png",
+      "to": "assets/anime/v2/source/places_11.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_12.png",
+      "to": "assets/anime/v2/source/places_12.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_13.png",
+      "to": "assets/anime/v2/source/places_13.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_14.png",
+      "to": "assets/anime/v2/source/places_14.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_15.png",
+      "to": "assets/anime/v2/source/places_15.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_16.png",
+      "to": "assets/anime/v2/source/places_16.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_2.png",
+      "to": "assets/anime/v2/source/places_2.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_3.png",
+      "to": "assets/anime/v2/source/places_3.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_4.png",
+      "to": "assets/anime/v2/source/places_4.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_5.png",
+      "to": "assets/anime/v2/source/places_5.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_6.png",
+      "to": "assets/anime/v2/source/places_6.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_7.png",
+      "to": "assets/anime/v2/source/places_7.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_8.png",
+      "to": "assets/anime/v2/source/places_8.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/places_9.png",
+      "to": "assets/anime/v2/source/places_9.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/props_story.png",
+      "to": "assets/anime/v2/source/props_story.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f1.png",
+      "to": "assets/anime/v2/source/wardrobe_f1.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f2.png",
+      "to": "assets/anime/v2/source/wardrobe_f2.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f3.png",
+      "to": "assets/anime/v2/source/wardrobe_f3.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f4.png",
+      "to": "assets/anime/v2/source/wardrobe_f4.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f5.png",
+      "to": "assets/anime/v2/source/wardrobe_f5.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f6.png",
+      "to": "assets/anime/v2/source/wardrobe_f6.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_gate.png",
+      "to": "assets/anime/v2/source/wardrobe_gate.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m1.png",
+      "to": "assets/anime/v2/source/wardrobe_m1.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m2.png",
+      "to": "assets/anime/v2/source/wardrobe_m2.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m3.png",
+      "to": "assets/anime/v2/source/wardrobe_m3.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m4.png",
+      "to": "assets/anime/v2/source/wardrobe_m4.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m5.png",
+      "to": "assets/anime/v2/source/wardrobe_m5.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m6.png",
+      "to": "assets/anime/v2/source/wardrobe_m6.png",
+      "reason": "Original art separated from runtime exports"
+    },
+    {
+      "from": "test/_balance_full_out.txt",
+      "to": "test/reports/_balance_full_out.txt",
+      "reason": "Historical test output separated from test code"
+    },
+    {
+      "from": "test/_browser_out.txt",
+      "to": "test/reports/_browser_out.txt",
+      "reason": "Historical test output separated from test code"
+    },
+    {
+      "from": "test/_browser_summary.txt",
+      "to": "test/reports/_browser_summary.txt",
+      "reason": "Historical test output separated from test code"
+    },
+    {
+      "from": "test/_npm_test_out.txt",
+      "to": "test/reports/_npm_test_out.txt",
+      "reason": "Historical test output separated from test code"
+    },
+    {
+      "from": "test/_suite_summary.txt",
+      "to": "test/reports/_suite_summary.txt",
+      "reason": "Historical test output separated from test code"
+    },
+    {
+      "from": "Claude outputs/creation_after.png",
+      "to": "archive/legacy/late-review-captures/creation_after.png",
+      "reason": "Review capture created during cleanup; entire folder retained without deletion"
+    }
+  ],
+  "files": [
+    {
+      "from": "GDD.md",
+      "to": "docs/design/GDD.md",
+      "bytes": 206832,
+      "sha256": "45ebc4d4ffb18279f68fd1c34947871e1bb0a73b4fa87cfd527493e8d5cf828f",
+      "sha256AfterOrganization": "45ebc4d4ffb18279f68fd1c34947871e1bb0a73b4fa87cfd527493e8d5cf828f"
+    },
+    {
+      "from": "CAMPAIGN.md",
+      "to": "docs/design/CAMPAIGN.md",
+      "bytes": 106581,
+      "sha256": "54a76bc9f2f1164be79c77f0dd325a80da165d5cdfb8ab6bf1d55f8e032db946",
+      "sha256AfterOrganization": "54a76bc9f2f1164be79c77f0dd325a80da165d5cdfb8ab6bf1d55f8e032db946"
+    },
+    {
+      "from": "NINJAVSPIRATES.md",
+      "to": "docs/design/NINJAVSPIRATES.md",
+      "bytes": 50886,
+      "sha256": "163d304fe8bcb1e943067b3cb4b407dd81570f6a1638617489f6966d177ae815",
+      "sha256AfterOrganization": "163d304fe8bcb1e943067b3cb4b407dd81570f6a1638617489f6966d177ae815"
+    },
+    {
+      "from": "VARENHOLMS_GATE_CAMPAIGN.md",
+      "to": "docs/design/VARENHOLMS_GATE_CAMPAIGN.md",
+      "bytes": 23959,
+      "sha256": "b9386f2c305065ad5d8617dce359ef921d71e56d6b87fd9ffbc5bcd15e38bd38",
+      "sha256AfterOrganization": "b9386f2c305065ad5d8617dce359ef921d71e56d6b87fd9ffbc5bcd15e38bd38"
+    },
+    {
+      "from": "ANIME_ART_OVERHAUL_PROMPT.md",
+      "to": "docs/prompts/ANIME_ART_OVERHAUL_PROMPT.md",
+      "bytes": 22026,
+      "sha256": "14e2306a22934b0a0fb898cd79a1e42c2988b928d81e411b0e1c1f606b2e2c84",
+      "sha256AfterOrganization": "14e2306a22934b0a0fb898cd79a1e42c2988b928d81e411b0e1c1f606b2e2c84"
+    },
+    {
+      "from": "DOT_PROMPT.md",
+      "to": "docs/prompts/DOT_PROMPT.md",
+      "bytes": 18711,
+      "sha256": "845065262706a79bbce4ac0ec07f44b160f3c33eb8f925f915bf80efd1b2689e",
+      "sha256AfterOrganization": "845065262706a79bbce4ac0ec07f44b160f3c33eb8f925f915bf80efd1b2689e"
+    },
+    {
+      "from": "EFFECTS_PROMPT.md",
+      "to": "docs/prompts/EFFECTS_PROMPT.md",
+      "bytes": 25263,
+      "sha256": "b2a4eefc8b62e5ada7a26f401eaa563867ad7812383b08dcfb7e0ccf0cfd4fe3",
+      "sha256AfterOrganization": "b2a4eefc8b62e5ada7a26f401eaa563867ad7812383b08dcfb7e0ccf0cfd4fe3"
+    },
+    {
+      "from": "EXPRESSION_PROMPT.md",
+      "to": "docs/prompts/EXPRESSION_PROMPT.md",
+      "bytes": 36495,
+      "sha256": "df77593e6f696cc9deb234cef74224eceb9c8af5adb6288e6bed7a5a37e8c11a",
+      "sha256AfterOrganization": "df77593e6f696cc9deb234cef74224eceb9c8af5adb6288e6bed7a5a37e8c11a"
+    },
+    {
+      "from": "FX_WEATHER_PROMPT.md",
+      "to": "docs/prompts/FX_WEATHER_PROMPT.md",
+      "bytes": 41900,
+      "sha256": "e0e1d6ee943e179cfcabf6dc882f44c835ef59df6468dc587d4d9a1961e18825",
+      "sha256AfterOrganization": "e0e1d6ee943e179cfcabf6dc882f44c835ef59df6468dc587d4d9a1961e18825"
+    },
+    {
+      "from": "HEALER_DRUID_PROMPT.md",
+      "to": "docs/prompts/HEALER_DRUID_PROMPT.md",
+      "bytes": 21180,
+      "sha256": "f1b1367fdac16f67944101ee4cd61408fee7a940639f1f05378181262f4ff3d7",
+      "sha256AfterOrganization": "f1b1367fdac16f67944101ee4cd61408fee7a940639f1f05378181262f4ff3d7"
+    },
+    {
+      "from": "SURVIVAL_PROMPT.md",
+      "to": "docs/prompts/SURVIVAL_PROMPT.md",
+      "bytes": 26837,
+      "sha256": "76d0b3a238dccf1e1041e443dfcb5aca4612f0a59f7408a6767fd3dc8f847a07",
+      "sha256AfterOrganization": "76d0b3a238dccf1e1041e443dfcb5aca4612f0a59f7408a6767fd3dc8f847a07"
+    },
+    {
+      "from": "UPDATE_PROMPT.md",
+      "to": "docs/prompts/UPDATE_PROMPT.md",
+      "bytes": 22595,
+      "sha256": "a48815f967b5dfdea867bcabbceb1998b90899b904d70972ea32e5812165ea9e",
+      "sha256AfterOrganization": "a48815f967b5dfdea867bcabbceb1998b90899b904d70972ea32e5812165ea9e"
+    },
+    {
+      "from": "ADVENTURER_SCRIPT_REVISED.md",
+      "to": "docs/dialogue/ADVENTURER_SCRIPT_REVISED.md",
+      "bytes": 529237,
+      "sha256": "c4b5e46538fc8e83cd2b9316e2989be29913c09a8c161eef2ae9ce2a73378d51",
+      "sha256AfterOrganization": "c4b5e46538fc8e83cd2b9316e2989be29913c09a8c161eef2ae9ce2a73378d51"
+    },
+    {
+      "from": "DIALOGUE_BONUS_REVIEW.md",
+      "to": "docs/dialogue/DIALOGUE_BONUS_REVIEW.md",
+      "bytes": 90534,
+      "sha256": "61ddbd2b357f257b0d97b18daad44993008e9f721100167d31b7ced92d725009",
+      "sha256AfterOrganization": "61ddbd2b357f257b0d97b18daad44993008e9f721100167d31b7ced92d725009"
+    },
+    {
+      "from": "DIALOGUE_IMPLEMENTATION_REVIEW.md",
+      "to": "docs/dialogue/DIALOGUE_IMPLEMENTATION_REVIEW.md",
+      "bytes": 13175,
+      "sha256": "f04cd129488ddcbcf31a7f59448ead37fe4f5333ac5a57b4b6d51a8c889cdbda",
+      "sha256AfterOrganization": "f04cd129488ddcbcf31a7f59448ead37fe4f5333ac5a57b4b6d51a8c889cdbda"
+    },
+    {
+      "from": "DIALOGUE_REVIEW_PROPOSAL.md",
+      "to": "docs/dialogue/DIALOGUE_REVIEW_PROPOSAL.md",
+      "bytes": 23658,
+      "sha256": "f6c6906a897b013a28751d95b4f25fe65a910922e44601e08ea51443e8608428",
+      "sha256AfterOrganization": "f6c6906a897b013a28751d95b4f25fe65a910922e44601e08ea51443e8608428"
+    },
+    {
+      "from": "DIALOGUE_SCRIPT_SAMPLES.md",
+      "to": "docs/dialogue/DIALOGUE_SCRIPT_SAMPLES.md",
+      "bytes": 11630,
+      "sha256": "2a0899fad95504d0f73851761d66a7e17fc72a710c9e452825529316530510e9",
+      "sha256AfterOrganization": "2a0899fad95504d0f73851761d66a7e17fc72a710c9e452825529316530510e9"
+    },
+    {
+      "from": "PERSONALITY_DIALOGUE_CHANGES.md",
+      "to": "docs/dialogue/PERSONALITY_DIALOGUE_CHANGES.md",
+      "bytes": 542043,
+      "sha256": "65b7c0a8cc8886681fd00dc2e4b4b6ed9b23dc9766b0c431d9485c25a1183b78",
+      "sha256AfterOrganization": "65b7c0a8cc8886681fd00dc2e4b4b6ed9b23dc9766b0c431d9485c25a1183b78"
+    },
+    {
+      "from": "PERSONALITY_DIALOGUE_REVIEW.md",
+      "to": "docs/dialogue/PERSONALITY_DIALOGUE_REVIEW.md",
+      "bytes": 3655,
+      "sha256": "75f1748a8189c77456ab3ee7168e8de06fc0759f11e800e26bd652f987970bde",
+      "sha256AfterOrganization": "75f1748a8189c77456ab3ee7168e8de06fc0759f11e800e26bd652f987970bde"
+    },
+    {
+      "from": "VARENHOLMS_GATE_VOICE_SCRIPT.md",
+      "to": "docs/dialogue/VARENHOLMS_GATE_VOICE_SCRIPT.md",
+      "bytes": 293004,
+      "sha256": "b37e857c731b2e10c8355512ddca34f686ef52ac3a7b432c0ab5d2a781e7a920",
+      "sha256AfterOrganization": "b37e857c731b2e10c8355512ddca34f686ef52ac3a7b432c0ab5d2a781e7a920"
+    },
+    {
+      "from": "ANIME_ART_INVENTORY.json",
+      "to": "docs/art/ANIME_ART_INVENTORY.json",
+      "bytes": 106663,
+      "sha256": "581f63e06342f29ff7172e2cd7eeb0e27569eb68c6c23faef2b9a040a241ef8d",
+      "sha256AfterOrganization": "581f63e06342f29ff7172e2cd7eeb0e27569eb68c6c23faef2b9a040a241ef8d"
+    },
+    {
+      "from": "ANIME_ART_UPDATE.md",
+      "to": "docs/art/ANIME_ART_UPDATE.md",
+      "bytes": 8509,
+      "sha256": "0bfc055b1e1fb78779abb0c549ca481ece4f84f2e481ec2d024dabbf275ae2cf",
+      "sha256AfterOrganization": "0bfc055b1e1fb78779abb0c549ca481ece4f84f2e481ec2d024dabbf275ae2cf"
+    },
+    {
+      "from": "ANIME_GEAR_PLAN.md",
+      "to": "docs/art/ANIME_GEAR_PLAN.md",
+      "bytes": 3662,
+      "sha256": "c436b44c34a27ccbabbd27711f938a8f0e6b85c10ee5b1b08f0ef75ab07d2cc7",
+      "sha256AfterOrganization": "c436b44c34a27ccbabbd27711f938a8f0e6b85c10ee5b1b08f0ef75ab07d2cc7"
+    },
+    {
+      "from": "TRAVEL_CINEMA_UPDATE.md",
+      "to": "docs/art/TRAVEL_CINEMA_UPDATE.md",
+      "bytes": 3546,
+      "sha256": "55bdf6e74e0673e73288e8221401a6b51e3679a84ade955092a2544d29735716",
+      "sha256AfterOrganization": "55bdf6e74e0673e73288e8221401a6b51e3679a84ade955092a2544d29735716"
+    },
+    {
+      "from": "VARENHOLMS_GATE_ART_AUDIT.md",
+      "to": "docs/art/VARENHOLMS_GATE_ART_AUDIT.md",
+      "bytes": 6909,
+      "sha256": "d01b5973bcf22f0b46e9159c1efcef270f571e4a3fa251624edf9cf5f3d84498",
+      "sha256AfterOrganization": "5aeff7c0abe0d0850459fb4cffb379701c7ef8711b6f0b4da2199da0889fb6bc"
+    },
+    {
+      "from": "VARENHOLMS_GATE_ART_REQUIREMENTS.md",
+      "to": "docs/art/VARENHOLMS_GATE_ART_REQUIREMENTS.md",
+      "bytes": 25208,
+      "sha256": "00e8987fb5317ef805db7c90e2057e251dff2bd102d223851ad87cb4e7b9baeb",
+      "sha256AfterOrganization": "00e8987fb5317ef805db7c90e2057e251dff2bd102d223851ad87cb4e7b9baeb"
+    },
+    {
+      "from": "VARENHOLMS_GATE_ART_UPDATE.md",
+      "to": "docs/art/VARENHOLMS_GATE_ART_UPDATE.md",
+      "bytes": 7541,
+      "sha256": "58dfcaa744df74014a057e44f47f5b6c24b611e2231b91224d341889c33a13fc",
+      "sha256AfterOrganization": "58dfcaa744df74014a057e44f47f5b6c24b611e2231b91224d341889c33a13fc"
+    },
+    {
+      "from": "DIFFICULTY_UPDATE_REVIEW.md",
+      "to": "docs/updates/DIFFICULTY_UPDATE_REVIEW.md",
+      "bytes": 6285,
+      "sha256": "452acd7d3573c50b7db183532aa4ca3f66eb7829223a190c08db7ea70470495c",
+      "sha256AfterOrganization": "452acd7d3573c50b7db183532aa4ca3f66eb7829223a190c08db7ea70470495c"
+    },
+    {
+      "from": "LIFECYCLE_PARTY_UPDATE.md",
+      "to": "docs/updates/LIFECYCLE_PARTY_UPDATE.md",
+      "bytes": 3947,
+      "sha256": "11fb7fa56ef12711517ced520a3af3f9601045923eb75d5da87fb9314cc397e9",
+      "sha256AfterOrganization": "11fb7fa56ef12711517ced520a3af3f9601045923eb75d5da87fb9314cc397e9"
+    },
+    {
+      "from": "TRAVEL_EXPANSION_REVIEW.md",
+      "to": "docs/updates/TRAVEL_EXPANSION_REVIEW.md",
+      "bytes": 11901,
+      "sha256": "b7e6015aae00819ebc1a3237c9522aac66fc485218d26a175f5a0287640b48cd",
+      "sha256AfterOrganization": "7923dfcc8159d1e80342d69fcf231979105195900c1cfe549dc394f94faa916c"
+    },
+    {
+      "from": "README.md",
+      "to": "docs/history/PROJECT_HISTORY.md",
+      "bytes": 55883,
+      "sha256": "1e61c79d4187b0064e9ecd2090bed6534f88be2bf4ea43fc21d5a4ddb989b88d",
+      "sha256AfterOrganization": "1e61c79d4187b0064e9ecd2090bed6534f88be2bf4ea43fc21d5a4ddb989b88d"
+    },
+    {
+      "from": "_snapshot/adv_assets.tgz",
+      "to": "archive/backups/snapshot/adv_assets.tgz",
+      "bytes": 207268159,
+      "sha256": "b370f4da90bf301579c06457157712f3de943632b886f9efbf2ea46d340ae444",
+      "sha256AfterOrganization": "b370f4da90bf301579c06457157712f3de943632b886f9efbf2ea46d340ae444"
+    },
+    {
+      "from": "_snapshot/adv_js.tgz",
+      "to": "archive/backups/snapshot/adv_js.tgz",
+      "bytes": 715611,
+      "sha256": "9ca58297cefc30763e1639d9da58c044bf73f1727c4047179458e23e7e4d2016",
+      "sha256AfterOrganization": "9ca58297cefc30763e1639d9da58c044bf73f1727c4047179458e23e7e4d2016"
+    },
+    {
+      "from": "_snapshot/adv_rt.tgz",
+      "to": "archive/backups/snapshot/adv_rt.tgz",
+      "bytes": 72356698,
+      "sha256": "f2889077b60d85de759db625f3c0f5467b286349db707cf589abbc66bad2a3f1",
+      "sha256AfterOrganization": "f2889077b60d85de759db625f3c0f5467b286349db707cf589abbc66bad2a3f1"
+    },
+    {
+      "from": "_snapshot/adv_src.tgz",
+      "to": "archive/backups/snapshot/adv_src.tgz",
+      "bytes": 1025056,
+      "sha256": "c76935d5ba2fd3100e4ee3c9a6059e203398867f030d33527270b3307ff4781b",
+      "sha256AfterOrganization": "c76935d5ba2fd3100e4ee3c9a6059e203398867f030d33527270b3307ff4781b"
+    },
+    {
+      "from": "_snapshot/README_section.md",
+      "to": "archive/backups/snapshot/README_section.md",
+      "bytes": 1617,
+      "sha256": "82ef4b476b6d0fa47ad2e06bcd76b63f3a79a3659eab6ac0c51fb75eeb1ad8ff",
+      "sha256AfterOrganization": "82ef4b476b6d0fa47ad2e06bcd76b63f3a79a3659eab6ac0c51fb75eeb1ad8ff"
+    },
+    {
+      "from": "_to_delete_vo.zip",
+      "to": "archive/backups/voice/_to_delete_vo.zip",
+      "bytes": 15175369,
+      "sha256": "854114dcd85bb957b1b02a8996b2ead436d510f4e7c1319021c53a8cbed66879",
+      "sha256AfterOrganization": "854114dcd85bb957b1b02a8996b2ead436d510f4e7c1319021c53a8cbed66879"
+    },
+    {
+      "from": "Claude outputs/adv_code2.tgz",
+      "to": "archive/legacy/claude-outputs/adv_code2.tgz",
+      "bytes": 736121,
+      "sha256": "3d01e789f1fbb6c4598188729cdf1da03f02c902f8052b759d8c9bba4e361f89",
+      "sha256AfterOrganization": "3d01e789f1fbb6c4598188729cdf1da03f02c902f8052b759d8c9bba4e361f89"
+    },
+    {
+      "from": "Claude outputs/adv_code3.tgz",
+      "to": "archive/legacy/claude-outputs/adv_code3.tgz",
+      "bytes": 1052187,
+      "sha256": "6f8199c4bcb1a9963292aba4249ab3c77fe2082d71d175e02f46e73ac6c22d39",
+      "sha256AfterOrganization": "6f8199c4bcb1a9963292aba4249ab3c77fe2082d71d175e02f46e73ac6c22d39"
+    },
+    {
+      "from": "Claude outputs/ADVENTURER_SCRIPT.md",
+      "to": "archive/legacy/claude-outputs/ADVENTURER_SCRIPT.md",
+      "bytes": 230311,
+      "sha256": "0f476311047de0d980ae3a9cbb7317be960fd8401df7ffd129f1131ae4b13c50",
+      "sha256AfterOrganization": "0f476311047de0d980ae3a9cbb7317be960fd8401df7ffd129f1131ae4b13c50"
+    },
+    {
+      "from": "Claude outputs/bahadir_q3_ford.mp3",
+      "to": "archive/legacy/claude-outputs/bahadir_q3_ford.mp3",
+      "bytes": 91995,
+      "sha256": "0e437db85f55815baafe8edbbbab01d76841347ed9555db414274714c9176f1e",
+      "sha256AfterOrganization": "0e437db85f55815baafe8edbbbab01d76841347ed9555db414274714c9176f1e"
+    },
+    {
+      "from": "Claude outputs/BAHADIR_v2.mp3",
+      "to": "archive/legacy/claude-outputs/BAHADIR_v2.mp3",
+      "bytes": 912867,
+      "sha256": "577ac6388e9cd385b3b737e19193eac28d34cb226adb3bac362d85331626b4c2",
+      "sha256AfterOrganization": "577ac6388e9cd385b3b737e19193eac28d34cb226adb3bac362d85331626b4c2"
+    },
+    {
+      "from": "Claude outputs/Coiling_Dragon_exe_Ch01_v2.mp3",
+      "to": "archive/legacy/claude-outputs/Coiling_Dragon_exe_Ch01_v2.mp3",
+      "bytes": 6701601,
+      "sha256": "4f69f34b9946328f631bce95dad8b733b3af5ca50c7f11f1cccb4ce49868247e",
+      "sha256AfterOrganization": "4f69f34b9946328f631bce95dad8b733b3af5ca50c7f11f1cccb4ce49868247e"
+    },
+    {
+      "from": "Claude outputs/coiling_dragon_parody_ch1.md",
+      "to": "archive/legacy/claude-outputs/coiling_dragon_parody_ch1.md",
+      "bytes": 5913,
+      "sha256": "6f7a1ab6b19c14747c23e05e780b8a8015f93bd850c5b544b67ec251f4e63e49",
+      "sha256AfterOrganization": "6f7a1ab6b19c14747c23e05e780b8a8015f93bd850c5b544b67ec251f4e63e49"
+    },
+    {
+      "from": "Claude outputs/delphine_q2_sit_down.mp3",
+      "to": "archive/legacy/claude-outputs/delphine_q2_sit_down.mp3",
+      "bytes": 88233,
+      "sha256": "f7c2ad567eb20f89b8b164a567dd4811e048e9570af11f36a59bbaa29eb5029b",
+      "sha256AfterOrganization": "f7c2ad567eb20f89b8b164a567dd4811e048e9570af11f36a59bbaa29eb5029b"
+    },
+    {
+      "from": "Claude outputs/demons_within_ep01_coming_rain.md",
+      "to": "archive/legacy/claude-outputs/demons_within_ep01_coming_rain.md",
+      "bytes": 18870,
+      "sha256": "13c856502eeee1f2f8b24751819ce1f1fc2947fce207b537f038a7bf0a34aae3",
+      "sha256AfterOrganization": "13c856502eeee1f2f8b24751819ce1f1fc2947fce207b537f038a7bf0a34aae3"
+    },
+    {
+      "from": "Claude outputs/demons_within_pitch.md",
+      "to": "archive/legacy/claude-outputs/demons_within_pitch.md",
+      "bytes": 5112,
+      "sha256": "783c7ee1df0b32c2163c5ecf4ef78ceb9df8489f922fa097d368ea78a520d9ae",
+      "sha256AfterOrganization": "783c7ee1df0b32c2163c5ecf4ef78ceb9df8489f922fa097d368ea78a520d9ae"
+    },
+    {
+      "from": "Claude outputs/dev_now.tgz",
+      "to": "archive/legacy/claude-outputs/dev_now.tgz",
+      "bytes": 383299,
+      "sha256": "dd99fe18f4bf0e0c7f7122045229c835724d313fad2e56e2917838a977a9b248",
+      "sha256AfterOrganization": "dd99fe18f4bf0e0c7f7122045229c835724d313fad2e56e2917838a977a9b248"
+    },
+    {
+      "from": "Claude outputs/fx_conscription.png",
+      "to": "archive/legacy/claude-outputs/fx_conscription.png",
+      "bytes": 190629,
+      "sha256": "c266f192a2fb99681aeef371959babd86bbd0605acbb5253309f85f521122d58",
+      "sha256AfterOrganization": "c266f192a2fb99681aeef371959babd86bbd0605acbb5253309f85f521122d58"
+    },
+    {
+      "from": "Claude outputs/fx_giant_fireball.png",
+      "to": "archive/legacy/claude-outputs/fx_giant_fireball.png",
+      "bytes": 203082,
+      "sha256": "55eae05e3255074cfe6f8bac22ed8ec69c4d52cb3e1b2472ea16ee292a6ba65b",
+      "sha256AfterOrganization": "55eae05e3255074cfe6f8bac22ed8ec69c4d52cb3e1b2472ea16ee292a6ba65b"
+    },
+    {
+      "from": "Claude outputs/fx_snow_field.png",
+      "to": "archive/legacy/claude-outputs/fx_snow_field.png",
+      "bytes": 244452,
+      "sha256": "7017b1f987cafe7c9d0f02674219e5265516b35fdd96594aa8adb971b8ea939c",
+      "sha256AfterOrganization": "7017b1f987cafe7c9d0f02674219e5265516b35fdd96594aa8adb971b8ea939c"
+    },
+    {
+      "from": "Claude outputs/kolade_q12_paper.mp3",
+      "to": "archive/legacy/claude-outputs/kolade_q12_paper.mp3",
+      "bytes": 171407,
+      "sha256": "50b361ada7d444f19fd52deb91ceabd70907a12639543794a437964307d162d4",
+      "sha256AfterOrganization": "50b361ada7d444f19fd52deb91ceabd70907a12639543794a437964307d162d4"
+    },
+    {
+      "from": "Claude outputs/SAMPLE_REWRITE_Q1.md",
+      "to": "archive/legacy/claude-outputs/SAMPLE_REWRITE_Q1.md",
+      "bytes": 6444,
+      "sha256": "984e2e8269d20f743bc068039bb5724ede5df13d84a5e3db7f6519db86dcf65d",
+      "sha256AfterOrganization": "984e2e8269d20f743bc068039bb5724ede5df13d84a5e3db7f6519db86dcf65d"
+    },
+    {
+      "from": "Claude outputs/SKILL_AUDIT_PROMPT.md",
+      "to": "archive/legacy/claude-outputs/SKILL_AUDIT_PROMPT.md",
+      "bytes": 8361,
+      "sha256": "84699da6c59dc3a15383f3c2cb0eff88e08e237f3db99494b96a5ce775bdd40b",
+      "sha256AfterOrganization": "84699da6c59dc3a15383f3c2cb0eff88e08e237f3db99494b96a5ce775bdd40b"
+    },
+    {
+      "from": "Claude outputs/THREAT_PROMPT.md",
+      "to": "archive/legacy/claude-outputs/THREAT_PROMPT.md",
+      "bytes": 19387,
+      "sha256": "76b37c95a7bd95a6c7bbaa45e180a955b6e876ebf5f8d2fd5ed5122f61c207b8",
+      "sha256AfterOrganization": "76b37c95a7bd95a6c7bbaa45e180a955b6e876ebf5f8d2fd5ed5122f61c207b8"
+    },
+    {
+      "from": "Claude outputs/VARENHOLMS_GATE_ART_REQUIREMENTS.md",
+      "to": "archive/legacy/claude-outputs/VARENHOLMS_GATE_ART_REQUIREMENTS.md",
+      "bytes": 25208,
+      "sha256": "00e8987fb5317ef805db7c90e2057e251dff2bd102d223851ad87cb4e7b9baeb",
+      "sha256AfterOrganization": "00e8987fb5317ef805db7c90e2057e251dff2bd102d223851ad87cb4e7b9baeb"
+    },
+    {
+      "from": "Claude outputs/VARENHOLMS_GATE_CAMPAIGN.md",
+      "to": "archive/legacy/claude-outputs/VARENHOLMS_GATE_CAMPAIGN.md",
+      "bytes": 20863,
+      "sha256": "9de2419ef00c2030193c6021585552e5fbe98d63744496a3c84740414dfdf960",
+      "sha256AfterOrganization": "9de2419ef00c2030193c6021585552e5fbe98d63744496a3c84740414dfdf960"
+    },
+    {
+      "from": "Claude outputs/VARENHOLMS_GATE_VOICE_AUDITIONS.mp3",
+      "to": "archive/legacy/claude-outputs/VARENHOLMS_GATE_VOICE_AUDITIONS.mp3",
+      "bytes": 11191510,
+      "sha256": "0fbbec59f9c96b02999c441d06b295535dddf36f32e47c0020e8b55150d4c6e6",
+      "sha256AfterOrganization": "0fbbec59f9c96b02999c441d06b295535dddf36f32e47c0020e8b55150d4c6e6"
+    },
+    {
+      "from": "Claude outputs/VARENHOLMS_GATE_VOICE_SCRIPT.md",
+      "to": "archive/legacy/claude-outputs/VARENHOLMS_GATE_VOICE_SCRIPT.md",
+      "bytes": 293004,
+      "sha256": "b37e857c731b2e10c8355512ddca34f686ef52ac3a7b432c0ab5d2a781e7a920",
+      "sha256AfterOrganization": "b37e857c731b2e10c8355512ddca34f686ef52ac3a7b432c0ab5d2a781e7a920"
+    },
+    {
+      "from": "ads/.gitignore",
+      "to": "marketing/ads/.gitignore",
+      "bytes": 70,
+      "sha256": "9c38fafd9f7a72d6ade71d9a773d480cdfe22908f38b5626cc157a3893f96645",
+      "sha256AfterOrganization": "9c38fafd9f7a72d6ade71d9a773d480cdfe22908f38b5626cc157a3893f96645"
+    },
+    {
+      "from": "ads/Adventurer_Facebook_Reel.mp4",
+      "to": "marketing/ads/Adventurer_Facebook_Reel.mp4",
+      "bytes": 4157782,
+      "sha256": "d818c16d744a07d9e9527d360581286eb4ecfd1d31614600b2fd15f9e91dbb71",
+      "sha256AfterOrganization": "d818c16d744a07d9e9527d360581286eb4ecfd1d31614600b2fd15f9e91dbb71"
+    },
+    {
+      "from": "ads/battle_theme.wav",
+      "to": "marketing/ads/battle_theme.wav",
+      "bytes": 37432492,
+      "sha256": "eaf6aa61a040178b5a7de779dd1ebb9b2f1084c369eb8955b88605fb70aedd02",
+      "sha256AfterOrganization": "eaf6aa61a040178b5a7de779dd1ebb9b2f1084c369eb8955b88605fb70aedd02"
+    },
+    {
+      "from": "ads/clickbait_cover.jpg",
+      "to": "marketing/ads/clickbait_cover.jpg",
+      "bytes": 486766,
+      "sha256": "194fc9b589784b563f4e3330983a20168c2e610ea8f75a82ba18548800957efe",
+      "sha256AfterOrganization": "194fc9b589784b563f4e3330983a20168c2e610ea8f75a82ba18548800957efe"
+    },
+    {
+      "from": "ads/common.py",
+      "to": "marketing/ads/common.py",
+      "bytes": 3390,
+      "sha256": "68128add6797f080ac5c9a93b01f226781ef74f56ed18c2ea2c7c7a8e7d25801",
+      "sha256AfterOrganization": "68128add6797f080ac5c9a93b01f226781ef74f56ed18c2ea2c7c7a8e7d25801"
+    },
+    {
+      "from": "ads/compose.py",
+      "to": "marketing/ads/compose.py",
+      "bytes": 6080,
+      "sha256": "5bb7df778501dcd96db3c96019bb00c076f66b5acd49079720dc950f3766b17f",
+      "sha256AfterOrganization": "5bb7df778501dcd96db3c96019bb00c076f66b5acd49079720dc950f3766b17f"
+    },
+    {
+      "from": "ads/gen_vo.py",
+      "to": "marketing/ads/gen_vo.py",
+      "bytes": 3521,
+      "sha256": "9914583b21e7538c83350ec8de2f0e5f80953b6c3c86b3e91283ab6a90b05629",
+      "sha256AfterOrganization": "9914583b21e7538c83350ec8de2f0e5f80953b6c3c86b3e91283ab6a90b05629"
+    },
+    {
+      "from": "ads/record.py",
+      "to": "marketing/ads/record.py",
+      "bytes": 7274,
+      "sha256": "6b5988d9583bcd3f0ee5b5e5a26f28bcf08788ad539a497866a6683ddb1d97fb",
+      "sha256AfterOrganization": "6b5988d9583bcd3f0ee5b5e5a26f28bcf08788ad539a497866a6683ddb1d97fb"
+    },
+    {
+      "from": "ads/vo_script.txt",
+      "to": "marketing/ads/vo_script.txt",
+      "bytes": 335,
+      "sha256": "38bc064491a5cde315a06ca062e3628754bffd4ff1b1badbae0aea05d7256b0e",
+      "sha256AfterOrganization": "38bc064491a5cde315a06ca062e3628754bffd4ff1b1badbae0aea05d7256b0e"
+    },
+    {
+      "from": "ads/vo.mp3",
+      "to": "marketing/ads/vo.mp3",
+      "bytes": 586022,
+      "sha256": "7f08260de90d93541efb94493cf33c073d1bfefdf720efbf4988bdef09731160",
+      "sha256AfterOrganization": "7f08260de90d93541efb94493cf33c073d1bfefdf720efbf4988bdef09731160"
+    },
+    {
+      "from": "ads/raw/embark_combat.webm",
+      "to": "marketing/ads/raw/embark_combat.webm",
+      "bytes": 3787129,
+      "sha256": "35b27c303a44205e8ce752e7c6179fa473d3b70cecd9986153404721a4bbff7d",
+      "sha256AfterOrganization": "35b27c303a44205e8ce752e7c6179fa473d3b70cecd9986153404721a4bbff7d"
+    },
+    {
+      "from": "ads/raw/hero_combat.webm",
+      "to": "marketing/ads/raw/hero_combat.webm",
+      "bytes": 904621,
+      "sha256": "821b7295c41d262ff43a7b69b2aff66d66a43a560a56760682cb3a8473bf92a2",
+      "sha256AfterOrganization": "821b7295c41d262ff43a7b69b2aff66d66a43a560a56760682cb3a8473bf92a2"
+    },
+    {
+      "from": "ads/raw/marks.json",
+      "to": "marketing/ads/raw/marks.json",
+      "bytes": 1032,
+      "sha256": "1a09f878e3c4a6169ac95dead7bf3335b5f77ead7122ce559ebde9a235086b7f",
+      "sha256AfterOrganization": "1a09f878e3c4a6169ac95dead7bf3335b5f77ead7122ce559ebde9a235086b7f"
+    },
+    {
+      "from": "ads/raw/marks2.json",
+      "to": "marketing/ads/raw/marks2.json",
+      "bytes": 618,
+      "sha256": "6ef0325b207d959cb6d434247dbf65f15bb7466c953a898ab741fe5547762508",
+      "sha256AfterOrganization": "6ef0325b207d959cb6d434247dbf65f15bb7466c953a898ab741fe5547762508"
+    },
+    {
+      "from": "ads/raw/motion.webm",
+      "to": "marketing/ads/raw/motion.webm",
+      "bytes": 3427717,
+      "sha256": "afe8631db4317a28008c4e9131ac60c45605a0f265a0fb17e8f9837e55a01797",
+      "sha256AfterOrganization": "afe8631db4317a28008c4e9131ac60c45605a0f265a0fb17e8f9837e55a01797"
+    },
+    {
+      "from": "ads/raw/motion2.webm",
+      "to": "marketing/ads/raw/motion2.webm",
+      "bytes": 4746822,
+      "sha256": "ebec2f591ec33d14eaf6c8f3bed7129a8f32f23c4ef2d8a73872e4c09af377a9",
+      "sha256AfterOrganization": "ebec2f591ec33d14eaf6c8f3bed7129a8f32f23c4ef2d8a73872e4c09af377a9"
+    },
+    {
+      "from": "ads/raw/wage.webm",
+      "to": "marketing/ads/raw/wage.webm",
+      "bytes": 1076707,
+      "sha256": "274414afed6b238fe7b3f0a520d024cdf04d5f7a4e9916bfbbfd4e2b53fd3733",
+      "sha256AfterOrganization": "274414afed6b238fe7b3f0a520d024cdf04d5f7a4e9916bfbbfd4e2b53fd3733"
+    },
+    {
+      "from": "ads/work/audio.wav",
+      "to": "marketing/ads/work/audio.wav",
+      "bytes": 8371278,
+      "sha256": "a78ca57d9b6dfe9c37f98e5238d766af9722c8a8deffa8566e83ec713eb091fe",
+      "sha256AfterOrganization": "a78ca57d9b6dfe9c37f98e5238d766af9722c8a8deffa8566e83ec713eb091fe"
+    },
+    {
+      "from": "ads/work/clip_01.mp4",
+      "to": "marketing/ads/work/clip_01.mp4",
+      "bytes": 361988,
+      "sha256": "2503ced938fc553da6cbe8417f30fb793682f49cd8f62e863017b4ca795e5f0f",
+      "sha256AfterOrganization": "2503ced938fc553da6cbe8417f30fb793682f49cd8f62e863017b4ca795e5f0f"
+    },
+    {
+      "from": "ads/work/clip_02.mp4",
+      "to": "marketing/ads/work/clip_02.mp4",
+      "bytes": 682468,
+      "sha256": "04c0b54e8945e7586ff61205e320b5a9926b712c9a13a71203f17c20d1df30fd",
+      "sha256AfterOrganization": "04c0b54e8945e7586ff61205e320b5a9926b712c9a13a71203f17c20d1df30fd"
+    },
+    {
+      "from": "ads/work/clip_03.mp4",
+      "to": "marketing/ads/work/clip_03.mp4",
+      "bytes": 627141,
+      "sha256": "af05100bbb6a0836adf00289182c39d49c7777156ef5cb5b6e43aa3e112433c5",
+      "sha256AfterOrganization": "af05100bbb6a0836adf00289182c39d49c7777156ef5cb5b6e43aa3e112433c5"
+    },
+    {
+      "from": "ads/work/clip_04.mp4",
+      "to": "marketing/ads/work/clip_04.mp4",
+      "bytes": 900967,
+      "sha256": "a2aea232a52efac35a5e38923a245798d0e86dd007cb444aa1683671662a1ecb",
+      "sha256AfterOrganization": "a2aea232a52efac35a5e38923a245798d0e86dd007cb444aa1683671662a1ecb"
+    },
+    {
+      "from": "ads/work/clip_05.mp4",
+      "to": "marketing/ads/work/clip_05.mp4",
+      "bytes": 868532,
+      "sha256": "dabd1fb3575d7beaf13c122c8b5ef5b0c3b369af523a0ae34e0e03425a91d8e9",
+      "sha256AfterOrganization": "dabd1fb3575d7beaf13c122c8b5ef5b0c3b369af523a0ae34e0e03425a91d8e9"
+    },
+    {
+      "from": "ads/work/clip_06.mp4",
+      "to": "marketing/ads/work/clip_06.mp4",
+      "bytes": 915644,
+      "sha256": "16bee647b4e2822203446764f0339755a0db722718ff589b6eb5ed1a4c26151a",
+      "sha256AfterOrganization": "16bee647b4e2822203446764f0339755a0db722718ff589b6eb5ed1a4c26151a"
+    },
+    {
+      "from": "ads/work/clip_07.mp4",
+      "to": "marketing/ads/work/clip_07.mp4",
+      "bytes": 804247,
+      "sha256": "f93b9f4eb097c4860c3bf090460d6e2a235c85da166bccaf14da875fa0713580",
+      "sha256AfterOrganization": "f93b9f4eb097c4860c3bf090460d6e2a235c85da166bccaf14da875fa0713580"
+    },
+    {
+      "from": "ads/work/clip_08.mp4",
+      "to": "marketing/ads/work/clip_08.mp4",
+      "bytes": 782914,
+      "sha256": "da703309da8a1dda053156120a284ab0ddada7b8013cfc9cf3a46a45dc13a14c",
+      "sha256AfterOrganization": "da703309da8a1dda053156120a284ab0ddada7b8013cfc9cf3a46a45dc13a14c"
+    },
+    {
+      "from": "ads/work/clip_09.mp4",
+      "to": "marketing/ads/work/clip_09.mp4",
+      "bytes": 497999,
+      "sha256": "e3736d2ebdb333bd161cd7db0c0f7cef0b9d3a205d13f0cd074811ce909521a9",
+      "sha256AfterOrganization": "e3736d2ebdb333bd161cd7db0c0f7cef0b9d3a205d13f0cd074811ce909521a9"
+    },
+    {
+      "from": "ads/work/clip_end.mp4",
+      "to": "marketing/ads/work/clip_end.mp4",
+      "bytes": 2179017,
+      "sha256": "fc05a6fd50b991fb61faa7e74b03240b603d7e6656ac317e8cc555589dfe85ec",
+      "sha256AfterOrganization": "fc05a6fd50b991fb61faa7e74b03240b603d7e6656ac317e8cc555589dfe85ec"
+    },
+    {
+      "from": "ads/work/concat.txt",
+      "to": "marketing/ads/work/concat.txt",
+      "bytes": 791,
+      "sha256": "507a65ebc4aa586762ca8f51aef5de44d72c65c83c2774ee0f10a46ae894481a",
+      "sha256AfterOrganization": "507a65ebc4aa586762ca8f51aef5de44d72c65c83c2774ee0f10a46ae894481a"
+    },
+    {
+      "from": "ads/work/still_01.png",
+      "to": "marketing/ads/work/still_01.png",
+      "bytes": 91380,
+      "sha256": "924f739792c3b266dae4e5586a7f935d9291b3e55b65b0c127700ec9aecb43a1",
+      "sha256AfterOrganization": "924f739792c3b266dae4e5586a7f935d9291b3e55b65b0c127700ec9aecb43a1"
+    },
+    {
+      "from": "ads/work/still_02.png",
+      "to": "marketing/ads/work/still_02.png",
+      "bytes": 251390,
+      "sha256": "6f8d657207c447e1b2eabbce2a8a56cd9314e95d797733336ed19b07242cf287",
+      "sha256AfterOrganization": "6f8d657207c447e1b2eabbce2a8a56cd9314e95d797733336ed19b07242cf287"
+    },
+    {
+      "from": "ads/work/still_03.png",
+      "to": "marketing/ads/work/still_03.png",
+      "bytes": 175879,
+      "sha256": "79f505bc0a6c70063ff9c496d85a9cbbc660a2de5c97d9513612c205bf5d15c4",
+      "sha256AfterOrganization": "79f505bc0a6c70063ff9c496d85a9cbbc660a2de5c97d9513612c205bf5d15c4"
+    },
+    {
+      "from": "ads/work/still_04.png",
+      "to": "marketing/ads/work/still_04.png",
+      "bytes": 299486,
+      "sha256": "f3fe1551a065624bc145cf4d8c1f89e689cfba0b2c403bdd44b4eb9a392060a9",
+      "sha256AfterOrganization": "f3fe1551a065624bc145cf4d8c1f89e689cfba0b2c403bdd44b4eb9a392060a9"
+    },
+    {
+      "from": "ads/work/still_05.png",
+      "to": "marketing/ads/work/still_05.png",
+      "bytes": 295014,
+      "sha256": "23430fb1c98206d4fdf017ff8164f0c7d40787480e6b13d431f02c3242511a07",
+      "sha256AfterOrganization": "23430fb1c98206d4fdf017ff8164f0c7d40787480e6b13d431f02c3242511a07"
+    },
+    {
+      "from": "ads/work/still_06.png",
+      "to": "marketing/ads/work/still_06.png",
+      "bytes": 306076,
+      "sha256": "ce24acf2aee83a28c72137feee64ecd75a74b8fb2ee5b3c586b2798c7f225cca",
+      "sha256AfterOrganization": "ce24acf2aee83a28c72137feee64ecd75a74b8fb2ee5b3c586b2798c7f225cca"
+    },
+    {
+      "from": "ads/work/still_07.png",
+      "to": "marketing/ads/work/still_07.png",
+      "bytes": 276287,
+      "sha256": "6443230e7684ac308b7b690298e2dbd9a077c036ab6e7df16b3e39619eabc50c",
+      "sha256AfterOrganization": "6443230e7684ac308b7b690298e2dbd9a077c036ab6e7df16b3e39619eabc50c"
+    },
+    {
+      "from": "ads/work/still_08.png",
+      "to": "marketing/ads/work/still_08.png",
+      "bytes": 255789,
+      "sha256": "29186c50d97c519c641fd9c63eff7cf05987c773fcd0a07a58c9c956ae3b76bc",
+      "sha256AfterOrganization": "29186c50d97c519c641fd9c63eff7cf05987c773fcd0a07a58c9c956ae3b76bc"
+    },
+    {
+      "from": "ads/work/still_09.png",
+      "to": "marketing/ads/work/still_09.png",
+      "bytes": 115208,
+      "sha256": "2dfb1e2df565d5bd3f657c0405ef32d0ccce27f5c6cbd596f3537f7d91c422fc",
+      "sha256AfterOrganization": "2dfb1e2df565d5bd3f657c0405ef32d0ccce27f5c6cbd596f3537f7d91c422fc"
+    },
+    {
+      "from": "ads/work/still_end.png",
+      "to": "marketing/ads/work/still_end.png",
+      "bytes": 1928245,
+      "sha256": "8117361c60b2f9e93b985eb6badbde65c73c60dafac17c1b0f73735419b7dbb4",
+      "sha256AfterOrganization": "8117361c60b2f9e93b985eb6badbde65c73c60dafac17c1b0f73735419b7dbb4"
+    },
+    {
+      "from": "ads/work/video_only.mp4",
+      "to": "marketing/ads/work/video_only.mp4",
+      "bytes": 8620840,
+      "sha256": "8d7705137d06fd2f0099655e9bb01257d7f1d2b738cfa4d9a68db37dd1b4ae94",
+      "sha256AfterOrganization": "8d7705137d06fd2f0099655e9bb01257d7f1d2b738cfa4d9a68db37dd1b4ae94"
+    },
+    {
+      "from": "assets/anime/v2/children.png",
+      "to": "assets/anime/v2/source/children.png",
+      "bytes": 1752896,
+      "sha256": "1fce6882eb5fb7b46551c062e5d1eaa4bade005c95221d2396133874cd4d12fc",
+      "sha256AfterOrganization": "1fce6882eb5fb7b46551c062e5d1eaa4bade005c95221d2396133874cd4d12fc"
+    },
+    {
+      "from": "assets/anime/v2/creatures_1.png",
+      "to": "assets/anime/v2/source/creatures_1.png",
+      "bytes": 2480183,
+      "sha256": "2c6e2ab056a78b181de9dcb96c1545913b22e2d58722e461fbcf4e8c8a2e1e9f",
+      "sha256AfterOrganization": "2c6e2ab056a78b181de9dcb96c1545913b22e2d58722e461fbcf4e8c8a2e1e9f"
+    },
+    {
+      "from": "assets/anime/v2/creatures_2.png",
+      "to": "assets/anime/v2/source/creatures_2.png",
+      "bytes": 2226377,
+      "sha256": "43e44db803050591fc422bd3d976af786d651981ae8306e0b7c66a102554f17c",
+      "sha256AfterOrganization": "43e44db803050591fc422bd3d976af786d651981ae8306e0b7c66a102554f17c"
+    },
+    {
+      "from": "assets/anime/v2/creatures_3.png",
+      "to": "assets/anime/v2/source/creatures_3.png",
+      "bytes": 2506794,
+      "sha256": "ef4918c4afbe98e71fd30c91ff0deffba5756fdabd71d9562e8004c660fbed2a",
+      "sha256AfterOrganization": "ef4918c4afbe98e71fd30c91ff0deffba5756fdabd71d9562e8004c660fbed2a"
+    },
+    {
+      "from": "assets/anime/v2/creatures_4.png",
+      "to": "assets/anime/v2/source/creatures_4.png",
+      "bytes": 2519682,
+      "sha256": "8c2483d6fd8fe0150d3ce3d960a93454505ce14c5d0b7b122b1506d5bde44316",
+      "sha256AfterOrganization": "8c2483d6fd8fe0150d3ce3d960a93454505ce14c5d0b7b122b1506d5bde44316"
+    },
+    {
+      "from": "assets/anime/v2/creatures_5.png",
+      "to": "assets/anime/v2/source/creatures_5.png",
+      "bytes": 2220857,
+      "sha256": "038d4996ffde99462baa2eaa4e54d7ca649a71802548ac898d424395ce6cc9e9",
+      "sha256AfterOrganization": "038d4996ffde99462baa2eaa4e54d7ca649a71802548ac898d424395ce6cc9e9"
+    },
+    {
+      "from": "assets/anime/v2/creatures_6.png",
+      "to": "assets/anime/v2/source/creatures_6.png",
+      "bytes": 2437995,
+      "sha256": "ba65d111abe04d0c2fefeaa634a13425241a95215f00206bf021c0ca2360de74",
+      "sha256AfterOrganization": "ba65d111abe04d0c2fefeaa634a13425241a95215f00206bf021c0ca2360de74"
+    },
+    {
+      "from": "assets/anime/v2/creatures_7.png",
+      "to": "assets/anime/v2/source/creatures_7.png",
+      "bytes": 2227334,
+      "sha256": "f5d2df5bd8fbdf22efa8427e003e39ea1d9fdab91c876e72c45cfd8cc7587125",
+      "sha256AfterOrganization": "f5d2df5bd8fbdf22efa8427e003e39ea1d9fdab91c876e72c45cfd8cc7587125"
+    },
+    {
+      "from": "assets/anime/v2/forms_extra.png",
+      "to": "assets/anime/v2/source/forms_extra.png",
+      "bytes": 2252822,
+      "sha256": "a66b3b523fb81e97cc3235074620936d15a06722427ce55ae05462d7ab80a903",
+      "sha256AfterOrganization": "a66b3b523fb81e97cc3235074620936d15a06722427ce55ae05462d7ab80a903"
+    },
+    {
+      "from": "assets/anime/v2/headgear_2.png",
+      "to": "assets/anime/v2/source/headgear_2.png",
+      "bytes": 1571224,
+      "sha256": "c794cf037373d0bb22a174bb3c10f29d534d28cf532677051356e4fb53db3563",
+      "sha256AfterOrganization": "c794cf037373d0bb22a174bb3c10f29d534d28cf532677051356e4fb53db3563"
+    },
+    {
+      "from": "assets/anime/v2/headgear.png",
+      "to": "assets/anime/v2/source/headgear.png",
+      "bytes": 1893828,
+      "sha256": "c3da2bceefa47e8adfeb7ab7f4459de0b6ee68dee7896851c5e2b273df883db3",
+      "sha256AfterOrganization": "c3da2bceefa47e8adfeb7ab7f4459de0b6ee68dee7896851c5e2b273df883db3"
+    },
+    {
+      "from": "assets/anime/v2/heads_extra.png",
+      "to": "assets/anime/v2/source/heads_extra.png",
+      "bytes": 2337187,
+      "sha256": "6ed5aaab2ef74470a3f14e66f5aa452a5dff43c75f703ae26dac7cd54487b140",
+      "sha256AfterOrganization": "6ed5aaab2ef74470a3f14e66f5aa452a5dff43c75f703ae26dac7cd54487b140"
+    },
+    {
+      "from": "assets/anime/v2/heads_f_styles1.png",
+      "to": "assets/anime/v2/source/heads_f_styles1.png",
+      "bytes": 1376446,
+      "sha256": "57e873dce4a8d89862b1f40e9b2a10875e2fd7b3454082243b0af5177fe2f328",
+      "sha256AfterOrganization": "57e873dce4a8d89862b1f40e9b2a10875e2fd7b3454082243b0af5177fe2f328"
+    },
+    {
+      "from": "assets/anime/v2/heads_f_styles2.png",
+      "to": "assets/anime/v2/source/heads_f_styles2.png",
+      "bytes": 1989643,
+      "sha256": "33346a3294ae2a1c5eae7e3312beb5a2917ccada0e22910fdd50119e38147df4",
+      "sha256AfterOrganization": "33346a3294ae2a1c5eae7e3312beb5a2917ccada0e22910fdd50119e38147df4"
+    },
+    {
+      "from": "assets/anime/v2/heads_f.png",
+      "to": "assets/anime/v2/source/heads_f.png",
+      "bytes": 1851216,
+      "sha256": "776e4bbb0e28d1325d6ae83fba83f24e3d5c6c4ea2a8120ac9817fb20272801a",
+      "sha256AfterOrganization": "776e4bbb0e28d1325d6ae83fba83f24e3d5c6c4ea2a8120ac9817fb20272801a"
+    },
+    {
+      "from": "assets/anime/v2/heads_m_styles1.png",
+      "to": "assets/anime/v2/source/heads_m_styles1.png",
+      "bytes": 1625312,
+      "sha256": "a27c8e6462cca50931b3b24dfc9d96027b9d47dbdcfea811df75263c897a56c0",
+      "sha256AfterOrganization": "a27c8e6462cca50931b3b24dfc9d96027b9d47dbdcfea811df75263c897a56c0"
+    },
+    {
+      "from": "assets/anime/v2/heads_m_styles2.png",
+      "to": "assets/anime/v2/source/heads_m_styles2.png",
+      "bytes": 1675160,
+      "sha256": "83b077fcf470e14ebbd95f189d2386b17b7f051a6799718865f300484988536b",
+      "sha256AfterOrganization": "83b077fcf470e14ebbd95f189d2386b17b7f051a6799718865f300484988536b"
+    },
+    {
+      "from": "assets/anime/v2/heads_m.png",
+      "to": "assets/anime/v2/source/heads_m.png",
+      "bytes": 1352519,
+      "sha256": "66a66c4d00c5e324853e4c8708b6a31d02b77c806303c29b5afa93c88772eb73",
+      "sha256AfterOrganization": "66a66c4d00c5e324853e4c8708b6a31d02b77c806303c29b5afa93c88772eb73"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_academy.png",
+      "to": "assets/anime/v2/source/heads_named_academy.png",
+      "bytes": 1760065,
+      "sha256": "22b18750067b2de9b62c7beced1fc9cf26f3fdcd3e83d5d326745049acb90a86",
+      "sha256AfterOrganization": "22b18750067b2de9b62c7beced1fc9cf26f3fdcd3e83d5d326745049acb90a86"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_antler.png",
+      "to": "assets/anime/v2/source/heads_named_antler.png",
+      "bytes": 1862785,
+      "sha256": "55b8058563d8f81ba5405f443a23b39434233dbeaa44bc54ca239672ed7056ef",
+      "sha256AfterOrganization": "55b8058563d8f81ba5405f443a23b39434233dbeaa44bc54ca239672ed7056ef"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_bell.png",
+      "to": "assets/anime/v2/source/heads_named_bell.png",
+      "bytes": 1874924,
+      "sha256": "cd0187f03e5318b672cad9db7ef6aea3226d0541c5d3438f31e8197d92abe00d",
+      "sha256AfterOrganization": "cd0187f03e5318b672cad9db7ef6aea3226d0541c5d3438f31e8197d92abe00d"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_gods.png",
+      "to": "assets/anime/v2/source/heads_named_gods.png",
+      "bytes": 2760160,
+      "sha256": "79cf86884f2f1fb13d6f6c9f1f93fcaecdf6136c2ba51f1bf543a0d34d321536",
+      "sha256AfterOrganization": "79cf86884f2f1fb13d6f6c9f1f93fcaecdf6136c2ba51f1bf543a0d34d321536"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_green.png",
+      "to": "assets/anime/v2/source/heads_named_green.png",
+      "bytes": 1730077,
+      "sha256": "e80d8fad4b1ab6b2b90b319d00ca24426f67434c7fa78917a8fb32b558d3471c",
+      "sha256AfterOrganization": "e80d8fad4b1ab6b2b90b319d00ca24426f67434c7fa78917a8fb32b558d3471c"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_maw.png",
+      "to": "assets/anime/v2/source/heads_named_maw.png",
+      "bytes": 1753414,
+      "sha256": "000878320b5d9e5d52383fae341b806b254c8b103be236835dd483b11e04671e",
+      "sha256AfterOrganization": "000878320b5d9e5d52383fae341b806b254c8b103be236835dd483b11e04671e"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_navy.png",
+      "to": "assets/anime/v2/source/heads_named_navy.png",
+      "bytes": 1892014,
+      "sha256": "74c410f4bf7b4fca11e1ff0ec6ce39d6b84dda9ab479d4ae55c11f0df2889494",
+      "sha256AfterOrganization": "74c410f4bf7b4fca11e1ff0ec6ce39d6b84dda9ab479d4ae55c11f0df2889494"
+    },
+    {
+      "from": "assets/anime/v2/heads_named_tally.png",
+      "to": "assets/anime/v2/source/heads_named_tally.png",
+      "bytes": 2146549,
+      "sha256": "87636c8398e8db8e191cd00d2964dd90805c1bada1dd42b70cdf62af3f5b1669",
+      "sha256AfterOrganization": "87636c8398e8db8e191cd00d2964dd90805c1bada1dd42b70cdf62af3f5b1669"
+    },
+    {
+      "from": "assets/anime/v2/places_1.png",
+      "to": "assets/anime/v2/source/places_1.png",
+      "bytes": 3772346,
+      "sha256": "27ca09015d5e0deb7d124d2646c35049548f794c933eecd878040e18d416c8ff",
+      "sha256AfterOrganization": "27ca09015d5e0deb7d124d2646c35049548f794c933eecd878040e18d416c8ff"
+    },
+    {
+      "from": "assets/anime/v2/places_10.png",
+      "to": "assets/anime/v2/source/places_10.png",
+      "bytes": 3787255,
+      "sha256": "fa6e090d80714abc7988430e8192f90a56803d38fc4fd49cb7cd54aa8db544e7",
+      "sha256AfterOrganization": "fa6e090d80714abc7988430e8192f90a56803d38fc4fd49cb7cd54aa8db544e7"
+    },
+    {
+      "from": "assets/anime/v2/places_11.png",
+      "to": "assets/anime/v2/source/places_11.png",
+      "bytes": 3636022,
+      "sha256": "9e8345147a0baec81d7be926048576778e90e3933655f76b22dedaf076b24410",
+      "sha256AfterOrganization": "9e8345147a0baec81d7be926048576778e90e3933655f76b22dedaf076b24410"
+    },
+    {
+      "from": "assets/anime/v2/places_12.png",
+      "to": "assets/anime/v2/source/places_12.png",
+      "bytes": 3053044,
+      "sha256": "22dc977d1f6ecd04eb7bccc9c1ba3aab150a2bcb1365a569a05422a3bfff4c41",
+      "sha256AfterOrganization": "22dc977d1f6ecd04eb7bccc9c1ba3aab150a2bcb1365a569a05422a3bfff4c41"
+    },
+    {
+      "from": "assets/anime/v2/places_13.png",
+      "to": "assets/anime/v2/source/places_13.png",
+      "bytes": 3478072,
+      "sha256": "15a8cd566ba584215b1232b85553a885bffb63a8ea0af00f6928db70a4e33a59",
+      "sha256AfterOrganization": "15a8cd566ba584215b1232b85553a885bffb63a8ea0af00f6928db70a4e33a59"
+    },
+    {
+      "from": "assets/anime/v2/places_14.png",
+      "to": "assets/anime/v2/source/places_14.png",
+      "bytes": 3240353,
+      "sha256": "78701a8691ab7fca43802126f4495448411edbe2b4b3ea8b60005709dcce9543",
+      "sha256AfterOrganization": "78701a8691ab7fca43802126f4495448411edbe2b4b3ea8b60005709dcce9543"
+    },
+    {
+      "from": "assets/anime/v2/places_15.png",
+      "to": "assets/anime/v2/source/places_15.png",
+      "bytes": 3818812,
+      "sha256": "0ccdd7e705acdea937d927825b683c55ac0d018cf02a480030b8159ad82f9d80",
+      "sha256AfterOrganization": "0ccdd7e705acdea937d927825b683c55ac0d018cf02a480030b8159ad82f9d80"
+    },
+    {
+      "from": "assets/anime/v2/places_16.png",
+      "to": "assets/anime/v2/source/places_16.png",
+      "bytes": 3560414,
+      "sha256": "a5ef8535510b5bb7ac338f9b288eba7b34261a1c0ec573f6f01fc240b183a107",
+      "sha256AfterOrganization": "a5ef8535510b5bb7ac338f9b288eba7b34261a1c0ec573f6f01fc240b183a107"
+    },
+    {
+      "from": "assets/anime/v2/places_2.png",
+      "to": "assets/anime/v2/source/places_2.png",
+      "bytes": 3692742,
+      "sha256": "90bd3845607db363a130ebc2dabe4c01c5129e950bcd16273dc304074be87d6e",
+      "sha256AfterOrganization": "90bd3845607db363a130ebc2dabe4c01c5129e950bcd16273dc304074be87d6e"
+    },
+    {
+      "from": "assets/anime/v2/places_3.png",
+      "to": "assets/anime/v2/source/places_3.png",
+      "bytes": 3561119,
+      "sha256": "f577f4635af9d3a72d1671206b2713711fc7b109cb13088578c2d2820d963f52",
+      "sha256AfterOrganization": "f577f4635af9d3a72d1671206b2713711fc7b109cb13088578c2d2820d963f52"
+    },
+    {
+      "from": "assets/anime/v2/places_4.png",
+      "to": "assets/anime/v2/source/places_4.png",
+      "bytes": 2913305,
+      "sha256": "5c5075c0e3616c8cbdeef1816fd354170ec74b735f4535adc513682dbad84ca8",
+      "sha256AfterOrganization": "5c5075c0e3616c8cbdeef1816fd354170ec74b735f4535adc513682dbad84ca8"
+    },
+    {
+      "from": "assets/anime/v2/places_5.png",
+      "to": "assets/anime/v2/source/places_5.png",
+      "bytes": 3653773,
+      "sha256": "74694f8c0867a4462ba8019242bb970d5fa95c63183ade52706a4313d4084b10",
+      "sha256AfterOrganization": "74694f8c0867a4462ba8019242bb970d5fa95c63183ade52706a4313d4084b10"
+    },
+    {
+      "from": "assets/anime/v2/places_6.png",
+      "to": "assets/anime/v2/source/places_6.png",
+      "bytes": 3282687,
+      "sha256": "be779c3e7cad1c32e658492a40c3aeb95cf3b4bbffba8674cd54d1138de0119f",
+      "sha256AfterOrganization": "be779c3e7cad1c32e658492a40c3aeb95cf3b4bbffba8674cd54d1138de0119f"
+    },
+    {
+      "from": "assets/anime/v2/places_7.png",
+      "to": "assets/anime/v2/source/places_7.png",
+      "bytes": 3452538,
+      "sha256": "da0b650ed6dabe1145633d11998403b60ec75a159b48b8915d14e0004e141e2e",
+      "sha256AfterOrganization": "da0b650ed6dabe1145633d11998403b60ec75a159b48b8915d14e0004e141e2e"
+    },
+    {
+      "from": "assets/anime/v2/places_8.png",
+      "to": "assets/anime/v2/source/places_8.png",
+      "bytes": 3570775,
+      "sha256": "0624a507c3903541aaaeb71bae2fb12ce002929df72cf472efd5fd8ed1903007",
+      "sha256AfterOrganization": "0624a507c3903541aaaeb71bae2fb12ce002929df72cf472efd5fd8ed1903007"
+    },
+    {
+      "from": "assets/anime/v2/places_9.png",
+      "to": "assets/anime/v2/source/places_9.png",
+      "bytes": 3328334,
+      "sha256": "9bbf23febe9251f2d1a3a4de3ad3ffb98100562063f41760a073ef14b8b29df5",
+      "sha256AfterOrganization": "9bbf23febe9251f2d1a3a4de3ad3ffb98100562063f41760a073ef14b8b29df5"
+    },
+    {
+      "from": "assets/anime/v2/props_story.png",
+      "to": "assets/anime/v2/source/props_story.png",
+      "bytes": 1402541,
+      "sha256": "d93d87230ac414e438fcb87254e38a4e316c4acc05ae7241be22715e837941b2",
+      "sha256AfterOrganization": "d93d87230ac414e438fcb87254e38a4e316c4acc05ae7241be22715e837941b2"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f1.png",
+      "to": "assets/anime/v2/source/wardrobe_f1.png",
+      "bytes": 2505602,
+      "sha256": "c5bdd04a0d172e08e9cef4b16c2fe6619f46b3d5dc268688334d5f932e2cf8d5",
+      "sha256AfterOrganization": "c5bdd04a0d172e08e9cef4b16c2fe6619f46b3d5dc268688334d5f932e2cf8d5"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f2.png",
+      "to": "assets/anime/v2/source/wardrobe_f2.png",
+      "bytes": 2211699,
+      "sha256": "dfb9d854de794532e5f819f086a87123121ef82a820cf5ee74a5e20822074fe2",
+      "sha256AfterOrganization": "dfb9d854de794532e5f819f086a87123121ef82a820cf5ee74a5e20822074fe2"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f3.png",
+      "to": "assets/anime/v2/source/wardrobe_f3.png",
+      "bytes": 2582793,
+      "sha256": "fe600a282365c85e288e92971d85b96d53eddd227d2ff8155527820b8c973764",
+      "sha256AfterOrganization": "fe600a282365c85e288e92971d85b96d53eddd227d2ff8155527820b8c973764"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f4.png",
+      "to": "assets/anime/v2/source/wardrobe_f4.png",
+      "bytes": 2509437,
+      "sha256": "6da919d02099eab6fff92bf432d47afe3c59558f9bdab86e0916b3599aea6014",
+      "sha256AfterOrganization": "6da919d02099eab6fff92bf432d47afe3c59558f9bdab86e0916b3599aea6014"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f5.png",
+      "to": "assets/anime/v2/source/wardrobe_f5.png",
+      "bytes": 2250631,
+      "sha256": "73716cf3bf9d447d768f672b695e3dbb7da11718f2cda52cfbdd73491c7178f9",
+      "sha256AfterOrganization": "73716cf3bf9d447d768f672b695e3dbb7da11718f2cda52cfbdd73491c7178f9"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_f6.png",
+      "to": "assets/anime/v2/source/wardrobe_f6.png",
+      "bytes": 2347110,
+      "sha256": "2c8b8f30e304907630503312b0b7ee54c64e967c4507785cbb4ab1c4254ca83e",
+      "sha256AfterOrganization": "2c8b8f30e304907630503312b0b7ee54c64e967c4507785cbb4ab1c4254ca83e"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_gate.png",
+      "to": "assets/anime/v2/source/wardrobe_gate.png",
+      "bytes": 2694041,
+      "sha256": "b4303e3a073d798363e839fa333e78b55a4ba1f17206c35b9f7bd7b64f371ac2",
+      "sha256AfterOrganization": "b4303e3a073d798363e839fa333e78b55a4ba1f17206c35b9f7bd7b64f371ac2"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m1.png",
+      "to": "assets/anime/v2/source/wardrobe_m1.png",
+      "bytes": 2444959,
+      "sha256": "14acb9b2bc8e9018634e6db6ecc2395ce6c00f19fd4d856160fb830c8e340e1d",
+      "sha256AfterOrganization": "14acb9b2bc8e9018634e6db6ecc2395ce6c00f19fd4d856160fb830c8e340e1d"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m2.png",
+      "to": "assets/anime/v2/source/wardrobe_m2.png",
+      "bytes": 2192455,
+      "sha256": "f85478d68b292c5f54fc6b218e6707c21a278b6b665030e91a2e1817bbddb133",
+      "sha256AfterOrganization": "f85478d68b292c5f54fc6b218e6707c21a278b6b665030e91a2e1817bbddb133"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m3.png",
+      "to": "assets/anime/v2/source/wardrobe_m3.png",
+      "bytes": 2328996,
+      "sha256": "2cf8541761aade6bafa5a5e67b42560ae3575c1a4fbd0dd5492329bca1875834",
+      "sha256AfterOrganization": "2cf8541761aade6bafa5a5e67b42560ae3575c1a4fbd0dd5492329bca1875834"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m4.png",
+      "to": "assets/anime/v2/source/wardrobe_m4.png",
+      "bytes": 2503225,
+      "sha256": "3193d212fc632c9cc7c1836e086655cd20b088fb4d51cbc7f741d7b167983e40",
+      "sha256AfterOrganization": "3193d212fc632c9cc7c1836e086655cd20b088fb4d51cbc7f741d7b167983e40"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m5.png",
+      "to": "assets/anime/v2/source/wardrobe_m5.png",
+      "bytes": 2309978,
+      "sha256": "77075339ca31d7a7ed8043c3d7aff9353f0f6a607b410c925788610a26a92ccc",
+      "sha256AfterOrganization": "77075339ca31d7a7ed8043c3d7aff9353f0f6a607b410c925788610a26a92ccc"
+    },
+    {
+      "from": "assets/anime/v2/wardrobe_m6.png",
+      "to": "assets/anime/v2/source/wardrobe_m6.png",
+      "bytes": 2492804,
+      "sha256": "92b6fa1a3981110fba4365481d09b36ed570a19a12800123b3fa4102def6accc",
+      "sha256AfterOrganization": "92b6fa1a3981110fba4365481d09b36ed570a19a12800123b3fa4102def6accc"
+    },
+    {
+      "from": "test/_balance_full_out.txt",
+      "to": "test/reports/_balance_full_out.txt",
+      "bytes": 3026,
+      "sha256": "c4196f1bd9986679dc105120ce01a2880abd1c1437e151c43deec0edca525691",
+      "sha256AfterOrganization": "c4196f1bd9986679dc105120ce01a2880abd1c1437e151c43deec0edca525691"
+    },
+    {
+      "from": "test/_browser_out.txt",
+      "to": "test/reports/_browser_out.txt",
+      "bytes": 2788,
+      "sha256": "d2b621291455f063f0911264622179649131419832554d85be85aa72f7755ad1",
+      "sha256AfterOrganization": "d2b621291455f063f0911264622179649131419832554d85be85aa72f7755ad1"
+    },
+    {
+      "from": "test/_browser_summary.txt",
+      "to": "test/reports/_browser_summary.txt",
+      "bytes": 4545,
+      "sha256": "e814e82d7daf7bb8836ee35c5ec55e56029661552d2574a277ff1731fe9a4f2d",
+      "sha256AfterOrganization": "e814e82d7daf7bb8836ee35c5ec55e56029661552d2574a277ff1731fe9a4f2d"
+    },
+    {
+      "from": "test/_npm_test_out.txt",
+      "to": "test/reports/_npm_test_out.txt",
+      "bytes": 8718,
+      "sha256": "286e6a1c5d39f89de330a6c9a34f98e90c8d8ad0e49304c4e9b9f490997d405a",
+      "sha256AfterOrganization": "286e6a1c5d39f89de330a6c9a34f98e90c8d8ad0e49304c4e9b9f490997d405a"
+    },
+    {
+      "from": "test/_suite_summary.txt",
+      "to": "test/reports/_suite_summary.txt",
+      "bytes": 2719,
+      "sha256": "a269a34763fa0ff61c3cd7b7f91b116dbee5ae5e3527f9ff258af53ff466fe4b",
+      "sha256AfterOrganization": "a269a34763fa0ff61c3cd7b7f91b116dbee5ae5e3527f9ff258af53ff466fe4b"
+    },
+    {
+      "from": "Claude outputs/creation_after.png",
+      "to": "archive/legacy/late-review-captures/creation_after.png",
+      "bytes": 614594,
+      "sha256": "a1b8486df51c1b0df2f824e3288762f46f6bad08bd65a2c62a64ad99b670fb04",
+      "sha256AfterOrganization": "a1b8486df51c1b0df2f824e3288762f46f6bad08bd65a2c62a64ad99b670fb04"
+    }
+  ],
+  "verification": {
+    "movedFiles": 161,
+    "movedBytes": 549022294,
+    "runtimeFilesChecked": 316,
+    "unchangedRuntimeFiles": 313,
+    "changedRuntime": [
+      "index.html",
+      "js/ui/anime_manifest.js",
+      "js/ui/anime_world.js"
+    ],
+    "validLocalDocumentLinks": 45,
+    "notes": "anime_manifest.js changes source provenance only. index.html and anime_world.js include the separately requested portrait neck fit correction."
+  }
+}

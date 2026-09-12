@@ -656,162 +656,162 @@
     "dire_wolf": {
       "sheet": "creatures_1",
       "frame": 0,
-      "source": "creatures_1.png"
+      "source": "source/creatures_1.png"
     },
     "boar": {
       "sheet": "creatures_1",
       "frame": 1,
-      "source": "creatures_1.png"
+      "source": "source/creatures_1.png"
     },
     "plant": {
       "sheet": "creatures_1",
       "frame": 2,
-      "source": "creatures_1.png"
+      "source": "source/creatures_1.png"
     },
     "raptor": {
       "sheet": "creatures_1",
       "frame": 3,
-      "source": "creatures_1.png"
+      "source": "source/creatures_1.png"
     },
     "hag": {
       "sheet": "creatures_2",
       "frame": 0,
-      "source": "creatures_2.png"
+      "source": "source/creatures_2.png"
     },
     "shadow": {
       "sheet": "creatures_2",
       "frame": 1,
-      "source": "creatures_2.png"
+      "source": "source/creatures_2.png"
     },
     "goblin": {
       "sheet": "creatures_2",
       "frame": 2,
-      "source": "creatures_2.png"
+      "source": "source/creatures_2.png"
     },
     "orc": {
       "sheet": "creatures_2",
       "frame": 3,
-      "source": "creatures_2.png"
+      "source": "source/creatures_2.png"
     },
     "troll": {
       "sheet": "creatures_3",
       "frame": 0,
-      "source": "creatures_3.png"
+      "source": "source/creatures_3.png"
     },
     "hydra": {
       "sheet": "creatures_3",
       "frame": 1,
-      "source": "creatures_3.png"
+      "source": "source/creatures_3.png"
     },
     "stag": {
       "sheet": "creatures_3",
       "frame": 2,
-      "source": "creatures_3.png"
+      "source": "source/creatures_3.png"
     },
     "wyrm": {
       "sheet": "creatures_3",
       "frame": 3,
-      "source": "creatures_3.png"
+      "source": "source/creatures_3.png"
     },
     "roc": {
       "sheet": "creatures_4",
       "frame": 0,
-      "source": "creatures_4.png"
+      "source": "source/creatures_4.png"
     },
     "golem": {
       "sheet": "creatures_4",
       "frame": 1,
-      "source": "creatures_4.png"
+      "source": "source/creatures_4.png"
     },
     "drake": {
       "sheet": "creatures_4",
       "frame": 2,
-      "source": "creatures_4.png"
+      "source": "source/creatures_4.png"
     },
     "beetle": {
       "sheet": "creatures_4",
       "frame": 3,
-      "source": "creatures_4.png"
+      "source": "source/creatures_4.png"
     },
     "ape": {
       "sheet": "creatures_5",
       "frame": 0,
-      "source": "creatures_5.png"
+      "source": "source/creatures_5.png"
     },
     "scorpion": {
       "sheet": "creatures_5",
       "frame": 1,
-      "source": "creatures_5.png"
+      "source": "source/creatures_5.png"
     },
     "serpent": {
       "sheet": "creatures_5",
       "frame": 2,
-      "source": "creatures_5.png"
+      "source": "source/creatures_5.png"
     },
     "salamander": {
       "sheet": "creatures_5",
       "frame": 3,
-      "source": "creatures_5.png"
+      "source": "source/creatures_5.png"
     },
     "moss_giant": {
       "sheet": "creatures_6",
       "frame": 0,
-      "source": "creatures_6.png"
+      "source": "source/creatures_6.png"
     },
     "owl": {
       "sheet": "creatures_6",
       "frame": 1,
-      "source": "creatures_6.png"
+      "source": "source/creatures_6.png"
     },
     "crab": {
       "sheet": "creatures_6",
       "frame": 2,
-      "source": "creatures_6.png"
+      "source": "source/creatures_6.png"
     },
     "hound": {
       "sheet": "creatures_6",
       "frame": 3,
-      "source": "creatures_6.png"
+      "source": "source/creatures_6.png"
     },
     "spider": {
       "sheet": "creatures_7",
       "frame": 0,
-      "source": "creatures_7.png"
+      "source": "source/creatures_7.png"
     },
     "toad": {
       "sheet": "creatures_7",
       "frame": 1,
-      "source": "creatures_7.png"
+      "source": "source/creatures_7.png"
     },
     "vulture": {
       "sheet": "creatures_7",
       "frame": 2,
-      "source": "creatures_7.png"
+      "source": "source/creatures_7.png"
     },
     "basilisk": {
       "sheet": "creatures_7",
       "frame": 3,
-      "source": "creatures_7.png"
+      "source": "source/creatures_7.png"
     },
     "fox": {
       "sheet": "forms_extra",
       "frame": 0,
-      "source": "forms_extra.png"
+      "source": "source/forms_extra.png"
     },
     "fox_three": {
       "sheet": "forms_extra",
       "frame": 1,
-      "source": "forms_extra.png"
+      "source": "source/forms_extra.png"
     },
     "fox_nine": {
       "sheet": "forms_extra",
       "frame": 2,
-      "source": "forms_extra.png"
+      "source": "source/forms_extra.png"
     },
     "storm": {
       "sheet": "forms_extra",
       "frame": 3,
-      "source": "forms_extra.png"
+      "source": "source/forms_extra.png"
     }
   },
   "environments": {
@@ -821,7 +821,7 @@
         1024,
         760
       ],
-      "source": "places_1.png",
+      "source": "source/places_1.png",
       "panel": 0
     },
     "marsh": {
@@ -830,7 +830,7 @@
         1024,
         760
       ],
-      "source": "places_1.png",
+      "source": "source/places_1.png",
       "panel": 1
     },
     "ruins": {
@@ -839,7 +839,7 @@
         1024,
         760
       ],
-      "source": "places_2.png",
+      "source": "source/places_2.png",
       "panel": 0
     },
     "crypt": {
@@ -848,7 +848,7 @@
         1024,
         760
       ],
-      "source": "places_2.png",
+      "source": "source/places_2.png",
       "panel": 1
     },
     "city": {
@@ -857,7 +857,7 @@
         1024,
         760
       ],
-      "source": "places_3.png",
+      "source": "source/places_3.png",
       "panel": 0
     },
     "alley": {
@@ -866,7 +866,7 @@
         1024,
         760
       ],
-      "source": "places_3.png",
+      "source": "source/places_3.png",
       "panel": 1
     },
     "prison": {
@@ -875,7 +875,7 @@
         1024,
         760
       ],
-      "source": "places_4.png",
+      "source": "source/places_4.png",
       "panel": 0
     },
     "tavern": {
@@ -884,7 +884,7 @@
         1024,
         760
       ],
-      "source": "places_4.png",
+      "source": "source/places_4.png",
       "panel": 1
     },
     "coast": {
@@ -893,7 +893,7 @@
         1024,
         760
       ],
-      "source": "places_5.png",
+      "source": "source/places_5.png",
       "panel": 0
     },
     "mountain": {
@@ -902,7 +902,7 @@
         1024,
         760
       ],
-      "source": "places_5.png",
+      "source": "source/places_5.png",
       "panel": 1
     },
     "maw": {
@@ -911,7 +911,7 @@
         1024,
         760
       ],
-      "source": "places_6.png",
+      "source": "source/places_6.png",
       "panel": 0
     },
     "antler": {
@@ -920,7 +920,7 @@
         1024,
         760
       ],
-      "source": "places_6.png",
+      "source": "source/places_6.png",
       "panel": 1
     },
     "academy": {
@@ -929,7 +929,7 @@
         1024,
         760
       ],
-      "source": "places_7.png",
+      "source": "source/places_7.png",
       "panel": 0
     },
     "bell": {
@@ -938,7 +938,7 @@
         1024,
         760
       ],
-      "source": "places_7.png",
+      "source": "source/places_7.png",
       "panel": 1
     },
     "green": {
@@ -947,7 +947,7 @@
         1024,
         760
       ],
-      "source": "places_8.png",
+      "source": "source/places_8.png",
       "panel": 0
     },
     "tally": {
@@ -956,7 +956,7 @@
         1024,
         760
       ],
-      "source": "places_8.png",
+      "source": "source/places_8.png",
       "panel": 1
     },
     "navy": {
@@ -965,7 +965,7 @@
         1024,
         760
       ],
-      "source": "places_9.png",
+      "source": "source/places_9.png",
       "panel": 0
     },
     "ossuary": {
@@ -974,7 +974,7 @@
         1024,
         760
       ],
-      "source": "places_9.png",
+      "source": "source/places_9.png",
       "panel": 1
     },
     "salt_court": {
@@ -983,7 +983,7 @@
         1024,
         760
       ],
-      "source": "places_10.png",
+      "source": "source/places_10.png",
       "panel": 0
     },
     "green_altar": {
@@ -992,7 +992,7 @@
         1024,
         760
       ],
-      "source": "places_10.png",
+      "source": "source/places_10.png",
       "panel": 1
     },
     "birthing_house": {
@@ -1001,7 +1001,7 @@
         1024,
         760
       ],
-      "source": "places_11.png",
+      "source": "source/places_11.png",
       "panel": 0
     },
     "low_tide": {
@@ -1010,7 +1010,7 @@
         1024,
         760
       ],
-      "source": "places_11.png",
+      "source": "source/places_11.png",
       "panel": 1
     },
     "pyre": {
@@ -1019,7 +1019,7 @@
         1024,
         760
       ],
-      "source": "places_12.png",
+      "source": "source/places_12.png",
       "panel": 0
     },
     "maw_boss": {
@@ -1028,7 +1028,7 @@
         1024,
         760
       ],
-      "source": "places_12.png",
+      "source": "source/places_12.png",
       "panel": 1
     },
     "green_boss": {
@@ -1037,7 +1037,7 @@
         1024,
         760
       ],
-      "source": "places_13.png",
+      "source": "source/places_13.png",
       "panel": 0
     },
     "cemetery": {
@@ -1046,7 +1046,7 @@
         1024,
         760
       ],
-      "source": "places_13.png",
+      "source": "source/places_13.png",
       "panel": 1
     },
     "camp": {
@@ -1055,7 +1055,7 @@
         1024,
         760
       ],
-      "source": "places_14.png",
+      "source": "source/places_14.png",
       "panel": 0
     },
     "inn": {
@@ -1064,7 +1064,7 @@
         1024,
         760
       ],
-      "source": "places_14.png",
+      "source": "source/places_14.png",
       "panel": 1
     },
     "cottage": {
@@ -1073,7 +1073,7 @@
         1024,
         760
       ],
-      "source": "places_15.png",
+      "source": "source/places_15.png",
       "panel": 0
     },
     "brick": {
@@ -1082,7 +1082,7 @@
         1024,
         760
       ],
-      "source": "places_15.png",
+      "source": "source/places_15.png",
       "panel": 1
     },
     "mansion": {
@@ -1091,7 +1091,7 @@
         1024,
         760
       ],
-      "source": "places_16.png",
+      "source": "source/places_16.png",
       "panel": 0
     },
     "castle": {
@@ -1100,7 +1100,7 @@
         1024,
         760
       ],
-      "source": "places_16.png",
+      "source": "source/places_16.png",
       "panel": 1
     },
     "port": {

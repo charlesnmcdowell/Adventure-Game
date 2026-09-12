@@ -2,10 +2,10 @@
 node_modules/
 test/
 tools/
-ads/
+/marketing/ads/
 *.md
-_to_delete_vo.zip
+/archive/backups/
 package.json
 package-lock.json
 .eslintrc.json
-Claude outputs/
+/archive/legacy/

@@ -105,7 +105,19 @@ function composeHuman(scene,ch,id,set){
  const hp=head.getContext('2d').getImageData(Math.round((h.nx+34*(registration?.scale||1))*500/627),Math.round((h.ny+15*(registration?.scale||1))*500/627),1,1).data;
  let flesh=special&&named.authoredSkin?body:skinBody(body,hp,set);
  const bodyW=named?.bodyWidth||[1020,1060,980][id.build];
- let bodyY=528;
+ // Overlap the modular collar with the neck rather than leaving the two cut edges adjacent.
+ let bodyY=set==='plate'?528:500;
+ let neckFront=520;
+ if(!named?.authoredSkin&&!warden&&set!=='plate'){
+  // Headless outfit sheets include the BACK rim of an empty collar. The neck must pass in
+  // front of that rim, while the lower/front collar still covers the neck. Find the rim in
+  // the actual outfit, so an open hunting coat and a high robe collar need no shared offset.
+  const top=body.getContext('2d').getImageData(245,0,10,100).data;
+  for(let yy=0;yy<100;yy++){
+   let solid=0;for(let xx=0;xx<10;xx++)if(top[(yy*10+xx)*4+3]>180)solid++;
+   if(solid>5){neckFront=Math.max(520,Math.min(650,bodyY+(yy+22)*bodyW/500));break;}
+  }
+ }
  if(named?.authoredSkin||warden){
   // The generated modular collar opening is hollow. Expose the neck beneath it.
   const c=document.createElement('canvas');c.width=c.height=body.width;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(flesh,0,0);
@@ -125,12 +137,25 @@ function composeHuman(scene,ch,id,set){
   if(h.clipRight){ctx.beginPath();ctx.rect(hx,hy,h.clipRight*S,hw);ctx.clip();}
   if(h.clipPolygon){ctx.beginPath();h.clipPolygon.forEach(([x,y],i)=>i?ctx.lineTo(hx+x*S,hy+y*S):ctx.moveTo(hx+x*S,hy+y*S));ctx.closePath();ctx.clip();}
   if(covered&&['warrior','green_eyed_armour','assassins_gear','privateers_kit','kings_uniform'].includes(set)){ctx.beginPath();ctx.ellipse(561,395,147,194,0,0,Math.PI*2);ctx.clip();}
-  if(topOnly){ctx.beginPath();ctx.rect(0,0,1122,520);if(named?.beardFront)ctx.rect(385,510,350,180);ctx.clip();ctx.drawImage(head,hx,hy,hw,hw);}
+  if(topOnly){
+   ctx.beginPath();ctx.rect(0,0,1122,520);
+   if(neckFront>520){const half=id.sex==='f'?62:70;ctx.moveTo(561-half,515);ctx.lineTo(561+half,515);ctx.lineTo(606,neckFront);ctx.lineTo(516,neckFront);ctx.closePath();}
+   if(named?.beardFront)ctx.rect(385,510,350,180);ctx.clip();ctx.drawImage(head,hx,hy,hw,hw);
+  }
   else ctx.drawImage(head,hx,hy,hw,hw);
   ctx.restore();
  }
  drawHead(false);
- ctx.drawImage(flesh,561-bodyW/2,bodyY,bodyW,bodyW);
+ // The body cell is cropped flat across the neck, so its first rows landed on the head's neck as a
+ // hard horizontal line (a 'detached head' once the canvas was scaled to full screen). Feather the
+ // body's top edge in over the neck column so the head's own neck shows through the join.
+ if(covered&&set==='plate')ctx.drawImage(flesh,561-bodyW/2,bodyY,bodyW,bodyW);   // no head under a full helm: nothing to blend into
+ else{const t=document.createElement('canvas');t.width=1122;t.height=1402;const tc=t.getContext('2d');
+  tc.drawImage(flesh,561-bodyW/2,bodyY,bodyW,bodyW);
+  tc.globalCompositeOperation='destination-out';
+  const fade=tc.createLinearGradient(0,bodyY,0,bodyY+38);fade.addColorStop(0,'#fff');fade.addColorStop(1,'rgba(255,255,255,0)');
+  tc.fillStyle=fade;tc.fillRect(440,bodyY,242,38);
+  ctx.drawImage(t,0,0);}
  drawHead(true);
  if(named?.companion==='pip'&&(!named.authoredSkin||ch.equippedSet)){const f=A.GateManifest?.frames['extras:findik'],pip=f?cell(scene,f.sheet,f.frame):cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
  const point=(x,y)=>[hx+x*S,hy+y*S];
