@@ -236,7 +236,9 @@ C3.spawnEncounter = function (game, quest, encIdx) {
     out.unshift(boss);
   }
   if (spec.mini || spec.boss) ADV.Campaign.guardBoss(game, out, quest.factionId, hi, rng, (t, l, o) => C3.spawnEnemy(rng, t, l, Object.assign({ world }, o || {})));
-  for (const ch of out) if (ch.campaignEnemy || ch.isMonster) delete ch.personalityId;   // stock enemies too (makeEnemy gives bosses one)
+  // Nobody spawned into this campaign barks in a fight: no stock personality voice and no
+  // monster roar (Nib was roaring in the hired knife's voice). The scripted openers carry the scene.
+  for (const ch of out) { if (ch.campaignEnemy || ch.isMonster) delete ch.personalityId; ch.noCombatVoice = true; }
   return out;
 };
 // Mirrors Game.tryVerb's success branch: this encounter is talked past.
@@ -485,6 +487,8 @@ ADV.Campaign3 = C3;
     const q = game.quest;
     const fresh = q && isC3(q.quest) && !q.enemies && !q.readyToComplete && !q.over && q.encIdx < q.quest.encounters.length;
     const enc = oCurrent(game);
+    // enemies already sitting in an older save keep no stock voice either
+    if (q && isC3(q.quest) && q.enemies) for (const ch of q.enemies) { if (ch && (ch.campaignEnemy || ch.isMonster)) delete ch.personalityId; if (ch) ch.noCombatVoice = true; }
     if (enc && fresh && q.__c3openerFor !== q.encIdx) {
       q.__c3openerFor = q.encIdx;
       q.openerBeats = C3.openerBeats(game, q.quest, q.encIdx);

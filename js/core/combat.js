@@ -724,6 +724,7 @@ Combat.hatredRemarkDue = function (st, opts) {
     if (ch.isPlayer || ch.isQuestThrall) return false;
     if (ch.isUndead && !ch.boss && !isGod(ch)) return false;
     if (ch.isMonster && !ch.boss && !isGod(ch)) return false;
+    if (ch.noCombatVoice) return false;          // story campaigns: no stock or monster barks in a fight
     if (spoken[ch.id]) return false;
     return true;
   });
