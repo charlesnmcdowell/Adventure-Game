@@ -1,0 +1,95 @@
+{
+  "marks": [
+    {
+      "name": "appearance",
+      "start": 14.4240932,
+      "duration": 2.2118769999999994
+    },
+    {
+      "name": "creation",
+      "start": 18.8537422,
+      "duration": 3.5184326000000006
+    },
+    {
+      "name": "party",
+      "start": 25.1442163,
+      "duration": 5.0176011
+    },
+    {
+      "name": "quest_board",
+      "start": 31.988762599999998,
+      "duration": 3.4170479000000036
+    },
+    {
+      "name": "mage",
+      "start": 38.1626982,
+      "duration": 4.536132599999995
+    },
+    {
+      "name": "necromancy",
+      "start": 44.142717499999996,
+      "duration": 3.447520599999997
+    },
+    {
+      "name": "thralls_spawned",
+      "start": 49.802833,
+      "duration": 2.1113079
+    },
+    {
+      "name": "relationship",
+      "start": 54.5969966,
+      "duration": 4.7416202
+    },
+    {
+      "name": "child_name",
+      "start": 61.3287226,
+      "duration": 5.228599699999997
+    },
+    {
+      "name": "buy_mage",
+      "start": 69.1469532,
+      "duration": 6.1771889999999985
+    },
+    {
+      "name": "buy_leathers",
+      "start": 80.72313190000001,
+      "duration": 3.8930555000000027
+    },
+    {
+      "name": "buy_ranger",
+      "start": 89.96825630000001,
+      "duration": 4.110254099999992
+    },
+    {
+      "name": "buy_warrior",
+      "start": 99.1695078,
+      "duration": 3.6783993000000095
+    },
+    {
+      "name": "buy_brick",
+      "start": 103.9343278,
+      "duration": 6.9449135999999925
+    },
+    {
+      "name": "samurai",
+      "start": 114.09565950000001,
+      "duration": 5.1220766
+    },
+    {
+      "name": "gate_quest2",
+      "start": 122.4951968,
+      "duration": 3.8177948000000015
+    },
+    {
+      "name": "gate_scroll",
+      "start": 129.65122480000002,
+      "duration": 4.019455099999959
+    },
+    {
+      "name": "gate_father",
+      "start": 136.5923426,
+      "duration": 3.921696499999996
+    }
+  ],
+  "errors": []
+}

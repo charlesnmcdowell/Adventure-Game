@@ -1,0 +1,52 @@
+{
+  "purchases": [
+    {
+      "set": "mage",
+      "before": 4000,
+      "after": 3200,
+      "equipped": "mage",
+      "cost": 800
+    },
+    {
+      "set": "leathers",
+      "before": 4000,
+      "after": 3600,
+      "equipped": "leathers",
+      "cost": 400
+    },
+    {
+      "set": "ranger",
+      "before": 4000,
+      "after": 3200,
+      "equipped": "ranger",
+      "cost": 800
+    },
+    {
+      "set": "warrior",
+      "before": 4000,
+      "after": 3200,
+      "equipped": "warrior",
+      "cost": 800
+    }
+  ],
+  "house": {
+    "from": "cottage",
+    "to": "brick",
+    "cost": 350
+  },
+  "appearance": {
+    "head": 6,
+    "eyeType": 0,
+    "mouthType": 1,
+    "iris": "#8b663b",
+    "lipColor": "#795651"
+  },
+  "cutscenes": [
+    "q2_notice:bounty",
+    "q1_death:death"
+  ],
+  "sourceCanvas": [
+    1280,
+    760
+  ]
+}

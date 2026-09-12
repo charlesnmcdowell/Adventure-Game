@@ -90,8 +90,9 @@ function skinBody(body,target,set,sex){
   }else{
    poly([[227,0],[276,0],[276,12],[264,17],[252,31],[247,21],[234,15],[227,13]]);
    poly([[248,65],[248,79],[260,84],[257,72],[290,99],[263,115],[260,122],[231,103],[218,99]]);
-   m.fillRect(42,335,52,101);m.fillRect(403,333,49,102);
-   regions=[[215,0,80,125],[42,335,52,101],[403,333,49,102]];
+   poly([[76,302],[84,302],[91,312],[88,331],[94,351],[94,390],[88,419],[79,420],[61,405],[54,377],[61,349],[66,334],[73,314]]);
+   poly([[431,302],[439,303],[443,320],[447,340],[450,359],[455,379],[449,398],[441,410],[435,422],[424,411],[425,399],[421,388],[419,350],[425,338],[424,331],[419,315],[420,308]]);
+   regions=[[215,0,80,125],[50,300,47,126],[417,300,42,126]];
   }
   skinMask=m.getImageData(0,0,c.width,c.height).data;
  }
@@ -123,6 +124,9 @@ function composeHuman(scene,ch,id,set){
  const hp=head.getContext('2d').getImageData(Math.round((h.nx+34*(registration?.scale||1))*500/627),Math.round((h.ny+15*(registration?.scale||1))*500/627),1,1).data;
  let flesh=special&&named.authoredSkin?body:skinBody(body,hp,set,id.sex);
  const bodyW=named?.bodyWidth||[1020,1060,980][id.build];
+ // Register the neck opening, not the bounding box of an asymmetric coat.
+ const neckX=!special&&!warden?(set==='hunter'?232:set==='plain'&&id.sex==='f'?230:250):250;
+ const bodyX=561-neckX*bodyW/500;
  // Overlap the modular collar with the neck rather than leaving the two cut edges adjacent.
  let bodyY=set==='plate'?528:474;
  let neckFront=520;
@@ -130,10 +134,15 @@ function composeHuman(scene,ch,id,set){
   // Headless outfit sheets include the BACK rim of an empty collar. The neck must pass in
   // front of that rim, while the lower/front collar still covers the neck. Find the rim in
   // the actual outfit, so an open hunting coat and a high robe collar need no shared offset.
-  const top=body.getContext('2d').getImageData(245,0,10,100).data;
+  const top=body.getContext('2d').getImageData(neckX-5,0,10,100).data;
   for(let yy=0;yy<100;yy++){
    let solid=0;for(let xx=0;xx<10;xx++)if(top[(yy*10+xx)*4+3]>180)solid++;
-   if(solid>5){neckFront=Math.max(520,Math.min(650,bodyY+(yy+22)*bodyW/500));break;}
+   if(solid>5){
+    // Each atlas has different empty space above its collar. Leaving that
+    // padding in the placement creates a long neck or a floating masked head.
+    bodyY-=yy*bodyW/500;
+    neckFront=Math.max(520,Math.min(650,bodyY+(yy+22)*bodyW/500));break;
+   }
   }
  }
  if(named?.authoredSkin||warden){
@@ -156,8 +165,9 @@ function composeHuman(scene,ch,id,set){
   if(h.clipPolygon){ctx.beginPath();h.clipPolygon.forEach(([x,y],i)=>i?ctx.lineTo(hx+x*S,hy+y*S):ctx.moveTo(hx+x*S,hy+y*S));ctx.closePath();ctx.clip();}
   if(covered&&['warrior','green_eyed_armour','assassins_gear','privateers_kit','kings_uniform'].includes(set)){ctx.beginPath();ctx.ellipse(561,395,147,194,0,0,Math.PI*2);ctx.clip();}
   if(topOnly){
-   ctx.beginPath();ctx.rect(0,0,1122,520);
-   if(neckFront>520){const half=id.sex==='f'?62:70;ctx.moveTo(561-half,515);ctx.lineTo(561+half,515);ctx.lineTo(606,neckFront);ctx.lineTo(516,neckFront);ctx.closePath();}
+   const join=!named&&set!=='plate'?558:520;
+   ctx.beginPath();ctx.rect(0,0,1122,join);
+   if(neckFront>join){const half=id.sex==='f'?62:70;ctx.moveTo(561-half,join-5);ctx.lineTo(561+half,join-5);ctx.lineTo(606,neckFront);ctx.lineTo(516,neckFront);ctx.closePath();}
    if(named?.beardFront)ctx.rect(385,510,350,180);ctx.clip();
    if(!named&&set!=='plate'){
     const layer=document.createElement('canvas');layer.width=1122;layer.height=1402;const lc=layer.getContext('2d');
@@ -193,9 +203,9 @@ function composeHuman(scene,ch,id,set){
  // The body cell is cropped flat across the neck, so its first rows landed on the head's neck as a
  // hard horizontal line (a 'detached head' once the canvas was scaled to full screen). Feather the
  // body's top edge in over the neck column so the head's own neck shows through the join.
- if(covered&&set==='plate')ctx.drawImage(flesh,561-bodyW/2,bodyY,bodyW,bodyW);   // no head under a full helm: nothing to blend into
+ if(covered&&set==='plate')ctx.drawImage(flesh,bodyX,bodyY,bodyW,bodyW);   // no head under a full helm: nothing to blend into
  else{const t=document.createElement('canvas');t.width=1122;t.height=1402;const tc=t.getContext('2d');
-  tc.drawImage(flesh,561-bodyW/2,bodyY,bodyW,bodyW);
+  tc.drawImage(flesh,bodyX,bodyY,bodyW,bodyW);
   tc.globalCompositeOperation='destination-out';
   const fade=tc.createLinearGradient(0,bodyY,0,bodyY+38);fade.addColorStop(0,'#fff');fade.addColorStop(1,'rgba(255,255,255,0)');
   tc.fillStyle=fade;tc.fillRect(440,bodyY,242,38);

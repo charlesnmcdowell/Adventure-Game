@@ -1,0 +1,245 @@
+{
+  "timeline": [
+    {
+      "start": 0,
+      "end": 1.5,
+      "name": "appearance",
+      "title": "CREATE YOUR CHARACTER",
+      "description": ""
+    },
+    {
+      "start": 1.5,
+      "end": 4.0,
+      "name": "creation",
+      "title": "CHOOSE YOUR NAME",
+      "description": ""
+    },
+    {
+      "start": 4.0,
+      "end": 7.0,
+      "name": "party",
+      "title": "JOIN A PARTY",
+      "description": ""
+    },
+    {
+      "start": 7.0,
+      "end": 10.0,
+      "name": "mage",
+      "title": "FIRE BALL",
+      "description": ""
+    },
+    {
+      "start": 10.0,
+      "end": 11.6,
+      "name": "necromancy",
+      "title": "NECROMANCY",
+      "description": ""
+    },
+    {
+      "start": 11.6,
+      "end": 12.6,
+      "name": "thralls_spawned",
+      "title": "THE FALLEN FIGHT FOR YOU",
+      "description": ""
+    },
+    {
+      "start": 12.6,
+      "end": 15.6,
+      "name": "relationship",
+      "title": "BUILD RELATIONSHIPS",
+      "description": ""
+    },
+    {
+      "start": 15.6,
+      "end": 18.6,
+      "name": "child_name",
+      "title": "START A FAMILY",
+      "description": ""
+    },
+    {
+      "start": 18.6,
+      "end": 21.1,
+      "name": "buy_mage",
+      "title": "VISIT THE BLACKSMITH",
+      "description": "Buy the Mage Set"
+    },
+    {
+      "start": 21.1,
+      "end": 23.1,
+      "name": "buy_leathers",
+      "title": "CHANGE YOUR EQUIPMENT",
+      "description": "Rogue: Night Leathers"
+    },
+    {
+      "start": 23.1,
+      "end": 25.1,
+      "name": "buy_ranger",
+      "title": "CHANGE YOUR EQUIPMENT",
+      "description": "Ranger Set"
+    },
+    {
+      "start": 25.1,
+      "end": 27.1,
+      "name": "buy_warrior",
+      "title": "CHANGE YOUR EQUIPMENT",
+      "description": "Warrior Set"
+    },
+    {
+      "start": 27.1,
+      "end": 30.6,
+      "name": "buy_brick",
+      "title": "BUY A BRICK HOUSE",
+      "description": ""
+    },
+    {
+      "start": 30.6,
+      "end": 32.6,
+      "name": "samurai",
+      "title": "THE GREEN-EYED PASS",
+      "description": ""
+    },
+    {
+      "start": 32.6,
+      "end": 34.6,
+      "name": "gate_quest2",
+      "title": "VARENHOLM\u2019S GATE",
+      "description": "Quest 2: The Open Hand"
+    },
+    {
+      "start": 34.6,
+      "end": 37.6,
+      "name": "gate_scroll",
+      "title": "VARENHOLM\u2019S GATE",
+      "description": ""
+    },
+    {
+      "start": 37.6,
+      "end": 40.6,
+      "name": "gate_father",
+      "title": "VARENHOLM\u2019S GATE",
+      "description": ""
+    },
+    {
+      "start": 40.6,
+      "end": 45.6,
+      "name": "original_end_card"
+    }
+  ],
+  "video": {
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+        "profile": "High",
+        "codec_type": "video",
+        "codec_time_base": "1/60",
+        "codec_tag_string": "avc1",
+        "codec_tag": "0x31637661",
+        "width": 1080,
+        "height": 1920,
+        "coded_width": 1080,
+        "coded_height": 1920,
+        "has_b_frames": 2,
+        "sample_aspect_ratio": "1:1",
+        "display_aspect_ratio": "9:16",
+        "pix_fmt": "yuv420p",
+        "level": 40,
+        "chroma_location": "left",
+        "refs": 1,
+        "is_avc": "true",
+        "nal_length_size": "4",
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "time_base": "1/30000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 1368000,
+        "duration": "45.600000",
+        "bit_rate": "1534569",
+        "bits_per_raw_sample": "8",
+        "nb_frames": "1368",
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "VideoHandler"
+        }
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_long_name": "AAC (Advanced Audio Coding)",
+        "profile": "LC",
+        "codec_type": "audio",
+        "codec_time_base": "1/48000",
+        "codec_tag_string": "mp4a",
+        "codec_tag": "0x6134706d",
+        "sample_fmt": "fltp",
+        "sample_rate": "48000",
+        "channels": 2,
+        "channel_layout": "stereo",
+        "bits_per_sample": 0,
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "time_base": "1/48000",
+        "start_pts": 0,
+        "start_time": "0.000000",
+        "duration_ts": 2092800,
+        "duration": "43.600000",
+        "bit_rate": "196756",
+        "max_bit_rate": "196756",
+        "nb_frames": "2045",
+        "disposition": {
+          "default": 1,
+          "dub": 0,
+          "original": 0,
+          "comment": 0,
+          "lyrics": 0,
+          "karaoke": 0,
+          "forced": 0,
+          "hearing_impaired": 0,
+          "visual_impaired": 0,
+          "clean_effects": 0,
+          "attached_pic": 0,
+          "timed_thumbnails": 0
+        },
+        "tags": {
+          "language": "und",
+          "handler_name": "SoundHandler"
+        }
+      }
+    ],
+    "format": {
+      "filename": "C:\\Users\\charl\\The Sorcerer Sword ARPG\\adventurer\\marketing\\ads\\2026-09-refresh-v3\\Adventurer_Gameplay_45s6.mp4",
+      "nb_streams": 2,
+      "nb_programs": 0,
+      "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+      "format_long_name": "QuickTime / MOV",
+      "start_time": "0.000000",
+      "duration": "45.600000",
+      "size": "9869958",
+      "bit_rate": "1731571",
+      "probe_score": 100,
+      "tags": {
+        "major_brand": "isom",
+        "minor_version": "512",
+        "compatible_brands": "isomiso2avc1mp41",
+        "encoder": "Lavf57.75.100"
+      }
+    }
+  },
+  "originalAdPreserved": true
+}

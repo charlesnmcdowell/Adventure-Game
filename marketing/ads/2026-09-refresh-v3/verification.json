@@ -1,0 +1,152 @@
+{
+  "format": {
+    "filename": "C:\\Users\\charl\\The Sorcerer Sword ARPG\\adventurer\\marketing\\ads\\2026-09-refresh-v3\\Adventurer_Gameplay_45s6.mp4",
+    "nb_streams": 2,
+    "nb_programs": 0,
+    "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+    "format_long_name": "QuickTime / MOV",
+    "start_time": "0.000000",
+    "duration": "45.600000",
+    "size": "9869958",
+    "bit_rate": "1731571",
+    "probe_score": 100,
+    "tags": {
+      "major_brand": "isom",
+      "minor_version": "512",
+      "compatible_brands": "isomiso2avc1mp41",
+      "encoder": "Lavf57.75.100"
+    }
+  },
+  "video": {
+    "index": 0,
+    "codec_name": "h264",
+    "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+    "profile": "High",
+    "codec_type": "video",
+    "codec_time_base": "1/60",
+    "codec_tag_string": "avc1",
+    "codec_tag": "0x31637661",
+    "width": 1080,
+    "height": 1920,
+    "coded_width": 1080,
+    "coded_height": 1920,
+    "has_b_frames": 2,
+    "sample_aspect_ratio": "1:1",
+    "display_aspect_ratio": "9:16",
+    "pix_fmt": "yuv420p",
+    "level": 40,
+    "chroma_location": "left",
+    "refs": 1,
+    "is_avc": "true",
+    "nal_length_size": "4",
+    "r_frame_rate": "30/1",
+    "avg_frame_rate": "30/1",
+    "time_base": "1/30000",
+    "start_pts": 0,
+    "start_time": "0.000000",
+    "duration_ts": 1368000,
+    "duration": "45.600000",
+    "bit_rate": "1534569",
+    "bits_per_raw_sample": "8",
+    "nb_frames": "1368",
+    "disposition": {
+      "default": 1,
+      "dub": 0,
+      "original": 0,
+      "comment": 0,
+      "lyrics": 0,
+      "karaoke": 0,
+      "forced": 0,
+      "hearing_impaired": 0,
+      "visual_impaired": 0,
+      "clean_effects": 0,
+      "attached_pic": 0,
+      "timed_thumbnails": 0
+    },
+    "tags": {
+      "language": "und",
+      "handler_name": "VideoHandler"
+    }
+  },
+  "fullDecode": "passed",
+  "endCardStart": 40.6,
+  "endCardSeconds": 5,
+  "endCardMeanAbsolutePixelErrors": {
+    "40.6": 2.1787720228909464,
+    "41.1": 2.1708654835390946,
+    "45.5": 2.171576646090535
+  },
+  "precedingSceneDifference": 50.23296473122428,
+  "motionMeanPixelDifferences": {
+    "mage_purchase": 20.625374504826738,
+    "rogue_purchase": 13.118536787046652,
+    "ranger_purchase": 8.92024970193454,
+    "warrior_purchase": 15.05368495442483,
+    "house_purchase": 2.5191487827391255,
+    "samurai": 29.096675608630438,
+    "quest2_travel": 24.18338285065959,
+    "hiwot_illustration": 0.8792897388561979,
+    "father_illustration": 1.1416334948655822
+  },
+  "audioPeak": 0.43041765689849854,
+  "originalVoiceSha256": "7f08260de90d93541efb94493cf33c073d1bfefdf720efbf4988bdef09731160",
+  "originalMusicSha256": "eaf6aa61a040178b5a7de779dd1ebb9b2f1084c369eb8955b88605fb70aedd02",
+  "audioIdenticalToOriginalAd": true,
+  "gameDialogueAudioIncluded": false,
+  "fullGameCanvasEveryShot": true,
+  "captureEvidence": {
+    "purchases": [
+      {
+        "set": "mage",
+        "before": 4000,
+        "after": 3200,
+        "equipped": "mage",
+        "cost": 800
+      },
+      {
+        "set": "leathers",
+        "before": 4000,
+        "after": 3600,
+        "equipped": "leathers",
+        "cost": 400
+      },
+      {
+        "set": "ranger",
+        "before": 4000,
+        "after": 3200,
+        "equipped": "ranger",
+        "cost": 800
+      },
+      {
+        "set": "warrior",
+        "before": 4000,
+        "after": 3200,
+        "equipped": "warrior",
+        "cost": 800
+      }
+    ],
+    "house": {
+      "from": "cottage",
+      "to": "brick",
+      "cost": 350
+    },
+    "appearance": {
+      "head": 6,
+      "eyeType": 0,
+      "mouthType": 1,
+      "iris": "#8b663b",
+      "lipColor": "#795651"
+    },
+    "cutscenes": [
+      "q2_notice:bounty",
+      "q1_death:death"
+    ],
+    "sourceCanvas": [
+      1280,
+      760
+    ]
+  },
+  "originalEndCardSha256": "8117361c60b2f9e93b985eb6badbde65c73c60dafac17c1b0f73735419b7dbb4",
+  "newVoiceCreditsUsed": 0,
+  "finalSha256": "4e446d8254f2eb114e0d614567aac655207452071ea0bdb9b06ec6bc281e0c7e"
+}
