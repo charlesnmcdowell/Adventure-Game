@@ -195,6 +195,10 @@ C3.resolveSpec = function (game, spec) {
 C3.spawnEnemy = function (rng, typeId, level, opts) {
   const ch = ADV.Campaign.spawnEnemy(rng, typeId, level, opts);
   if (ADV.Campaign2 && (!opts || !opts.name)) ADV.Campaign2.applySkin(rng, ch, typeId);
+  // No personality voices in this campaign (request): every speaking part is a
+  // cast character with a designed voice, and a mini-boss taunting in a random
+  // stock voice broke that. Without a personalityId the combat taunts stay silent.
+  delete ch.personalityId;
   return ch;
 };
 C3.spawnEncounter = function (game, quest, encIdx) {
@@ -232,6 +236,7 @@ C3.spawnEncounter = function (game, quest, encIdx) {
     out.unshift(boss);
   }
   if (spec.mini || spec.boss) ADV.Campaign.guardBoss(game, out, quest.factionId, hi, rng, (t, l, o) => C3.spawnEnemy(rng, t, l, Object.assign({ world }, o || {})));
+  for (const ch of out) if (ch.campaignEnemy || ch.isMonster) delete ch.personalityId;   // stock enemies too (makeEnemy gives bosses one)
   return out;
 };
 // Mirrors Game.tryVerb's success branch: this encounter is talked past.
