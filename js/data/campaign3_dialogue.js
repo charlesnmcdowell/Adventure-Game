@@ -1,6 +1,6 @@
 // Varenholm's Gate story campaign — every line, choice and epilogue paragraph.
-// Text only in this pass: no clips exist yet, so nothing here is walked by
-// vo_coverage. VARENHOLMS_GATE_VOICE_SCRIPT.md is generated from this file.
+// Recorded campaign clips are checked by vo_coverage.
+// VARENHOLMS_GATE_VOICE_SCRIPT.md is generated from this file.
 //
 // Register: sincere, unhurried, a little formal — the classic CRPG voice.
 // Every named person speaks from a region (see CAMPAIGN3_REGIONS in
@@ -17,6 +17,8 @@
 // returns without that question. Options that answer an NPC's question do not
 // return. Bracketed tags are ElevenLabs v3 delivery cues (spoken, never shown).
 // {target} is the listener's name.
+// Editorial rule: no ink-on-body character shorthand or "question" metaphors.
+// Literal requests for information are fine; ask them directly.
 (function () {
 'use strict';
 globalThis.ADV = globalThis.ADV || {};
@@ -91,7 +93,7 @@ L('aldric', 'q1_answer', `[level] It knows what I taught it. Letters, kindness, 
 L('aldric', 'q1_death', `[struck through] Go —`);
 L('korvath', 'q1_after', `[unhurried, to the dark] Then it will learn the rest from me. Let the child run. The road is long, my friends, and I own most of it.`);
 // Hiwot catches up — and wants what she could not hear
-L(W, 'q1_catchup', `[breathless] {target}! Oh, thank every saint that listens. I saw you both leave and I followed — yes, I know, I was not supposed to — and then I saw the torches, and the big one in the black armour, and I ran the other way, because I am not brave. I am only fast.|[quieter] He is dead. Tesfaye. I saw him fall. I keep thinking I will turn around and he will be standing there telling me I have ink on my nose.|[urgent] Tell me what the big one said to him. I was too far; I saw his mouth move and Tesfaye shake his head. What did he want?`);
+L(W, 'q1_catchup', `[breathless] {target}! Oh, thank every saint that listens. I saw you both leave and I followed — yes, I know, I was not supposed to — and then I saw the torches, and the big one in the black armour, and I ran the other way, because I am not brave. I am only fast.|[quieter] He is dead. Tesfaye. I saw him fall. I can't believe we left him there. He should be with us.|[urgent] Tell me what the big one said to him. I was too far; I saw his mouth move and Tesfaye shake his head. What did he want?`);
 CH('q1_wren', [
   { id: 'kind', text: 'Me. Tesfaye said no. We do what he told us — the Open Hand. Stay close to me.', aff: { wren_ward: 1 }, reply: B(W, 'q1_wren_kind') },
   { id: 'cold', text: 'Later. Keep your voice down; grief will not help us, and it will get us found.', reply: B(W, 'q1_wren_cold') },
@@ -100,7 +102,7 @@ CH('q1_wren', [
 L(W, 'q1_wren_kind', `[steadying] He wanted you. By name. Then it was never about Tesfaye at all. — Close. Yes. I can do close. I have his letter; it was in his coat. An inn on the Shore Road, and two names, Beau and Delphine. He must have meant for us to go to them.`);
 L(W, 'q1_wren_cold', `[stung, then flat] Right. I am fine. — I have his letter. An inn and two names. You may read it when you have finished being a wall.`);
 L(W, 'q1_wren_dark', `[uneasy] "What you are." He said that? — You sounded like him just then. Not Tesfaye. The other one. [softer] There is a letter. An inn, two names. Let us go and be alive first. You can be terrible later.`);
-L(W, 'q1_join', `[firm] I am coming with you. Do not argue: I am the only one of us who can open a lock, and you know it. Tesfaye used to say a locked door is only a question. I am very good at questions.`);
+L(W, 'q1_join', `[firm] I am coming with you. I can pick locks and keep watch while you sleep. Besides, if you leave me here, I will only have to follow you again.`);
 Q(1, {
   departure: [
     B('aldric', 'q1_wake', { choice: 'q1_wake', caption: 'Lanternhold, after the last bell. Tesfaye is standing in your doorway with a lamp, dressed for the road.' }),
@@ -359,7 +361,7 @@ L('selene', 'q4_grukhar_selene', `[flat] Your orders. Sealed how? Iron hand, red
 L('grukhar', 'q4_grukhar_selene_reply', `[a grunt] You've seen it, then.`);
 L('selene', 'q4_grukhar_selene_after', `[to you, low] On a wagon, on a bounty, and now on an altar. That's three. — Go on, honey. He's yours to deal with.`);
 L('fennick', 'q4_grukhar_winston', `[flat] Which spring shipment, priest? Whose wagons?`);
-L('grukhar', 'q4_grukhar_winston_reply', `[hoarse] The Consortium's. Everything on this coast is the Consortium's. Ask a smaller question.`);
+L('grukhar', 'q4_grukhar_winston_reply', `[hoarse] The Consortium's. They're the ones who hired me. You'll find the details in those letters.`);
 CH('q4_grukhar', [
   { id: 'who', text: 'Who lied to you? Say the names.', ask: true, reply: B('grukhar', 'q4_grukhar_who') },
   { id: 'why', text: 'Why foul the ore at all? Who profits from a town starving?', ask: true, reply: B('grukhar', 'q4_grukhar_why') },
@@ -522,7 +524,7 @@ Q(5, {
     B('cassian', 'q5_cassian_leaves', { when: { recruited: 'cassian', any: [{ flag: 'ilvaraSaved' }, { recruited: 'vess' }] }, dismiss: ['cassian'], gone: ['cassian'] }),
   ],
 });
-L('torvald', 'q5_sage_ask', `[dry] Well. You have questions; you have had the look of someone with questions since the stable wall. Put them.`);
+L('torvald', 'q5_sage_ask', `[dry] Well? I can see you are not satisfied. Tell me what you want to know.`);
 L('verlan', 'q5_inn_ask', `[stiff] Well? Leave my table, or say what you came to say.`);
 L('ilvara', 'q5_patrol_ask', `[cold] Well? You have looked long enough to decide.`);
 
@@ -645,7 +647,7 @@ CH('q7_vess_papers', [
 L('fennick', 'q7_papers_who', `[level] The Umbral Hand. You have heard the name; everybody has, and everybody pretends they haven't. Merchants, mostly, of a kind. They want to know who is cornering iron on this coast, and why, and they don't much care who dies of the knowing.`);
 L('fennick', 'q7_papers_give', `[nodding] Copies. Fair. You won't regret keeping us.|[dry] You may regret Desmond. That is a separate matter.`);
 L('vess', 'q7_papers_refuse', `[very calm] Then we go, and you will see us again, and it won't be as friends.|[light] It never was, really. I did tell you stories like yours get told badly.`);
-L('aldric', 'q7_dream', `[echoing] Closer to the throne this time, my child. You did not walk here. It walked to you.|[grave] There are others like you. More than you would believe. All of them dreaming of the same chair.|[fading] Feed it or starve it. The same question. A harder answer.`);
+L('aldric', 'q7_dream', `[echoing] Closer to the throne this time, my child. You did not walk here. It walked to you.|[grave] There are others like you. More than you would believe. All of them dreaming of the same chair.|[fading] You can still refuse it, my child. It will offer you more power each time. Remember what taking it would cost.`);
 CH('q7_dream', [
   { id: 'others', text: 'Others. How many? Who?', ask: true, reply: B('aldric', 'q7_dream_others') },
   { id: 'reject', text: 'Starve it. I am not sitting in anyone\'s chair.', heritage: -1, set: { dream2: 'reject' }, reply: B('aldric', 'q7_dream_reject') },
@@ -782,7 +784,7 @@ L('durnik', 'q9_lobby_fight', `[grim] Stairs.`);
 L('vess', 'q9_betrayal', `[bright] {target}! You found us! We work here now, you see it? It pays better than you did.|[giggling] Winston says we should kill you quick. Me, I would like to take my time.`);
 L('fennick', 'q9_betrayal', `[flat] Nothing personal, man. You said that yourself once.`);
 // Folake: a negotiator. She pays for what she wants with what she has, and never gives first.
-L('lysandra', 'q9_floor', `[silken] Put the swords down; you will not need them on my floor, and I have poured two cups. I am Folake. I keep Kolade Adeyinka's bed warm and the Consortium's secrets warmer.|[pleasant] There. I have given you his name, which nobody in this city says aloud, and I gave it first, which is not my habit. So you owe me one answer, and here is the question. On the Griffon Road, before the old man died — what did Kolade offer him? He always offers. I want to know what he thought Tesfaye was worth.`);
+L('lysandra', 'q9_floor', `[silken] Put the swords down; you will not need them on my floor, and I have poured two cups. I am Folake. I keep Kolade Adeyinka's bed warm and the Consortium's secrets warmer.|[pleasant] I have given you his name. Now tell me what happened on the Griffon Road. Before Tesfaye died, did Kolade offer him a bargain? He usually does. I want to know what he offered.`);
 L('cassian', 'q9_floor_cassian', `[low] With respect. You do not have to answer her. She is bargaining.`);
 L('ilvara', 'q9_floor_ilvara', `[low, amused] Answer her. She is the only person in this tower telling the truth, and she is doing it for money. I respect that.`);
 CH('q9_floor_offer', [
@@ -886,7 +888,7 @@ L('maddox', 'q10_summit_kill', `[terrified] He will not stop when we are dead. H
 L('maddox', 'q10_summit_talk', `[whispering] Kolade. Kolade Adeyinka. I found him in a gutter and I raised him to count money, and he has been counting something else since a tutor filled his head with prophecies.|[broken] He is in this keep tonight. I do not know what face he is wearing.`);
 L('maddox', 'q10_summit_arrest', `[relieved] Yes. Yes. Adebayo. Anything. Take us out of here before he —`);
 // The letter — Dawit asks his one question first, because he has waited twenty years to ask it
-L('ambrose', 'q10_letter', `[gently] Sit. — Before I give you this, and I will give it to you, I have a question I have been keeping since the night you two left. Did he say anything, at the end? Anything at all.`);
+L('ambrose', 'q10_letter', `[gently] Sit. I have Tesfaye's letter here. Before you read it... did he say anything at the end? I need to know.`);
 CH('q10_letter_end', [
   { id: 'proud', text: 'That he had been proud of me every day since he carried me through the gate.', reply: B('ambrose', 'q10_end_proud') },
   { id: 'run', text: 'Only "run." And two names.', reply: B('ambrose', 'q10_end_run') },
@@ -994,7 +996,7 @@ L(W, 'q11_alleg_thieves', `[grinning] Tunde! Yes. I was hoping you would say tha
 L('idris', 'q11_healer', `[oily] The Duke is resting. He must not be disturbed. I am his physician, and I will thank you to —|[dropping the voice] — ah. You. The face on the posters. How very tiresome.`);
 L('halvard', 'q11_cured', `[weak] Poison. Slow. He was — the physician was — I could not make my mouth work to say it.|[rallying] Kolade. It was always Kolade. Get me to my own guard and I will get you into that coronation.`);
 // Amara: she asks one thing, and it is the only thing she needs to know about you
-L('amara', 'q11_docks', `[steady] Put the swords away. If I wanted you dead I would have done it from the rooftop.|[grave] I am Amara. I love Kolade Adeyinka, and I helped him kill the man who raised you, and I am going to ask something of you. Before I do — answer me one question, so I know who I am asking. Have you ever loved someone who was wrong? Not mistaken. Wrong.`);
+L('amara', 'q11_docks', `[steady] Put the swords away. If I wanted you dead I would have done it from the rooftop.|[grave] I am Amara. I love Kolade Adeyinka. I also helped him kill the man who raised you. I know what that makes me to you. But I need you to hear me. Have you ever loved someone even after you knew what they'd done?`);
 CH('q11_amara_loved', [
   { id: 'yes', text: 'Yes.', aff: { amara: 1 }, reply: B('amara', 'q11_loved_yes') },
   { id: 'tesfaye', text: 'I loved a man who lied to me for twenty years. Does that count?', reply: B('amara', 'q11_loved_tesfaye') },
@@ -1141,7 +1143,7 @@ L('ilvara', 'q14_sanctum', `[reverent] Do you feel it? The stone remembers him. 
 L(W, 'q14_mirrors', `[horrified] That is ME. That is all of us. They are wearing US.`);
 L('selene', 'q14_mirrors', `[cold] Our faces. Every one. Kill 'em quick; don't look at the eyes.`);
 // The altar: Kolade is glad you came, and there is one thing he has always wanted to know
-L('korvath', 'q14_altar', `[warm] You came. I hoped you would. Every other one of us I have found, I have had to hunt; you walked here on your own feet, and I find I am proud of that, which is a strange thing to feel about someone I mean to kill.|[calm] Sit with me a moment before we do this. There is a question I have carried for thirty years, and you are the only person alive who can answer it. Did he ever speak of me? Tesfaye. Once, in twenty years — a word, a name, a warning?`);
+L('korvath', 'q14_altar', `[warm] You came. I hoped you would. Every other one of us I have found, I have had to hunt; you walked here on your own feet, and I find I am proud of that, which is a strange thing to feel about someone I mean to kill.|[calm] Sit with me a moment. Did Tesfaye ever speak of me? In all those years he raised you, did he mention my name? I've waited thirty years to hear that he remembered me.`);
 CH('q14_spoke', [
   { id: 'never', text: 'Never. Not once. He did not know you existed.', reply: B('korvath', 'q14_spoke_never') },
   { id: 'letter', text: 'Only in a letter, after he was dead. He called you my brother.', reply: B('korvath', 'q14_spoke_letter') },
