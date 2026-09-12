@@ -112,7 +112,7 @@ const UI = {
     const view = horiz ? rect.w : rect.h;
     const start = horiz ? rect.x : rect.y;
 
-    const container = scene.add.container(0, 0);
+    const container = scene.add.container(0, 0).setDepth(opts.depth || 0);
     keep(container);
 
     const maskG = scene.make.graphics({ x: 0, y: 0, add: false });
@@ -121,14 +121,14 @@ const UI = {
     keep(maskG);
     container.setMask(maskG.createGeometryMask());
 
-    const barG = scene.add.graphics().setDepth(6);
+    const barG = scene.add.graphics().setDepth(opts.depth ? opts.depth + 1 : 6);
     keep(barG);
     const barZone = scene.add.zone(
       horiz ? rect.x : rect.x + rect.w - 14,
       horiz ? rect.y + rect.h - 14 : rect.y,
       horiz ? rect.w : 14,
       horiz ? 14 : rect.h
-    ).setOrigin(0).setInteractive({ useHandCursor: true }).setDepth(7);
+    ).setOrigin(0).setInteractive({ useHandCursor: true }).setDepth(opts.depth ? opts.depth + 2 : 7);
     keep(barZone);
 
     let offset = 0;
@@ -144,7 +144,7 @@ const UI = {
     function modalUp() {
       let blocked = false;
       walkDisplay(scene.children.list, o => {
-        if (o.depth >= 900 && o.input && o.input.enabled && o.type === 'Rectangle') blocked = true;
+        if (o.depth >= Math.max(900, opts.depth || 0) && o.input && o.input.enabled && o.type === 'Rectangle') blocked = true;
       });
       return blocked;
     }

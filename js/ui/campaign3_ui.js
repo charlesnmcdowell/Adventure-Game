@@ -185,7 +185,7 @@ UI3.endCard = function (scene, game, done) {
   k(scene.add.rectangle(W / 2, H / 2, W, H, 0x0c0a08, painting ? 0.70 : 0.97).setDepth(960).setInteractive());
   k(T().text(scene, W / 2, 60, E.title, { size: 34, display: true, ox: 0.5, color: T().css.gold }).setDepth(961));
   k(T().text(scene, W / 2, 104, E.line, { size: 15, ox: 0.5, italic: true, color: T().css.inkDim }).setDepth(961));
-  const scroll = ADV.UI.scrollArea(scene, { x: 160, y: 136, w: W - 320, h: H - 136 - 110 }, { keep: k });
+  const scroll = ADV.UI.scrollArea(scene, { x: 160, y: 136, w: W - 320, h: H - 136 - 110 }, { keep: k, depth: 961 });
   let y = 140;
   for (const para of paras) {
     const t = T().text(scene, 180, y, para, { size: 14, wrap: W - 380, color: T().css.ink });
