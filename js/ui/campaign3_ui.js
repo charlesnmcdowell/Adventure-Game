@@ -210,13 +210,16 @@ Panels.story = function (scene, r) {
   let cy = r.y + 70;
   scene.keep(T().text(scene, cx, cy, 'THE COMPANY  ·  up to ' + C3().MAX_COMPANY + ' ride along', { size: 11, color: T().css.inkDim })); cy += 20;
   if (!v.roster.length) { scene.keep(T().text(scene, cx, cy, 'Nobody yet. The road will provide.', { size: 12, italic: true, color: T().css.inkFaint })); cy += 22; }
+  const companyTop = cy, companyH = Math.min(v.roster.length * 40, Math.max(80, r.h - 260));
+  const companyScroll = v.roster.length ? ADV.UI.scrollArea(scene, { x: cx - 3, y: cy, w: cw + 6, h: companyH }, { keep: o => scene.keep(o) }) : null;
   for (const id of v.roster) {
     const ch = D().CAMPAIGN_CHARS[id];
     const on = v.company.includes(id);
-    keepBtn(scene, T().button(scene, cx, cy, cw, 34, (on ? '● ' : '○ ') + ch.name, () => { C3().toggleCompany(game, id); scene.openPanel('story'); },
+    companyScroll.addBtn(T().button(scene, cx, cy, cw, 34, (on ? '● ' : '○ ') + ch.name, () => { C3().toggleCompany(game, id); scene.openPanel('story'); },
       { size: 12, color: on ? T().css.gold : T().css.inkDim, sub: (s.romance === id ? 'yours · ' : '') + (ch.desc || '').split('.')[0], subColor: T().css.inkFaint }));
     cy += 40;
   }
+  if (companyScroll) { companyScroll.finish(); cy = companyTop + companyH; }
   cy += 6;
   const her = s.heritage;
   const herLabel = her <= -2 ? 'starved' : her < 0 ? 'resisting' : her === 0 ? 'quiet' : her < 2 ? 'stirring' : 'awake';

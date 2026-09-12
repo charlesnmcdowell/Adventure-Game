@@ -17,6 +17,11 @@ class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    if (ADV.GatePreviewScene && !this.game.__openedGatePreview && new URLSearchParams(location.search).get('gateArtPreview') === '1') {
+      this.game.__openedGatePreview = true;
+      this.scene.start('GatePreview');
+      return;
+    }
     if (ADV.AnimeArt && !this.game.__openedArtPreview && new URLSearchParams(location.search).get('artPreview') === '1') {
       this.game.__openedArtPreview = true;
       this.scene.start('AnimePreview');

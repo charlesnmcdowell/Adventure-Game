@@ -81,7 +81,7 @@ for(const [id,e]of Object.entries(M.panoramas)){
  if(e.indoor)A.TravelPanorama.INDOOR.add(key);
 }
 G.travelId=(q,leg)=>q?.campaign3&&journeys[q.n]?'gate_'+journeys[q.n][leg==='return'?1:0]:null;
-G.travelPhase=q=>q?.campaign3&&q.n===1?'night':null;
+G.travelPhase=(q,leg)=>{const id=G.travelId(q,leg);return ['gate_lanternhold','gate_griffon','gate_nine_lanterns'].includes(id)?'night':['gate_open_hand','gate_hunted_city'].includes(id)?'evening':null;};
 G.travelSequence=(q,leg)=>q?.campaign3&&leg==='outbound'&&q.n===5?['gate_thornbury','gate_holloway']:q?.campaign3&&leg==='outbound'&&q.n===8?['gate_span','gate_sewers']:[G.travelId(q,leg)].filter(Boolean);
 // Calibrated against each panorama's painted water, fabric, lanterns and chimneys.
 const movingDetails={

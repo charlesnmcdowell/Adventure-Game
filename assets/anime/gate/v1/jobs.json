@@ -1055,7 +1055,7 @@
         "id": "lanternhold",
         "name": "Lanternhold",
         "desc": "Fortified library on an Ethiopian-highland-inspired coastal cliff. Massive pale stone arches, woven geometric borders, lamplit reading room and stacked scroll cases, open arch overlooking the sea at night.",
-        "indoor": true
+        "indoor": false
       },
       {
         "id": "griffon",

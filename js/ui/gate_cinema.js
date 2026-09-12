@@ -34,7 +34,7 @@ G.sceneForBeat=function(game,beat){
  else if(k.startsWith('q4_dream'))id='dream_1';
  else if(k.startsWith('q7_dream'))id='dream_2';
  else if(k.startsWith('q10_dream'))id='dream_3';
- else if(n===7&&/valve|flood/.test(k)&&beat.who==='selene')id='valve_scene';
+ else if(n===7&&/valve|flood/.test(k))id=beat.who==='selene'?'valve_scene':null;
  else if(k.startsWith('q10_letter'))id='letter';
  else if(k==='q12_reveal'||k.startsWith('q12_face_'))id='reveal';
  else if(k==='q12_teleport')id='frost';
@@ -46,7 +46,8 @@ G.sceneForBeat=function(game,beat){
 };
 G.withScene=function(scene,game,beat,done,play){const spec=G.sceneForBeat(game,beat);if(!spec){play(done);return;}const view=G.view(scene,spec.kind,spec.id);if(!view){play(done);return;}
  const oldCut=scene.__cutscene;scene.__cutscene=true;scene.hideChrome?.();let ended=false;
- const finish=()=>{if(ended)return;ended=true;view.destroy(true);scene.__cutscene=oldCut;if(!oldCut)scene.showChrome?.();done?.();};
+ const stop=()=>{ended=true;scene.__cutscene=oldCut;};scene.events.once('shutdown',stop);
+ const finish=()=>{if(ended)return;ended=true;scene.events.off('shutdown',stop);view.destroy(true);scene.__cutscene=oldCut;if(!oldCut)scene.showChrome?.();done?.();};
  view.ready.then(()=>{if(view.active&&!ended)play(finish);});
 };
 const firstQuest={1:0,2:1,3:2,5:3,6:4,8:5,10:6,11:7};

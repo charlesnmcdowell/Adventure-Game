@@ -193,8 +193,120 @@
         1000
       ]
     },
+    "gate_enemy_1": {
+      "file": "../../gate/v1/runtime/enemy_1.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
     "gate_enemy_2": {
       "file": "../../gate/v1/runtime/enemy_2.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_enemy_3": {
+      "file": "../../gate/v1/runtime/enemy_3.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_enemy_4": {
+      "file": "../../gate/v1/runtime/enemy_4.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_enemy_5": {
+      "file": "../../gate/v1/runtime/enemy_5.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_enemy_6": {
+      "file": "../../gate/v1/runtime/enemy_6.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_mini_1": {
+      "file": "../../gate/v1/runtime/mini_1.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_mini_2": {
+      "file": "../../gate/v1/runtime/mini_2.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_mini_3": {
+      "file": "../../gate/v1/runtime/mini_3.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_mini_4": {
+      "file": "../../gate/v1/runtime/mini_4.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_mini_5": {
+      "file": "../../gate/v1/runtime/mini_5.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_emblem_1": {
+      "file": "../../gate/v1/runtime/emblem_1.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_extras_1": {
+      "file": "../../gate/v1/runtime/extras_1.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_warden_1": {
+      "file": "../../gate/v1/runtime/warden_1.webp",
+      "cell": 500,
+      "size": [
+        1000,
+        1000
+      ]
+    },
+    "gate_warden_extra_1": {
+      "file": "../../gate/v1/runtime/warden_extra_1.webp",
       "cell": 500,
       "size": [
         1000,
@@ -207,307 +319,648 @@
       "file": "assets/anime/gate/v1/runtime/environment_lanternhold.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_1",
+      "band": 0,
+      "seam": 628
     },
     "griffon": {
       "file": "assets/anime/gate/v1/runtime/environment_griffon.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_1",
+      "band": 1,
+      "seam": 628
     },
     "shore": {
       "file": "assets/anime/gate/v1/runtime/environment_shore.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_2",
+      "band": 0,
+      "seam": 627
     },
     "open_hand": {
       "file": "assets/anime/gate/v1/runtime/environment_open_hand.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_2",
+      "band": 1,
+      "seam": 627
     },
     "thornbury": {
       "file": "assets/anime/gate/v1/runtime/environment_thornbury.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_3",
+      "band": 0,
+      "seam": 627
     },
     "ford": {
       "file": "assets/anime/gate/v1/runtime/environment_ford.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_3",
+      "band": 1,
+      "seam": 627
     },
     "dunmere": {
       "file": "assets/anime/gate/v1/runtime/environment_dunmere.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_4",
+      "band": 0,
+      "seam": 627
     },
     "dunmere_mine": {
       "file": "assets/anime/gate/v1/runtime/environment_dunmere_mine.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_4",
+      "band": 1,
+      "seam": 627
     },
     "holloway": {
       "file": "assets/anime/gate/v1/runtime/environment_holloway.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_5",
+      "band": 0,
+      "seam": 626
     },
     "bandit_camp": {
       "file": "assets/anime/gate/v1/runtime/environment_bandit_camp.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_5",
+      "band": 1,
+      "seam": 626
     },
     "mirkhollow": {
       "file": "assets/anime/gate/v1/runtime/environment_mirkhollow.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_6",
+      "band": 0,
+      "seam": 627
     },
     "iron_mine": {
       "file": "assets/anime/gate/v1/runtime/environment_iron_mine.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_6",
+      "band": 1,
+      "seam": 627
     },
     "span": {
       "file": "assets/anime/gate/v1/runtime/environment_span.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_7",
+      "band": 0,
+      "seam": 627
     },
     "sewers": {
       "file": "assets/anime/gate/v1/runtime/environment_sewers.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_7",
+      "band": 1,
+      "seam": 627
     },
     "nine_lanterns": {
       "file": "assets/anime/gate/v1/runtime/environment_nine_lanterns.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_8",
+      "band": 0,
+      "seam": 627
     },
     "palace": {
       "file": "assets/anime/gate/v1/runtime/environment_palace.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_8",
+      "band": 1,
+      "seam": 627
     },
     "tower": {
       "file": "assets/anime/gate/v1/runtime/environment_tower.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_9",
+      "band": 0,
+      "seam": 627
     },
     "catacombs": {
       "file": "assets/anime/gate/v1/runtime/environment_catacombs.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_9",
+      "band": 1,
+      "seam": 627
     },
     "hunted_city": {
       "file": "assets/anime/gate/v1/runtime/environment_hunted_city.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_10",
+      "band": 0,
+      "seam": 627
     },
     "undercity": {
       "file": "assets/anime/gate/v1/runtime/environment_undercity.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_10",
+      "band": 1,
+      "seam": 627
     },
     "temple": {
       "file": "assets/anime/gate/v1/runtime/environment_temple.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_11",
+      "band": 0,
+      "seam": 627
     },
     "gnoll_fort": {
       "file": "assets/anime/gate/v1/runtime/environment_gnoll_fort.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_11",
+      "band": 1,
+      "seam": 627
     },
     "black_altar": {
       "file": "assets/anime/gate/v1/runtime/environment_black_altar.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_12",
+      "band": 0,
+      "seam": 627
     },
     "grove": {
       "file": "assets/anime/gate/v1/runtime/environment_grove.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_12",
+      "band": 1,
+      "seam": 627
     },
     "cliffs": {
       "file": "assets/anime/gate/v1/runtime/environment_cliffs.webp",
       "width": 1280,
       "height": 640,
-      "indoor": false
+      "indoor": false,
+      "source": "environment_13",
+      "band": 0,
+      "seam": 625
     },
     "valve": {
       "file": "assets/anime/gate/v1/runtime/environment_valve.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_13",
+      "band": 1,
+      "seam": 625
     },
     "study": {
       "file": "assets/anime/gate/v1/runtime/environment_study.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_14",
+      "band": 0,
+      "seam": 627
     },
     "sickroom": {
       "file": "assets/anime/gate/v1/runtime/environment_sickroom.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_14",
+      "band": 1,
+      "seam": 627
     },
     "undervault": {
       "file": "assets/anime/gate/v1/runtime/environment_undervault.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_15",
+      "band": 0,
+      "seam": 624
     },
     "mirrors": {
       "file": "assets/anime/gate/v1/runtime/environment_mirrors.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_15",
+      "band": 1,
+      "seam": 624
     },
     "counting": {
       "file": "assets/anime/gate/v1/runtime/environment_counting.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_16",
+      "band": 0,
+      "seam": 627
     },
     "silk_floor": {
       "file": "assets/anime/gate/v1/runtime/environment_silk_floor.webp",
       "width": 1280,
       "height": 640,
-      "indoor": true
+      "indoor": true,
+      "source": "environment_16",
+      "band": 1,
+      "seam": 627
     }
   },
   "panoramas": {
     "lanternhold": {
       "file": "assets/anime/gate/v1/runtime/panorama_lanternhold.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": true
+      "height": 439,
+      "indoor": false,
+      "source": "panorama_1",
+      "band": 0,
+      "seam": 443
     },
     "griffon": {
       "file": "assets/anime/gate/v1/runtime/panorama_griffon.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 577,
+      "indoor": false,
+      "source": "panorama_1",
+      "band": 1,
+      "seam": 443
     },
     "shore": {
       "file": "assets/anime/gate/v1/runtime/panorama_shore.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 484,
+      "indoor": false,
+      "source": "panorama_2",
+      "band": 0,
+      "seam": 488
     },
     "open_hand": {
       "file": "assets/anime/gate/v1/runtime/panorama_open_hand.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 532,
+      "indoor": false,
+      "source": "panorama_2",
+      "band": 1,
+      "seam": 488
     },
     "thornbury": {
       "file": "assets/anime/gate/v1/runtime/panorama_thornbury.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 508,
+      "indoor": false,
+      "source": "panorama_3",
+      "band": 0,
+      "seam": 512
     },
     "ford": {
       "file": "assets/anime/gate/v1/runtime/panorama_ford.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 508,
+      "indoor": false,
+      "source": "panorama_3",
+      "band": 1,
+      "seam": 512
     },
     "dunmere": {
       "file": "assets/anime/gate/v1/runtime/panorama_dunmere.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 436,
+      "indoor": false,
+      "source": "panorama_4",
+      "band": 0,
+      "seam": 440
     },
     "dunmere_mine": {
       "file": "assets/anime/gate/v1/runtime/panorama_dunmere_mine.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": true
+      "height": 580,
+      "indoor": true,
+      "source": "panorama_4",
+      "band": 1,
+      "seam": 440
     },
     "holloway": {
       "file": "assets/anime/gate/v1/runtime/panorama_holloway.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 508,
+      "indoor": false,
+      "source": "panorama_5",
+      "band": 0,
+      "seam": 512
     },
     "bandit_camp": {
       "file": "assets/anime/gate/v1/runtime/panorama_bandit_camp.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 508,
+      "indoor": false,
+      "source": "panorama_5",
+      "band": 1,
+      "seam": 512
     },
     "mirkhollow": {
       "file": "assets/anime/gate/v1/runtime/panorama_mirkhollow.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 508,
+      "indoor": false,
+      "source": "panorama_6",
+      "band": 0,
+      "seam": 512
     },
     "iron_mine": {
       "file": "assets/anime/gate/v1/runtime/panorama_iron_mine.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": true
+      "height": 508,
+      "indoor": true,
+      "source": "panorama_6",
+      "band": 1,
+      "seam": 512
     },
     "span": {
       "file": "assets/anime/gate/v1/runtime/panorama_span.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 436,
+      "indoor": false,
+      "source": "panorama_7",
+      "band": 0,
+      "seam": 440
     },
     "sewers": {
       "file": "assets/anime/gate/v1/runtime/panorama_sewers.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": true
+      "height": 580,
+      "indoor": true,
+      "source": "panorama_7",
+      "band": 1,
+      "seam": 440
     },
     "nine_lanterns": {
       "file": "assets/anime/gate/v1/runtime/panorama_nine_lanterns.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 484,
+      "indoor": false,
+      "source": "panorama_8",
+      "band": 0,
+      "seam": 488
     },
     "palace": {
       "file": "assets/anime/gate/v1/runtime/panorama_palace.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": true
+      "height": 532,
+      "indoor": true,
+      "source": "panorama_8",
+      "band": 1,
+      "seam": 488
+    },
+    "tower": {
+      "file": "assets/anime/gate/v1/runtime/panorama_tower.webp",
+      "width": 1452,
+      "height": 465,
+      "indoor": true,
+      "source": "panorama_9",
+      "band": 0,
+      "seam": 469
+    },
+    "catacombs": {
+      "file": "assets/anime/gate/v1/runtime/panorama_catacombs.webp",
+      "width": 1452,
+      "height": 551,
+      "indoor": true,
+      "source": "panorama_9",
+      "band": 1,
+      "seam": 469
     },
     "hunted_city": {
       "file": "assets/anime/gate/v1/runtime/panorama_hunted_city.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": false
+      "height": 508,
+      "indoor": false,
+      "source": "panorama_10",
+      "band": 0,
+      "seam": 512
     },
     "undercity": {
       "file": "assets/anime/gate/v1/runtime/panorama_undercity.webp",
       "width": 1452,
-      "height": 510,
-      "indoor": true
+      "height": 508,
+      "indoor": true,
+      "source": "panorama_10",
+      "band": 1,
+      "seam": 512
+    },
+    "temple": {
+      "file": "assets/anime/gate/v1/runtime/panorama_temple.webp",
+      "width": 1452,
+      "height": 458,
+      "indoor": true,
+      "source": "panorama_11",
+      "band": 0,
+      "seam": 462
     }
   },
-  "stills": {},
-  "ui": {},
+  "stills": {
+    "death": {
+      "file": "assets/anime/gate/v1/runtime/still_death.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_1",
+      "band": 0,
+      "seam": 627
+    },
+    "bounty": {
+      "file": "assets/anime/gate/v1/runtime/still_bounty.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_1",
+      "band": 1,
+      "seam": 627
+    },
+    "dream_1": {
+      "file": "assets/anime/gate/v1/runtime/still_dream_1.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_2",
+      "band": 0,
+      "seam": 627
+    },
+    "dream_2": {
+      "file": "assets/anime/gate/v1/runtime/still_dream_2.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_2",
+      "band": 1,
+      "seam": 627
+    },
+    "dream_3": {
+      "file": "assets/anime/gate/v1/runtime/still_dream_3.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_3",
+      "band": 0,
+      "seam": 627
+    },
+    "valve_scene": {
+      "file": "assets/anime/gate/v1/runtime/still_valve_scene.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_3",
+      "band": 1,
+      "seam": 627
+    },
+    "letter": {
+      "file": "assets/anime/gate/v1/runtime/still_letter.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_4",
+      "band": 0,
+      "seam": 614
+    },
+    "reveal": {
+      "file": "assets/anime/gate/v1/runtime/still_reveal.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_4",
+      "band": 1,
+      "seam": 614
+    },
+    "frost": {
+      "file": "assets/anime/gate/v1/runtime/still_frost.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_5",
+      "band": 0,
+      "seam": 627
+    },
+    "altar": {
+      "file": "assets/anime/gate/v1/runtime/still_altar.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_5",
+      "band": 1,
+      "seam": 627
+    },
+    "altar_amara": {
+      "file": "assets/anime/gate/v1/runtime/still_altar_amara.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_6",
+      "band": 0,
+      "seam": 627
+    },
+    "ending_hero": {
+      "file": "assets/anime/gate/v1/runtime/still_ending_hero.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_6",
+      "band": 1,
+      "seam": 627
+    },
+    "ending_vengeance": {
+      "file": "assets/anime/gate/v1/runtime/still_ending_vengeance.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_7",
+      "band": 0,
+      "seam": 627
+    },
+    "ending_usurper": {
+      "file": "assets/anime/gate/v1/runtime/still_ending_usurper.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_7",
+      "band": 1,
+      "seam": 627
+    },
+    "ending_mercy": {
+      "file": "assets/anime/gate/v1/runtime/still_ending_mercy.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_8",
+      "band": 0,
+      "seam": 627
+    },
+    "ending_empty": {
+      "file": "assets/anime/gate/v1/runtime/still_ending_empty.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "still_8",
+      "band": 1,
+      "seam": 627
+    }
+  },
+  "ui": {
+    "story_banner": {
+      "file": "assets/anime/gate/v1/runtime/ui_story_banner.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "ui_1",
+      "band": 0,
+      "seam": 713
+    },
+    "choice_frame": {
+      "file": "assets/anime/gate/v1/runtime/ui_choice_frame.webp",
+      "width": 1280,
+      "height": 640,
+      "indoor": false,
+      "source": "ui_1",
+      "band": 1,
+      "seam": 713
+    }
+  },
   "frames": {
     "head:wren_ward": {
       "sheet": "gate_heads_1",
@@ -893,6 +1346,22 @@
       "sheet": "gate_bodies_12",
       "frame": 3
     },
+    "enemy:hired_knife": {
+      "sheet": "gate_enemy_1",
+      "frame": 0
+    },
+    "enemy:gate_bandit": {
+      "sheet": "gate_enemy_1",
+      "frame": 1
+    },
+    "enemy:bandit_archer": {
+      "sheet": "gate_enemy_1",
+      "frame": 2
+    },
+    "enemy:hob_sergeant": {
+      "sheet": "gate_enemy_1",
+      "frame": 3
+    },
     "enemy:consortium_guard": {
       "sheet": "gate_enemy_2",
       "frame": 0
@@ -907,6 +1376,210 @@
     },
     "enemy:veylan_acolyte": {
       "sheet": "gate_enemy_2",
+      "frame": 3
+    },
+    "enemy:umbra_druid": {
+      "sheet": "gate_enemy_3",
+      "frame": 0
+    },
+    "enemy:gauntlet_soldier": {
+      "sheet": "gate_enemy_3",
+      "frame": 1
+    },
+    "enemy:gauntlet_traitor": {
+      "sheet": "gate_enemy_3",
+      "frame": 2
+    },
+    "enemy:morrak_cultist": {
+      "sheet": "gate_enemy_3",
+      "frame": 3
+    },
+    "enemy:palace_doppelganger": {
+      "sheet": "gate_enemy_4",
+      "frame": 0
+    },
+    "enemy:tomb_ghoul": {
+      "sheet": "gate_enemy_4",
+      "frame": 1
+    },
+    "enemy:road_wolf": {
+      "sheet": "gate_enemy_4",
+      "frame": 2
+    },
+    "enemy:tunnel_kobold": {
+      "sheet": "gate_enemy_4",
+      "frame": 3
+    },
+    "enemy:kobold_shaman": {
+      "sheet": "gate_enemy_5",
+      "frame": 0
+    },
+    "enemy:gnoll_raider": {
+      "sheet": "gate_enemy_5",
+      "frame": 1
+    },
+    "enemy:web_spider": {
+      "sheet": "gate_enemy_5",
+      "frame": 2
+    },
+    "enemy:wyvern": {
+      "sheet": "gate_enemy_5",
+      "frame": 3
+    },
+    "enemy:sewer_crawler": {
+      "sheet": "gate_enemy_6",
+      "frame": 0
+    },
+    "enemy:sewer_ogre": {
+      "sheet": "gate_enemy_6",
+      "frame": 1
+    },
+    "enemy:phase_spider": {
+      "sheet": "gate_enemy_6",
+      "frame": 2
+    },
+    "enemy:shadow_double": {
+      "sheet": "gate_enemy_6",
+      "frame": 3
+    },
+    "mini:nib": {
+      "sheet": "gate_mini_1",
+      "frame": 0
+    },
+    "mini:cobb": {
+      "sheet": "gate_mini_1",
+      "frame": 1
+    },
+    "mini:kobold_chief": {
+      "sheet": "gate_mini_1",
+      "frame": 2
+    },
+    "mini:gnoll_warleader": {
+      "sheet": "gate_mini_1",
+      "frame": 3
+    },
+    "mini:verlan": {
+      "sheet": "gate_mini_2",
+      "frame": 0
+    },
+    "mini:skarn": {
+      "sheet": "gate_mini_2",
+      "frame": 1
+    },
+    "mini:hroth": {
+      "sheet": "gate_mini_2",
+      "frame": 2
+    },
+    "mini:silksa": {
+      "sheet": "gate_mini_2",
+      "frame": 3
+    },
+    "mini:kestrel": {
+      "sheet": "gate_mini_3",
+      "frame": 0
+    },
+    "mini:wyvern_matriarch": {
+      "sheet": "gate_mini_3",
+      "frame": 1
+    },
+    "mini:sewer_ogre_mage": {
+      "sheet": "gate_mini_3",
+      "frame": 2
+    },
+    "mini:lantern_master": {
+      "sheet": "gate_mini_3",
+      "frame": 3
+    },
+    "mini:tower_captain": {
+      "sheet": "gate_mini_4",
+      "frame": 0
+    },
+    "mini:family_double": {
+      "sheet": "gate_mini_4",
+      "frame": 1
+    },
+    "mini:hall_doubles": {
+      "sheet": "gate_mini_4",
+      "frame": 2
+    },
+    "mini:bought_sergeants": {
+      "sheet": "gate_mini_4",
+      "frame": 3
+    },
+    "mini:altar_keepers": {
+      "sheet": "gate_mini_5",
+      "frame": 0
+    },
+    "mini:your_own_faces": {
+      "sheet": "gate_mini_5",
+      "frame": 1
+    },
+    "mini:umbral_pair": {
+      "sheet": "gate_mini_5",
+      "frame": 2
+    },
+    "emblem:starved": {
+      "sheet": "gate_emblem_1",
+      "frame": 0
+    },
+    "emblem:resisting": {
+      "sheet": "gate_emblem_1",
+      "frame": 1
+    },
+    "emblem:quiet": {
+      "sheet": "gate_emblem_1",
+      "frame": 2
+    },
+    "emblem:stirring": {
+      "sheet": "gate_emblem_1",
+      "frame": 3
+    },
+    "extras:awake": {
+      "sheet": "gate_extras_1",
+      "frame": 0
+    },
+    "extras:findik": {
+      "sheet": "gate_extras_1",
+      "frame": 1
+    },
+    "extras:amara_docks": {
+      "sheet": "gate_extras_1",
+      "frame": 2
+    },
+    "extras:wardens_healer_f": {
+      "sheet": "gate_extras_1",
+      "frame": 3
+    },
+    "warden:fighter_m": {
+      "sheet": "gate_warden_1",
+      "frame": 0
+    },
+    "warden:fighter_f": {
+      "sheet": "gate_warden_1",
+      "frame": 1
+    },
+    "warden:rogue_m": {
+      "sheet": "gate_warden_1",
+      "frame": 2
+    },
+    "warden:rogue_f": {
+      "sheet": "gate_warden_1",
+      "frame": 3
+    },
+    "warden_extra:healer_m": {
+      "sheet": "gate_warden_extra_1",
+      "frame": 0
+    },
+    "warden_extra:plate_corner": {
+      "sheet": "gate_warden_extra_1",
+      "frame": 1
+    },
+    "warden_extra:flame_badge": {
+      "sheet": "gate_warden_extra_1",
+      "frame": 2
+    },
+    "warden_extra:consortium_badge": {
+      "sheet": "gate_warden_extra_1",
       "frame": 3
     }
   },
@@ -1344,6 +2017,15 @@
       "mode": "RGBA"
     },
     {
+      "id": "panorama_9",
+      "file": "assets/anime/gate/v1/source/panorama_9.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA"
+    },
+    {
       "id": "panorama_10",
       "file": "assets/anime/gate/v1/source/panorama_10.png",
       "size": [
@@ -1353,8 +2035,224 @@
       "mode": "RGBA"
     },
     {
+      "id": "panorama_11",
+      "file": "assets/anime/gate/v1/source/panorama_11.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "enemy_1",
+      "file": "assets/anime/gate/v1/source/enemy_1.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
       "id": "enemy_2",
       "file": "assets/anime/gate/v1/source/enemy_2.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "enemy_3",
+      "file": "assets/anime/gate/v1/source/enemy_3.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "enemy_4",
+      "file": "assets/anime/gate/v1/source/enemy_4.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "enemy_5",
+      "file": "assets/anime/gate/v1/source/enemy_5.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "enemy_6",
+      "file": "assets/anime/gate/v1/source/enemy_6.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "mini_1",
+      "file": "assets/anime/gate/v1/source/mini_1.png",
+      "size": [
+        1230,
+        1278
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "mini_2",
+      "file": "assets/anime/gate/v1/source/mini_2.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "mini_3",
+      "file": "assets/anime/gate/v1/source/mini_3.png",
+      "size": [
+        1225,
+        1284
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "mini_4",
+      "file": "assets/anime/gate/v1/source/mini_4.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "mini_5",
+      "file": "assets/anime/gate/v1/source/mini_5.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_1",
+      "file": "assets/anime/gate/v1/source/still_1.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_2",
+      "file": "assets/anime/gate/v1/source/still_2.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_3",
+      "file": "assets/anime/gate/v1/source/still_3.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_4",
+      "file": "assets/anime/gate/v1/source/still_4.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_5",
+      "file": "assets/anime/gate/v1/source/still_5.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_6",
+      "file": "assets/anime/gate/v1/source/still_6.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_7",
+      "file": "assets/anime/gate/v1/source/still_7.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "still_8",
+      "file": "assets/anime/gate/v1/source/still_8.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "ui_1",
+      "file": "assets/anime/gate/v1/source/ui_1.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "emblem_1",
+      "file": "assets/anime/gate/v1/source/emblem_1.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "extras_1",
+      "file": "assets/anime/gate/v1/source/extras_1.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "warden_1",
+      "file": "assets/anime/gate/v1/source/warden_1.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "id": "warden_extra_1",
+      "file": "assets/anime/gate/v1/source/warden_extra_1.png",
       "size": [
         1254,
         1254

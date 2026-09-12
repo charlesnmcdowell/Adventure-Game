@@ -106,7 +106,7 @@ function composeHuman(scene,ch,id,set){
  let flesh=special&&named.authoredSkin?body:skinBody(body,hp,set);
  const bodyW=named?.bodyWidth||[1020,1060,980][id.build];
  let bodyY=528;
- if(named?.authoredSkin){
+ if(named?.authoredSkin||warden){
   // The generated modular collar opening is hollow. Expose the neck beneath it.
   const c=document.createElement('canvas');c.width=c.height=body.width;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(flesh,0,0);
   const top=x.getImageData(245,0,10,110).data;let collar=0;for(let yy=0;yy<110;yy++){if(Array.from({length:10},(_,xx)=>top[(yy*10+xx)*4+3]).filter(a=>a>180).length>5){collar=yy;break;}}
