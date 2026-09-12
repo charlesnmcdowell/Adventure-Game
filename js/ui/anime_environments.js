@@ -52,7 +52,7 @@ function view(scene,raw,phase,opts){
  lease.ready.then(ok=>{
   if(!alive)return;
   if(!ok){status.setText('Scenery unavailable');return;}
-  status.destroy();bg=scene.add.image(W/2,H/2,lease.entry.key);fitImage(bg);art.addAt(bg,0);shade.setVisible(false);
+  status.destroy();bg=scene.add.image(W/2,H/2,lease.entry.key);fitImage(bg);art.addAt(bg,0);shade.setVisible(false);root.background=bg;
   // Independent cropped strips use the exact source composition and a screen-space mask.
   if(detail.water){
    const [nx,ny,nw,nh]=detail.water,box=[nx*W,ny*H,nw*W,nh*H],maskShape=scene.make.graphics({add:false});maskShape.fillStyle(0xffffff);maskShape.fillRect(...box);const mask=maskShape.createGeometryMask();
@@ -106,13 +106,33 @@ A.HousingArt.paint=function(scene,id){
    // Glass panes in the approved illustrated bedroom, transformed with its cover fit.
    const s=Math.max((W+24)/1024,(H+18)/760),ox=W/2-512*s,oy=H/2-380*s;
    const shape=scene.make.graphics({add:false});shape.fillStyle(0xffffff);
-   for(const [x1,x2,rows]of [[47,102,[[76,126],[139,187],[201,248],[260,315]]],[126,180,[[104,145],[156,200],[212,253],[266,306]]]]){
-    for(const [top,bottom]of rows)shape.fillRect(ox+x1*s,oy+top*s,(x2-x1)*s,(bottom-top)*s);
-   }
-   const mask=shape.createGeometryMask();scene.homeMaskShape=shape;opts.mask=mask;opts.tintScale=0;opts.sunX=80;opts.sunY=55;
+   // Follow the actual glass pixels, leaving the wooden mullions and indoor plants in front.
+   root.ready.then(ok=>{
+    if(!ok||!root.active||!root.background)return;
+    const source=root.background.frame.source.image,c=document.createElement('canvas');c.width=source.width;c.height=source.height;
+    const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(source,0,0);const data=ctx.getImageData(0,0,c.width,c.height).data;
+    for(let y=73;y<320;y++)for(const [left,right]of [[43,102],[123,186]]){
+     let start=-1;
+     for(let x=left;x<=right;x++){
+      const at=(y*c.width+x)*4,r=data[at],g=data[at+1],b=data[at+2],glass=x<right&&b>r*.95&&b>g*.94&&b>100&&!(x>163&&y>239)&&!(x>143&&y>277);
+      if(glass&&start<0)start=x;
+      if(!glass&&start>=0){shape.fillRect(ox+start*s,oy+y*s,(x-start)*s,s+.15);start=-1;}
+     }
+    }
+   });
+   const mask=shape.createGeometryMask();scene.homeMaskShape=shape;opts.mask=mask;opts.tintScale=.9;opts.sunX=80;opts.sunY=55;
    root.once('destroy',()=>{mask.destroy();shape.destroy();if(scene.homeMaskShape===shape)scene.homeMaskShape=null;});
   }
-  if(id==='inn'||!INDOOR.has(id))A.WeatherFX.attach(scene,A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase}),phase,{x:0,y:0,w:W,h:H},opts);
+  if(id==='inn'||!INDOOR.has(id)){
+   const wx=A.WeatherFX.attach(scene,A.Weather.at(scene.game_?.world||{seed:1,questClock:0},{phase}),phase,{x:0,y:0,w:W,h:H},opts);
+   if(id!=='inn')root.ready.then(ok=>{
+    if(!ok||!root.active||wx.destroyed||!root.background)return;
+    const bg=root.background,sky=A.WeatherFX.skyMask(scene,bg.frame.source.image,bg.scaleX,bg.x-bg.displayWidth/2,bg.y-bg.displayHeight/2);
+    if(wx.celestial){wx.celestial.setMask(sky.mask);if(sky.anchor)wx.celestial.setPosition(sky.anchor.x-1080,sky.anchor.y-(phase==='evening'?160:82));}
+    if(wx.rays&&sky.anchor)wx.rays.setPosition(sky.anchor.x,sky.anchor.y);
+    root.once('destroy',()=>sky.destroy());
+   });
+  }
  }
  return root;
 };

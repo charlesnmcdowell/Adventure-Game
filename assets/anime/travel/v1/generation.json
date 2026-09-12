@@ -1,0 +1,184 @@
+[
+  {
+    "id": "academy_bell",
+    "locations": [
+      "academy",
+      "bell"
+    ],
+    "scenes": [
+      "An arcane mage academy approach: pale stone arcades, floating small violet crystals, geometric glowing runes as abstract symbols NOT text, distant blue spires, horizontal paved walkway.",
+      "The Bell faction's old city ward: bell towers, paper charms strung between roofs, tiny shrine niches, decorative brass bells, horizontal old stone street."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: An arcane mage academy approach: pale stone arcades, floating small violet crystals, geometric glowing runes as abstract symbols NOT text, distant blue spires, horizontal paved walkway.\nBOTTOM BAND: The Bell faction's old city ward: bell towers, paper charms strung between roofs, tiny shrine niches, decorative brass bells, horizontal old stone street.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-28e75717-c70f-4728-8232-525ccd001002.png"
+  },
+  {
+    "id": "alley_prison",
+    "locations": [
+      "alley",
+      "prison"
+    ],
+    "scenes": [
+      "An outdoor back alley SIDE VIEW: laundry ropes, brick walls, old drain pipes, crates, shuttered upper rooms, slivers of sky above rooftops, horizontal damp cobblestones.",
+      "The exterior prison quarter: forbidding stone walls, barred windows, watchtowers, iron gate, banners, rough flat horizontal street outside the wall."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: An outdoor back alley SIDE VIEW: laundry ropes, brick walls, old drain pipes, crates, shuttered upper rooms, slivers of sky above rooftops, horizontal damp cobblestones.\nBOTTOM BAND: The exterior prison quarter: forbidding stone walls, barred windows, watchtowers, iron gate, banners, rough flat horizontal street outside the wall.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-4153fcc3-71e2-405b-8749-9078a7ca32dc.png"
+  },
+  {
+    "id": "birthing_house_low_tide",
+    "locations": [
+      "birthing_house",
+      "low_tide"
+    ],
+    "scenes": [
+      "INTERIOR sinister abandoned root-invaded birthing house, no sky: empty cradles and faded cloth beyond a corridor, twisted roots through stone walls, dim amber lamps, atmospheric not gory, horizontal tiled corridor.",
+      "A low-tide shore crossing: tidal pools reflecting blue sky, old shipwreck ribs, exposed sandbanks, seaweed, distant cliffs, horizontal wet sand path."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: INTERIOR sinister abandoned root-invaded birthing house, no sky: empty cradles and faded cloth beyond a corridor, twisted roots through stone walls, dim amber lamps, atmospheric not gory, horizontal tiled corridor.\nBOTTOM BAND: A low-tide shore crossing: tidal pools reflecting blue sky, old shipwreck ribs, exposed sandbanks, seaweed, distant cliffs, horizontal wet sand path.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-b32dbffc-49ac-4074-b29a-5f3516a7a6fd.png"
+  },
+  {
+    "id": "crypt_city",
+    "locations": [
+      "crypt",
+      "city"
+    ],
+    "scenes": [
+      "INTERIOR underground crypt corridor, no sky: vaulted stone mausoleum gallery, sealed tomb niches, iron lantern brackets with tiny amber flames, cobwebs, horizontal stone floor. Quiet dignified fantasy necropolis.",
+      "A lively medieval capital street from SIDE VIEW: varied timber-and-stone shops without lettering, fountains, colorful cloth awnings, flowerboxes, distant cathedral towers, horizontal cobbled street."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: INTERIOR underground crypt corridor, no sky: vaulted stone mausoleum gallery, sealed tomb niches, iron lantern brackets with tiny amber flames, cobwebs, horizontal stone floor. Quiet dignified fantasy necropolis.\nBOTTOM BAND: A lively medieval capital street from SIDE VIEW: varied timber-and-stone shops without lettering, fountains, colorful cloth awnings, flowerboxes, distant cathedral towers, horizontal cobbled street.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-7987c49e-be7d-4dc0-84dc-a3e815d6137e.png"
+  },
+  {
+    "id": "green_boss_sea",
+    "locations": [
+      "green_boss",
+      "sea"
+    ],
+    "scenes": [
+      "A samurai antagonist's fortress approach: imposing black tiled Japanese-inspired keep, torn green war banners, scattered bamboo, red gate beams, mountains, horizontal stone causeway.",
+      "An open-sea crossing viewed sideways from a ship: the bottom24% is a continuous horizontal timber deck with low outer gunwale, vast azure ocean behind, small distant islands and sails, no large masts blocking the frame."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: A samurai antagonist's fortress approach: imposing black tiled Japanese-inspired keep, torn green war banners, scattered bamboo, red gate beams, mountains, horizontal stone causeway.\nBOTTOM BAND: An open-sea crossing viewed sideways from a ship: the bottom24% is a continuous horizontal timber deck with low outer gunwale, vast azure ocean behind, small distant islands and sails, no large masts blocking the frame.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-c6d4ea91-e7f3-444c-a2c4-a8f5414aee44.png"
+  },
+  {
+    "id": "green_tally",
+    "locations": [
+      "green",
+      "tally"
+    ],
+    "scenes": [
+      "A disciplined samurai faction's mountain bamboo approach: bamboo forest, small red shrine gates, gray tiled dojo roofs, green banners without text, horizontal mountain path.",
+      "A pirate faction's red-sail harbor: moored pirate brigantines with dark red furled sails, countinghouse warehouses without lettering, barrels, old anchors, horizontal dock."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: A disciplined samurai faction's mountain bamboo approach: bamboo forest, small red shrine gates, gray tiled dojo roofs, green banners without text, horizontal mountain path.\nBOTTOM BAND: A pirate faction's red-sail harbor: moored pirate brigantines with dark red furled sails, countinghouse warehouses without lettering, barrels, old anchors, horizontal dock.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-a4d436cf-63e3-407c-be2e-c18d1b9cf46f.png"
+  },
+  {
+    "id": "marsh_ruins",
+    "locations": [
+      "marsh",
+      "ruins"
+    ],
+    "scenes": [
+      "A reed marsh causeway: pools, reeds, twisted willows, half-submerged abandoned boats, distant herons habitat, horizontal old timber walkway above wet ground.",
+      "An abandoned fortress ruin approach: ivy-covered broken arches, collapsed stone walls, fallen columns, distant green hills, flat horizontal flagstone road."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: A reed marsh causeway: pools, reeds, twisted willows, half-submerged abandoned boats, distant herons habitat, horizontal old timber walkway above wet ground.\nBOTTOM BAND: An abandoned fortress ruin approach: ivy-covered broken arches, collapsed stone walls, fallen columns, distant green hills, flat horizontal flagstone road.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-0fdf279f-b79d-4713-8834-344e15cb4def.png"
+  },
+  {
+    "id": "maw_antler",
+    "locations": [
+      "maw",
+      "antler"
+    ],
+    "scenes": [
+      "The secretive criminal Maw faction's outdoor canal alleys: weathered houses, laundry, trapdoor courtyards, green canal behind the towpath, suspicious unmarked shutters, horizontal towpath.",
+      "The Antler faction's forest tollroad: carved stag emblems WITHOUT writing, fortified wooden ranger posts, lush old forest, antler-shaped beams, horizontal earth road."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: The secretive criminal Maw faction's outdoor canal alleys: weathered houses, laundry, trapdoor courtyards, green canal behind the towpath, suspicious unmarked shutters, horizontal towpath.\nBOTTOM BAND: The Antler faction's forest tollroad: carved stag emblems WITHOUT writing, fortified wooden ranger posts, lush old forest, antler-shaped beams, horizontal earth road.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-c3b9a9e8-a73a-4272-8d1c-85c4311b184e.png"
+  },
+  {
+    "id": "navy_ossuary",
+    "locations": [
+      "navy",
+      "ossuary"
+    ],
+    "scenes": [
+      "A lawful naval faction's blue-sail harbor: orderly warships with blue furled canvas, pale admiralty walls, brass fittings, flags without text, horizontal naval pier.",
+      "INTERIOR vast necromancer ossuary passage, no sky: orderly skull niches, bone-carved pillars, ancient sarcophagi, cool ghostly small blue braziers, eerie dignified vaulted hall, horizontal floor."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: A lawful naval faction's blue-sail harbor: orderly warships with blue furled canvas, pale admiralty walls, brass fittings, flags without text, horizontal naval pier.\nBOTTOM BAND: INTERIOR vast necromancer ossuary passage, no sky: orderly skull niches, bone-carved pillars, ancient sarcophagi, cool ghostly small blue braziers, eerie dignified vaulted hall, horizontal floor.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-a7e76d72-1252-4a9f-8b63-4e6f291ca82d.png"
+  },
+  {
+    "id": "port_mountain",
+    "locations": [
+      "port",
+      "mountain"
+    ],
+    "scenes": [
+      "A working harbor promenade SIDE VIEW: merchant ships behind the walkway, masts and furled sails, ropes and crates, distant lighthouse, horizontal timber dock along bottom.",
+      "A high mountain trail: layered blue peaks, alpine grasses, weathered stone lanterns, small roadside shrine, stony horizontal path across the hillside, distant waterfall."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: A working harbor promenade SIDE VIEW: merchant ships behind the walkway, masts and furled sails, ropes and crates, distant lighthouse, horizontal timber dock along bottom.\nBOTTOM BAND: A high mountain trail: layered blue peaks, alpine grasses, weathered stone lanterns, small roadside shrine, stony horizontal path across the hillside, distant waterfall.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-d0ce4000-7cfa-40dd-850c-6022bed9c6e1.png"
+  },
+  {
+    "id": "pyre_maw_boss",
+    "locations": [
+      "pyre",
+      "maw_boss"
+    ],
+    "scenes": [
+      "A burned woodland pyre approach: charred trunks among recovering green shoots, small smoldering ritual pyre in midground, gray ash and glowing embers, horizontal earth track.",
+      "The Maw mastermind's outdoor hidden courtyard approach: narrow brick arcades, veiled shrine candles, shuttered windows, ivy, dark burgundy cloth, horizontal cobblestone passage."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: A burned woodland pyre approach: charred trunks among recovering green shoots, small smoldering ritual pyre in midground, gray ash and glowing embers, horizontal earth track.\nBOTTOM BAND: The Maw mastermind's outdoor hidden courtyard approach: narrow brick arcades, veiled shrine candles, shuttered windows, ivy, dark burgundy cloth, horizontal cobblestone passage.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-37646f74-9caf-46a1-a8e1-efcfbfd217c5.png"
+  },
+  {
+    "id": "road_forest",
+    "locations": [
+      "road",
+      "forest"
+    ],
+    "scenes": [
+      "A pastoral royal road in SIDE VIEW: golden fields, oak groves, a distant walled anime castle town, small stone roadside milestones, straight horizontal pale earth road.",
+      "An ancient lush woodland in SIDE VIEW: layered tall trunks, mossy stones, wildflowers, sunlit distant glade, small wooden bridge behind the horizontal woodland path."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: A pastoral royal road in SIDE VIEW: golden fields, oak groves, a distant walled anime castle town, small stone roadside milestones, straight horizontal pale earth road.\nBOTTOM BAND: An ancient lush woodland in SIDE VIEW: layered tall trunks, mossy stones, wildflowers, sunlit distant glade, small wooden bridge behind the horizontal woodland path.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-a22115d7-8612-4778-a62e-71a0f49a2ad5.png"
+  },
+  {
+    "id": "salt_court_green_altar",
+    "locations": [
+      "salt_court",
+      "green_altar"
+    ],
+    "scenes": [
+      "The pirate Salt Court approach: eroded sea fort overlooking ocean, coral-encrusted stone seats, ship figureheads and tattered red pennants, horizontal salt-crusted battlement walkway.",
+      "A sacred druid forest altar approach: massive intertwined living roots, luminous small green stones, ancient carved altar in midground, lush canopy, horizontal root-edged trail."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: The pirate Salt Court approach: eroded sea fort overlooking ocean, coral-encrusted stone seats, ship figureheads and tattered red pennants, horizontal salt-crusted battlement walkway.\nBOTTOM BAND: A sacred druid forest altar approach: massive intertwined living roots, luminous small green stones, ancient carved altar in midground, lush canopy, horizontal root-edged trail.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-46eb70c1-3d49-4761-b357-2f26b1339008.png"
+  },
+  {
+    "id": "tavern_coast",
+    "locations": [
+      "tavern",
+      "coast"
+    ],
+    "scenes": [
+      "An outdoor tavern district street: warm timber inns, unlettered tankard-shaped hanging signs, empty outdoor tables, wine barrels, old gabled rooftops, horizontal cobblestone path.",
+      "A seaside cliff path: turquoise bay, distant white sails, broken wreck ribs on shore, grassy headland, gull habitat, horizontal coastal sand-and-stone trail."
+    ],
+    "prompt": "Create a production game BACKGROUND ATLAS, landscape overall canvas 1536 x 1024. Exactly TWO equal horizontal image bands stacked edge to edge, each an ultra-wide 3:1 panoramic painting (1536 x 512), no margins, no labels, no dividers. Detailed premium fantasy anime background, hand-painted cel shading, crisp ink outlines, believable architecture and vegetation, adventure mood, sophisticated color. Crucial: SIDE-SCROLLING side-elevation composition like a beautiful 2D adventure platformer. Broad horizontal path or deck runs straight left-to-right across bottom 24% of EACH band, same level all the way. Scenery viewed from the side, distant environment spread horizontally, NOT a road receding into the center, NO central vanishing point. Left and right ends of each band should join in a horizontal repeat, matching horizon and path heights and colors, with understated edges. Midground begins above walking path, layered distant skyline. Upper 22% clear blue neutral daylight SKY for outdoor scenes, no sun or moon, no strong baked weather. No people, characters, text, logos, lettering, UI, panels inside either band. Two DIFFERENT locations:\nTOP BAND: An outdoor tavern district street: warm timber inns, unlettered tankard-shaped hanging signs, empty outdoor tables, wine barrels, old gabled rooftops, horizontal cobblestone path.\nBOTTOM BAND: A seaside cliff path: turquoise bay, distant white sails, broken wreck ribs on shore, grassy headland, gull habitat, horizontal coastal sand-and-stone trail.",
+    "source": "C:\\Users\\charl\\.codex\\generated_images\\01a08689-8a63-7050-af70-d20000aa6227\\exec-a09ad2e0-1eb8-40b8-9ab6-9b64ff2a3879.png"
+  }
+]

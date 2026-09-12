@@ -3,7 +3,25 @@
 'use strict';
 const A=ADV,W=1280,H=760,ROOT='assets/anime/travel/v1/runtime/';
 const INDOOR=new Set(['crypt','ossuary','birthing_house']);
+// Authored regions in the original panorama bands, before the seam overlap.
+// Cropped painted strips animate the actual water and fabric, not a replacement drawing.
+const DETAILS={
+ forest:{water:[.40,.64,.14,.11]},marsh:{water:[.23,.52,.50,.16]},
+ city:{cloth:[.05,.20,.12,.13]},alley:{cloth:[.16,.24,.22,.21]},
+ prison:{cloth:[.53,.19,.045,.33]},tavern:{cloth:[.025,.28,.12,.14]},
+ coast:{water:[.25,.40,.46,.23]},port:{water:[.38,.48,.23,.20],cloth:[.865,.23,.05,.21]},
+ maw:{water:[.34,.51,.39,.20],cloth:[.035,.10,.09,.17]},
+ antler:{cloth:[.198,.19,.063,.43]},academy:{cloth:[.08,.03,.045,.34]},
+ bell:{cloth:[.265,.21,.04,.26]},green:{cloth:[.09,.29,.025,.22]},
+ tally:{water:[.48,.56,.21,.16],cloth:[.085,.22,.11,.17]},
+ navy:{water:[.40,.49,.22,.20],cloth:[.082,.04,.056,.35]},
+ salt_court:{water:[.35,.35,.29,.24],cloth:[.31,.38,.10,.13]},
+ low_tide:{water:[.23,.58,.55,.17]},pyre:{cloth:[.536,.31,.03,.23]},
+ maw_boss:{cloth:[.48,.21,.07,.23]},green_boss:{cloth:[.17,.08,.045,.34]},
+ sea:{water:[.12,.39,.77,.17]},
+};
 const pool=new Map();
+function purge(scene){const free=[...pool.values()].filter(v=>v.loaded&&!v.refs).sort((a,b)=>a.used-b.used);while(free.length>2){const old=free.shift();scene.textures.remove(old.key);pool.delete(old.id);}}
 function acquire(scene,id){
  if(id!=='sea'&&!A.DATA.TRAVEL_LOCATIONS[id])throw Error('Unknown travel panorama: '+id);
  let e=pool.get(id);
@@ -12,21 +30,20 @@ function acquire(scene,id){
   e={id,key:'travel_pano_'+id,refs:0,used:performance.now()};pool.set(id,e);
   e.ready=new Promise(resolve=>{
    const img=new Image();img.decoding='async';
-   img.onload=()=>{if(!scene.textures.exists(e.key))scene.textures.addImage(e.key,img);e.loaded=true;resolve(true);};
+   img.onload=()=>{if(!scene.textures.exists(e.key))scene.textures.addImage(e.key,img);e.loaded=true;resolve(true);purge(scene);};
    img.onerror=()=>{e.failed=true;resolve(false);};img.src=ROOT+id+'.webp';
   });
  }
  e.refs++;e.used=performance.now();let released=false;
  return{entry:e,ready:e.ready,release(){
   if(released)return;released=true;e.refs--;e.used=performance.now();
-  const free=[...pool.values()].filter(v=>v.loaded&&!v.refs).sort((a,b)=>a.used-b.used);
-  while(free.length>2){const old=free.shift();scene.textures.remove(old.key);pool.delete(old.id);}
+  purge(scene);
  }};
 }
 function motion(){return !(typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches);}
 function view(scene,id,phase,opts={}){
  const lease=acquire(scene,id),root=scene.add.container(0,0),fx=scene.add.graphics();
- let tile=null,alive=true,elapsed=0,distance=opts.resume?310:0;
+ let tile=null,alive=true,elapsed=0,distance=opts.resume?310:0,sky=null;const slices=[];
  root.add(scene.add.rectangle(W/2,H/2,W,H,0x18283c));
  root.add(fx);root.locationId=id;root.distance=distance;
  const terrain=id==='sea'?'coast':A.DATA.TRAVEL_LOCATIONS[id].terrain;
@@ -37,20 +54,33 @@ function view(scene,id,phase,opts={}){
   const frame=scene.textures.get(lease.entry.key).get(),scale=H/frame.realHeight;
   tile=scene.add.tileSprite(0,0,W,H,lease.entry.key).setOrigin(0).setTileScale(scale,scale);
   tile.tilePositionX=distance/scale;root.addAt(tile,1);root.tile=tile;root.tileScale=scale;
+  root.sourceWidth=frame.realWidth;root.sourceHeight=frame.realHeight;root.slices=slices;
+  if(!INDOOR.has(id)&&A.WeatherFX.skyMask){sky=A.WeatherFX.skyMask(scene,frame.source.image,scale,0,0,true);root.skyMask=sky.mask;if(root.weather?.celestial)root.weather.celestial.setMask(sky.mask);}
   if(phase==='night')tile.setTint(0x7189ba);else if(phase==='evening')tile.setTint(0xffc795);
+  for(const [kind,rect]of Object.entries(DETAILS[id]||{})){
+   const [nx,ny,nw,nh]=rect,originalW=frame.realWidth/.945,sx=nx*originalW-originalW*.055,sy=ny*frame.realHeight,sw=nw*originalW,sh=nh*frame.realHeight,count=kind==='water'?9:7;
+   for(let copy=0;copy<2;copy++)for(let i=0;i<count;i++){
+    const strip=scene.add.image(0,0,lease.entry.key).setOrigin(0).setScale(scale).setCrop(sx,sy+sh*i/count,sw,sh/count+.5);
+    if(phase==='night')strip.setTint(0x7189ba);else if(phase==='evening')strip.setTint(0xffc795);
+    if(kind==='water')strip.setAlpha(.8);
+    root.addAt(strip,root.length-1);slices.push({strip,kind,i,count,copy});
+   }
+  }
   const key='travel_grade_'+phase;
   if(!scene.textures.exists(key)){
    const t=scene.textures.createCanvas(key,4,H),c=t.getContext(),g=c.createLinearGradient(0,0,0,H);
    g.addColorStop(0,phase==='night'?'rgba(5,13,40,.6)':phase==='evening'?'rgba(164,63,73,.25)':'rgba(10,25,40,.08)');
-   g.addColorStop(.45,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(6,15,23,.28)');c.fillStyle=g;c.fillRect(0,0,4,H);t.refresh();
+   g.addColorStop(.45,phase==='night'?'rgba(7,17,39,.22)':'rgba(0,0,0,0)');g.addColorStop(1,phase==='night'?'rgba(6,15,30,.40)':'rgba(6,15,23,.28)');c.fillStyle=g;c.fillRect(0,0,4,H);t.refresh();
   }
-  root.addAt(scene.add.image(W/2,H/2,key).setDisplaySize(W,H),2);
+  root.addAt(scene.add.image(W/2,H/2,key).setDisplaySize(W,H),root.length-1);
  });
  root.advance=(dt,velocity)=>{
   if(!alive||!tile||document.hidden)return;
   dt=Math.min(50,dt);const moving=motion();if(moving){elapsed+=dt;distance+=velocity*dt/1000*1.6;}
   root.distance=distance;tile.tilePositionX=distance/root.tileScale;
-  const t=elapsed,span=tile.frame.realWidth*root.tileScale;
+  if(sky)sky.update(distance);
+  const t=elapsed,span=root.sourceWidth*root.tileScale;
+  for(const {strip,kind,i,count,copy}of slices){const sway=Math.sin(t/(kind==='water'?640:420)+i*.48)*(kind==='water'?1.5:(i+1)/count*2.8);strip.x=copy*span-(distance%span)+sway;}
   const at=(fraction,speed=1)=>((fraction*span-distance*speed)%(span)+span)%span;
   fx.clear();
   // Screen-space atmosphere passes faster than the painted midground.
@@ -89,8 +119,8 @@ function view(scene,id,phase,opts={}){
   }}
  };
  const stop=()=>root.destroy(true);scene.events.once('shutdown',stop);
- root.once('destroy',()=>{alive=false;scene.events.off('shutdown',stop);lease.release();});
+ root.once('destroy',()=>{alive=false;scene.events.off('shutdown',stop);sky?.destroy();lease.release();});
  root.ready=lease.ready;return root;
 }
-A.TravelPanorama={acquire,view,INDOOR,pool,motion};
+A.TravelPanorama={acquire,view,INDOOR,DETAILS,pool,motion};
 })();

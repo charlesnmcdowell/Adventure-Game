@@ -28,7 +28,7 @@ C3.fresh = function () {
     flags: {}, heritage: 0, aff: {}, romance: null, allegiance: null,
     company: [], recruited: [], gone: [], dead: [],
     ending: null, epilogue: null, endCardDue: false,
-    beats: [], choices: {}, gearIssued: false,
+    beats: [], choices: {}, asked: {}, gearIssued: false,
   };
 };
 C3.state = function (game) {
@@ -228,9 +228,11 @@ C3.bypassEncounter = function (game) {
   return true;
 };
 // A reply beat, with a same-named follow-up choice attached when one exists.
-C3.replyBeat = function (reply, speaker, game) {
+// opt / choiceId: an `ask` option's reply re-presents the same choice (minus the question).
+C3.replyBeat = function (reply, speaker, game, opt, choiceId) {
   if (!reply) return null;
   const b = Object.assign({ c3: true, fid: C3.FID }, reply);
+  if (opt && opt.ask && choiceId) b.choice = choiceId;
   if (b.who === '$speaker') b.who = speaker;
   if (Array.isArray(b.who)) {
     const list = b.who;
@@ -288,10 +290,13 @@ C3.applyBeat = function (game, beat) {
 };
 
 // ---------------------------------------------------------------- choices (§2)
+// Options the player has already asked (ask-and-return questions) drop out of the list.
 C3.options = function (game, choiceId) {
   const ch = D().CAMPAIGN3_CHOICES[choiceId];
   if (!ch) return [];
-  return ch.options.filter(o => C3.test(game, o.when));
+  const s = C3.state(game);
+  const asked = (s.asked && s.asked[choiceId]) || [];
+  return ch.options.filter(o => C3.test(game, o.when) && !(o.ask && asked.includes(o.id)));
 };
 // The romance closer builds its options from the state (§4 Q9).
 C3.dynamicOptions = function (game, kind) {
@@ -302,6 +307,7 @@ C3.dynamicOptions = function (game, kind) {
   for (const id of C3.roster(game)) {
     const def = D().CAMPAIGN_CHARS[id];
     if (!def || !def.romance || C3.aff(game, id) < 3) continue;
+    if (def.romanceWhen && !C3.test(game, def.romanceWhen)) continue;
     if (!C3.lines(C3.FID, id, 'q9_romance').length) continue;
     out.push({ id: 'romance_' + id, text: `(${def.name}) Yes.`, romance: id, speaker: id, prompt: { who: id, key: 'q9_romance' }, reply: { who: id, key: 'q9_romance_yes' } });
   }
@@ -309,7 +315,8 @@ C3.dynamicOptions = function (game, kind) {
 };
 C3.applyOption = function (game, choiceId, opt) {
   const s = C3.state(game);
-  s.choices[choiceId] = opt.id;
+  if (opt.ask) { s.asked = s.asked || {}; s.asked[choiceId] = (s.asked[choiceId] || []).concat(opt.id); }
+  else s.choices[choiceId] = opt.id;
   if (opt.set) for (const [k, v] of Object.entries(opt.set)) C3.setFlag(game, k, v);
   if (opt.aff) for (const [who, n] of Object.entries(opt.aff)) s.aff[who] = (s.aff[who] || 0) + n;
   if (opt.heritage) s.heritage = Math.max(-3, Math.min(3, s.heritage + opt.heritage));

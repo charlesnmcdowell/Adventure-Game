@@ -1,0 +1,254 @@
+[
+  {
+    "id": "road",
+    "file": "assets/anime/travel/v1/runtime/road.webp",
+    "source": "road_forest.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 318672
+  },
+  {
+    "id": "forest",
+    "file": "assets/anime/travel/v1/runtime/forest.webp",
+    "source": "road_forest.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 367796
+  },
+  {
+    "id": "marsh",
+    "file": "assets/anime/travel/v1/runtime/marsh.webp",
+    "source": "marsh_ruins.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 345582
+  },
+  {
+    "id": "ruins",
+    "file": "assets/anime/travel/v1/runtime/ruins.webp",
+    "source": "marsh_ruins.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 312058
+  },
+  {
+    "id": "crypt",
+    "file": "assets/anime/travel/v1/runtime/crypt.webp",
+    "source": "crypt_city.png",
+    "band": 0,
+    "width": 2053,
+    "height": 360,
+    "bytes": 213366
+  },
+  {
+    "id": "city",
+    "file": "assets/anime/travel/v1/runtime/city.webp",
+    "source": "crypt_city.png",
+    "band": 1,
+    "width": 2053,
+    "height": 360,
+    "bytes": 304524
+  },
+  {
+    "id": "alley",
+    "file": "assets/anime/travel/v1/runtime/alley.webp",
+    "source": "alley_prison.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 276284
+  },
+  {
+    "id": "prison",
+    "file": "assets/anime/travel/v1/runtime/prison.webp",
+    "source": "alley_prison.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 240914
+  },
+  {
+    "id": "tavern",
+    "file": "assets/anime/travel/v1/runtime/tavern.webp",
+    "source": "tavern_coast.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 289528
+  },
+  {
+    "id": "coast",
+    "file": "assets/anime/travel/v1/runtime/coast.webp",
+    "source": "tavern_coast.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 275944
+  },
+  {
+    "id": "port",
+    "file": "assets/anime/travel/v1/runtime/port.webp",
+    "source": "port_mountain.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 259088
+  },
+  {
+    "id": "mountain",
+    "file": "assets/anime/travel/v1/runtime/mountain.webp",
+    "source": "port_mountain.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 306104
+  },
+  {
+    "id": "maw",
+    "file": "assets/anime/travel/v1/runtime/maw.webp",
+    "source": "maw_antler.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 269678
+  },
+  {
+    "id": "antler",
+    "file": "assets/anime/travel/v1/runtime/antler.webp",
+    "source": "maw_antler.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 333112
+  },
+  {
+    "id": "academy",
+    "file": "assets/anime/travel/v1/runtime/academy.webp",
+    "source": "academy_bell.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 270386
+  },
+  {
+    "id": "bell",
+    "file": "assets/anime/travel/v1/runtime/bell.webp",
+    "source": "academy_bell.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 293902
+  },
+  {
+    "id": "green",
+    "file": "assets/anime/travel/v1/runtime/green.webp",
+    "source": "green_tally.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 343450
+  },
+  {
+    "id": "tally",
+    "file": "assets/anime/travel/v1/runtime/tally.webp",
+    "source": "green_tally.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 277104
+  },
+  {
+    "id": "navy",
+    "file": "assets/anime/travel/v1/runtime/navy.webp",
+    "source": "navy_ossuary.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 245914
+  },
+  {
+    "id": "ossuary",
+    "file": "assets/anime/travel/v1/runtime/ossuary.webp",
+    "source": "navy_ossuary.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 208658
+  },
+  {
+    "id": "salt_court",
+    "file": "assets/anime/travel/v1/runtime/salt_court.webp",
+    "source": "salt_court_green_altar.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 268638
+  },
+  {
+    "id": "green_altar",
+    "file": "assets/anime/travel/v1/runtime/green_altar.webp",
+    "source": "salt_court_green_altar.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 349930
+  },
+  {
+    "id": "birthing_house",
+    "file": "assets/anime/travel/v1/runtime/birthing_house.webp",
+    "source": "birthing_house_low_tide.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 239062
+  },
+  {
+    "id": "low_tide",
+    "file": "assets/anime/travel/v1/runtime/low_tide.webp",
+    "source": "birthing_house_low_tide.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 248278
+  },
+  {
+    "id": "pyre",
+    "file": "assets/anime/travel/v1/runtime/pyre.webp",
+    "source": "pyre_maw_boss.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 314548
+  },
+  {
+    "id": "maw_boss",
+    "file": "assets/anime/travel/v1/runtime/maw_boss.webp",
+    "source": "pyre_maw_boss.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 269934
+  },
+  {
+    "id": "green_boss",
+    "file": "assets/anime/travel/v1/runtime/green_boss.webp",
+    "source": "green_boss_sea.png",
+    "band": 0,
+    "width": 1452,
+    "height": 510,
+    "bytes": 281476
+  },
+  {
+    "id": "sea",
+    "file": "assets/anime/travel/v1/runtime/sea.webp",
+    "source": "green_boss_sea.png",
+    "band": 1,
+    "width": 1452,
+    "height": 510,
+    "bytes": 202222
+  }
+]

@@ -96,7 +96,7 @@ UI3.choice = function (scene, game, beat, done) {
   UI3.pickModal(scene, game, beat, opts, (opt) => {
     C3().applyOption(game, beat.choice, opt);
     UI3.playerLine(scene, game, opt.text, beat.who, () => {
-      if (opt.reply) UI3.playBeat(scene, game, C3().replyBeat(opt.reply, beat.who, game), done);
+      if (opt.reply) UI3.playBeat(scene, game, C3().replyBeat(opt.reply, beat.who, game, opt, beat.choice), done);
       else if (done) done();
     });
   });
@@ -104,7 +104,7 @@ UI3.choice = function (scene, game, beat, done) {
 UI3.dynamicChoice = function (scene, game, beat, done) {
   const opts = C3().dynamicOptions(game, beat.dynamic);
   if (!opts.length) {
-    // nobody is close enough: Wren (or nobody) marks the night and we move on
+    // nobody is close enough: Hiwot (or nobody) marks the night and we move on
     if (beat.quiet) { if (done) done(); return; }
     if (C3().inCompany(game, 'wren_ward') || C3().isRecruited(game, 'wren_ward')) UI3.playBeat(scene, game, { c3: true, who: 'wren_ward', key: 'q9_romance_none', fid: C3().FID }, done);
     else if (done) done();
@@ -214,7 +214,7 @@ Panels.story = function (scene, r) {
   const her = s.heritage;
   const herLabel = her <= -2 ? 'starved' : her < 0 ? 'resisting' : her === 0 ? 'quiet' : her < 2 ? 'stirring' : 'awake';
   scene.keep(T().text(scene, cx, cy, `The blood: ${herLabel}`, { size: 12, color: her > 0 ? T().css.blood : T().css.purple })); cy += 18;
-  if (s.allegiance) { scene.keep(T().text(scene, cx, cy, `Allegiance: ${({ gauntlet: 'the Burning Gauntlet', consortium: 'Lysandra', thieves: 'the Undervault' })[s.allegiance]}`, { size: 12, color: T().css.inkDim })); cy += 18; }
+  if (s.allegiance) { scene.keep(T().text(scene, cx, cy, `Allegiance: ${({ gauntlet: 'the Burning Gauntlet', consortium: 'Folake', thieves: 'the Undervault' })[s.allegiance]}`, { size: 12, color: T().css.inkDim })); cy += 18; }
   scene.keep(T().text(scene, cx, cy, s.stage ? 'The road remembers you: progress survives death.' : 'Progress survives death.', { size: 11, italic: true, color: T().css.inkFaint })); cy += 20;
 
   // left column: the quests (scrolling)

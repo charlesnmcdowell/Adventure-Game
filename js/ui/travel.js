@@ -165,10 +165,12 @@ ADV.TravelUI={
   if(oldWeather&&oldWeather.container)oldWeather.container.setVisible(false);
   const outdoors=!illustrated||!ADV.TravelPanorama.INDOOR.has(r.id);
   if(ADV.WeatherFX&&outdoors){scene.weatherFx=null;weather=ADV.WeatherFX.attach(scene,(qs&&qs.travel&&qs.travel.weather)||ADV.Weather.at(game.world,{phase}),phase,{x:0,y:0,w:W,h:H},{depth:885,celestial:true});}
+  if(panorama){panorama.weather=weather;if(panorama.skyMask&&weather?.celestial)weather.celestial.setMask(panorama.skyMask);}
   if(plan.event==='weather-turn'&&qs&&qs.travel&&outdoors)later(3000,()=>{
     qs.travel.weather={kind:r.terrain==='mountain'?'snow':'rain',intensity:.7,wind:.4};
     if(weather)weather.destroy();scene.weatherFx=null;
     weather=ADV.WeatherFX.attach(scene,qs.travel.weather,phase,{x:0,y:0,w:W,h:H},{depth:885,celestial:true});
+    if(panorama){panorama.weather=weather;if(panorama.skyMask&&weather?.celestial)weather.celestial.setMask(panorama.skyMask);}
   });
   const stopSound=ambience(scene,r.terrain);
   const cleanup=()=>{

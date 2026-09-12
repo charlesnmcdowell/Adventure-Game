@@ -18,7 +18,7 @@ ADV.TitleBackdrop={create(scene){
  function tick(time,dt){
   if(!alive)return;const moving=ADV.Prefs.get().titleMotion!==false&&!matchMedia('(prefers-reduced-motion: reduce)').matches&&!document.hidden;
   if(moving)clock+=Math.min(dt,50);const t=clock;
-  root.setScale(1.31+Math.sin(t/24000)*.028).setPosition(640+Math.sin(t/19000)*17,380+Math.sin(t/23000)*9);
+  root.setScale(1.32+Math.sin(t/24000)*.026).setPosition(640+Math.sin(t/19000)*17,380+Math.sin(t/23000)*9);
   root.cinemaTime=t;fx.clear();
   // Chimney smoke follows the village roofs in source-image coordinates.
   for(const [x,y]of [[380,239],[478,271],[321,239]])for(let i=0;i<10;i++){

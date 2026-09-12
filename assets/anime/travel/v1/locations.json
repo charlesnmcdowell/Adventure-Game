@@ -1,0 +1,156 @@
+[
+  {
+    "id": "road_forest",
+    "locations": [
+      "road",
+      "forest"
+    ],
+    "scenes": [
+      "A pastoral royal road in SIDE VIEW: golden fields, oak groves, a distant walled anime castle town, small stone roadside milestones, straight horizontal pale earth road.",
+      "An ancient lush woodland in SIDE VIEW: layered tall trunks, mossy stones, wildflowers, sunlit distant glade, small wooden bridge behind the horizontal woodland path."
+    ]
+  },
+  {
+    "id": "marsh_ruins",
+    "locations": [
+      "marsh",
+      "ruins"
+    ],
+    "scenes": [
+      "A reed marsh causeway: pools, reeds, twisted willows, half-submerged abandoned boats, distant herons habitat, horizontal old timber walkway above wet ground.",
+      "An abandoned fortress ruin approach: ivy-covered broken arches, collapsed stone walls, fallen columns, distant green hills, flat horizontal flagstone road."
+    ]
+  },
+  {
+    "id": "crypt_city",
+    "locations": [
+      "crypt",
+      "city"
+    ],
+    "scenes": [
+      "INTERIOR underground crypt corridor, no sky: vaulted stone mausoleum gallery, sealed tomb niches, iron lantern brackets with tiny amber flames, cobwebs, horizontal stone floor. Quiet dignified fantasy necropolis.",
+      "A lively medieval capital street from SIDE VIEW: varied timber-and-stone shops without lettering, fountains, colorful cloth awnings, flowerboxes, distant cathedral towers, horizontal cobbled street."
+    ]
+  },
+  {
+    "id": "alley_prison",
+    "locations": [
+      "alley",
+      "prison"
+    ],
+    "scenes": [
+      "An outdoor back alley SIDE VIEW: laundry ropes, brick walls, old drain pipes, crates, shuttered upper rooms, slivers of sky above rooftops, horizontal damp cobblestones.",
+      "The exterior prison quarter: forbidding stone walls, barred windows, watchtowers, iron gate, banners, rough flat horizontal street outside the wall."
+    ]
+  },
+  {
+    "id": "tavern_coast",
+    "locations": [
+      "tavern",
+      "coast"
+    ],
+    "scenes": [
+      "An outdoor tavern district street: warm timber inns, unlettered tankard-shaped hanging signs, empty outdoor tables, wine barrels, old gabled rooftops, horizontal cobblestone path.",
+      "A seaside cliff path: turquoise bay, distant white sails, broken wreck ribs on shore, grassy headland, gull habitat, horizontal coastal sand-and-stone trail."
+    ]
+  },
+  {
+    "id": "port_mountain",
+    "locations": [
+      "port",
+      "mountain"
+    ],
+    "scenes": [
+      "A working harbor promenade SIDE VIEW: merchant ships behind the walkway, masts and furled sails, ropes and crates, distant lighthouse, horizontal timber dock along bottom.",
+      "A high mountain trail: layered blue peaks, alpine grasses, weathered stone lanterns, small roadside shrine, stony horizontal path across the hillside, distant waterfall."
+    ]
+  },
+  {
+    "id": "maw_antler",
+    "locations": [
+      "maw",
+      "antler"
+    ],
+    "scenes": [
+      "The secretive criminal Maw faction's outdoor canal alleys: weathered houses, laundry, trapdoor courtyards, green canal behind the towpath, suspicious unmarked shutters, horizontal towpath.",
+      "The Antler faction's forest tollroad: carved stag emblems WITHOUT writing, fortified wooden ranger posts, lush old forest, antler-shaped beams, horizontal earth road."
+    ]
+  },
+  {
+    "id": "academy_bell",
+    "locations": [
+      "academy",
+      "bell"
+    ],
+    "scenes": [
+      "An arcane mage academy approach: pale stone arcades, floating small violet crystals, geometric glowing runes as abstract symbols NOT text, distant blue spires, horizontal paved walkway.",
+      "The Bell faction's old city ward: bell towers, paper charms strung between roofs, tiny shrine niches, decorative brass bells, horizontal old stone street."
+    ]
+  },
+  {
+    "id": "green_tally",
+    "locations": [
+      "green",
+      "tally"
+    ],
+    "scenes": [
+      "A disciplined samurai faction's mountain bamboo approach: bamboo forest, small red shrine gates, gray tiled dojo roofs, green banners without text, horizontal mountain path.",
+      "A pirate faction's red-sail harbor: moored pirate brigantines with dark red furled sails, countinghouse warehouses without lettering, barrels, old anchors, horizontal dock."
+    ]
+  },
+  {
+    "id": "navy_ossuary",
+    "locations": [
+      "navy",
+      "ossuary"
+    ],
+    "scenes": [
+      "A lawful naval faction's blue-sail harbor: orderly warships with blue furled canvas, pale admiralty walls, brass fittings, flags without text, horizontal naval pier.",
+      "INTERIOR vast necromancer ossuary passage, no sky: orderly skull niches, bone-carved pillars, ancient sarcophagi, cool ghostly small blue braziers, eerie dignified vaulted hall, horizontal floor."
+    ]
+  },
+  {
+    "id": "salt_court_green_altar",
+    "locations": [
+      "salt_court",
+      "green_altar"
+    ],
+    "scenes": [
+      "The pirate Salt Court approach: eroded sea fort overlooking ocean, coral-encrusted stone seats, ship figureheads and tattered red pennants, horizontal salt-crusted battlement walkway.",
+      "A sacred druid forest altar approach: massive intertwined living roots, luminous small green stones, ancient carved altar in midground, lush canopy, horizontal root-edged trail."
+    ]
+  },
+  {
+    "id": "birthing_house_low_tide",
+    "locations": [
+      "birthing_house",
+      "low_tide"
+    ],
+    "scenes": [
+      "INTERIOR sinister abandoned root-invaded birthing house, no sky: empty cradles and faded cloth beyond a corridor, twisted roots through stone walls, dim amber lamps, atmospheric not gory, horizontal tiled corridor.",
+      "A low-tide shore crossing: tidal pools reflecting blue sky, old shipwreck ribs, exposed sandbanks, seaweed, distant cliffs, horizontal wet sand path."
+    ]
+  },
+  {
+    "id": "pyre_maw_boss",
+    "locations": [
+      "pyre",
+      "maw_boss"
+    ],
+    "scenes": [
+      "A burned woodland pyre approach: charred trunks among recovering green shoots, small smoldering ritual pyre in midground, gray ash and glowing embers, horizontal earth track.",
+      "The Maw mastermind's outdoor hidden courtyard approach: narrow brick arcades, veiled shrine candles, shuttered windows, ivy, dark burgundy cloth, horizontal cobblestone passage."
+    ]
+  },
+  {
+    "id": "green_boss_sea",
+    "locations": [
+      "green_boss",
+      "sea"
+    ],
+    "scenes": [
+      "A samurai antagonist's fortress approach: imposing black tiled Japanese-inspired keep, torn green war banners, scattered bamboo, red gate beams, mountains, horizontal stone causeway.",
+      "An open-sea crossing viewed sideways from a ship: the bottom24% is a continuous horizontal timber deck with low outer gunwale, vast azure ocean behind, small distant islands and sails, no large masts blocking the frame."
+    ]
+  }
+]

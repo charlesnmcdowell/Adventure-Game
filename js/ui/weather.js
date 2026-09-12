@@ -184,6 +184,31 @@ function emit(scene, key, cfg) {
 const WeatherFX = {};
 WeatherFX.STATS = { lastMs: 0, avgMs: 0, n: 0 };
 
+// A conservative sky silhouette keeps celestial light behind roofs and tree crowns.
+WeatherFX.skyMask = function(scene,source,scale,x=0,y=0,repeat=false){
+  const canvas=document.createElement('canvas');canvas.width=source.width;canvas.height=source.height;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(source,0,0);
+  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data,profile=[],step=6;
+  for(let px=0;px<canvas.width;px+=step){let py=0;
+    for(;py<canvas.height*.4;py++){
+      const at=(py*canvas.width+px)*4,r=pixels[at],g=pixels[at+1],b=pixels[at+2];
+      if(!((b>180&&b>r*1.07&&b>g*.97)||(r>185&&g>185&&b>190&&b>=r*.97)))break;
+    }profile.push([px*scale,py*scale]);
+  }
+  const shape=scene.make.graphics({add:false}),mask=shape.createGeometryMask(),span=canvas.width*scale;
+  const update=offset=>{shape.clear().fillStyle(0xffffff);for(let copy=0;copy<(repeat?2:1);copy++){
+    const left=x+copy*span-(repeat?offset%span:0);shape.beginPath();shape.moveTo(left,y);shape.lineTo(left+span,y);
+    for(let i=profile.length-1;i>=0;i--)shape.lineTo(left+profile[i][0],y+profile[i][1]);shape.closePath();shape.fillPath();
+  }};update(0);
+  let anchor=null,best=-Infinity;
+  for(let i=5;i<profile.length-5;i++){
+    const sx=x+profile[i][0],bottom=y+Math.min(...profile.slice(i-5,i+6).map(p=>p[1]));
+    if(sx<100||sx>1180||bottom<40)continue;
+    const score=bottom-Math.abs(sx-980)*.035;if(score>best){best=score;anchor={x:sx,y:Math.max(20,Math.min(90,bottom*.45))};}
+  }
+  return{mask,anchor,update,destroy(){mask.destroy();shape.destroy();}};
+};
+
 WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
   opts = opts || {};
   if (scene.weatherFx && scene.weatherFx.destroy) {
@@ -217,6 +242,7 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     for(let i=5;i>0;i--){sky.fillStyle(color,moon?.025:.023);sky.fillCircle(sx,sy,20+i*12);}
     sky.fillStyle(color,moon?.88:.6);sky.fillCircle(sx,sy,moon?25:30);
     if(moon){sky.fillStyle(0x95acc9,.27);for(const [x,y,r]of [[-9,-7,6],[7,9,8],[10,-11,4],[-8,13,3]])sky.fillCircle(sx+x,sy+y,r);}
+    if(opts.celestialMask)sky.setMask(opts.celestialMask);
     handle.celestial=sky;
   }
 
@@ -240,9 +266,9 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     if(!reduced())scene.tweens.add({ targets: rays, alpha: .6, duration: 8000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }
 
-  if (weather.kind === 'overcast' || weather.kind === 'rain' || weather.kind === 'storm') {
+  if (opts.celestial || weather.kind === 'overcast' || weather.kind === 'rain' || weather.kind === 'storm') {
     const key = cloudTex(scene, weather.kind === 'storm');
-    const a = weather.kind === 'storm' ? 0.55 : 0.4;
+    const a = weather.kind === 'storm' ? 0.55 : ['clear','sunny'].includes(weather.kind) ? (phase==='night'?.14:.22) : 0.4;
     const c1 = scene.add.tileSprite(bounds.x, bounds.y + 40, bounds.w + 256, 90, key).setOrigin(0, 0).setAlpha(a).setDepth(depth);
     const c2 = scene.add.tileSprite(bounds.x - 80, bounds.y + 70, bounds.w + 256, 80, key).setOrigin(0, 0).setAlpha(a * 0.7).setDepth(depth);
     keep(c1); keep(c2);
@@ -266,8 +292,8 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
       speedY: { min: 900, max: 1200 },
       speedX: weather.wind * 220,
       lifespan: Math.max(400, (bounds.h / 1000) * 1000 + 200),
-      quantity: 2,
-      frequency: Math.max(16, 80 / dens),
+      quantity: Math.max(1,Math.round((weather.kind==='storm'?6:4)*half)),
+      frequency: weather.kind==='storm'?24:36,
       alpha: 0.55,
       rotate: ang,
       maxParticles: qty,
@@ -295,11 +321,11 @@ WeatherFX.attach = function (scene, weather, phase, bounds, opts) {
     const qty = Math.round((80 + 80 * weather.intensity) * half);
     const mgr = emit(scene, snowTex(scene), {
       x: { min: bounds.x, max: bounds.x + bounds.w },
-      y: bounds.y - 8,
+      y: { min: bounds.y - 30, max: bounds.y + bounds.h * .9 },
       speedY: { min: 40, max: 90 },
       speedX: weather.wind * 40,
       accelerationX: weather.wind * 8,
-      lifespan: 4000,
+      lifespan: 6500,
       quantity: 1,
       frequency: 40,
       alpha: { start: 0.85, end: 0.3 },
