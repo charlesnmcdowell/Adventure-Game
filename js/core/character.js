@@ -416,6 +416,7 @@ Character.matureChild = function (rng, world, child, motherName) {
     npc.skillLevels = Object.assign({}, child.inheritSkills);
     npc.perks = []; npc.actives = [];
     for (const [skillId, rec] of Object.entries(child.inheritSkills)) {
+      if (ADV.DATA.SKILLS[skillId]?.campaignReward) continue;
       const sk = SK()[skillId];
       if (!sk || sk.unique) continue;
       const kind = sk.kind === 'perk' ? 'perk' : 'active';

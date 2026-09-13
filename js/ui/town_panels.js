@@ -496,17 +496,20 @@ Panels.trainer = function (scene, r) {
     const unlocked = f.campaign2 ? game.meta.campaign2SkillsUnlocked : game.meta.campaignSkillsUnlocked;
     if (any || unlocked) tabs.push({ id: fid, label: f.short ? f.short.replace(/^the /i, '') : f.name });
   }
+  if (ADV.GatePerks && ADV.GatePerks.visible(game)) tabs.push({ id: 'gate_perks', label: 'Gate Perks' });
   scene.trainerTab = tabs.some(t => t.id === scene.trainerTab) ? scene.trainerTab : 'core';
   let tx = r.x + 24;
   const tabW = tabs.length > 5 ? 112 : 150;
-  const tabY = r.y + 96;
+  let tabY = r.y + 96;
   for (const t of tabs) {
+    if (tx + tabW > r.x + r.w - 16) { tx = r.x + 24; tabY += 38; }
     const active = scene.trainerTab === t.id;
     keepBtn(scene, T().button(scene, tx, tabY, tabW, 30, t.label, () => { scene.trainerTab = t.id; scene.openPanel('trainer'); },
       { size: tabs.length > 5 ? 11 : 12, fill: active ? 0x3a3020 : undefined, color: active ? T().css.gold : T().css.inkDim }));
     tx += tabW + 8;
   }
-  const gridTop = r.y + 136;
+  const gridTop = tabY + 40;
+  if (scene.trainerTab === 'gate_perks') { ADV.GatePerksUI.panel(scene, r, gridTop); return; }
   const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: gridTop, w: r.w - 16, h: r.y + r.h - gridTop - 8 });
   const cw3 = Math.floor((r.w - 64) / 3);
   const cols = [r.x + 24, r.x + 32 + cw3, r.x + 40 + cw3 * 2];
@@ -617,6 +620,7 @@ Panels.forgetToLearn = function (scene, newId, cost, kind) {
 };
 
 Panels.forgetDialog = function (scene, id) {
+  if (ADV.DATA.SKILLS[id]?.campaignReward) { scene.trainerTab = 'gate_perks'; scene.openPanel('trainer'); return; }
   const game = scene.g();
   const p = scene.player();
   const sk = ADV.DATA.SKILLS[id];

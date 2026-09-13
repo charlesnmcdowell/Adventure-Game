@@ -389,6 +389,7 @@ const PARAM_LABEL = {
   distanceScale: v => `+${Math.round(v * 100)}% per lane of distance to the target`,
 };
 const SKIP_KEYS = new Set(['name', 'note', 'tiers', 'id', 'kind', 'archetype', 'desc',
+  'campaignReward', 'group', 'key', 'quest', 'questName', 'requirement',
   'target', 'reach', 'offensive', 'heal', 'elemental', 'universal', 'unique', 'noSlot',
   'forbidden', 'social', 'warning', 'katana', 'noTierGrowth', 'faction', 'campaign', 'tier']);
 
@@ -407,6 +408,11 @@ const SkillInfo = {
   describe(ch, skillId) {
     const sk = ADV.DATA.SKILLS[skillId];
     if (!sk) return null;
+    if (sk.campaignReward) {
+      const rank = ch?.perks?.find(e => e.skillId === skillId)?.campaignRank || 1;
+      const desc = skillId === 'gate_unmasker' && rank >= 2 ? sk.desc.replace('15 percentage points', '25 percentage points').replace('Quest 10 can improve the evasion reduction to 25 points.', 'Improved in quest 10.') : sk.desc;
+      return [sk.name, desc, 'Campaign perk · Passive · No class requirement · No skill slot', 'Quest ' + sk.quest + ' — ' + sk.questName, sk.requirement].join('\n\n');
+    }
     const L = [];
     const entry = ch ? (ch.perks.find(e => e.skillId === skillId) || ch.actives.find(e => e.skillId === skillId)) : null;
     const rec = ch && !entry ? (ch.skillLevels || {})[skillId] : null;

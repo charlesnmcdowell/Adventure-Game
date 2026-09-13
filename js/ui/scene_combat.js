@@ -394,7 +394,8 @@ class CombatScene extends Phaser.Scene {
           else this.time.delayedCall(this.autoGap(160), go);
         }
       };
-      this.tryHatredRemark(t.unit, takeTurn);
+      // Turn-start perks can heal or shield after currentTurn has advanced.
+      this.drainEvents(() => this.tryHatredRemark(t.unit, takeTurn));
     });
   }
 

@@ -67,10 +67,14 @@ UI3.playBeat = function (scene, game, beat, done) {
   const recipient = listener ? 'To ' + listener.name : 'To the company';
   UI3.cueFor(beat);
   const finish = () => {
-    C3().applyBeat(game, beat);
-    if (beat.choice) UI3.choice(scene, game, beat, done);
-    else if (beat.dynamic) UI3.dynamicChoice(scene, game, beat, done);
-    else if (done) done();
+    const seats = C3().applyBeat(game, beat) || { joined: [], overflow: [] };
+    const cont = () => {
+      if (beat.choice) UI3.choice(scene, game, beat, done);
+      else if (beat.dynamic) UI3.dynamicChoice(scene, game, beat, done);
+      else if (done) done();
+    };
+    UI3.announceJoins(scene, seats.joined);
+    UI3.offerSeats(scene, game, seats.overflow, cont);
   };
   if (beat.death) {
     const line = lines[0];
@@ -107,10 +111,12 @@ UI3.choice = function (scene, game, beat, done) {
   const opts = C3().options(game, beat.choice);
   if (!opts.length) { if (done) done(); return; }
   UI3.pickModal(scene, game, beat, opts, (opt) => {
-    C3().applyOption(game, beat.choice, opt);
+    const seats = C3().applyOption(game, beat.choice, opt) || { joined: [], overflow: [] };
+    UI3.announceJoins(scene, seats.joined);
     UI3.playerLine(scene, game, opt.text, beat.who, () => {
-      if (opt.reply) UI3.playBeat(scene, game, Object.assign(C3().replyBeat(opt.reply, beat.who, game, opt, beat.choice), beat.dream ? { dream: true } : {}), done);
-      else if (done) done();
+      const after = () => UI3.offerSeats(scene, game, seats.overflow, done);
+      if (opt.reply) UI3.playBeat(scene, game, Object.assign(C3().replyBeat(opt.reply, beat.who, game, opt, beat.choice), beat.dream ? { dream: true } : {}), after);
+      else after();
     });
   });
 };
@@ -163,6 +169,64 @@ UI3.pickModal = function (scene, game, beat, opts, onPick) {
       const label = opt.text.length > 96 ? opt.text.slice(0, 93) + '…' : opt.text;
       ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 - bw / 2 + 24, y, bw - 48, rowH - 8, label, () => { close(); onPick(opt); }, { size: 13 }));
       y += rowH;
+    }
+  }, { x: W / 2 - bw / 2, y: by, w: bw, h: bh });
+};
+
+function toast(scene, text) { if (text && ADV.Notices && ADV.Notices.toast) ADV.Notices.toast(scene, text); }
+function andNames(ids) {
+  const names = (ids || []).map(id => C3().charName(id));
+  if (names.length <= 1) return names[0] || '';
+  if (names.length === 2) return names[0] + ' and ' + names[1];
+  return names.slice(0, -1).join(', ') + ', and ' + names[names.length - 1];
+}
+UI3.announceJoins = function (scene, joined) {
+  if (joined && joined.length) toast(scene, andNames(joined) + (joined.length === 1 ? ' rides with you.' : ' ride with you.'));
+};
+// After a recruit, anyone who did not fit is offered a seat: replace a rider
+// or leave the newcomer at the inn. Hall clicks pass { cancelable: true }.
+UI3.offerSeats = function (scene, game, ids, done, opts) {
+  const list = (ids || []).filter(id => C3().isRecruited(game, id) && !C3().inCompany(game, id));
+  const next = () => {
+    if (!list.length) { if (done) done(); return; }
+    const id = list.shift();
+    if (C3().seat(game, id)) { toast(scene, C3().charName(id) + ' rides with you.'); next(); return; }
+    UI3.pickSeat(scene, game, id, opts, next);
+  };
+  next();
+};
+UI3.pickSeat = function (scene, game, who, opts, done) {
+  const name = C3().charName(who);
+  const riding = C3().companyIds(game);
+  const cancelable = !!(opts && opts.cancelable);
+  if (!ADV.Notices || !ADV.Notices.custom) { if (done) done(); return; }
+  const n = riding.length + 1 + (cancelable ? 1 : 0);
+  const W = T().W, bw = 560, rowH = 40, bh = 118 + rowH * n;
+  const by = Math.max(36, Math.round((T().H - bh) / 2) - 16);
+  ADV.Notices.custom(scene, (keep, Dp, close) => {
+    keep(T().text(scene, W / 2, by + 22, 'The company is full', { size: 20, display: true, ox: 0.5, color: T().css.gold }).setDepth(Dp));
+    keep(T().text(scene, W / 2, by + 52, name + ' wants to ride, but only ' + C3().MAX_COMPANY + ' can. Who stays at the inn?', {
+      size: 13, ox: 0.5, wrap: bw - 48, align: 'center', color: T().css.inkDim,
+    }).setDepth(Dp));
+    let y = by + 86;
+    for (const rid of riding) {
+      const label = 'Send ' + C3().charName(rid) + ' back — ' + name + ' rides';
+      ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 - 200, y, 400, 34, label, () => {
+        close();
+        C3().replaceCompany(game, rid, who);
+        toast(scene, name + ' rides. ' + C3().charName(rid) + ' waits at the inn.');
+        if (done) done();
+      }, { size: 13 }));
+      y += rowH;
+    }
+    ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 - 200, y, 400, 34, 'Leave ' + name + ' at the inn', () => {
+      close();
+      toast(scene, name + ' waits at the inn. Bring them from the Story hall.');
+      if (done) done();
+    }, { size: 13 }));
+    y += rowH;
+    if (cancelable) {
+      ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 - 200, y, 400, 34, 'Keep the company as it is', () => { close(); if (done) done(); }, { size: 13 }));
     }
   }, { x: W / 2 - bw / 2, y: by, w: bw, h: bh });
 };
@@ -224,17 +288,20 @@ Panels.story = function (scene, r) {
   // right column: company picker + meters
   const cx = r.x + r.w - 290, cw = 270;
   let cy = r.y + 70;
-  scene.keep(T().text(scene, cx, cy, 'THE COMPANY  ·  up to ' + C3().MAX_COMPANY + ' ride along', { size: 11, color: T().css.inkDim })); cy += 20;
+  const ridingN = v.company.length, full = ridingN >= C3().MAX_COMPANY;
+  scene.keep(T().text(scene, cx, cy, 'THE COMPANY  ·  ' + ridingN + '/' + C3().MAX_COMPANY + ' ride along', { size: 11, color: full ? T().css.gold : T().css.inkDim })); cy += 20;
   if (!v.roster.length) { scene.keep(T().text(scene, cx, cy, 'Nobody yet. The road will provide.', { size: 12, italic: true, color: T().css.inkFaint })); cy += 22; }
   const companyTop = cy, companyH = Math.min(v.roster.length * 40, Math.max(80, r.h - 260));
   const companyScroll = v.roster.length ? ADV.UI.scrollArea(scene, { x: cx - 3, y: cy, w: cw + 6, h: companyH }, { keep: o => scene.keep(o) }) : null;
   for (const id of v.roster) {
     const ch = D().CAMPAIGN_CHARS[id];
     const on = v.company.includes(id);
-    const description = (s.romance === id ? 'yours · ' : '') + (ch.desc || '').split('.')[0];
+    const description = (on ? 'riding · ' : 'at the inn · ') + (s.romance === id ? 'yours · ' : '') + (ch.desc || '').split('.')[0];
     const subtitle = description.length > 38 ? description.slice(0, 35).replace(/\s+\S*$/, '') + '…' : description;
-    companyScroll.addBtn(T().button(scene, cx, cy, cw, 34, (on ? '● ' : '○ ') + ch.name, () => { C3().toggleCompany(game, id); scene.openPanel('story'); },
-      { size: 12, color: on ? T().css.gold : T().css.inkDim, sub: subtitle, subColor: T().css.inkFaint }));
+    companyScroll.addBtn(T().button(scene, cx, cy, cw, 34, (on ? '● ' : '○ ') + ch.name, () => {
+      if (on || !C3().companyFull(game)) { C3().toggleCompany(game, id); scene.openPanel('story'); return; }
+      UI3.offerSeats(scene, game, [id], () => scene.openPanel('story'), { cancelable: true });
+    }, { size: 12, color: on ? T().css.gold : T().css.inkDim, sub: subtitle, subColor: T().css.inkFaint }));
     cy += 40;
   }
   if (companyScroll) { companyScroll.finish?.(); cy = companyTop + companyH; }

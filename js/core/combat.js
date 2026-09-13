@@ -140,6 +140,7 @@ Combat.threatBaseFor = function (ch) {
   let sum = 0;
   for (const e of (ch.actives || []).concat(ch.perks || [])) {
     const sk = SK()[e.skillId];
+    if (sk && sk.campaignReward) continue;
     const arch = sk && sk.archetype;
     sum += THREAT_ARCH[arch] != null ? THREAT_ARCH[arch] : 5;
     if (ADV.Campaign && ADV.Campaign.isTankSkill && ADV.Campaign.isTankSkill(e.skillId)) sum += 6;
@@ -246,13 +247,14 @@ function tryEvade(st, src, tgt, tag, opts) {
   opts = opts || {};
   if (!src || !tgt) return false;
   if (opts.cannotMiss || tag === 'dot' || tag === 'reflect' || tag === 'retaliation' || tag === 'smite') return false;
-  const pct = Combat.evadeChance(st, tgt, Object.assign({}, opts, { tag }));
+  const pct = Math.max(0, Combat.evadeChance(st, tgt, Object.assign({}, opts, { tag })) - (ADV.GatePerkCombat ? ADV.GatePerkCombat.evasionCut(src) : 0));
   if (pct > 0 && st.rng && st.rng.float() < pct) {
     ev(st, { t: 'evade', uid: tgt.uid, by: src.uid, pct: true, power: opts.power || 0 });
     return true;
   }
   if (tgt.evade > 0) {
     tgt.evade--;
+    if (ADV.GatePerkCombat && ADV.GatePerkCombat.bypassDodge(st, src)) return false;
     ev(st, { t: 'evade', uid: tgt.uid, by: src.uid, power: opts.power || 0 });
     return true;
   }
@@ -400,6 +402,7 @@ Combat.create = function (charsA, charsB, opts) {
     if (u) st.ambushUid = u.uid;
   }
   ev(st, { t: 'start', ambush: !!st.ambushUid });
+  if (ADV.GatePerkCombat) ADV.GatePerkCombat.start(st);
   startRound(st);
   for (const u of st.units) refreshFreeBuffs(st, u);
   return st;
@@ -737,6 +740,7 @@ Combat.currentTurn = function (st) {
       st.turnIdx++; tickHatredClock(st); continue;
     }
     refreshFreeBuffs(st, u);
+    if (ADV.GatePerkCombat) ADV.GatePerkCombat.turn(st, u);
     return { unit: u, isPlayer: !!u.ch.isPlayer };
   }
 };
@@ -806,7 +810,7 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
   if (!m) return [];
   const d = m.data;
   const foeSide = u.side === 'a' ? 'b' : 'a';
-  const foes = livingUnits(st, foeSide).filter(x => !x.untargetable);
+  const foes = livingUnits(st, foeSide).filter(x => ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, x) : !x.untargetable);
   const allies = livingUnits(st, u.side);
   let target = d.target;
   if (offensiveMode && d.offensive) target = d.offensive.target || 'enemy';
@@ -867,7 +871,7 @@ Combat.playerTargets = function (st, u, skillId, offensiveMode) {
     const forced = legal.filter(x => u.marksBy.includes(x.uid));
     if (forced.length) return forced;
   }
-  let foes = livingUnits(st, foeSideOf(u)).filter(x => !x.untargetable);
+  let foes = livingUnits(st, foeSideOf(u)).filter(x => ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, x) : !x.untargetable);
   if (d.openerOnly && u.actedThisEncounter) return [];
   if (d.openerOrStealth && !(u.stealth || !u.actedThisEncounter)) return [];
   if (d.instantKillIfMaxHp) foes = foes.filter(x => (x.maxHp || 0) > d.instantKillIfMaxHp);
@@ -1032,7 +1036,7 @@ Combat.tryNpcSmite = function (st, u) {
   if (!u || !u.ch || u.ch.isPlayer) return false;
   if (u.ch.status !== 'hero' && u.ch.status !== 'villain') return false;
   if (u.usedOncePerBattle && u.usedOncePerBattle.npcSmite) return false;
-  const foes = livingUnits(st, u.side === 'a' ? 'b' : 'a').filter(x => !x.untargetable);
+  const foes = livingUnits(st, u.side === 'a' ? 'b' : 'a').filter(x => ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, x) : !x.untargetable);
   if (!foes.length) return false;
   let tgt = foes[0];
   let best = tgt.chp + (tgt.tempHp || 0);
@@ -1206,6 +1210,7 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
     if ((defUnit.ch.isConscript || defUnit.ch.isUndead) &&
         livingUnits(st, defUnit.side).some(x => x !== defUnit && perkVal(x.ch, 'beast_handler', null))) def += 4;
   }
+  if (ADV.GatePerkCombat && ADV.GatePerkCombat.focus(st, atkUnit)) def = Math.round(Math.max(0, def) * 0.8);
   return Math.max(C().MIN_DAMAGE, dmg - Math.max(0, def));
 }
 
@@ -1213,6 +1218,7 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
 function dealDamage(st, src, tgt, amount, tag, opts) {
   opts = opts || {};
   if (tgt.downed || tgt.fled) return 0;
+  if (ADV.GatePerkCombat) ADV.GatePerkCombat.attempt(st, src, tgt, tag);
   if (src && tag !== 'dot' && tag !== 'reflect' && tag !== 'retaliation') {
     if (!tgt.attackedThisRoundBy.includes(src.uid)) tgt.attackedThisRoundBy.push(src.uid);
   }
@@ -1457,12 +1463,15 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   if (tgt.stealth && !perkVal(tgt.ch, 'hollow_discipline', 'stealthKeepsOnHit')) { /* base rules elsewhere */ }
   dmg = applyOpportunist(src, tgt, dmg, opts);
   dmg = applyTakenReduction(tgt, dmg, Object.assign({}, opts, { tag }));
+  if (ADV.GatePerkCombat) dmg = ADV.GatePerkCombat.modifyDamage(st, src, tgt, dmg, tag, opts);
   if (dmg <= 0) return 0;
   // Temp HP consumed first — still counts as damage taken for reflect/retaliation (§15a),
   // which is honored because those triggers fire in dealDamage before this point.
   let remaining = dmg;
+  const hpBefore = Math.max(0, tgt.chp);
   if (tgt.tempHp > 0) {
     const absorbed = Math.min(tgt.tempHp, remaining);
+    if (ADV.GatePerkCombat) ADV.GatePerkCombat.absorb(tgt, absorbed);
     tgt.tempHp -= absorbed; remaining -= absorbed;
   }
   tgt.chp -= remaining;
@@ -1480,6 +1489,7 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   // Keep the visual cause after a final tick removes its status or lane hazard.
   if (opts.visual) hitEvent.visual = opts.visual;
   ev(st, hitEvent);
+  if (ADV.GatePerkCombat) ADV.GatePerkCombat.damaged(st, src, tgt, Math.min(hpBefore, remaining), tag);
   if (tgt.chp <= 0) {
     // Vital Anchor: cannot drop below 1 HP
     // Vital Anchor: holds at 1 HP — but an anchor is spent by the blow it
@@ -1983,6 +1993,7 @@ function endRoundTicks(st) {
     const next = cur + (base - cur) * 0.15;
     u.threat = cur > base ? Math.max(base, Math.round(next)) : Math.min(base, Math.round(next));
   }
+  if (ADV.GatePerkCombat) ADV.GatePerkCombat.endRound(st);
   checkEnd(st);
 }
 
@@ -2108,7 +2119,7 @@ function resolveSkillTarget(st, u, skillId, action, d, off) {
     if (living && named.side === u.side) return named;
     return u;
   }
-  const foes = livingUnits(st, foeSideOf(u)).filter(x => !x.downed && !x.untargetable);
+  const foes = livingUnits(st, foeSideOf(u)).filter(x => !x.downed && (ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, x) : !x.untargetable));
   if (u.marksBy.length) {
     const forced = foes.filter(x => u.marksBy.includes(x.uid));
     if (forced.length) {
@@ -2116,7 +2127,7 @@ function resolveSkillTarget(st, u, skillId, action, d, off) {
       return forced[0];
     }
   }
-  if (living && named.side !== u.side && !named.untargetable) return named;
+  if (living && named.side !== u.side && (ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, named) : !named.untargetable)) return named;
   const legal = Combat.validTargets(st, u, skillId, !!off).filter(x => x.side !== u.side && !x.downed);
   return legal[0] || null;
 }
@@ -2162,6 +2173,8 @@ Combat.act = function (st, u, action) {
 
   // witness: everyone on the field sees this use (registered for survivors at end)
   recordSighting(st, u, skillId, m.tier);
+
+  if (ADV.GatePerkCombat) ADV.GatePerkCombat.beginAction(st, u);
 
   ev(st, { t: 'use', uid: u.uid, skillId, tier: m.tier, name: off ? d.offensive.name : d.name, target: tgt.uid, offensive: !!off });
   // flush any first-sighting the player just got, so the beat lands after the blow
@@ -2665,6 +2678,7 @@ function applyFlareSelf(st, u, m) {
 }
 
 function finishAction(st, u, skillId, opts) {
+  if (ADV.GatePerkCombat) ADV.GatePerkCombat.finishAction(st, u);
   opts = opts || {};
   const m = skillId && skillId !== 'basic_attack' ? manifestFor(u, skillId) : null;
   if (m?.data.usesPerBattle != null && !opts.fizzled) spendBattleUse(u, skillId);
@@ -2729,6 +2743,7 @@ function doFlee(st, u) {
   // rogues' instincts: Opportunist and Sneak make getting out drastically likelier
   const fleeB = Sys().knownSum(u.ch, 'fleeBonus');
   if (fleeB) p += fleeB;
+  if (ADV.GatePerks && ADV.GatePerks.has(u.ch, 'routes')) p += 0.15;
   p = Math.max(C().FLEE_MIN, Math.min(C().FLEE_MAX, p));
   // conscripts/undead/heroes cannot flee (§15a)
   if (u.ch.isConscript || u.ch.isUndead || (u.ch.status === 'hero' && u.ch.grantsHeld)) {
@@ -2828,7 +2843,11 @@ Combat.applySurvivalGrowth = function (st) {
     if (!gain) continue;
     ch.stats.hp += gain;
     ch.survivalBattles = (ch.survivalBattles || 0) + 1;
-    u.maxHp = Math.max(Ch().maxHp(ch), ch.hpFloor || 0);
+    if (u.gateBaseMax) {
+      const bonus = u.maxHp - u.gateBaseMax;
+      u.gateBaseMax = Math.max(Ch().maxHp(ch), ch.hpFloor || 0);
+      u.maxHp = u.gateBaseMax + bonus;
+    } else u.maxHp = Math.max(Ch().maxHp(ch), ch.hpFloor || 0);
     if (!u.downed) u.chp += gain;                           // the new headroom is real at once
     ev(st, { t: 'survivalGrowth', uid: u.uid, gain, total: ch.survivalBattles });
     grown.push({ ch, gain });
@@ -2839,7 +2858,7 @@ Combat.applySurvivalGrowth = function (st) {
 Combat.exportHp = function (st) {
   Combat.applySurvivalGrowth(st);
   for (const u of st.units) {
-    u.ch.combatHp = u.downed ? 0 : u.chp;
+    u.ch.combatHp = u.downed ? 0 : (ADV.GatePerkCombat ? ADV.GatePerkCombat.exportHp(u) : u.chp);
     u.ch.wasDowned = u.downed;
     u.ch.hasFled = u.fled;
     // Purify's ward outlasts the battle just long enough to refuse the chains (request 7)
@@ -2850,7 +2869,7 @@ Combat.exportHp = function (st) {
 // Internals handed to js/core/combat_effects.js (bespoke campaign skills).
 Combat._internals = {
   dealDamage, computeDamage, healUnit, addStatus, removeStatus, livingUnits, laneUnits,
-  applyTakenReduction,
+  applyTakenReduction, recoveryLeft,
   ev, perkVal, LANE_IDX, checkEnd, onUnitDown, finishAction, addExposed, canHealOther, canWard,
   NEG_STATUSES, POS_STATUSES, DOT_STATUSES, endRoundTicks, applyRawDamage, applyDruidHeal,
   applyStealth, applyUntargetable, HIDE_CAP,

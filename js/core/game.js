@@ -54,6 +54,7 @@ Game.newGame = function (opts) {
     tutorial: (meta.lives <= 1 && !player.registryId) ? { step: 'tour', tourIdx: 0, declined: false } : { step: 'done' },
   };
   game.board = ADV.Quests.generateBoard(world, rng, game);
+  if (ADV.GatePerks) ADV.GatePerks.reconcile(game);
   ADV.Save.saveGame(game);
   return game;
 };
@@ -73,6 +74,7 @@ Game.load = function () {
     ADV.Quests.forceTutorialNeutrals(game.board, rng);
   }
   if (ADV.Party && ADV.Party.repairWorld) ADV.Party.repairWorld(world);
+  if (ADV.GatePerks) ADV.GatePerks.reconcile(game);
   // One-shot: compensate a live save hit by the party-id / wage bugs. Tests
   // run in Node and never take this branch.
   if (typeof window !== 'undefined' && player.inventory && !game.meta.grantGold1000) {
@@ -975,6 +977,7 @@ function applyQuestSuccess(game, q, out) {
     out.gold = q.quest.payout * goldMult;
     p.inventory.gold += out.gold;
   }
+  if (ADV.GatePerks) ADV.GatePerks.questBonus(game, q, out);
   // Loot: a hireling gets an equal share of what the field dropped; the
   // leader pockets the rest (request 8 — no more full loot on top of a wage)
   if (stage === 'hireling' && party) {
@@ -1295,6 +1298,7 @@ Game.continueAfterDeath = function (game, opts) {
     heir.perkCap = C().PLAYER_PERK_SLOTS; heir.activeCap = C().PLAYER_ACTIVE_SLOTS;
     game.pendingDeath = null;
     if (ADV.Campaign) ADV.Campaign.reset(game);   // the heir is uncontacted (§3)
+    if (ADV.GatePerks) ADV.GatePerks.reconcile(game);
     game.board = ADV.Quests.generateBoard(game.world, game.rng, game);
     ADV.Save.saveGame(game);
     return { mode: 'nepotism', player: heir };

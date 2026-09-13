@@ -11,6 +11,7 @@ class TownScene extends Phaser.Scene {
   create() {
     this.game_ = this.registry.get('game');
     if (ADV.BalanceSupport) ADV.BalanceSupport.migrate(this.game_);
+    if (ADV.GatePerks) ADV.GatePerks.reconcile(this.game_);
     const W = T().W, H = T().H;
     // Phaser reuses this scene — leftover embark/talk flags would keep the
     // hub menus hidden (and the tutorial would highlight empty air).
@@ -180,6 +181,7 @@ class TownScene extends Phaser.Scene {
     }
     yy += after(perkH, 4);
     for (const e of p.perks) {
+      if (ADV.DATA.SKILLS[e.skillId]?.campaignReward) continue;
       if (ADV.SkillSys.inArmorSlot(p, e.skillId)) continue;
       const m = ADV.SkillSys.manifest(p, e);
       const t = put(T().text(this, x + 22, yy, `${m.data.name} · L${e.level}`, { size: 12, color: m.tier !== 'basic' ? T().css.gold : T().css.ink, wrap: w - 80 }));
@@ -213,6 +215,20 @@ class TownScene extends Phaser.Scene {
       }, { size: 10, color: on ? T().css.green : T().css.inkFaint, fill: on ? 0x2a3a22 : 0x211d18 });
       scroll.addBtn(b);
       yy += autoH + T().gap(8);
+    }
+    const campaignPerks = p.perks.filter(e => ADV.DATA.SKILLS[e.skillId]?.campaignReward);
+    if (campaignPerks.length) {
+      const title = put(T().text(this, x + 16, yy, 'Campaign perks — no slots', { size: 13, color: T().css.gold, wrap: w - 36 }));
+      yy += after(title, 4);
+      for (const e of campaignPerks) {
+        const sk = ADV.DATA.SKILLS[e.skillId];
+        const label = put(T().text(this, x + 22, yy, sk.name + (e.campaignRank > 1 ? ' · improved' : ''), { size: 12, color: T().css.ink, wrap: w - 44 }));
+        label.setInteractive({ useHandCursor: true });
+        ADV.Tooltip.attach(this, label, () => ADV.SkillInfo.describe(p, e.skillId));
+        label.on('pointerdown', () => { this.trainerTab = 'gate_perks'; this.openPanel('trainer'); });
+        yy += after(label, 4);
+      }
+      yy += T().gap(8);
     }
     const home = ADV.Housing.of(p);
     const homeT = put(T().text(this, x + 16, yy, home.id === 'camp' ? 'No home — sleeping outside the walls' : home.name, { size: 12, color: home.id === 'camp' ? T().css.inkFaint : T().css.gold, wrap: w - 36 }));
@@ -496,8 +512,9 @@ class TownScene extends Phaser.Scene {
           if (gained) this.scene.restart();
         };
         const supportThenSettle = () => {
-          if (ADV.SupportUI) ADV.SupportUI.arrival(this, this.game_, settle);
-          else settle();
+          const rewards = () => ADV.GatePerksUI ? ADV.GatePerksUI.arrival(this, this.game_, settle) : settle();
+          if (ADV.SupportUI) ADV.SupportUI.arrival(this, this.game_, rewards);
+          else rewards();
         };
         ADV.CampaignUI.arrival(this, this.game_, () => {
           if (ADV.Campaign2UI) ADV.Campaign2UI.arrival(this, this.game_, supportThenSettle); else supportThenSettle();

@@ -281,6 +281,7 @@ SkillSys.learn = function (ch, skillId, opts) {
   opts = opts || {};
   const sk = SK()[skillId];
   if (!sk) return { ok: false, error: 'unknown skill' };
+  if (sk.campaignReward) return { ok: false, error: 'Earn this perk in Varenholm’s Gate.' };
   if (sk.unique && !opts.allowUnique) return { ok: false, error: 'unique tier — cannot be learned' };
   if (SkillSys.knows(ch, skillId)) return { ok: false, error: 'already known' };
   const kind = sk.kind === 'perk' ? 'perk' : 'active';
@@ -311,6 +312,7 @@ SkillSys.learn = function (ch, skillId, opts) {
 
 // Forget: returns to Eligible in the journal; level preserved in ch.skillLevels.
 SkillSys.forget = function (ch, skillId) {
+  if (SK()[skillId]?.campaignReward) return { ok: false, error: 'Campaign perks are permanent and use no slot.' };
   for (const kind of ['perk', 'active']) {
     const list = SkillSys.slotList(ch, kind);
     const i = list.findIndex(e => e.skillId === skillId);

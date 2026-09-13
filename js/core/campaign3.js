@@ -55,6 +55,8 @@ C3.inCompany = function (game, who) { return C3.state(game).company.includes(who
 C3.isAlive = function (game, who) { return !C3.state(game).dead.includes(who); };
 C3.companyIds = function (game) { const s = C3.state(game); return s.company.filter(id => C3.isRecruited(game, id)); };
 C3.roster = function (game) { const s = C3.state(game); return s.recruited.filter(id => C3.isRecruited(game, id)); };
+C3.charName = function (id) { return ((D().CAMPAIGN_CHARS || {})[id] || {}).name || id; };
+C3.companyFull = function (game) { return C3.companyIds(game).length >= C3.MAX_COMPANY; };
 
 // when: { flag, not, company, noCompany, companyAll:[...], recruited, notRecruited, alive, dead,
 //         heritageMin, heritageMax, affMin:[who,n], allegiance, romance, any:[...] }
@@ -86,14 +88,40 @@ C3.recruit = function (game, who) {
   if (!def || !def.companion) return false;
   if (!s.recruited.includes(who)) s.recruited.push(who);
   s.gone = s.gone.filter(x => x !== who);
-  if (!s.company.includes(who) && C3.companyIds(game).length < C3.MAX_COMPANY) s.company.push(who);
+  if (!s.company.includes(who) && !C3.companyFull(game)) s.company.push(who);
   game.__c3actors = null;
   return true;
+};
+// Recruits a list. `joined` took an open seat; `overflow` is recruited but
+// waiting at the inn because the company is already at MAX_COMPANY.
+C3.applyRecruits = function (game, ids) {
+  const joined = [], overflow = [];
+  for (const id of ids || []) {
+    const wasIn = C3.inCompany(game, id);
+    if (!C3.recruit(game, id)) continue;
+    if (C3.inCompany(game, id)) { if (!wasIn) joined.push(id); }
+    else overflow.push(id);
+  }
+  return { joined, overflow };
 };
 C3.dismiss = function (game, who) {          // leaves the company; stays recruited unless also `gone`
   const s = C3.state(game);
   s.company = s.company.filter(x => x !== who);
   game.__c3actors = null;
+};
+C3.seat = function (game, who) {
+  const s = C3.state(game);
+  if (!C3.isRecruited(game, who)) return false;
+  if (s.company.includes(who)) return true;
+  if (C3.companyFull(game)) return false;
+  s.company.push(who);
+  game.__c3actors = null;
+  C3.save(game);
+  return true;
+};
+C3.replaceCompany = function (game, outId, inId) {
+  if (outId && outId !== inId) C3.dismiss(game, outId);
+  return C3.seat(game, inId);
 };
 C3.gone = function (game, who) { const s = C3.state(game); if (!s.gone.includes(who)) s.gone.push(who); C3.dismiss(game, who); };
 C3.kill = function (game, who) { const s = C3.state(game); if (!s.dead.includes(who)) s.dead.push(who); C3.dismiss(game, who); };
@@ -101,7 +129,7 @@ C3.toggleCompany = function (game, who) {
   const s = C3.state(game);
   if (!C3.isRecruited(game, who)) return false;
   if (s.company.includes(who)) s.company = s.company.filter(x => x !== who);
-  else if (C3.companyIds(game).length < C3.MAX_COMPANY) s.company.push(who);
+  else if (!C3.companyFull(game)) s.company.push(who);
   else return false;
   game.__c3actors = null;
   C3.save(game);
@@ -379,12 +407,14 @@ C3.takeBeats = function (game) { const s = C3.state(game); const b = s.beats; s.
 
 // Applies a beat's side effects (recruit / dismiss / gone / kill) when it plays.
 C3.applyBeat = function (game, beat) {
-  for (const id of beat.recruit || []) C3.recruit(game, id);
+  const seats = C3.applyRecruits(game, beat.recruit);
   for (const id of beat.dismiss || []) C3.dismiss(game, id);
   for (const id of beat.gone || []) C3.gone(game, id);
   for (const id of beat.kill || []) C3.kill(game, id);
   if (beat.set) for (const [k, v] of Object.entries(beat.set)) C3.setFlag(game, k, v);
+  if (ADV.GatePerks) ADV.GatePerks.reconcile(game);
   C3.save(game);
+  return seats;
 };
 
 // ---------------------------------------------------------------- choices (§2)
@@ -422,7 +452,7 @@ C3.applyOption = function (game, choiceId, opt) {
   if (opt.allegianceLean) C3.setFlag(game, 'lean_' + opt.allegianceLean);
   if (opt.romance) s.romance = opt.romance;
   if (opt.gold) { const p = ADV.Game.player(game); if (p) p.inventory.gold = Math.max(0, (p.inventory.gold || 0) + opt.gold); }
-  for (const id of opt.recruit || []) C3.recruit(game, id);
+  const seats = C3.applyRecruits(game, opt.recruit);
   for (const id of opt.dismiss || []) C3.dismiss(game, id);
   for (const id of opt.gone || []) C3.gone(game, id);
   for (const id of opt.kill || []) C3.kill(game, id);
@@ -431,6 +461,7 @@ C3.applyOption = function (game, choiceId, opt) {
   if (opt.ending) C3.resolveEnding(game, opt.ending);
   C3.save(game);
   if (ADV.Save && game.world) ADV.Save.saveGame(game);
+  return seats;
 };
 
 // ---------------------------------------------------------------- combat hooks
@@ -466,6 +497,7 @@ C3.onQuestDone = function (game, q) {
   s.stage = q.n;
   for (const b of C3.arrivalBeats(game, q.n)) C3.pushBeat(game, b);
   if (q.n === C3.QUEST_COUNT) C3.finish(game);
+  if (ADV.GatePerks) ADV.GatePerks.reconcile(game);
   C3.save(game);
   ADV.Save.saveGame(game);
 };
