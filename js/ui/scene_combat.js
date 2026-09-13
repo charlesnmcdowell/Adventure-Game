@@ -266,6 +266,10 @@ class CombatScene extends Phaser.Scene {
     const lines = [u.ch.name, 'threat ' + cur + '  (base ' + base + ')', why];
     const revealHp = this.game_ && ADV.SkillSys && ADV.SkillSys.knownVal(ADV.Game.player(this.game_), 'revealHp');
     if (revealHp && u.side === 'b') lines.splice(1, 0, Math.ceil(u.chp) + '/' + u.maxHp + ' HP');
+    const recovery = ADV.Combat.recoveryLeft(u);
+    if (Number.isFinite(recovery)) lines.push(recovery > 0
+      ? 'Healing reserves: ' + Math.ceil(100 * recovery / Math.max(1, u.maxHp * u.ch.c3RecoveryMax)) + '%'
+      : 'Healing reserves: depleted');
     return lines;
   }
 
@@ -494,9 +498,14 @@ class CombatScene extends Phaser.Scene {
         this.refreshStrip();
         // campaign banter (§8): one line from a present companion, round 2
         const b = ADV.Campaign && ADV.CampaignUI && this.mode === 'quest' ? ADV.Campaign.banter(this.game_, st, e.n) : null;
-        if (b) return (next) => ADV.CampaignUI.playBeat(this, this.game_, { who: b.who, key: b.key, fid: b.fid, c2: b.c2, voOffset: b.voOffset, lines: [b.line] }, next);
+        if (b) return (next) => ADV.CampaignUI.playBeat(this, this.game_, { who: b.who, key: b.key, fid: b.fid, c2: b.c2, c3: b.c3, combat: b.combat, to: b.to, voOffset: b.voOffset, lines: [b.line] }, next);
         return 30;
       }
+      case 'campaignBanter':
+        return (next) => ADV.CampaignUI.playBeat(this, this.game_, e.beat, next);
+      case 'recoveryExhausted':
+        if (v) ADV.VFX.damageNumber(this, v.x, v.y - 40, 'RECOVERY EXHAUSTED', '#c6a169');
+        return 300;
       case 'reinforce': {
         const u = st.units.find(x => x.uid === e.uid);
         if (u && !this.unitViews.has(e.uid)) this.makeUnitView(u);

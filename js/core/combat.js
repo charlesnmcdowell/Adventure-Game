@@ -419,6 +419,7 @@ function battleUseCount(u, skillId) {
 
 function battleUseLimit(d) {
   if (!d) return 0;
+  if (d.usesPerBattle != null) return d.usesPerBattle;
   if (d.reviveUses != null) return d.reviveUses;
   if (d.oncePerBattle) return 1;
   return 0;
@@ -1092,7 +1093,8 @@ function manifestFor(u, skillId) {
   }
   const entry = u.ch.actives.find(a => a.skillId === skillId) || u.ch.perks.find(p => p.skillId === skillId);
   if (!entry) return null;
-  return Sys().manifest(u.ch, entry);
+  const m = Sys().manifest(u.ch, entry);
+  return ADV.Campaign3?.combatManifest ? ADV.Campaign3.combatManifest(u, skillId, m) : m;
 }
 Combat.manifestFor = manifestFor;
 Combat.canSpendBattleUse = canSpendBattleUse;
@@ -1706,8 +1708,20 @@ Combat.healCleanse = healCleanse;
 // what a healer's restoring heal strips, by tier
 function healerCleanseScope(tier) { return tier === 'advanced' ? 'all' : tier === 'intermediate' ? 'dots+' : 'dots'; }
 
+// A Gate opponent's supplies are shared by direct heals, drains, regeneration,
+// and overheal shields. The counter lives on the combat unit, never the saved actor.
+function recoveryLeft(u) {
+  if (u.side !== 'b' || u.ch.c3RecoveryMax == null) return Infinity;
+  return Math.max(0, Math.round(u.maxHp * u.ch.c3RecoveryMax) - (u.recoverySpent || 0));
+}
+Combat.recoveryLeft = recoveryLeft;
 function healUnit(st, src, tgt, amount, opts) {
   opts = opts || {};
+  const recovery = recoveryLeft(tgt);
+  if (recovery <= 0) {
+    if (!tgt.recoveryExhausted) { tgt.recoveryExhausted = true; ev(st, { t: 'recoveryExhausted', uid: tgt.uid }); }
+    return 0;
+  }
   // self-heals (leech, lifesteal, kill heals, drains): ≥10% of max HP clears one stack of each DoT, ≥25% clears them all
   if (!opts.noCleanse && (src == null || src === tgt) && amount > 0 && tgt.maxHp) {
     const frac = amount / tgt.maxHp;
@@ -1721,10 +1735,11 @@ function healUnit(st, src, tgt, amount, opts) {
   if (dm) amount *= dm.healReceivedMult;
   const dev = src ? perkVal(src.ch, 'devoted', null) : null;
   if (dev) amount = Math.round(amount * dev.healMult);
-  amount = Math.round(amount);
+  amount = Math.min(Math.round(amount), recovery);
   const missing = tgt.maxHp - tgt.chp;
   const applied = Math.min(missing, amount);
   tgt.chp += applied;
+  tgt.healingReceived = (tgt.healingReceived || 0) + applied;
   let over = amount - applied;
   const tempBefore = tgt.tempHp;
   if (over > 0) {
@@ -1732,9 +1747,10 @@ function healUnit(st, src, tgt, amount, opts) {
     if (dev && dev.tempHpDouble) over *= 2;
     let cap = Math.round(tgt.maxHp * ((dev && dev.tempHpCap) || C().OVERHEAL_CAP_PCT));
     if (dm && SK().demigod.overhealUncapped) cap = Infinity;
-    tgt.tempHp = Math.min(cap, tgt.tempHp + over);
+    tgt.tempHp = Math.min(cap, tgt.tempHp + Math.min(over, recovery - applied));
   }
   const tempGain = Math.max(0, tgt.tempHp - tempBefore);
+  if (Number.isFinite(recovery)) tgt.recoverySpent = (tgt.recoverySpent || 0) + applied + tempGain;
   if (src) {
     const appliedPts = tgt.maxHp ? Math.round(applied / tgt.maxHp * 60) : 0;
     const overPts = tgt.maxHp && tempGain ? Math.round(tempGain / tgt.maxHp * 30) : 0;
@@ -2229,7 +2245,7 @@ Combat.act = function (st, u, action) {
     };
     let targets = d.target === 'party' ? livingUnits(st, u.side)
       : d.target === 'allyLane' ? laneUnits(st, u.side, tgt.lane)
-      : (restores ? pickHealTargets(st, u, tgt, m.tier) : [tgt]);
+      : (restores && d.healTargets !== 1 ? pickHealTargets(st, u, tgt, m.tier) : [tgt]);
     // Breath of the Bell: only those who have not moved yet this round
     if (d.unactedOnly) targets = targets.filter(x => !x.attackedThisRound);
     // Clan Blood's share of damage-taken is applied inside pctOf
@@ -2280,7 +2296,7 @@ Combat.act = function (st, u, action) {
       }
       if (d.cures) for (const kind of d.cures) { const s = t.statuses.find(x => x.kind === kind); if (s) removeStatus(t, s); }
       if (amt > 0) {
-        healCleanse(st, t, d.archetype === 'healer' ? healerCleanseScope(m.tier) : 'dots', u.uid);
+        if (!d.noCleanse) healCleanse(st, t, d.archetype === 'healer' ? healerCleanseScope(m.tier) : 'dots', u.uid);
         healUnit(st, u, t, amt, { noCleanse: true });
       }
     }
@@ -2541,7 +2557,7 @@ Combat.act = function (st, u, action) {
       if (d.permStatGain) {
         for (const k of ['hp', 'atk', 'def', 'spd']) u.ch.bonusStats[k] = (u.ch.bonusStats[k] || 0) + d.permStatGain;
         u.ch.finisherGains = (u.ch.finisherGains || 0) + d.permStatGain;
-        u.maxHp = Ch().maxHp(u.ch);
+        u.maxHp = Math.max(Ch().maxHp(u.ch), u.ch.hpFloor || 0);
         ev(st, { t: 'permGain', uid: u.uid });
       }
       continue;
@@ -2651,6 +2667,7 @@ function applyFlareSelf(st, u, m) {
 function finishAction(st, u, skillId, opts) {
   opts = opts || {};
   const m = skillId && skillId !== 'basic_attack' ? manifestFor(u, skillId) : null;
+  if (m?.data.usesPerBattle != null && !opts.fizzled) spendBattleUse(u, skillId);
   if (skillId !== 'basic_attack' && m && m.data && !(m.data.power > 0) && !m.data.hitScale && !m.data.cleaveRows) {
     breakMomentum(u);
   }
@@ -2811,6 +2828,7 @@ Combat.applySurvivalGrowth = function (st) {
     if (!gain) continue;
     ch.stats.hp += gain;
     ch.survivalBattles = (ch.survivalBattles || 0) + 1;
+    u.maxHp = Math.max(Ch().maxHp(ch), ch.hpFloor || 0);
     if (!u.downed) u.chp += gain;                           // the new headroom is real at once
     ev(st, { t: 'survivalGrowth', uid: u.uid, gain, total: ch.survivalBattles });
     grown.push({ ch, gain });

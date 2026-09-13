@@ -352,7 +352,8 @@ Q(3, {
 // =====================================================================
 // Q4 — The Dunmere Mines
 // =====================================================================
-L(W, 'q4_down', `[low] It smells like wet dog and hot metal. Four levels of that, going down.|[quiet] If I go quiet down here it is not because I am frightened. It is because I am very frightened, and I would rather you did not know.`);
+L(W, 'q4_down', `[low] It smells like wet dog and hot metal. Four levels of that, going down.|[quiet] Keep your light up. I can't see where these stairs end.`);
+L('fennick', 'q4_healing', `[firm] That chief keeps healing. I've shut it off for now. Hit him before it wears off.`);
 L('selene', 'q4_down', `[calm] Mind the timbers; half of them are rotten. If the kobolds are as thick as the mayor says, we go slow and we keep the healer in the middle. That's me, honey. Don't argue.`);
 L('selene', 'q4_flooded', `[calm] Water on the second level, and not from any spring. Somebody opened a channel and let the river in on purpose.|[thoughtful] Kobolds don't plan. Kobolds dig where they're pointed. Whoever's pointing them is below us, and has been for weeks.`);
 L('grukhar', 'q4_chamber', `[hoarse] So. Somebody finally came down. The crews have been whispering about a company from the coast for a week; I hoped you were bringing my pay.|[bitter] They lied about that part. I have not seen a coin since spring. I have letters — orders, names, the whole rotten trade. Let me walk out of this hole and they are yours.`);
@@ -1190,23 +1191,31 @@ Q(14, {
 });
 
 // =====================================================================
-// Companion banter (round 2 of a fight) — text only
+// Companion banter (round 2 of a fight). Keep numbered slots stable for voice clips.
 // =====================================================================
-L(W, 'banter', `[shouting] The left one! The left one is looking at YOU!|[breathless] I am fine! I am behind a thing! Keep going!|[gleeful] Got his purse. And his knife. And his — never mind, keep fighting.`);
+L(W, 'banter', `[shouting] The left one! The left one is looking at YOU!|[breathless] Still with you. Keep going!|[gleeful] Got his purse. And his knife. And his — never mind, keep fighting.`);
 L('dorran', 'banter', `[steady] H-hold the line. Hold it. Nothing gets past.|[grunting] Shield's up. Hit 'em while they hit me.|[shouting] Del! Behind you!`);
 L('selene', 'banter', `[calm] Breathe, honey. The one in front's slower than he looks.|[sharp] Mind the mage. I'll mind the rest.|[dry] If you die, I will be very put out. Don't.`);
-L('vess', 'banter', `[giggling] Oh, he is BURNING. Look at him go, man.|[sing-song] More, more, more —|[delighted] I love this company. Nobody screams at me.`);
-L('fennick', 'banter', `[flat] Back lane. Poison. Done.|[calm] The big one has a bad knee. Use it.|[dry] Desmond, stop laughing, it puts them off.`);
+L('vess', 'banter', `[giggling] Oh, he is BURNING. Look at him go, man.|[sing-song] More, more, more —|[delighted] Come on, then. I'm right here.`);
+L('fennick', 'banter', `[flat] Back lane. Poison. Done.|[calm] Stay close. Don't give them a gap.|[dry] Desmond, stop laughing, it puts them off.`);
 L('cassian', 'banter', `[shouting] For the Dawning Flame! — forgive me. Habit.|[earnest] On me! I can take it!|[strained] I am fine! I am — mostly fine!`);
 L('ithrel', 'banter', `[quiet] Loosing.|[flat] The archer is mine. Leave him.|[cold] Again.`);
 L('bramm', 'banter', `[roaring] FINDIK SAYS GO FOR THE EYES!|[booming] Nobody touches the witch! NOBODY! Vallahi!|[gleeful] Ha HA! Did you SEE that, canım?`);
-L('ysolde', 'banter', `[calm] Frost. Hold him still.|[formal] Your aura flares when you fight. Interesting.|[cool] Bahadır, the left. Fındık, be quiet.`);
+L('ysolde', 'banter', `[calm] Frost. Hold him still.|[formal] Your aura flares when you fight. Interesting.|[cool] Keep them in front of us.`);
 L('aurelius', 'banter', `[bored] Do kindly keep them off me; I am the expensive one.|[smug] Burning. Obviously.|[sneering] Barely worth the spell.`);
 L('ilvara', 'banter', `[contemptuous] Bleed, then, if you must.|[cool] Wound them. I will decide who heals.|[dry] Surface-dwellers. Always the front lane.`);
 L('faelen', 'banter', `[smiling] Loosing, loosing — got him, and he was handsome, too. A pity.|[cheerful] Behind them! I am behind them!|[light] If I die, tell the magistrate I was thinking of her.`);
 L('nettle', 'banter', `[snarling] The roots have him.|[fierce] Trees do not forgive. Neither do I.|[low] Bleed into the soil. Good. Sawa.`);
 L('durnik', 'banter', `[gravelly] Wall. I'm the wall, I am.|[grunting] Hit 'em. I've got 'em.|[calm] The deep places keep me. Keep going, bach.`);
 L('amara', 'banter', `[exact] Two blades. Two throats. Next.|[steady] Watch the flank. I have the front.|[quiet] Not like this. Quickly. Clean.`);
+
+// A named listener must be standing on our side, not merely in the journal.
+DLG.gate.dorran.banter[2].withCompany = ['selene'];
+DLG.gate.fennick.banter[2].withCompany = ['vess'];
+DLG.gate.bramm.banter[1].withCompany = ['ysolde'];
+DLG.gate.vess.banter[0].foeStatus = 'burn';
+DLG.gate.fennick.banter[0].foeStatus = 'poison';
+DLG.gate.nettle.banter[0].foeStatus = 'rooted';
 
 // =====================================================================
 // Epilogue paragraphs (§5) — assembled by C3.epilogue(game)

@@ -32,6 +32,8 @@ function chooseAction(st, u) {
   const foes = livingUnits(st, u.side === 'a' ? 'b' : 'a').filter(x => !x.untargetable);
   const allies = livingUnits(st, u.side);
   if (!foes.length) return null;
+  const counterHeal = ADV.Campaign3?.counterHealingAction(st, u);
+  if (counterHeal) return counterHeal;
   const edict = (u.ch.actives || []).find(e => e.skillId === 'gods_edict');
   if (edict) {
     const marked = Combat.validTargets(st, u, 'gods_edict', false);
@@ -57,6 +59,7 @@ function chooseAction(st, u) {
     if (d.selfRevive) continue;
     if (d.freeAction && u.freeActionUsed) continue;
     if (Combat.cooldownLeft && Combat.cooldownLeft(u, e.skillId) > 0) continue;
+    if (!Combat.canSpendBattleUse(u, e.skillId, d)) continue;
     const seal = u.statuses.find(x => x.kind === 'sealed');
     if (seal && (seal.tiers || []).includes(m.tier)) continue;
     let offensiveMode = false;
@@ -71,7 +74,8 @@ function chooseAction(st, u) {
         candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: (lead || downed[0]).uid, weight: lead ? 80 : 50 });
         continue;
       }
-      let reachable = hurt.filter(h => pool.includes(h));
+      const restores = d.power || d.hotRounds || d.healFromTaken;
+      let reachable = hurt.filter(h => pool.includes(h) && (!restores || Combat.recoveryLeft(h) > 0) && !(d.noCleanse && h.statuses.some(s => s.kind === 'withering')));
       // NPC healers always look to the player first (request)
       const pl = reachable.find(h => h.ch.isPlayer);
       if (pl) reachable = [pl].concat(reachable.filter(h => h !== pl));
@@ -162,7 +166,7 @@ function chooseAction(st, u) {
 
 Combat.aiTakeTurn = function (st, u) {
   if (Combat.tryNpcSmite && Combat.tryNpcSmite(st, u)) return { ok: true };
-  let act = u.planned || chooseAction(st, u);
+  let act = ADV.Campaign3?.counterHealingAction(st, u) || u.planned || chooseAction(st, u);
   if (st.leaderDowned && act) {
     const planned = act.skillId && manifestFor(u, act.skillId);
     if (!planned || !planned.data.revive) {
@@ -183,6 +187,7 @@ Combat.aiTakeTurn = function (st, u) {
     }
   }
   const res = Combat.act(st, u, act);
+  if (ADV.Campaign3) ADV.Campaign3.afterCounterHealing(st, u, act, res);
   if(res&&res.ok&&u.ch.isMonster){u.aiRecentSkills=(u.aiRecentSkills||[]).concat(act.skillId||'basic_attack').slice(-2);}
   if (res && res.refund) {
     const again = chooseAction(st, u);

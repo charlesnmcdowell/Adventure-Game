@@ -54,7 +54,7 @@ function speak(who, key, idx) {
 // ---------------------------------------------------------------- beat playback (§2)
 UI3.playBeat = function (scene, game, beat, done) {
   if (beat.artChapter !== undefined && ADV.GateArt) return ADV.GateArt.chapter(scene, game, beat, done);
-  if (!beat.__gateReady && ADV.GateArt) return ADV.GateArt.withScene(scene, game, beat, done, next => UI3.playBeat(scene, game, Object.assign({}, beat, { __gateReady: true }), next));
+  if (!beat.combat && !beat.__gateReady && ADV.GateArt) return ADV.GateArt.withScene(scene, game, beat, done, next => UI3.playBeat(scene, game, Object.assign({}, beat, { __gateReady: true }), next));
   const who = beat.who;
   const def = D().CAMPAIGN_CHARS[who];
   if (!def) { if (done) done(); return; }
@@ -86,7 +86,7 @@ UI3.playBeat = function (scene, game, beat, done) {
   const next = () => {
     if (i >= lines.length) { finish(); return; }
     const line = lines[i++];
-    speak(who, beat.key, i);
+    speak(who, beat.key, line.vo || (beat.voOffset || 0) + i);
     ADV.DialogueBox.showText(scene, game, spk, ADV.CampaignUI.fill(game, line.t, who, context), next,
       { raw: line.t, recipient, caption: i === 1 ? beat.caption : undefined });
   };

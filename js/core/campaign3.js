@@ -29,6 +29,7 @@ C3.fresh = function () {
     company: [], recruited: [], gone: [], dead: [],
     ending: null, epilogue: null, endCardDue: false,
     beats: [], choices: {}, asked: {}, gearIssued: false,
+    banterHeard: [], lastBanter: null, lastBanterSpeaker: null,
   };
 };
 C3.state = function (game) {
@@ -252,7 +253,66 @@ C3.spawnEncounter = function (game, quest, encIdx) {
   // Nobody spawned into this campaign barks in a fight: no stock personality voice and no
   // monster roar (Nib was roaring in the hired knife's voice). The scripted openers carry the scene.
   for (const ch of out) { if (ch.campaignEnemy || ch.isMonster) delete ch.personalityId; ch.noCombatVoice = true; }
+  C3.limitRecovery(out);
+  C3.tuneMineChief(quest, encIdx, out);
   return out;
+};
+
+// Also applied when loading an already spawned encounter from a save. Idempotent,
+// and changes existing enemies in place without respawning defeated ones.
+C3.limitRecovery = function (enemies) {
+  for (const ch of enemies || []) if (ch) ch.c3RecoveryMax = D().CAMPAIGN3_RECOVERY_MAX;
+};
+C3.tuneMineChief = function (quest, encIdx, enemies) {
+  if (!quest || !quest.campaign3 || quest.cEnc?.[encIdx]?.mini !== 'kobold_chief') return;
+  const tuning = D().CAMPAIGN3_MINE_CHIEF;
+  for (const ch of enemies || []) {
+    if (!ch || ch.__c3MineTuned) continue;
+    const chief = ch.boss && ch.enemyTypeId === 'kobold_shaman';
+    if (chief) {
+      const oldHp = Math.max(ADV.Character.maxHp(ch), ch.hpFloor || 0);
+      ch.stats.hp *= tuning.hp; ch.bonusStats.hp = (ch.bonusStats.hp || 0) * tuning.hp;
+      ch.hpFloor = Math.ceil(oldHp * tuning.hp);
+      ch.stats.def *= tuning.def; ch.bonusStats.def = (ch.bonusStats.def || 0) * tuning.def;
+      if (ch.combatHp != null) ch.combatHp = Math.max(0, Math.round(ch.combatHp * tuning.hp));
+      ch.c3MineChief = true;
+    }
+    // Consistent kits: no random regeneration/drain loop or party-wide full heal.
+    if (chief || ch.enemyTypeId === 'veylan_acolyte') {
+      const level = ch.enemyLevel || quest.enemyLevels[1];
+      const skills = chief ? ['fire_bolt', 'spark', 'mend', 'snare'] : ['mend', 'wither_touch'];
+      ch.actives = skills.map(skillId => ({ skillId, level, uses: level * 10 }));
+      ch.c3MineRecovery = true;
+    }
+    ch.__c3MineTuned = true;
+  }
+};
+
+// The existing Mend animation/skill remains, with limited supplies in this encounter.
+C3.combatManifest = function (u, skillId, m) {
+  if (!u.ch.c3MineRecovery || skillId !== 'mend') return m;
+  const t = D().CAMPAIGN3_MINE_CHIEF;
+  return Object.assign({}, m, { data: Object.assign({}, m.data, {
+    healMult: t.healPct / ADV.Combat.HEAL_PCT[m.tier], target: 'ally', healTargets: 1,
+    noCleanse: true, cures: [], cooldown: t.healCooldown, usesPerBattle: t.healUses,
+    desc: 'Restores 12% health to one ally. Two uses per battle; three-round recovery. Does not remove Withering.',
+  }) });
+};
+
+C3.counterHealingAction = function (st, u) {
+  if (u.side !== 'a' || u.ch.campaignId !== 'fennick' || u.downed || u.fled || u.reserved) return null;
+  const skillId = 'whisper_of_ending', m = ADV.Combat.manifestFor(u, skillId);
+  if (!m || ADV.Combat.cooldownLeft(u, skillId) || u.statuses.some(s => s.kind === 'sealed' && (s.tiers || []).includes(m.tier))) return null;
+  const chief = ADV.Combat.validTargets(st, u, skillId).find(t => t.side !== u.side && t.ch.c3MineChief &&
+    t.healingReceived > 0 && !t.statuses.some(s => ['withering', 'witherImmune', 'purified'].includes(s.kind)));
+  return chief ? { kind: 'skill', skillId, targetUid: chief.uid, c3CounterHeal: true } : null;
+};
+C3.afterCounterHealing = function (st, u, act, result) {
+  if (!act.c3CounterHeal || !result?.ok || st.__c3HealWarning) return;
+  const target = st.units.find(t => t.uid === act.targetUid);
+  if (!target?.statuses.some(s => s.kind === 'withering')) return;
+  st.__c3HealWarning = true;
+  st.events.push({ t: 'campaignBanter', beat: { c3: true, combat: true, to: 'company', fid: C3.FID, who: 'fennick', key: 'q4_healing' } });
 };
 // Mirrors Game.tryVerb's success branch: this encounter is talked past.
 C3.bypassEncounter = function (game) {
@@ -379,13 +439,24 @@ C3.banter = function (game, st, roundN) {
   if (!q || !q.campaign3) return null;
   if ((roundN || st.round) !== 2 || st.__bantered) return null;
   st.__bantered = true;
-  const standing = C3.companyIds(game).filter(id => !st || !st.units || st.units.some(u => u.ch && u.ch.campaignId === id && !u.downed && !u.fled));
+  const standing = C3.companyIds(game).filter(id => !st || !st.units || st.units.some(u => u.side === 'a' && u.ch && u.ch.campaignId === id && !u.downed && !u.fled && !u.reserved));
   if (!standing.length) return null;
-  const who = game.rng.pick(standing);
-  const all = C3.lines(C3.FID, who, 'banter');
-  if (!all.length) return null;
-  const line = game.rng.pick(all);
-  return { who, key: 'banter', line, voOffset: Math.max(0, all.indexOf(line)), fid: C3.FID, c3: true };
+  const candidates = standing.flatMap(who => C3.lines(C3.FID, who, 'banter').map((line, voOffset) => ({
+    who, line, voOffset, id: who + ':' + voOffset,
+  }))).filter(b => (!b.line.withCompany || b.line.withCompany.every(id => standing.includes(id))) &&
+    (!b.line.foeStatus || (st.units || []).some(u => u.side === 'b' && !u.downed && !u.fled && (u.statuses || []).some(s => s.kind === b.line.foeStatus))));
+  if (!candidates.length) return null;
+  const s = C3.state(game);
+  let pool = candidates.filter(b => !s.banterHeard.includes(b.id));
+  if (!pool.length) { s.banterHeard = s.banterHeard.filter(id => !candidates.some(b => b.id === id)); pool = candidates; }
+  const varied = pool.filter(b => b.who !== s.lastBanterSpeaker);
+  if (varied.length) pool = varied;
+  const fresh = pool.filter(b => b.id !== s.lastBanter);
+  if (!fresh.length) return null; // silence is better than repeating the only suitable remark
+  const chosen = game.rng.pick(fresh);
+  s.banterHeard.push(chosen.id); s.lastBanter = chosen.id; s.lastBanterSpeaker = chosen.who;
+  C3.save(game);
+  return Object.assign({ key: 'banter', fid: C3.FID, c3: true, combat: true, to: 'company' }, chosen);
 };
 
 // ---------------------------------------------------------------- progression (§4-§5)
@@ -500,6 +571,7 @@ ADV.Campaign3 = C3;
     const q = game.quest;
     const fresh = q && isC3(q.quest) && !q.enemies && !q.readyToComplete && !q.over && q.encIdx < q.quest.encounters.length;
     const enc = oCurrent(game);
+    if (enc && q && isC3(q.quest)) { C3.limitRecovery(q.enemies); C3.tuneMineChief(q.quest, q.encIdx, q.enemies); }
     // enemies already sitting in an older save keep no stock voice either
     if (q && isC3(q.quest) && q.enemies) for (const ch of q.enemies) { if (ch && (ch.campaignEnemy || ch.isMonster)) delete ch.personalityId; if (ch) ch.noCombatVoice = true; }
     if (enc && fresh && q.__c3openerFor !== q.encIdx) {

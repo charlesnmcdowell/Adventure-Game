@@ -26,6 +26,11 @@ D.CAMPAIGN3_FACTION_ID = 'gate';
 // All fourteen quests: enemies must survive an opening party volley.
 // Applied only to spawned opponents, after their authored stats and boss HP floors.
 D.CAMPAIGN3_COMBAT = { hp: 5, atk: 2, def: 2 };
+// Recovery can restore one extra health bar per enemy, shared by all healing sources.
+// This prevents the fivefold HP increase turning a defensive party fight into a loop.
+D.CAMPAIGN3_RECOVERY_MAX = 1;
+// The mine chief is a healer, not an endurance wall. Relative to the campaign boost.
+D.CAMPAIGN3_MINE_CHIEF = { hp: 0.5, def: 0.75, healPct: 0.12, healUses: 2, healCooldown: 3 };
 
 // Issued at the ending, never sold.
 Object.assign(D.GEAR_SETS, {
@@ -56,7 +61,7 @@ chr({ id: 'vess', name: 'Desmond', region: 'hand', role: 'companion', companion:
   portrait: { skin: 'dark', hair: 'long', wardrobe: 'robe', color: '#3a2a4a' } });
 chr({ id: 'fennick', name: 'Winston', region: 'hand', role: 'companion', companion: true, sex: 'm', campaignExit: true,
   desc: 'Desmond\'s halfling minder. Sour, practical, would sell you for a good boot. Umbral Hand.',
-  perks: ['septic_sanguine'], actives: ['backstab', 'venom_fang', 'smoke_bomb', 'aimed_shot'],
+  perks: ['septic_sanguine'], actives: ['backstab', 'venom_fang', 'smoke_bomb', 'whisper_of_ending'],
   portrait: { skin: 'brown', hair: 'buzz', wardrobe: 'hiking', color: '#5a4a2a' } });
 chr({ id: 'cassian', name: 'Santiago', region: 'flame', role: 'companion', companion: true, sex: 'm', campaignExit: true, romance: true, favours: 'hero',
   desc: 'A squire of the Order of the Dawning Flame, from its chapter house in the sun-lands, on his first errand. Earnest, rigid, secretly terrified of failing.',
