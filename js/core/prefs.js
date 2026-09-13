@@ -21,6 +21,14 @@ function write(next) {
   try { localStorage.setItem(KEY, JSON.stringify(next)); } catch (e) {}
 }
 
+// Another open game tab may record the once-per-browser support invitation.
+// Refresh on its next read so an already-open tab does not show the ask again.
+if (typeof window !== 'undefined' && window.addEventListener) {
+  window.addEventListener('storage', event => {
+    if (event.key === KEY || event.key === null) cache = null;
+  });
+}
+
 const Prefs = {};
 Prefs.get = function () { return Object.assign({}, read()); };
 Prefs.set = function (patch) { write(Object.assign(read(), patch || {})); };

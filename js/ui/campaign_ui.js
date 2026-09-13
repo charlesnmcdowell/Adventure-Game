@@ -97,7 +97,8 @@ CampaignUI.playBeats = function (scene, game, beats, done) {
 
 // ---------------------------------------------------------------- town arrival
 // Called by the Town scene after the ordinary notices: recruiter offers,
-// queued hall beats, the villain reveal, the support ask, the end card.
+// queued hall beats, the villain reveal and the end card. The shared support
+// invitation runs afterward in Town, once a campaign reaches quest 2.
 CampaignUI.arrival = function (scene, game, done) {
   const s = ADV.Campaign.state(game);
   const steps = [];
@@ -105,7 +106,7 @@ CampaignUI.arrival = function (scene, game, done) {
   const beats = ADV.Campaign.takeBeats(game);
   if (beats.length) steps.push(n => CampaignUI.playBeats(scene, game, beats, n));
   if (s.endCardDue) { s.endCardDue = false; steps.push(n => CampaignUI.endCard(scene, game, n)); }
-  else if (s.supportAskDue && !game.meta.supportAskSeen) { s.supportAskDue = false; steps.push(n => CampaignUI.supportAsk(scene, game, false, n)); }
+  s.supportAskDue = false; // retire the old two-ordinary-contract ask in saved games
   const offer = ADV.Campaign.currentOffer(game);
   if (offer) steps.push(n => CampaignUI.offer(scene, game, offer, n));
   const run = () => { const st = steps.shift(); if (!st) { ADV.Save.saveGame(game); if (done) done(); return; } st(run); };

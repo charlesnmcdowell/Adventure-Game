@@ -164,7 +164,7 @@ Save.peekPlayer = function () {
 };
 
 // Continue is only real if the full save loads and the player is still alive.
-// A leftover world key must not hide the title notice or offer a dead Continue.
+// A leftover world key must not offer a dead Continue.
 Save.hasValidContinue = function () {
   const player = Save.peekPlayer();
   return !!(player && player.alive);
@@ -175,11 +175,6 @@ Save.hasValidContinue = function () {
 Save.hasVoicedContinue = function () {
   const player = Save.peekPlayer();
   return !!(player && player.alive && player.personalityId);
-};
-
-ADV.TitleNotice = {
-  text: 'The anime art expansion is here. Previous characters and save data have been reset. Begin a new game to explore the new world. Your new playthrough will carry on normally through death and reincarnation.',
-  visible: () => true,
 };
 
 Save.reset = function () {

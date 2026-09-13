@@ -77,10 +77,8 @@ Campaign.skillPurchasable = function (ch, skillId, meta) {
 // Called after every ordinary contract resolves.
 Campaign.onContractComplete = function (game, quest, failed) {
   const s = Campaign.state(game);
-  const meta = game.meta;
   if (failed) return;
   s.contractsTotal++;
-  if (s.contractsTotal === 2 && !meta.supportAskSeen) s.supportAskDue = true;   // §10a first ask
   if (s.factionId) { if (quest.campaign || quest.factionRepeatable) s.factionContracts++; return; }
   const al = quest.factionAlignment;
   if (al === 'criminal' || al === 'law') s.alignedContracts[al]++;

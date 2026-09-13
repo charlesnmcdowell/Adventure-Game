@@ -495,8 +495,12 @@ class TownScene extends Phaser.Scene {
                          (!hadMenu2 && ADV.Campaign2 && ADV.Campaign2.menuVisible(this.game_));
           if (gained) this.scene.restart();
         };
+        const supportThenSettle = () => {
+          if (ADV.SupportUI) ADV.SupportUI.arrival(this, this.game_, settle);
+          else settle();
+        };
         ADV.CampaignUI.arrival(this, this.game_, () => {
-          if (ADV.Campaign2UI) ADV.Campaign2UI.arrival(this, this.game_, settle); else settle();
+          if (ADV.Campaign2UI) ADV.Campaign2UI.arrival(this, this.game_, supportThenSettle); else supportThenSettle();
         });
         return;
       }
