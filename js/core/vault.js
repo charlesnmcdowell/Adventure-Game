@@ -100,6 +100,7 @@ Vault.onCommit = function (world, woman, man) {
   const his = Vault.of(world, man);
   if (his && his.holderId === man.id) {
     hers.gold += his.gold; hers.items.push(...his.items);
+    if (his.insuranceActive) hers.insuranceActive = true;
     his.gold = 0; his.items = [];
     const i = world.vaults.indexOf(his);
     if (i >= 0) world.vaults.splice(i, 1);
@@ -108,6 +109,12 @@ Vault.onCommit = function (world, woman, man) {
   hers.sharedWithId = man.id;
   man.vaultId = hers.id;
   hers.sharedQuestStreak = 0; hers.questsSinceShared = 0;
+};
+
+Vault.spouses = function (world, ch) {
+  if (!ch) return [];
+  const ids = ADV.Rel && ADV.Rel.partnerIds ? ADV.Rel.partnerIds(ch) : (ch.partnerId ? [ch.partnerId] : []);
+  return ids.map(id => ADV.World.byId(world, id)).filter(c => c && c.alive);
 };
 
 // On breakup: he loses access permanently; she keeps everything (§7).
@@ -122,6 +129,9 @@ Vault.onBreakup = function (world, a, b) {
     v.sharedWithId = nextMan ? nextMan.id : null;
     v.pendingWithdrawals = [];
     v.lastWithdrawAt = {};
+    // A dissolved household does not keep the old policy. The next marriage
+    // buys its own — otherwise the desk stays locked on "Insurance active".
+    if (!nextMan) v.insuranceActive = false;
   }
   if (man.vaultId && v && man.vaultId === v.id) man.vaultId = null;
   if (nextMan) nextMan.vaultId = v ? v.id : nextMan.vaultId;
@@ -223,14 +233,22 @@ Vault.onQuestResolved = function (world, ch, questedWithPartner) {
 };
 
 // ---- Insurance (§7/§16) -----------------------------------------------------
+// Premium comes from the purse first, then the household vault. After a
+// remarriage the man's gold is already in her vault, so purse-only failed.
 Vault.payPremium = function (world, ch) {
   const v = Vault.ensureOwn(world, ch);
-  if (ch.inventory.gold >= C().GOLD.insurancePremium) {
-    ch.inventory.gold -= C().GOLD.insurancePremium;
-    v.insuranceActive = true;
-    return true;
-  }
-  return false;
+  const cost = C().GOLD.insurancePremium;
+  if (!v || v.insuranceActive) return false;
+  let need = cost;
+  const fromPurse = Math.min(ch.inventory.gold || 0, need);
+  need -= fromPurse;
+  const fromVault = Math.min(v.gold || 0, need);
+  need -= fromVault;
+  if (need > 0) return false;
+  ch.inventory.gold = (ch.inventory.gold || 0) - fromPurse;
+  v.gold -= fromVault;
+  v.insuranceActive = true;
+  return true;
 };
 
 // ---- Death claims (§7) ------------------------------------------------------
@@ -245,12 +263,20 @@ Vault.onDeath = function (world, deceased, killerId) {
   const out = { vaultTo: 'lost', gold: v ? v.gold : 0 };
   // insurance covers the household: whichever of the pair dies, the
   // survivor is paid — the policy may sit on either partner's vault
-  const spouse = ADV.World.byId(world, deceased.partnerId);
-  const policies = [v, spouse ? Vault.of(world, spouse) : null].filter((x, i, a) => x && a.indexOf(x) === i && x.insuranceActive);
+  const spouses = Vault.spouses(world, deceased);
+  const seen = new Set();
+  const policies = [];
+  const take = (x) => { if (x && x.insuranceActive && !seen.has(x.id)) { seen.add(x.id); policies.push(x); } };
+  take(v);
+  for (const s of spouses) take(Vault.of(world, s));
+  for (const xv of world.vaults || []) {
+    if (xv.holderId === deceased.id || xv.sharedWithId === deceased.id) take(xv);
+  }
   if (policies.length) {
-    if (spouse && spouse.alive) {
-      spouse.inventory.gold += C().GOLD.insurancePayout;
-      out.payoutTo = spouse.id;
+    const survivor = spouses[0];
+    if (survivor) {
+      survivor.inventory.gold += C().GOLD.insurancePayout;
+      out.payoutTo = survivor.id;
     }
     for (const pol of policies) pol.insuranceActive = false;
   }

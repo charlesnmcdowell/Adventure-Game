@@ -117,11 +117,22 @@ Game.youngDependents = function (ch) {
   return (ch.dependents || []).filter(d => d.age < C().CHILD_SELF_SUFFICIENT).length;
 };
 
-Game.partyRoster = function (game) {
-  const roster = ADV.Party.battleRoster(game.world, Game.player(game));
+Game.partyRoster = function (game, quest) {
+  const player = Game.player(game);
+  const roster = ADV.Party.battleRoster(game.world, player);
+  const activeQuest = quest || (game.quest && game.quest.quest);
   // campaign allies (rival / boss) ride along on campaign quests only (§5a)
-  if (ADV.Campaign && game.quest && game.quest.quest.campaign) {
-    for (const a of ADV.Campaign.allies(game)) if (!roster.includes(a)) roster.push(a);
+  if (ADV.Campaign && activeQuest && activeQuest.campaign) {
+    const allies = ADV.Campaign.alliesFor(game, activeQuest);
+    if (activeQuest.campaign3) {
+      // The Story hall's selected companions must reach combat, even when the
+      // player also has a hired party or followers. Keep an employer's leader
+      // present too: the leader's survival still determines the contract.
+      const party = ADV.Party.of(game.world, player);
+      const leader = party && ADV.Party.leader(game.world, party);
+      const ordered = [player, roster.includes(leader) ? leader : null, ...allies, ...roster].filter(Boolean);
+      roster.splice(0, roster.length, ...new Set(ordered));
+    } else for (const a of allies) if (!roster.includes(a)) roster.push(a);
   }
   // quest-scoped necromancy thralls walk until the contract ends (even if
   // they dropped last fight — they stand up again for the next field)

@@ -488,6 +488,10 @@ L('ithrel', 'q5_shot_yes', `[exhaling] Thank you. Whatever comes after this — 
 L('ithrel', 'q5_shot_no', `[tight] Alive. I have waited a year. I can wait until the end of a fight.`);
 L('gorruk', 'q5_escape', `[snarling] Not today, foundling. Not for you. The city will finish what I started.`);
 L('cael', 'q5_letters', `[grinning through a split lip] Told you. Every one sealed with the iron hand. The Iron Consortium — the trading house in the Gate — pays for the mine, for these bandits, and for you.|[serious] There's a second name under theirs. A mage called Olamide, in the Mirkhollow. They call his place "the other mine." I heard it twice through that tent wall, and men don't say a thing twice unless it matters.`);
+CH('q5_rescue', [
+  { id: 'free_first', text: 'Break Cal’s chains first. Then take the chest.', set: { caelFreed: true, lettersRecovered: true }, reply: B('cael', 'q5_letters', { caption: 'You break Cal’s chains, then recover the chest. He can barely stand; you will escort him back to the Wardens. First, he shows you what is in the letters.' }) },
+  { id: 'letters_first', text: 'Secure the chest first. Then break Cal’s chains.', set: { caelFreed: true, lettersRecovered: true }, reply: B('cael', 'q5_letters', { caption: 'You secure the chest, then break Cal’s chains. He can barely stand; you will escort him back to the Wardens. First, he shows you what is in the letters.' }) },
+]);
 L('selene', 'q5_letters_selene', `[level] A name, Cal. Not a seal. Somebody at the Consortium signs for this. Who?`);
 L('cael', 'q5_letters_selene_reply', `[thinking] No name on the paper, Del, I'll swear to that. But the ogre said "the Gate office" like it was one man, and once — only once — "Adeyinka." Said it the way a fella says a name he's scared of.`);
 L('ithrel', 'q5_gone', `[cold] He walked out of that tent because you wished it. I will find him myself.|[flat] Do not follow me.`);
@@ -520,7 +524,7 @@ Q(5, {
   },
   closing: [
     B('gorruk', 'q5_escape', { when: { not: 'gorrukDead' } }),
-    B('cael', 'q5_letters'),
+    B('cael', 'q5_rescue', { lines: [], choice: 'q5_rescue', promptText: 'Gorruk no longer blocks your way. Cal is still chained beside the chest of letters. Get them both out of the tent.' }),
     B('selene', 'q5_letters_selene', co('selene')), B('cael', 'q5_letters_selene_reply', co('selene')),
     B('ithrel', 'q5_gone', { when: { flag: 'ithrelHeld' }, dismiss: ['ithrel'], gone: ['ithrel'] }),
     B('ithrel', 'q5_dead', { when: { flag: 'gorrukDead' } }),
@@ -543,7 +547,7 @@ L('faelen', 'q6_web', `[cheerful, from above] Ah — hello. Yes. Up here. In the
 CH('q6_faelen', [
   { id: 'wyvern', text: 'Who pays a bounty on a wyvern?', ask: true, reply: B('faelen', 'q6_faelen_wyvern') },
   { id: 'price', text: 'Wardens cut for nothing. I am not a Warden. What is your debt worth?', ask: true, aff: { faelen: 1 }, reply: B('faelen', 'q6_faelen_price') },
-  { id: 'cut', text: 'Hold still.', recruit: ['faelen'], set: { faelenRecruited: true }, aff: { faelen: 1 }, reply: B('faelen', 'q6_faelen_cut') },
+  { id: 'cut', text: 'Hold still. I’ll cut you free. You can ride with us.', recruit: ['faelen'], set: { faelenRecruited: true }, aff: { faelen: 1 }, reply: B('faelen', 'q6_faelen_cut') },
   { id: 'leave', text: 'Spiders have to eat too.', heritage: 1, set: { faelenLeft: true }, reply: B('faelen', 'q6_faelen_leave') },
 ]);
 L('faelen', 'q6_faelen_wyvern', `[bright] The magistrate of Thornbury, whose sheep keep disappearing. Three hundred in gold, and — I am told — the gratitude of a woman with a very fine face. I am still negotiating the second part.`);

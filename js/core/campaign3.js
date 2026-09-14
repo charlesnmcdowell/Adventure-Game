@@ -349,7 +349,7 @@ C3.bypassEncounter = function (game) {
   if (q.encIdx >= q.quest.encounters.length) {
     q.readyToComplete = true;
     // talking past the last room still earns the closing scene
-    if (q.quest.campaign3 && !q.__c3closed) { q.__c3closed = true; q.closingBeats = C3.closingBeats(game, q.quest); }
+    C3.queueClosing(game);
   }
   return true;
 };
@@ -417,6 +417,12 @@ C3.script = function (n) { return D().CAMPAIGN3_SCRIPT[n] || {}; };
 C3.departureBeats = function (game, q) { return C3.prepareBeats(game, C3.script(q.n).departure); };
 C3.openerBeats = function (game, q, encIdx) { const o = C3.script(q.n).openers || {}; return C3.prepareBeats(game, o[encIdx]); };
 C3.closingBeats = function (game, q) { return C3.prepareBeats(game, C3.script(q.n).closing); };
+C3.queueClosing = function (game) {
+  const q = game.quest;
+  if (!q?.quest?.campaign3 || !q.readyToComplete || q.failed || q.playerDead || q.fled || q.__c3closed) return;
+  q.__c3closed = true;
+  q.closingBeats = C3.closingBeats(game, q.quest);
+};
 C3.arrivalBeats = function (game, n) { return C3.prepareBeats(game, (C3.script(n).arrival || []).map(b => Object.assign({ arrival: true }, b))); };
 C3.pushBeat = function (game, beat) { C3.state(game).beats.push(beat); };
 C3.takeBeats = function (game) { const s = C3.state(game); const b = s.beats; s.beats = []; return b; };
@@ -614,7 +620,7 @@ ADV.Campaign3 = C3;
 
   // Opener beats on ANY encounter, and closing beats from the script.
   const G = ADV.Game;
-  const oCurrent = G.currentEncounter, oFinish = G.finishCombat;
+  const oCurrent = G.currentEncounter, oFinish = G.finishCombat, oVerb = G.tryVerb;
   G.currentEncounter = function (game) {
     const q = game.quest;
     const fresh = q && isC3(q.quest) && !q.enemies && !q.readyToComplete && !q.over && q.encIdx < q.quest.encounters.length;
@@ -630,12 +636,13 @@ ADV.Campaign3 = C3;
     return enc;
   };
   G.finishCombat = function (game) {
-    const q = game.quest;
     const r = oFinish(game);
-    if (q && isC3(q.quest) && r && r.won && q.readyToComplete && !q.__c3closed) {
-      q.__c3closed = true;
-      q.closingBeats = C3.closingBeats(game, q.quest);
-    }
+    if (r && r.won) C3.queueClosing(game);
+    return r;
+  };
+  G.tryVerb = function (game, verb) {
+    const r = oVerb(game, verb);
+    if (r && r.success && r.mode === 'bypass') C3.queueClosing(game);
     return r;
   };
 })();

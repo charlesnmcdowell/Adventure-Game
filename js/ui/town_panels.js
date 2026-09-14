@@ -235,9 +235,9 @@ Panels.departureConfirm = function (scene, q) {
     tx(W / 2 - 240, yy, `Payroll owed on return, win or lose: ${info.payroll}g`, { size: 14, color: T().css.gold });
     yy += 26;
   }
-  const going = info.roster.concat(ADV.Campaign ? ADV.Campaign.alliesFor(game, q).filter(c => !info.roster.includes(c)) : []);
-  tx(W / 2 - 240, yy, 'Going: ' + going.map(c => c.name + (c.campaign ? ' (' + (c.title || 'campaign') + ')' : '')).join(', '), { size: 13, color: T().css.inkDim, wrap: 480 });
-  yy += 40;
+  const going = q.campaign3 ? ADV.Game.partyRoster(game, q) : info.roster.concat(ADV.Campaign ? ADV.Campaign.alliesFor(game, q).filter(c => !info.roster.includes(c)) : []);
+  const goingLine = tx(W / 2 - 240, yy, 'Going: ' + going.map(c => c.name + (c.campaign ? ' (' + (c.title || 'campaign') + ')' : '')).join(', '), { size: 13, color: T().css.inkDim, wrap: 480 });
+  yy += Math.max(40, goingLine.height + 10);
   const v = info.vault;
   if (v && v.sharedWithId) {
     const along = info.roster.some(c => c.id === (v.holderId === p.id ? v.sharedWithId : v.holderId));
@@ -440,12 +440,16 @@ Panels.storeInsurance = function (scene, r, y, scroll) {
   const put = scroll || { add: o => scene.keep(o), addBtn: b => keepBtn(scene, b), extend: () => {} };
   const v = ADV.Vault.of(game.world, p);
   const insured = v && v.insuranceActive;
+  const spouses = ADV.Vault.spouses ? ADV.Vault.spouses(game.world, p) : [];
+  const who = spouses.length ? spouses.map(s => s.name).join(', ') : 'a spouse';
   const bi = T().button(scene, r.x + 24, y, r.w - 48, 44,
     insured ? 'Insurance active' : `Insurance premium — ${C().GOLD.insurancePremium}g`, () => {
       if (insured) return;
       if (ADV.Vault.payPremium(game.world, p)) { ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel(scene.currentPanel || 'insurance'); }
-      else ADV.Notices.toast(scene, 'You cannot afford the premium.');
-    }, { size: 15, disabled: insured, sub: `pays ${C().GOLD.insurancePayout}g to the survivor if you or your spouse dies`, display: true });
+      else ADV.Notices.toast(scene, 'Fifty gold, from your purse or the vault.');
+    }, { size: 15, disabled: insured, sub: insured
+      ? `covers you and ${who} — ${C().GOLD.insurancePayout}g to the survivor`
+      : `pays ${C().GOLD.insurancePayout}g to the survivor if you or ${who} dies · purse or vault`, display: true });
   put.addBtn(bi);
   put.extend(y + 56);
 };

@@ -198,6 +198,8 @@ class QuestScene extends Phaser.Scene {
     const game = this.game_;
     const q = game.quest || (game.travelResolution && game.travelResolution.q);
     if (!q) { this.scene.start('Town'); return; }
+    // Recover a pending conclusion from an older run that bypassed its last fight.
+    ADV.Campaign3?.queueClosing(game);
     if (q.closingBeats && q.closingBeats.length && ADV.CampaignUI) {
       const beats = q.closingBeats; q.closingBeats = null;
       const W = T().W;
