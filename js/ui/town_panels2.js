@@ -1044,6 +1044,36 @@ Notices.courtesyGold = function (scene, n, next) {
   });
 };
 
+Notices.courtesyGold2 = function (scene, n, next) {
+  const game = scene.g();
+  if (game.meta) game.meta.courtesyGoldNotice2 = false;
+  if (ADV.Save) ADV.Save.saveMeta(game);
+  Notices.custom(scene, (keep, D, close) => {
+    const W = T().W;
+    keep(T().text(scene, W / 2, 236, 'A gift', { size: 22, display: true, ox: 0.5, color: T().css.gold }).setDepth(D));
+    keep(T().text(scene, W / 2, 284, 'Sorry for the disruption — here\'s some gold on us.\nNeverendingnarratives.com', {
+      size: 15, ox: 0.5, wrap: 560, align: 'center', color: T().css.ink,
+    }).setDepth(D));
+    ADV.UI.modalBtn(keep, D, T().button(scene, W / 2 - 110, 380, 220, 42, 'Thank you', () => { close(); next(); }, { size: 15, display: true, bold: true }));
+  });
+};
+
+Notices.homeReload = function (scene, n, next) {
+  const game = scene.g();
+  Notices.custom(scene, (keep, D, close) => {
+    const W = T().W;
+    keep(T().text(scene, W / 2, 236, 'An update is taking place', { size: 22, display: true, ox: 0.5, color: T().css.gold }).setDepth(D));
+    keep(T().text(scene, W / 2, 284, 'Sorry for the disruption. The game will close. Reload the page to continue.', {
+      size: 15, ox: 0.5, wrap: 560, align: 'center', color: T().css.ink,
+    }).setDepth(D));
+    ADV.UI.modalBtn(keep, D, T().button(scene, W / 2 - 110, 380, 220, 42, 'OK', () => {
+      close();
+      if (ADV.Game.reloadForUpdate) ADV.Game.reloadForUpdate(game);
+      else next();
+    }, { size: 15, display: true, bold: true }));
+  });
+};
+
 // ---- arrival notices --------------------------------------------------------
 // Only mothers name children (request): the female player names hers at
 // birth; a male player's child is named by its NPC mother.

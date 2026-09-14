@@ -74,6 +74,7 @@ Game.load = function () {
     ADV.Quests.forceTutorialNeutrals(game.board, rng);
   }
   if (ADV.Party && ADV.Party.repairWorld) ADV.Party.repairWorld(world);
+  if (ADV.World.upgradePopulation(world, rng)) ADV.Save.saveGame(game);
   if (ADV.GatePerks) ADV.GatePerks.reconcile(game);
   // One-shot: compensate a live save hit by the party-id / wage bugs. Tests
   // run in Node and never take this branch.
@@ -82,7 +83,10 @@ Game.load = function () {
     game.meta.grantGold1000 = true;
     ADV.Save.saveGame(game);
   }
-  if (typeof window !== 'undefined') Game.grantCourtesyGold(game);
+  if (typeof window !== 'undefined') {
+    Game.grantCourtesyGold(game);
+    Game.grantCourtesyGold2(game);
+  }
   return game;
 };
 
@@ -96,6 +100,38 @@ Game.grantCourtesyGold = function (game) {
   game.meta.grantGold10000 = true;
   game.meta.courtesyGoldNotice = true;
   if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
+  return true;
+};
+
+function justBootedForUpdate() {
+  try { return typeof location !== 'undefined' && /[?&]boot=/.test(location.search || ''); }
+  catch (e) { return false; }
+}
+
+// A second purse after the next disruption. One-time. The home-reload card
+// is skipped if this page already came from an update restart.
+Game.grantCourtesyGold2 = function (game) {
+  if (!game || !game.meta || game.meta.grantGold10000b) return false;
+  const p = Game.player(game);
+  if (!p || !p.inventory) return false;
+  p.inventory.gold = (p.inventory.gold || 0) + Game.COURTESY_GOLD;
+  game.meta.grantGold10000b = true;
+  game.meta.courtesyGoldNotice2 = true;
+  if (!justBootedForUpdate() && !game.meta.homeReloadDone) game.meta.homeReloadNotice = true;
+  if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
+  return true;
+};
+
+Game.reloadForUpdate = function (game) {
+  if (game && game.meta) {
+    game.meta.homeReloadNotice = false;
+    game.meta.homeReloadDone = true;
+  }
+  try { if (game && ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game); } catch (e) {}
+  if (typeof location === 'undefined') return true;
+  const u = new URL(location.href);
+  u.searchParams.set('boot', String(Date.now()));
+  location.replace(u.pathname + u.search + u.hash);
   return true;
 };
 
