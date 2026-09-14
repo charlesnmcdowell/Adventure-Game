@@ -88,7 +88,7 @@
   }
   #adv-live-update button:focus { outline: 2px solid #c8a24a; }
 </style>
-<link rel="stylesheet" href="assets/mobile.css?v=20260914-ver120">
+<link rel="stylesheet" href="assets/mobile.css?v=20260914-mobile2">
 </head>
 <body>
 <div id="game"></div>
@@ -161,7 +161,7 @@
 <script src="js/core/death.js?v=20260911-art3"></script>
 <script src="js/core/world.js?v=20260914-pop80b"></script>
 <script src="js/core/save.js?v=20260914-pop80b"></script>
-<script src="js/core/prefs.js?v=20260914-mobile1"></script>
+<script src="js/core/prefs.js?v=20260914-mobile2"></script>
 <script src="js/core/campaign.js?v=20260913-support2"></script>
 <script src="js/core/campaign2.js?v=20260911-art3"></script>
 <script src="js/core/game.js?v=20260914-ver120"></script>
@@ -181,7 +181,7 @@
 <script src="js/ui/home_life.js?v=20260911-art3"></script>
 <script src="js/ui/music.js?v=20260913-gate-score2"></script>
 <script src="js/ui/narrator.js?v=20260913-quest-failure-advice"></script>
-<script src="js/ui/tooltip.js?v=20260914-mobile1"></script>
+<script src="js/ui/tooltip.js?v=20260914-mobile2"></script>
 <script src="js/ui/portraits.js?v=20260911-art3"></script>
 <script src="js/ui/vfx.js?v=20260912-skills2"></script>
 <script src="js/ui/combat_presentation.js?v=20260912-skills2"></script>
@@ -197,7 +197,7 @@
 <script src="js/ui/support.js?v=20260913-support2"></script>
 <script src="js/ui/mobile_viewport.js?v=20260914-mobile1"></script>
 <script src="js/ui/mobile_title.js?v=20260914-ver120"></script>
-<script src="js/ui/scene_boot.js?v=20260914-ver120"></script>
+<script src="js/ui/scene_boot.js?v=20260914-mobile2"></script>
 <script src="js/ui/scene_creation.js?v=20260912-diff1"></script>
 <script src="js/ui/scene_town.js?v=20260914-ver120"></script>
 <script src="js/ui/town_panels.js?v=20260914-household1"></script>
@@ -229,6 +229,7 @@
 <script src="js/ui/anime_customization.js?v=20260911-art3"></script>
 
 <script>
+if (ADV.MobileTitle.enabled()) document.body.classList.add('mobile-loading');
 window.__game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',

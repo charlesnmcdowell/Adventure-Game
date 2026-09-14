@@ -62,6 +62,8 @@ Display.active = function () {
 Display.supported = function () {
   const d = doc();
   if (!d) return false;
+  const nav = win()?.navigator;
+  if (nav && (/iPhone|iPod|FBAN|FBAV|Messenger|Instagram/i.test(nav.userAgent))) return false;
   const el = d.documentElement;
   return !!(el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen);
 };
@@ -80,7 +82,7 @@ Display.watch = function (fn) { if (typeof fn === 'function') watchers.push(fn);
 Display.enter = function () {
   const d = doc();
   const w = win();
-  if (!d) return Promise.resolve();
+  if (!d || !Display.supported()) return Promise.resolve();
   const root = d.getElementById('game') || d.documentElement;
   const g = w && w.__game;
   if (g && g.scale) {

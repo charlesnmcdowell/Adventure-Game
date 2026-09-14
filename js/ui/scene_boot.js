@@ -10,6 +10,7 @@ class TitleScene extends Phaser.Scene {
   preload() {
     if (ADV.AnimeWorld) {
       const label = this.add.text(640,380,'Preparing your next adventure…',{fontFamily:'Georgia',fontSize:'24px',color:'#e9d5a2'}).setOrigin(.5);
+      if (ADV.MobileTitle?.enabled()) label.setWordWrapWidth(280).setAlign('center');
       this.load.on('progress',p=>label.setText('Preparing your next adventure… '+Math.round(p*100)+'%'));
       this.load.once('complete',()=>label.destroy());
       ADV.AnimeWorld.load(this);
@@ -17,6 +18,7 @@ class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    document.body.classList.remove('mobile-loading');
     if (ADV.GatePreviewScene && !this.game.__openedGatePreview && new URLSearchParams(location.search).get('gateArtPreview') === '1') {
       this.game.__openedGatePreview = true;
       this.scene.start('GatePreview');

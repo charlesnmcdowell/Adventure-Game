@@ -149,6 +149,9 @@ Tooltip.attachZone = function (scene, x, y, w, h, textFn) {
 // Human labels for every engine parameter a tier can carry. Anything not
 // listed still prints raw as `key: value` so nothing is ever hidden.
 const PARAM_LABEL = {
+  dispelCap: v => `removes up to ${v} positive effects from the target`,
+  drawFromAll: () => 'draws poison and bleeding from the whole company',
+  medicPct: v => `heals injured allies for ${Math.round(v * 100)}% of this tier's normal healing`,
   // ---- second campaign (add-on §3): the new engine primitives -------------
   immovable: () => 'cannot be moved, pulled or pushed out of this lane',
   laneNoDelay: () => 'ignores Shock and any effect that delays your place in the order',

@@ -14,7 +14,7 @@ html, body { height: 100%; height: 100dvh; overflow: hidden; overscroll-behavior
 body.rotate-required #rotate { display: flex; }
 #rotate-dismiss { position: absolute; top: max(.75rem, var(--adv-safe-top)); right: max(.75rem, var(--adv-safe-right)); min-width: 44px; min-height: 44px; border: 1px solid #b9a77d; border-radius: 50%; background: #211d18; color: #f4e9d4; font-size: 1.5rem; cursor: pointer; }
 #rotate .s { max-width: 28em; line-height: 1.6; }
-.mobile-launch #game canvas { width: 100% !important; height: 100% !important; margin: 0 !important; object-fit: cover; pointer-events: none; }
+.mobile-launch #game canvas, .mobile-loading #game canvas { width: 100% !important; height: 100% !important; margin: 0 !important; object-fit: cover; pointer-events: none; }
 .mobile-launch #game { pointer-events: none; }
 .mobile-home, .mobile-home * { box-sizing: border-box; }
 .mobile-home {
