@@ -143,15 +143,23 @@ function holdingForPlayer(world, from, player) {
   if (from.hiroNpc) return false;
   if (!freeSlot(player)) return false;
   if (Rel().isPartner(from, player)) return false;
+  // Wealth/Lookism can make every stranger Friendly. That attraction must not
+  // reserve the entire town for the player and stop NPC marriages and births.
+  // Keep actual companions, earned friendships and pending asks available.
+  const shared = Court.shared(world, from.id, player.id);
+  const pending = (world.pendingProposals || []).some(p => p.fromId === from.id);
+  if (!pending && shared < 1 && Rel().rawScore(world, from.id, player.id) < C().REL.FRIENDLY_MIN) return false;
   if (Rel().score(world, from.id, player.id) >= C().REL.FRIENDLY_MIN) return true;
   if (!Court.wants(world, from, player)) return false;
-  return Court.shared(world, from.id, player.id) >= 1;
+  return shared >= 1;
 }
 
 function ensurePlayerAsk(world, rng, player) {
   if (!player || !freeSlot(player)) { world.friendlyAskWait = 0; return; }
   const people = world.characters.filter(eligible);
-  const cands = people.filter(c => !c.isPlayer && Court.wouldAsk(world, c, player));
+  // A married NPC can be approached by the player, but an automatic proposal
+  // must come from a free suitor (the pending-ask queue enforces that too).
+  const cands = people.filter(c => !c.isPlayer && freeSlot(c) && Court.wouldAsk(world, c, player));
   if (!cands.length) { world.friendlyAskWait = 0; return; }
   world.friendlyAskWait = (world.friendlyAskWait || 0) + 1;
   if ((world.pendingProposals || []).length) return;

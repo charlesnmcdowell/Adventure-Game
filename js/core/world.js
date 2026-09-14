@@ -12,7 +12,7 @@ const World = {};
 World.create = function (seed) {
   const rng = new ADV.RNG(seed);
   const world = {
-    seed, questClock: 0,
+    seed, questClock: 0, populationVersion: C().POPULATION_VERSION,
     characters: [], edges: [], vaults: [], parties: [],
     eventFeed: [], activeHeroes: [], pendingRescues: [],
     pendingPopulation: [], orphans: [], divineOffers: [],
@@ -22,7 +22,7 @@ World.create = function (seed) {
     lastRivalOuting: null, travelSpoke: [],
     genRng: rng.seed,
   };
-  // Starting population (request 15): a diverse roster — healers and tanks on
+  // Starting population: a diverse roster — healers and tanks on
   // both sides, and two who already practise the forbidden arts
   const menPlan = [{ inclination: 'tank' }, { inclination: 'healer' }, { inclination: 'fighter' }, { inclination: 'mage', forbidden: 'necromancy' },
     { inclination: 'rogue' }, { inclination: 'ranger' }, { inclination: 'druid' }, { inclination: 'tank' }];
@@ -84,6 +84,27 @@ World.adults = function (world) {
   return world.characters.filter(c => c.alive && !c.isMonster);
 };
 
+// Ordinary residents are the renewable social/recruitment pool. Story actors,
+// registry guests and raised thralls must not satisfy the population floor.
+World.population = function (world) {
+  return world.characters.filter(c => c.alive && !c.isPlayer && !c.isMonster && !c.isUndead && !c.registryId && !c.campaign);
+};
+World.newcomerSex = function (people) {
+  return people.filter(c => c.sex === 'f').length < (people.length + 1) * C().FEMALE_RATIO_TARGET ? 'f' : 'm';
+};
+World.upgradePopulation = function (world, rng) {
+  if ((world.populationVersion || 0) >= C().POPULATION_VERSION) return false;
+  const people = World.population(world);
+  const missing = Math.max(0, C().POP_START.men + C().POP_START.women - people.length);
+  for (let i = 0; i < missing; i++) {
+    const npc = Ch().seedNPC(rng, world, { sex: World.newcomerSex(people) });
+    world.characters.push(npc); people.push(npc);
+  }
+  world.populationVersion = C().POPULATION_VERSION;
+  if (missing) World.feed(world, `${missing} new adventurers have arrived in town. Find them in the roster.`, []);
+  return true;
+};
+
 // Player-facing mail only from people who have ridden a contract with them.
 World.rodeWithPlayer = function (world, npc) {
   if (!world || !npc || npc.isPlayer || !world.playerId) return false;
@@ -119,8 +140,8 @@ World.tick = function (world, rng, opts) {
   world.questClock++;
   World.pruneStrangerContacts(world);
   const feed = World.feeder(world);
-  const pop = World.adults(world).filter(c => !c.isPlayer).length;
-  const lowPop = pop + 1 < C().POP_LOW;
+  const pop = World.population(world).length;
+  const lowPop = pop < C().POP_LOW;
 
   // --- NPC abstract quests: roll vs skill levels, gear, party (§6) ---
   for (const npc of World.adults(world)) {
@@ -283,9 +304,9 @@ World.tick = function (world, rng, opts) {
   }
 
   // --- Emergency population floor (§6) ---
-  const adultsNow = World.adults(world).filter(c => !c.isPlayer).length;
-  if (adultsNow < C().POP_FLOOR) {
-    const n = Ch().seedNPC(rng, world, {});
+  const residents = World.population(world);
+  if (residents.length < C().POP_FLOOR) {
+    const n = Ch().seedNPC(rng, world, { sex: World.newcomerSex(residents) });
     world.characters.push(n);
     feed(`A stranger, ${n.name}, arrived in town from beyond the valley.`, [n.id]);
   }
@@ -519,6 +540,11 @@ function npcCourtship(world, rng, feed, lowPop) {
 
 // ---------------------------------------------------------------- children
 function tickChildren(world, rng, feed) {
+  // Leave room to grow beyond the starting town, without exponential ambient
+  // generations overwhelming the roster. Existing children always mature and
+  // the player's family keeps its own conception rules, even in a full town.
+  let projected = World.population(world).length + (world.orphans || []).length
+    + World.adults(world).reduce((n, c) => n + (c.dependents || []).length, 0);
   for (const w of World.adults(world).filter(c => c.sex === 'f')) {
     // age dependents; player's are aged by the game layer identically through here
     for (const d of (w.dependents || [])) {
@@ -538,6 +564,7 @@ function tickChildren(world, rng, feed) {
     w.relationshipQuests = (w.relationshipQuests || 0) + 1;
     const kids = new Set((w.childIds || []).concat((w.dependents || []).map(d=>d.id))).size;
     if (kids >= C().MAX_CHILDREN_PER_RELATIONSHIP) continue;
+    if (!partner.isPlayer && projected >= C().POP_HIGH) continue;
     const guaranteed = !w.conceived && w.relationshipQuests >= C().CONCEPTION_GUARANTEE_AT;
     if (guaranteed || rng.chance(C().CONCEPTION_CHANCE)) {
       w.conceived = true;
@@ -545,6 +572,7 @@ function tickChildren(world, rng, feed) {
       w.dependents = w.dependents || [];
       w.dependents.push(child);
       w.childIds.push(child.id); partner.childIds.push(child.id);
+      projected++;
       feed(`${w.name} and ${partner.name} had a child.`, [w.id, partner.id]);
     }
   }

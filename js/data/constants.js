@@ -140,8 +140,9 @@ ADV.DATA.CONST = {
   CONCEPTION_CHANCE: 0.5,
   CONCEPTION_GUARANTEE_AT: 2,        // guaranteed within 2 quests of a romance
   MAX_CHILDREN_PER_RELATIONSHIP: 3,
-  POP_START: { men: 8, women: 8 },     // request 15: 10+ free agents beside the two parties
-  POP_LOW: 20, POP_HIGH: 30, POP_FLOOR: 6,
+  POP_START: { men: 32, women: 48 },  // 80 ordinary NPCs, 60% women; player/story cast are extra
+  POP_LOW: 64, POP_HIGH: 120, POP_FLOOR: 64,
+  POPULATION_VERSION: 1,             // one-time expansion of existing worlds
   FEMALE_RATIO_TARGET: 0.60,
 
   // ---- Forbidden skills & Divine Intervention (§3a) ---------------------- LB

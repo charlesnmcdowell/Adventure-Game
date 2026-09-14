@@ -49,7 +49,7 @@ Save.saveGame = function (game) {
   const w = game.world;
   put('adv:world', {
     artVersion: Save.VERSION,
-    seed: w.seed, questClock: w.questClock,
+    seed: w.seed, questClock: w.questClock, populationVersion: w.populationVersion || 0,
     eventFeed: w.eventFeed, activeHeroes: w.activeHeroes,
     pendingRescues: w.pendingRescues, pendingPopulation: w.pendingPopulation,
     orphans: w.orphans, divineOffers: w.divineOffers,
@@ -119,7 +119,7 @@ Save.loadGame = function () {
   const edges = get('adv:edges') || [];
   const vaults = get('adv:vaults') || [];
   const world = {
-    seed: ws.seed, questClock: ws.questClock,
+    seed: ws.seed, questClock: ws.questClock, populationVersion: ws.populationVersion || 0,
     characters, edges, vaults,
     parties: ws.parties || [],
     eventFeed: ws.eventFeed || [], activeHeroes: ws.activeHeroes || [],
