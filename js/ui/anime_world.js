@@ -213,7 +213,7 @@ function composeHuman(scene,ch,id,set){
  // Carry that neck over the back rim too; the head raster alone may end here.
  drawNeck(true);
  drawHead(true);
- if(named?.companion==='pip'&&(!named.authoredSkin||ch.equippedSet)){const f=A.GateManifest?.frames['extras:findik'],pip=f?cell(scene,f.sheet,f.frame):cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
+ if(named?.companion==='pip'){const f=A.GateManifest?.frames['extras:findik'],pip=f?cell(scene,f.sheet,f.frame):cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
  const point=(x,y)=>[hx+x*S,hy+y*S];
  const eyes=[point(h.nx-h.spread,h.ny-h.eyeUp),point(h.nx+h.spread,h.ny-h.eyeUp)],mouth=point(h.nx,h.ny+h.mouthDown);
  const featureScale=S*(registration?.scale||1);
@@ -254,7 +254,7 @@ function makeKey(scene,ch,form){
  const entry=gateEnemy||M.creatures[creature];
  if(creature&&!entry)throw new Error('Missing illustrated creature: '+creature);
  const childFrame=(id.sex==='f'?0:2)+id.seed%2;
- const signature=child?['child',childFrame]:entry?[creature,ch.enemyTypeId||'',ch.skin||'',ch.skinTint||'',ch.boss?1:0,ch.isUndead?1:0]:[id.sex,id.head,id.iris,id.eyeType,id.mouthType,id.lipColor,id.build,id.mark,set,ch.equippedSet?'equipped':'default',ch.skinTint||'',ch.isUndead?1:0,form||''];
+ const signature=child?['child',childFrame]:entry?[creature,ch.enemyTypeId||'',ch.skin||'',ch.skinTint||'',ch.boss?1:0,ch.isUndead?1:0]:[id.sex,id.head,id.iris,id.eyeType,id.mouthType,id.lipColor,id.build,id.mark,set,ch.equippedSet?'equipped':'default',ch.skinTint||'',ch.isUndead?1:0,form||'',NAMED[id.named]?.companion||''];
  const k=PREFIX+'portrait_'+signature.join('_');
  if(scene.textures.exists(k)){cache.delete(k);cache.set(k,true);return k;}
  let result;

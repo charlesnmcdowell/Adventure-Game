@@ -395,8 +395,9 @@ L('aldric', 'q4_dream_ask', `[sorrowful] I did. I brought you there to keep you 
 L('aldric', 'q4_dream_reject', `[warm] Good. That is the harder road, and the right one. You will wake with a gift for closing wounds. Spend it on other people.`);
 L('aldric', 'q4_dream_embrace', `[grieving] I cannot stop you here; only you can. You will wake with a gift for opening wounds. Mind what it makes you want.`);
 Q(4, {
-  departure: [B(W, 'q4_down', { anyOf: [W, 'selene'] })],
+  departure: [],
   openers: {
+    0: [B(W, 'q4_down', { anyOf: [W, 'selene'] })],
     1: [B('selene', 'q4_flooded', co('selene'))],
     3: [
       B('grukhar', 'q4_chamber', { caption: 'The fourth level opens into a chamber with a black altar. A half-orc in a priest\'s robe stands behind it, and he has been waiting a long time.' }),

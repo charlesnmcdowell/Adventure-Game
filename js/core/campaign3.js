@@ -463,23 +463,28 @@ C3.lines = function (fid, who, key) {
   const dlg = (D().CAMPAIGN3_DIALOGUE || {})[fid || C3.FID];
   return (dlg && dlg[who] && dlg[who][key]) ? dlg[who][key] : [];
 };
-// A script beat becomes a playable beat: speaker resolved (anyOf → first in
-// company with lines for the key), conditions tested, tagged c3.
+// A script beat becomes a playable beat: speaker resolved (anyOf → first
+// rider with lines, else a living recruit), conditions tested, tagged c3.
 C3.prepareBeats = function (game, beats) {
   const out = [];
   for (const raw of beats || []) {
     if (!C3.test(game, raw.when)) continue;
+    const s = C3.state(game);
     let who = raw.who;
     if (raw.anyOf) {
-      who = raw.anyOf.find(id => C3.inCompany(game, id) && C3.lines(C3.FID, id, raw.key).length) || null;
+      const canSpeak = id => D().CAMPAIGN_CHARS[id] && !s.dead.includes(id) && C3.lines(C3.FID, id, raw.key).length;
+      who = raw.anyOf.find(id => C3.inCompany(game, id) && canSpeak(id))
+        || raw.anyOf.find(id => C3.isRecruited(game, id) && canSpeak(id))
+        || null;
       if (!who) continue;
     }
     if (!D().CAMPAIGN_CHARS[who]) continue;
     // a recruited companion who is benched at the inn does not speak from the
     // road (arrival beats are fine — they are at the inn too); strangers not yet
-    // recruited may always speak; the dead never do.
+    // recruited may always speak; the dead never do. anyOf already chose among
+    // riders first, then a living recruit, so a mine line still plays when the
+    // usual speakers were left at the inn.
     const def = D().CAMPAIGN_CHARS[who];
-    const s = C3.state(game);
     if (s.dead.includes(who) && !raw.force) continue;
     if (def.companion && !raw.anyOf && !raw.arrival && !raw.force && !raw.recruit && C3.isRecruited(game, who) && !C3.inCompany(game, who)) continue;
     if (raw.choice && !D().CAMPAIGN3_CHOICES[raw.choice]) continue;

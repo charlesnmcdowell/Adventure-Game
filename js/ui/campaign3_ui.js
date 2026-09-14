@@ -44,11 +44,11 @@ const UI3 = ADV.Campaign3UI = {};
   D().STORY_DEATH_CAPTIONS.gate = 'The sword goes through him. You run because he told you to.';
 })();
 
-// A clip plays only once it exists in the manifest; until then the story is silent.
+// Hashes are cache-busters on the URL, not a play gate. Missing entries still
+// play; a 404 is silent, but a recorded line must not be dropped because the
+// manifest lagged behind the file.
 function speak(who, key, idx) {
-  const path = 'audio/vo/campaign/' + who + '/' + key + '_' + idx + '.mp3';
-  if (ADV.Music && D().VOICE_HASHES && D().VOICE_HASHES[path]) ADV.Music.speakCampaign(who, key, idx);
-  else if (ADV.Music && ADV.Music.stopVoice) ADV.Music.stopVoice();
+  if (ADV.Music && ADV.Music.speakCampaign) ADV.Music.speakCampaign(who, key, idx);
 }
 
 // ---------------------------------------------------------------- beat playback (§2)
