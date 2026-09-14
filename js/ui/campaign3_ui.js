@@ -154,23 +154,48 @@ UI3.playerLine = function (scene, game, text, toWho, done) {
 // The modal: prompt (last NPC line) on top, one button per option, no cancel.
 UI3.pickModal = function (scene, game, beat, opts, onPick) {
   const W = T().W;
-  const n = opts.length;
-  const bw = 760, rowH = 44, bh = 96 + rowH * n;
-  const by = Math.max(60, Math.round((T().H - bh) / 2) - 40);
+  const scale = ADV.DialogueBox.displayScale(scene);
+  const bw = scale < .85 ? W - 100 : 760;
+  const size = ADV.DialogueBox.fontSize(scene,13);
   const who = D().CAMPAIGN_CHARS[beat.who];
   const lines = beat.lines || C3().lines(C3().FID, beat.who, beat.key);
   const last = beat.promptText || (lines.length ? ADV.CampaignUI.fill(game, lines[lines.length - 1].t, beat.who) : '');
-  ADV.Notices.custom(scene, (keep, Dp, close) => {
+  const heightOf = (text,wrap) => {
+    const probe=T().text(scene,-2000,-2000,text,{size,wrap});const h=probe.height;probe.destroy();return h;
+  };
+  const promptH=heightOf(last,bw-80);
+  const rowHeights=opts.map(opt=>Math.max(40,Math.ceil(34/scale),heightOf(opt.text,bw-100)+22));
+  const bh=Math.min(T().H-60,Math.ceil(100+promptH+rowHeights.reduce((sum,h)=>sum+h+12,0)));
+  const by=Math.round((T().H-bh)/2);
+  return ADV.Notices.custom(scene, (keep, Dp, close) => {
     ADV.GateArt?.choiceFrame(scene, keep, Dp, { x: W / 2 - bw / 2, y: by, w: bw, h: bh });
-    keep(T().text(scene, W / 2, by + 22, who ? who.name : '', { size: 14, ox: 0.5, color: T().css.gold }).setDepth(Dp));
-    keep(T().text(scene, W / 2, by + 46, last, { size: 13, ox: 0.5, wrap: bw - 60, align: 'center', italic: true, color: T().css.inkDim }).setDepth(Dp));
-    let y = by + 84;
-    for (const opt of opts) {
-      const label = opt.text.length > 96 ? opt.text.slice(0, 93) + '…' : opt.text;
-      ADV.UI.modalBtn(keep, Dp, T().button(scene, W / 2 - bw / 2 + 24, y, bw - 48, rowH - 8, label, () => { close(); onPick(opt); }, { size: 13 }));
-      y += rowH;
+    keep(ADV.DialogueBox.crisp(T().text(scene, W / 2, by + 20, who ? who.name : '', { size:ADV.DialogueBox.fontSize(scene,14,12), ox: 0.5, color: T().css.gold })).setDepth(Dp));
+    const area=ADV.UI.scrollArea(scene,{x:W/2-bw/2+16,y:by+62,w:bw-32,h:bh-78},{keep,depth:Dp});
+    area.add(ADV.DialogueBox.crisp(T().text(scene,W/2,by+66,last,{size,ox:.5,wrap:bw-80,align:'center',color:T().css.inkDim})));
+    let y = by + 66 + promptH + 22;
+    for (const [i,opt] of opts.entries()) {
+      const b=T().button(scene,W/2-bw/2+28,y,bw-56,rowHeights[i],opt.text,()=>{close();onPick(opt);},{size});
+      b.txt.setWordWrapWidth(bw-100).setAlign('center');ADV.DialogueBox.crisp(b.txt);
+      area.addBtn(b);
+      y += rowHeights[i]+12;
     }
+    area.extend(y);
   }, { x: W / 2 - bw / 2, y: by, w: bw, h: bh });
+};
+
+const mountChoice=UI3.pickModal;
+UI3.pickModal=function(scene,game,beat,opts,onPick){
+  let closeCard,timer,closed=false,scale=ADV.DialogueBox.displayScale(scene);
+  const unbind=()=>{scene.scale.off('resize',resize);scene.events.off('shutdown',shutdown);timer?.remove(false);};
+  const pick=opt=>{if(closed)return;closed=true;unbind();onPick(opt);};
+  const resize=()=>{timer?.remove(false);timer=scene.time.delayedCall(40,()=>{
+    const next=ADV.DialogueBox.displayScale(scene);if(closed||Math.abs(next-scale)<.001)return;scale=next;
+    closeCard();closeCard=mountChoice(scene,game,beat,opts,pick);
+  });};
+  const shutdown=()=>{if(closed)return;closed=true;unbind();closeCard();};
+  closeCard=mountChoice(scene,game,beat,opts,pick);
+  scene.scale.on('resize',resize);scene.events.once('shutdown',shutdown);
+  return shutdown;
 };
 
 function toast(scene, text) { if (text && ADV.Notices && ADV.Notices.toast) ADV.Notices.toast(scene, text); }

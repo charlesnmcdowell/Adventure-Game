@@ -6,6 +6,14 @@ globalThis.ADV = globalThis.ADV || {};
 const T = () => ADV.T;
 
 const DialogueBox = {
+  displayScale(scene) {
+    const r = scene.game.canvas.getBoundingClientRect();
+    return Math.max(.25, Math.min(r.width / T().W, r.height / T().H));
+  },
+  fontSize(scene, base, cssMinimum = 14) {
+    return Math.max(base, Math.ceil(cssMinimum / DialogueBox.displayScale(scene)));
+  },
+  crisp(text) { return text.setResolution(Math.min(2, globalThis.devicePixelRatio || 1)); },
   // Show a speech line. opts: {band, ctx, onDone}. Returns a closer.
   show(scene, game, speaker, band, ctx, onDone) {
     const r = ADV.util.speakEx(game.world, speaker, band, ctx || {});
@@ -29,8 +37,13 @@ const DialogueBox = {
   showText(scene, game, speaker, line, onDone, opts) {
     opts = opts || {};
     const W = T().W, H = T().H;
-    const probe = T().text(scene, -800, -800, line || ' ', { size: 17, wrap: W - 220, display: true });
-    const bh = Math.max(132, Math.round(48 + (probe.height || 24) + T().gap(28)));
+    const textStyle = { size: DialogueBox.fontSize(scene, 17), wrap: W - 220 };
+    const probe = T().text(scene, -800, -800, line || ' ', textStyle);
+    // Wrap the finished sentence once; revealing letters must not move words
+    // back and forth between lines while the player is trying to read them.
+    line = probe.getWrappedText(line || '').join('\n');
+    const header = Math.max(30, Math.round(DialogueBox.fontSize(scene, 12, 12) * T().scale()) + 14);
+    const bh = Math.max(156, Math.round(header + (probe.height || 24) + T().gap(34)));
     try { probe.destroy(); } catch (e) {}
     const y = H - bh - 12;
     const group = [];
@@ -43,7 +56,7 @@ const DialogueBox = {
     group.push(dim, panel);
     if (opts.caption) {
       group.push(scene.add.rectangle(W / 2, 150, W - 100, 110, 0x14110d, 0.96).setDepth(901));
-      group.push(T().text(scene, W / 2, 150, opts.caption, { size: 17, ox: 0.5, oy: 0.5, wrap: W - 170, align: 'center', color: T().css.ink }).setDepth(902));
+      group.push(DialogueBox.crisp(T().text(scene, W / 2, 150, opts.caption, { size: DialogueBox.fontSize(scene,17), ox: 0.5, oy: 0.5, wrap: W - 170, align: 'center', color: T().css.ink })).setDepth(902));
     }
     // portrait
     const key = ADV.Portraits.key(scene, speaker);
@@ -73,17 +86,19 @@ const DialogueBox = {
     // name plate
     const nameBg = scene.add.graphics().setDepth(903);
     nameBg.fillStyle(0x2b261f, 1);
-    nameBg.fillRoundedRect(150, y - 14, 200, 28, 4);
+    const nameTxt = DialogueBox.crisp(T().text(scene, 164, y, speaker.name + (speaker.title ? ' · ' + speaker.title : ''), { size: DialogueBox.fontSize(scene,14,12), oy: 0.5, wrap: W-380, color: T().css.gold })).setDepth(904);
+    const nameH = Math.max(28,nameTxt.height+10), nameW = Math.max(200,nameTxt.width+28);
+    nameBg.fillRoundedRect(150, y - nameH/2, nameW, nameH, 4);
     nameBg.lineStyle(1.5, T().c.gold, 0.8);
-    nameBg.strokeRoundedRect(150, y - 14, 200, 28, 4);
-    const nameTxt = T().text(scene, 250, y, speaker.name + (speaker.title ? ' · ' + speaker.title : ''), { size: 14, ox: 0.5, oy: 0.5, display: true, color: T().css.gold }).setDepth(904);
+    nameBg.strokeRoundedRect(150, y - nameH/2, nameW, nameH, 4);
     group.push(nameBg, nameTxt);
-    if (opts.recipient) group.push(T().text(scene, W - 48, y + 8, opts.recipient, { size: 12, ox: 1, color: T().css.inkDim }).setDepth(904));
+    if (opts.recipient) group.push(DialogueBox.crisp(T().text(scene, W - 48, y + 8, opts.recipient, { size: DialogueBox.fontSize(scene,12,12), ox: 1, color: T().css.inkDim })).setDepth(904));
     // typewriter text
-    const txt = T().text(scene, 160, y + 26, '', { size: 17, wrap: W - 220, display: true }).setDepth(904);
+    const txt = DialogueBox.crisp(T().text(scene, 160, y + header, '', textStyle)).setDepth(904);
     group.push(txt);
-    let i = 0, doneTyping = false;
-    const timer = scene.time.addEvent({ delay: 14, repeat: line.length - 1, callback: () => {
+    let i = Math.min(line.length,opts.revealCount||0), doneTyping = i >= line.length;
+    txt.setText(line.slice(0,i));
+    const timer = doneTyping ? null : scene.time.addEvent({ delay: 14, repeat: line.length - i - 1, callback: () => {
       i++; txt.setText(line.slice(0, i));
       if (i >= line.length) doneTyping = true;
     } });
@@ -96,25 +111,27 @@ const DialogueBox = {
     if (ADV.Notices && ADV.Notices.block) ADV.Notices.block(scene);
     if (!scene.__cutscene && scene.hideChrome) scene.hideChrome();
     let closed = false;
-    const close = () => {
+    const close = (dispose = false) => {
       if (closed) return;
       closed = true;
-      timer.remove(false);
-      if (ADV.Music) ADV.Music.stopVoice();
+      timer?.remove(false);
+      if (!dispose && ADV.Music) ADV.Music.stopVoice();
+      scene.tweens.killTweensOf(group);
       for (const g of group) { try { g.destroy(); } catch (e) {} }
       if (ADV.UI && ADV.UI.releaseCard) ADV.UI.releaseCard('dialogue');
       if (!scene.__cutscene && scene.showChrome) scene.showChrome();
       if (ADV.Notices && ADV.Notices.unblock) ADV.Notices.unblock(scene);
-      if (onDone) onDone();
+      if (!dispose && onDone) onDone();
     };
-    if (ADV.UI && ADV.UI.holdCard) ADV.UI.holdCard('dialogue', close);
+    if (ADV.UI && ADV.UI.holdCard) ADV.UI.holdCard('dialogue', () => close());
     if (opts.autoAdvance) hint.setVisible(false);
     dim.on('pointerdown', () => {
       if (opts.autoAdvance) return;
-      if (!doneTyping) { timer.remove(false); txt.setText(line); doneTyping = true; }
+      if (!doneTyping) { timer?.remove(false); txt.setText(line); doneTyping = true; }
       else close();
     });
-    return { close, completeText() { timer.remove(false); txt.setText(line); doneTyping = true; } };
+    return { close:()=>close(), dispose:()=>close(true), progress:()=>doneTyping?Infinity:i,
+      completeText() { timer?.remove(false); txt.setText(line); doneTyping = true; } };
   },
 
   choosePersonality(scene, ch, onDone, onCancel) {
@@ -188,5 +205,26 @@ const DialogueBox = {
   },
 };
 
+// Folding/rotating a phone changes the CSS size without changing the game grid.
+// Rebuild only this card, keeping its voice, callback and reveal progress intact.
+const mountText = DialogueBox.showText;
+DialogueBox.showText = function(scene,game,speaker,line,onDone,opts) {
+  const audio=ADV.Music?.voiceEl;
+  let box,resizeTimer,closed=false,lastScale=DialogueBox.displayScale(scene);
+  const unbind=()=>{scene.scale.off('resize',resize);scene.events.off('shutdown',shutdown);resizeTimer?.remove(false);};
+  const finish=()=>{if(closed)return;closed=true;unbind();onDone?.();};
+  const resize=()=>{
+    resizeTimer?.remove(false);
+    resizeTimer=scene.time.delayedCall(40,()=>{
+      if(closed)return;const scale=DialogueBox.displayScale(scene);if(Math.abs(scale-lastScale)<.001)return;
+      lastScale=scale;const revealCount=box.progress();box.dispose();
+      box=mountText.call(DialogueBox,scene,game,speaker,line,finish,{...opts,revealCount});
+    });
+  };
+  const shutdown=()=>{if(closed)return;closed=true;unbind();box.dispose();if(audio&&ADV.Music.voiceEl===audio)ADV.Music.stopVoice();};
+  box=mountText.call(DialogueBox,scene,game,speaker,line,finish,opts);
+  scene.scale.on('resize',resize);scene.events.once('shutdown',shutdown);
+  return {close:()=>box.close(),completeText:()=>box.completeText()};
+};
 ADV.DialogueBox = DialogueBox;
 })();

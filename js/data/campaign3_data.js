@@ -173,73 +173,73 @@ chr({ id: 'nib', name: 'Nib', region: 'thornbury', role: 'knife', sex: 'm', figh
 // 3c — bosses and named enemies (they fight against you)
 chr({ id: 'korvath', name: 'Kolade Adeyinka', region: 'gate', epithet: 'the Armoured', role: 'antagonist', sex: 'm', level: 30,
   desc: 'Your half-brother, raised in the Gate by a Consortium merchant. A giant in spiked black plate who believes bloodshed is a ladder. Calm, courteous, absolutely certain.',
-  perks: ['momentum', 'bulwark'], actives: ['cleave', 'sunder', 'defiant_stand', 'shield_wall', 'finisher', 'taunt'],
+  perks: ['momentum', 'bulwark'], actives: ['cleave', 'sunder', 'shield_wall', 'warding_stance', 'finisher', 'taunt'],
   statMult: 1.35, hitStatus: { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
   portrait: { skin: 'dark', hair: 'bald', wardrobe: 'armor', color: '#1a1a1e' } });
 chr({ id: 'morwin', name: 'Merle', region: 'thornbury', role: 'boss', sex: 'm', level: 8,
   desc: 'A hired mage-assassin from the Thornbury country with a bounty notice in his coat. Talks too much before he casts.',
-  perks: ['arcane_focus'], actives: ['fire_bolt', 'spark', 'frost_touch', 'ember_lash'],
+  perks: ['arcane_focus'], actives: ['fire_bolt', 'spark', 'ember_lash', 'ashfall'],
   portrait: { skin: 'fair', hair: 'fringe', wardrobe: 'robe', color: '#4a2a2a' } });
 chr({ id: 'lessa', name: 'Lurleen', region: 'thornbury', role: 'boss', sex: 'f', level: 9,
   desc: 'A knife for hire from the Shore Road who takes her work personally. Smiles when she is losing.',
-  perks: ['opportunist'], actives: ['backstab', 'venom_fang', 'smoke_bomb', 'shadow_rise'],
+  perks: ['opportunist'], actives: ['backstab', 'venom_fang', 'marked_for_the_knife', 'blood_price'],
   portrait: { skin: 'brown', hair: 'ponytail', wardrobe: 'hiking', color: '#3a2a3a' } });
 chr({ id: 'verlan', name: 'Femi', region: 'gate', role: 'boss', sex: 'm', level: 10,
   desc: 'The Consortium\'s courier in Thornbury, a city man posing as a wine merchant. Sweats when questioned, folds when paid.',
-  perks: ['arcane_focus'], actives: ['frost_touch', 'spark'],
+  perks: ['arcane_focus'], actives: ['frost_touch', 'spark', 'ward_thief'],
   portrait: { skin: 'dark', hair: 'fringe', wardrobe: 'suit', color: '#5a3a5a' } });
 chr({ id: 'grukhar', name: 'Grukhar', region: 'none', role: 'boss', sex: 'm', level: 12,
   desc: 'A half-orc priest of Veylan poisoning the Dunmere ore for pay he has not been paid. Bitter, frightened, dangerous.',
-  perks: ['devoted'], actives: ['wither_touch', 'blood_pact', 'mend', 'mace_swing', 'raise'],
+  perks: ['devoted'], actives: ['wither_touch', 'blood_pact', 'bog_curse', 'mend', 'raise'],
   portrait: { skin: 'ashen', hair: 'bald', wardrobe: 'robe', color: '#3a3a2a' } });
 chr({ id: 'gorruk', name: 'Gorruk', region: 'none', epithet: 'the Bandit Lord', role: 'boss', sex: 'm', level: 16,
   desc: 'An ogre-mage who runs the bandit companies for the Consortium. Cruel for sport, cowardly when it counts.',
-  perks: ['momentum', 'arcane_focus'], actives: ['cleave', 'sunder', 'fire_bolt', 'defiant_stand', 'taunt'],
+  perks: ['momentum', 'arcane_focus'], actives: ['cleave', 'sunder', 'war_bellow', 'fire_bolt', 'taunt'],
   statMult: 1.3,
   portrait: { skin: 'ashen', hair: 'long', wardrobe: 'armor', color: '#4a3a2a' } });
 chr({ id: 'thornwise', name: 'Mzee Kamau', region: 'umbra', epithet: 'Archdruid', role: 'boss', sex: 'm', level: 15,
   desc: 'The Umbra archdruid of the Mirkhollow. Believes every axe-holder deserves a root through the chest.',
-  perks: ['wild_form'], actives: ['thorn_skin', 'grove_raise', 'wither_touch', 'beast_shape', 'snare'],
+  perks: ['wild_form'], actives: ['thorn_lash', 'treefall', 'grove_raise', 'beast_shape', 'thorn_skin'],
   portrait: { skin: 'dark', hair: 'long', wardrobe: 'hide', color: '#2a4a2a' } });
 chr({ id: 'malvane', name: 'Olamide', region: 'gate', role: 'boss', sex: 'm', level: 17,
   desc: 'The Consortium mage running the Mirkhollow mine. Fussy, meticulous, keeps the slaves\' names in a ledger.',
-  perks: ['ice_queen', 'arcane_focus'], actives: ['frost_touch', 'rime_grasp', 'spark', 'fire_bolt', 'ember_lash'],
+  perks: ['ice_queen', 'arcane_focus'], actives: ['frost_touch', 'rime_grasp', 'coven_rime', 'ranging_ward'],
   portrait: { skin: 'dark', hair: 'fringe', wardrobe: 'robe', color: '#2a3a5a' } });
 chr({ id: 'grell', name: 'Gbenga', region: 'gate', role: 'boss', sex: 'm', level: 20,
   desc: 'Kolade\'s best knife, sent into the catacombs to finish it. Professional, bored, unbothered by tombs.',
-  perks: ['opportunist', 'sniper'], actives: ['backstab', 'aimed_shot', 'shadow_rise', 'venom_fang', 'smoke_bomb'],
+  perks: ['opportunist', 'sniper'], actives: ['killing_angle', 'aimed_shot', 'silenced_step', 'backstab', 'smoke_bomb'],
   portrait: { skin: 'dark', hair: 'buzz', wardrobe: 'hiking', color: '#2a2a2a' } });
 chr({ id: 'idris', name: 'Idris', region: 'gate', role: 'boss', sex: 'm', level: 21,
   desc: 'The \'healer\' at Duke Adebayo\'s bedside. A doppelganger wearing a physician.',
-  perks: ['devoted'], actives: ['wither_touch', 'blood_pact', 'backstab', 'shadow_rise', 'mend'],
+  perks: ['devoted'], actives: ['blood_lotus', 'wither_touch', 'mend', 'ward_thief', 'backstab'],
   portrait: { skin: 'dark', hair: 'fringe', wardrobe: 'robe', color: '#4a4a5a' } });
 chr({ id: 'ravel', name: 'Rasheed', region: 'gate', role: 'boss', sex: 'm', level: 22,
   desc: 'Half of Kolade\'s pet assassins. Loud, vain, deadly with two blades.',
-  perks: ['momentum'], actives: ['dual_swords', 'backstab', 'smoke_bomb', 'cleave', 'venom_fang'],
+  perks: ['momentum'], actives: ['dual_swords', 'cutlass_work', 'butchers_tempo', 'backstab', 'smoke_bomb'],
   portrait: { skin: 'dark', hair: 'long', wardrobe: 'suit', color: '#5a2a3a' } });
 chr({ id: 'kessa', name: 'Kemi', region: 'gate', role: 'boss', sex: 'f', level: 22,
   desc: "The other half. Quiet, a mage, the one who actually plans.",
-  perks: ['lightning_king'], actives: ['spark', 'frost_touch', 'rime_grasp', 'ember_lash', 'fire_bolt'],
+  perks: ['lightning_king'], actives: ['chain_lightning', 'arcane_cascade', 'storm_shape', 'spark'],
   portrait: { skin: 'dark', hair: 'bun', wardrobe: 'dress', color: '#3a2a5a' } });
 chr({ id: 'jarem', name: 'Jelani', region: 'gate', role: 'boss', sex: 'm', level: 24,
   desc: 'Kolade\'s court mage. Serves because Kolade is winning; would serve anyone who was.',
-  perks: ['arcane_focus', 'pyromaniac'], actives: ['fire_bolt', 'ember_lash', 'spark', 'frost_touch', 'rime_grasp'],
+  perks: ['arcane_focus', 'pyromaniac'], actives: ['siege_flame', 'fire_ship', 'prismatic_bolt', 'ember_lash'],
   portrait: { skin: 'dark', hair: 'bald', wardrobe: 'robe', color: '#5a3a2a' } });
 chr({ id: 'lucan', name: 'Segun Marr', region: 'gate', role: 'boss', sex: 'm', level: 25,
   desc: 'The Burning Gauntlet officer who sold the company to Kolade. Commands it now. Sneers to hide the shame.',
-  perks: ['bulwark', 'momentum'], actives: ['cleave', 'shield_wall', 'sunder', 'taunt', 'defiant_stand'],
+  perks: ['bulwark', 'momentum'], actives: ['cleave', 'shield_wall', 'paid_in_full', 'close_order', 'taunt'],
   portrait: { skin: 'dark', hair: 'fringe', wardrobe: 'armor', color: '#7a3a2a' } });
 chr({ id: 'maddox', name: 'Adigun Adeyinka', region: 'gate', role: 'boss', sex: 'm', level: 18,
   desc: 'Head of the Iron Consortium\'s Gate office and Kolade\'s foster-father. A merchant who thinks he is still in charge.',
-  perks: ['rich'], actives: ['mace_swing', 'cleave'],
+  perks: ['rich', 'momentum'], actives: ['contract_mark', 'chain_and_weight', 'mace_swing', 'cleave'],
   portrait: { skin: 'dark', hair: 'fringe', wardrobe: 'suit', color: '#2a2a3a' } });
 chr({ id: 'vask', name: 'Bankole', region: 'gate', role: 'boss', sex: 'm', level: 18,
   desc: 'A Consortium leader; Adigun\'s partner. Louder than he is clever.',
-  perks: ['momentum'], actives: ['cleave', 'sunder'],
+  perks: ['momentum'], actives: ['line_advance', 'shield_breaker', 'cleave', 'sunder'],
   portrait: { skin: 'brown', hair: 'buzz', wardrobe: 'suit', color: '#3a2a2a' } });
 chr({ id: 'rennick', name: 'Rotimi', region: 'gate', role: 'boss', sex: 'm', level: 18,
   desc: "A Consortium leader; the accountant. Would like to survive this meeting.",
-  perks: ['arcane_focus'], actives: ['spark', 'frost_touch'],
+  perks: ['arcane_focus'], actives: ['spark', 'frost_touch', 'dispel'],
   portrait: { skin: 'dark', hair: 'bald', wardrobe: 'suit', color: '#2a3a3a' } });
 
 // ---------------------------------------------------------------- regions (voice & naming)
@@ -278,77 +278,77 @@ function en(o) { o.campaign3 = true; o.faction = 'gate'; EN[o.id] = o; }
 // humans
 en({ id: 'hired_knife', name: 'Hired Knife', species: 'human', portrait: 'bandit', equips: 2,
   skins: [{ name: 'Road Cloak', tint: '#3a3028' }, { name: 'Ash Cloak', tint: '#2a2a2a' }, { name: 'Wet Cloak', tint: '#2a3038' }],
-  pool: ['backstab', 'smoke_bomb', 'venom_fang', 'aimed_shot', 'shadow_rise'] });
+  pool: ['backstab', 'smoke_bomb', 'venom_fang', 'marked_for_the_knife', 'silenced_step'] });
 en({ id: 'gate_bandit', name: 'Road Bandit', species: 'human', portrait: 'bandit', equips: 2,
   skins: [{ name: 'Frostbite', tint: '#3a4a5a' }, { name: 'Ashtalon', tint: '#4a3a2a' }, { name: 'Freeblade', tint: '#3a3a3a' }],
-  pool: ['cleave', 'aimed_shot', 'snare', 'sunder', 'mace_swing'] });
+  pool: ['cleave', 'sunder', 'veterans_cut', 'butchers_tempo', 'snare'] });
 en({ id: 'bandit_archer', name: 'Bandit Archer', species: 'human', portrait: 'bandit', equips: 2,
   skins: [{ name: 'Treeline', tint: '#2a3a2a' }, { name: 'Ridge', tint: '#3a3a2a' }, { name: 'Ford', tint: '#2a3a3a' }],
-  pool: ['aimed_shot', 'snare', 'marksman', 'venom_fang', 'smoke_bomb'] });
+  pool: ['aimed_shot', 'ranged_discipline', 'suppressing_volley', 'kunai_line', 'venom_fang'] });
 en({ id: 'hob_sergeant', name: 'Hobgoblin Sergeant', species: 'human', portrait: 'orc', equips: 3,
   skins: [{ name: 'Frostbite Company', tint: '#3a4a5a' }, { name: 'Ashtalon Company', tint: '#4a3a2a' }, { name: 'Deserter', tint: '#3a3a3a' }],
-  pool: ['dual_swords', 'cleave', 'shield_wall', 'taunt', 'defiant_stand'] });
+  pool: ['dual_swords', 'shield_wall', 'line_advance', 'stone_stance', 'taunt'] });
 en({ id: 'consortium_guard', name: 'Consortium Guard', species: 'human', portrait: 'plated_sentinel', equips: 2,
   skins: [{ name: 'Iron Livery', tint: '#4a4a52' }, { name: 'Black Livery', tint: '#2a2a2e' }, { name: 'Mine Detail', tint: '#4a3a2a' }],
-  pool: ['shield_wall', 'sunder', 'taunt', 'defiant_stand', 'mace_swing'] });
+  pool: ['shield_wall', 'taunt', 'hold_the_road', 'shield_breaker', 'bulwark_formation'] });
 en({ id: 'consortium_mage', name: 'Consortium Mage', species: 'human', portrait: 'hedge_mage', equips: 2,
   skins: [{ name: 'Ledger Cowl', tint: '#2a3a5a' }, { name: 'Seal Cowl', tint: '#3a2a4a' }, { name: 'Ash Cowl', tint: '#3a3a3a' }],
-  pool: ['fire_bolt', 'frost_touch', 'spark', 'ember_lash', 'rime_grasp'] });
+  pool: ['fire_bolt', 'frost_touch', 'ranging_ward', 'prismatic_bolt', 'chain_lightning'] });
 en({ id: 'slave_driver', name: 'Slave Driver', species: 'human', portrait: 'bandit', equips: 2,
   skins: [{ name: 'Whip Hand', tint: '#4a3a2a' }, { name: 'Chain Hand', tint: '#3a3a3a' }, { name: 'Lamp Hand', tint: '#5a4a2a' }],
-  pool: ['cleave', 'snare', 'taunt', 'mace_swing', 'sunder'] });
+  pool: ['chain_and_weight', 'contract_mark', 'flanking_pay', 'mace_swing', 'cleave'] });
 en({ id: 'veylan_acolyte', name: 'Acolyte of Veylan', species: 'human', portrait: 'grave_acolyte', equips: 2,
   skins: [{ name: 'Black Sun', tint: '#2a2a2a' }, { name: 'Bone Cowl', tint: '#3a3a32' }, { name: 'Rust Cowl', tint: '#4a2a2a' }],
-  pool: ['mend', 'wither_touch', 'cleanse', 'blood_pact', 'regenerate'] });
+  pool: ['mend', 'restorative_circle', 'vital_anchor', 'blood_lotus', 'wither_touch'] });
 en({ id: 'umbra_druid', name: 'Umbra Druid', species: 'human', portrait: 'hedge_mage', equips: 2,
   skins: [{ name: 'Moss Robe', tint: '#2a4a2a' }, { name: 'Bark Robe', tint: '#3a3a2a' }, { name: 'Fern Robe', tint: '#2a3a2a' }],
-  pool: ['thorn_skin', 'beast_shape', 'grove_raise', 'wither_touch', 'snare'] });
+  pool: ['thorn_lash', 'fox_form', 'growth_field', 'crow_sight', 'snare'] });
 en({ id: 'gauntlet_soldier', name: 'Burning Gauntlet Soldier', species: 'human', portrait: 'plated_sentinel', equips: 2,
   skins: [{ name: 'Flame Tabard', tint: '#8a3a2a' }, { name: 'Ash Tabard', tint: '#5a3a2a' }, { name: 'Night Watch', tint: '#3a2a2a' }],
-  pool: ['shield_wall', 'cleave', 'taunt', 'stand_fast', 'sunder'] });
+  pool: ['shield_wall', 'fire_barrier', 'close_order', 'crossing_guard', 'taunt'] });
 en({ id: 'gauntlet_traitor', name: 'Gauntlet Turncoat', species: 'human', portrait: 'plated_sentinel', equips: 3,
   skins: [{ name: "Marr's Own", tint: '#5a2a2a' }, { name: 'Bought Blade', tint: '#3a2a2a' }, { name: 'Late Loyalty', tint: '#4a3a3a' }],
-  pool: ['cleave', 'sunder', 'shield_wall', 'defiant_stand', 'taunt'] });
+  pool: ['cleave', 'paid_in_full', 'disciplined_advance', 'ashfall', 'sunder'] });
 en({ id: 'morrak_cultist', name: 'Cultist of Morrak', species: 'human', portrait: 'grave_acolyte', equips: 3,
   skins: [{ name: 'Blood Cowl', tint: '#4a1a1a' }, { name: 'Skull Cowl', tint: '#2a2a2a' }, { name: 'Ash Cowl', tint: '#3a3a3a' }],
-  pool: ['wither_touch', 'blood_pact', 'raise', 'spark', 'fire_bolt'] });
+  pool: ['blood_pact', 'raise', 'poison_spray', 'bog_curse', 'soul_bay'] });
 en({ id: 'palace_doppelganger', name: 'Palace Guard', species: 'human', portrait: 'plated_sentinel', equips: 3,
   skins: [{ name: 'Ducal Livery', tint: '#3a3a6a' }, { name: 'Hall Livery', tint: '#5a5a3a' }, { name: 'Gate Livery', tint: '#4a4a4a' }],
-  pool: ['backstab', 'shadow_rise', 'cleave', 'smoke_bomb', 'frost_touch'] });
+  pool: ['backstab', 'shadow_rise', 'smoke_step', 'cloak_of_shadows', 'countersign'] });
 en({ id: 'tomb_ghoul', name: 'Tomb Ghoul', species: 'human', portrait: 'grave_acolyte', equips: 2, undead: true,
   skins: [{ name: 'Dust', tint: '#3a3a32' }, { name: 'Wrapped', tint: '#4a4a3a' }, { name: 'Split', tint: '#2a2a2a' }],
-  pool: ['venom_fang', 'cleave', 'wither_touch', 'backstab', 'snare'], statusImmunities: ['poison', 'bleed'] });
+  pool: ['soul_bay', 'mire_tusk', 'wither_touch', 'venom_fang', 'snare'], statusImmunities: ['poison', 'bleed'] });
 // creatures (illustrated creature ids)
 en({ id: 'road_wolf', name: 'Road Wolf', species: 'beast', portrait: 'dire_wolf', equips: 2,
   skins: [{ name: 'Grey', tint: '#5a5a5a' }, { name: 'Black', tint: '#2a2a2a' }, { name: 'Scarred', tint: '#4a3a3a' }],
-  pool: ['cleave', 'venom_fang', 'snare', 'defiant_stand', 'counter_attack'] });
+  pool: ['pack_snap', 'pack_frenzy', 'hamstring_pounce', 'cleave', 'defiant_stand'] });
 en({ id: 'tunnel_kobold', name: 'Tunnel Kobold', species: 'beast', portrait: 'goblin', equips: 2,
   skins: [{ name: 'Pick Team', tint: '#4a3a2a' }, { name: 'Lamp Team', tint: '#5a4a2a' }, { name: 'Poison Team', tint: '#3a4a2a' }],
-  pool: ['aimed_shot', 'venom_fang', 'smoke_bomb', 'snare', 'backstab'] });
+  pool: ['aimed_shot', 'sand_sting', 'smoke_bomb', 'snare', 'venom_fang'] });
 en({ id: 'kobold_shaman', name: 'Kobold Shaman', species: 'beast', portrait: 'goblin', equips: 3,
   skins: [{ name: 'Bone Mask', tint: '#5a5a3a' }, { name: 'Ash Mask', tint: '#3a3a3a' }, { name: 'Ore Mask', tint: '#4a3a5a' }],
-  pool: ['fire_bolt', 'spark', 'wither_touch', 'mend', 'snare'] });
+  pool: ['cinder_charge', 'magma_spit', 'fire_bolt', 'spark', 'mend'] });
 en({ id: 'gnoll_raider', name: 'Gnoll Raider', species: 'beast', portrait: 'hound', equips: 2,
   skins: [{ name: 'Yellow', tint: '#6a5a2a' }, { name: 'Brindle', tint: '#4a3a2a' }, { name: 'Grey', tint: '#4a4a4a' }],
-  pool: ['cleave', 'mace_swing', 'defiant_stand', 'snare', 'taunt'] });
+  pool: ['war_bellow', 'rending_talons', 'cleave', 'taunt', 'defiant_stand'] });
 en({ id: 'web_spider', name: 'Giant Spider', species: 'beast', portrait: 'spider', equips: 2,
   skins: [{ name: 'Web-Black', tint: '#2a2a2a' }, { name: 'Bark', tint: '#4a3a2a' }, { name: 'Bone', tint: '#5a5a4a' }],
-  pool: ['venom_fang', 'snare', 'backstab', 'smoke_bomb', 'cleave'] });
+  pool: ['glass_web', 'tongue_lash', 'venom_fang', 'snare', 'backstab'] });
 en({ id: 'wyvern', name: 'Wyvern', species: 'beast', portrait: 'drake', equips: 3, statMult: 1.15,
   skins: [{ name: 'Green', tint: '#2a4a2a' }, { name: 'Brown', tint: '#4a3a2a' }, { name: 'Grey', tint: '#4a4a4a' }],
-  pool: ['venom_fang', 'cleave', 'sunder', 'defiant_stand', 'counter_attack'] });
+  pool: ['raptor_shred', 'rot_wing', 'rime_breath', 'venom_fang', 'counter_attack'] });
 en({ id: 'sewer_crawler', name: 'Sewer Crawler', species: 'beast', portrait: 'beetle', equips: 2,
   skins: [{ name: 'Wet', tint: '#2a3a3a' }, { name: 'Pale', tint: '#5a5a4a' }, { name: 'Oil', tint: '#1a1a1a' }],
-  pool: ['venom_fang', 'snare', 'cleave', 'counter_attack', 'backstab'] });
+  pool: ['pincer_lock', 'carapace_burst', 'venom_fang', 'backstab', 'snare'] });
 en({ id: 'sewer_ogre', name: 'Sewer Ogre', species: 'beast', portrait: 'troll', equips: 3, statMult: 1.2,
   skins: [{ name: 'Green', tint: '#3a4a2a' }, { name: 'Grey', tint: '#4a4a4a' }, { name: 'Scab', tint: '#4a2a2a' }],
-  pool: ['cleave', 'sunder', 'mace_swing', 'defiant_stand', 'taunt'] });
+  pool: ['boulder_smash', 'fault_line', 'cleave', 'mace_swing', 'taunt'] });
 en({ id: 'phase_spider', name: 'Phase Spider', species: 'beast', portrait: 'spider', equips: 3, statMult: 1.1,
   skins: [{ name: 'Blue', tint: '#2a3a6a' }, { name: 'Violet', tint: '#4a2a6a' }, { name: 'Pale', tint: '#5a5a6a' }],
-  pool: ['venom_fang', 'shadow_rise', 'smoke_bomb', 'backstab', 'snare'] });
+  pool: ['glass_web', 'coil_crush', 'shadow_rise', 'venom_fang', 'smoke_bomb'] });
 en({ id: 'shadow_double', name: 'Shape-Thief', species: 'human', portrait: 'shadow', equips: 3,
   skins: [{ name: 'Wearing a Face', tint: '#2a2a3a' }, { name: 'Between Faces', tint: '#1a1a2a' }, { name: 'Half-Turned', tint: '#3a2a3a' }],
-  pool: ['backstab', 'shadow_rise', 'smoke_bomb', 'cleave', 'frost_touch'] });
+  pool: ['backstab', 'shadow_rise', 'ghoststep', 'ward_thief', 'bell_silence'] });
 
 // ---------------------------------------------------------------- mini-bosses (§4)
 const MB = D.CAMPAIGN_MINIBOSSES;

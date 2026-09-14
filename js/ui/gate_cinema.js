@@ -79,9 +79,12 @@ function sequence(scene,done,play){
  const oldCut=scene.__cutscene,oldWeather=scene.weatherFx,visible=oldWeather?.container?.visible;
  const state=scene.gateSequence={view:null,spec:null,weather:null,ended:false};
  scene.__cutscene=true;scene.hideChrome?.();A.Notices?.block(scene);oldWeather?.container?.setVisible(false);
+ // Night paintings use translucent grading. An opaque base keeps the already
+ // built encounter from showing through, including while the first art loads.
+ const backing=scene.add.rectangle(W/2,H/2,W,H,0x080c12,1).setDepth(399);
  // Block the underlying encounter/home controls, below dialogue and choice controls.
  const shield=scene.add.rectangle(W/2,H/2,W,H,0,0.001).setDepth(899).setInteractive();
- const clean=()=>{if(state.ended)return;state.ended=true;scene.events.off('shutdown',clean);state.weather?.destroy();state.pending?.destroy(true);state.view?.destroy(true);shield.destroy();scene.gateSequence=null;scene.__cutscene=oldCut;scene.showChrome?.();A.Notices?.unblock(scene);if(!oldWeather?.destroyed)oldWeather?.container?.setVisible(visible);};
+ const clean=()=>{if(state.ended)return;state.ended=true;scene.events.off('shutdown',clean);state.weather?.destroy();state.pending?.destroy(true);state.view?.destroy(true);backing.destroy();shield.destroy();scene.gateSequence=null;scene.__cutscene=oldCut;scene.showChrome?.();A.Notices?.unblock(scene);if(!oldWeather?.destroyed)oldWeather?.container?.setVisible(visible);};
  scene.events.once('shutdown',clean);
  play(()=>{if(state.ended)return;clean();done?.();});
 }
@@ -124,7 +127,8 @@ G.playBridge=function(scene,game,bridge,done){
 };
 const playBeats=A.CampaignUI.playBeats;
 A.CampaignUI.playBeats=function(scene,game,beats,done){
- if(!beats.some(b=>b.c3))return playBeats(scene,game,beats,done);
+ // In-combat banter deliberately keeps the battlefield visible.
+ if(!beats.some(b=>b.c3&&!b.combat))return playBeats(scene,game,beats,done);
  sequence(scene,done,next=>playBeats(scene,game,beats,next));
 };
 const firstQuest={1:0,2:1,3:2,5:3,6:4,8:5,10:6,11:7};
