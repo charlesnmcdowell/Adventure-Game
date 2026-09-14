@@ -906,7 +906,7 @@ class CombatScene extends Phaser.Scene {
       ADV.Notices.toast(this, 'Below ' + Math.round(stopAt * 100) + '% health — auto combat stopped. Choose your next action.');
       this.paintAutoHaltToggle();
     }
-    const solo = !st.units.some(x => x.side === u.side && x !== u);
+    const solo = !ADV.Combat.living(st, u.side).some(x => x !== u);
     if (pct < .3 && solo && !this._dangerFleeWarned && ADV.Narrator && (!ADV.Difficulty || ADV.Difficulty.fleeWarn())) {
       this._dangerFleeWarned = true;
       ADV.Narrator.say(this, this.game_, 'flee_solo');
@@ -1187,12 +1187,13 @@ class CombatScene extends Phaser.Scene {
     } else if (!ADV.Combat.hasLegalCombatAction(st, u)) {
       mkBtn('Wait', 'no target', () => this.commitHold(u));
     }
+    const sure = ADV.Combat.fleeChance && ADV.Combat.fleeChance(st, u) >= 1;
     const flee = T().button(this, W - 154, H - 86, 106, 60, 'Flee', () => {
       this.clearActionBar();
       ADV.Combat.act(st, u, { kind: 'flee' });
       ADV.Combat.advance(st);
       this.loop();
-    }, {size:13,sub:'costs the turn'});
+    }, {size:13,sub: sure ? 'always works' : 'costs the turn'});
     keep(flee.g); keep(flee.txt); keep(flee.sub); keep(flee.zone);
     scroll.extend(x);
     if (scroll.maxOffset() > 0) keep(T().text(this, W - 170, H - 104, 'scroll skills ↔', {size:11,ox:1,color:T().css.inkDim}));

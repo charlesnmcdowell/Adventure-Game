@@ -26,7 +26,10 @@ class QuestScene extends Phaser.Scene {
     else ADV.Music.play('quest');
 
     const q = game.quest;
-    if (q.playerDead) { this.scene.start('Death'); return; }
+    if (q.playerDead) {
+      if (q.quest?.campaign3 && ADV.Campaign3?.retreatFromDefeat(game)) { this.completeFlow(); return; }
+      this.scene.start('Death'); return;
+    }
     if (ADV.Game.maybeStartRivalFinale && ADV.Game.maybeStartRivalFinale(game)) {
       const finale = ADV.Game.currentEncounter(game);
       if (finale) { this.buildEncounter(finale); return; }
@@ -274,6 +277,7 @@ class QuestScene extends Phaser.Scene {
       if (out.ambush && !handled) this.ambushIntro(out.ambush);
       else this.scene.start('Town');
     }, { display: true, bold: true, size: 16 });
+    if (ADV.Narrator) ADV.Narrator.questFailure(this, game);
   }
 
   ambushIntro(ambush) {

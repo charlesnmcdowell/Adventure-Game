@@ -88,6 +88,7 @@ Difficulty.set = function (game, id) {
     g.meta.difficulty = id;
     bound = g; cached = id;
     if (p && frac != null) p.combatHp = Math.max(1, Math.round(A.Character.maxHp(p) * frac));
+    try { Difficulty.retune(g); } catch (e) {}
     if (A.Save && A.Save.saveMeta) { try { A.Save.saveMeta(g); } catch (e) {} }
   } else {
     cached = id;
@@ -121,29 +122,71 @@ Difficulty.pay = function (base) { const d = Difficulty.def(); return Math.round
 // level offset (that is what moves a kit up a tier), and a tier-1 mook that the
 // base game sends out perkless picks up its type's perks once it is a veteran.
 // Called by Character.makeEnemy and Campaign.spawnEnemy; idempotent per unit.
-Difficulty.toughen = function (ch, type) {
-  const off = Difficulty.foeLevel(), floor = Difficulty.def().foeSkillFloor || 0;
-  if (!ch || (!off && !floor) || ch.__toughened || !Difficulty.isFoe(ch)) return ch;
-  ch.__toughened = true;
-  const uses = (A.DATA.CONST && A.DATA.CONST.USES_PER_LEVEL) || 10;
-  // The floor raises how well an enemy USES what it has — its kit — and nothing else. It must
-  // never touch enemyLevel: doing so turned a level-1 wolf on a first contract into a level-10
-  // one, and its stats climbed with it, which is the "bigger numbers" this lever exists to
-  // avoid. The creature stays what it is; it simply fights like something better trained.
-  // The floor reaches only enemies that are already seasoned (foeSkillFloorFrom). Applied to
-  // everything, it made a level-1 wolf swing an intermediate kit — +40% damage, and a second
-  // hit on the skills that gain one — which is what made early fights on Normal bite so hard.
-  const from = Difficulty.def().foeSkillFloorFrom || 0;
-  const seasoned = (ch.enemyLevel || 1) >= from;
-  const useFloor = seasoned ? floor : 0;
-  const lift = lvl => Math.max((lvl || 1) + off, useFloor);
-  for (const e of (ch.perks || []).concat(ch.actives || [])) { e.level = lift(e.level); e.uses = Math.max(e.uses || 0, e.level * uses); }
-  if (type && type.perks && !(ch.perks || []).length) {
-    const lvl = lift(ch.enemyLevel);
-    for (const p of type.perks) if (A.DATA.SKILLS[p]) ch.perks.push({ skillId: p, level: lvl, uses: lvl * uses });
+// What a creature was before any difficulty touched it. Toughening used to be a one-way
+// edit — it raised levels in place and set a flag so it never ran twice — which meant a
+// change of setting mid-game did nothing to anyone already on the board, and an enemy
+// spawned on Hard stayed Hard even after the player dropped to Easy. Keeping the original
+// lets the current setting be re-derived from scratch, as often as it changes.
+function pristineKit(ch) {
+  if (!ch.__kit0) {
+    ch.__kit0 = {
+      enemyLevel: ch.enemyLevel,
+      actives: (ch.actives || []).map(e => ({ skillId: e.skillId, level: e.level, uses: e.uses })),
+      perks: (ch.perks || []).map(e => ({ skillId: e.skillId, level: e.level, uses: e.uses })),
+    };
   }
-  if (ch.enemyLevel) ch.enemyLevel = (ch.enemyLevel || 1) + off;
+  return ch.__kit0;
+}
+
+Difficulty.toughen = function (ch, type) {
+  if (!ch || !Difficulty.isFoe(ch)) return ch;
+  const base = pristineKit(ch);
+  const def = Difficulty.def();
+  const off = Difficulty.foeLevel(), floor = def.foeSkillFloor || 0, from = def.foeSkillFloorFrom || 0;
+  const uses = (A.DATA.CONST && A.DATA.CONST.USES_PER_LEVEL) || 10;
+  // The floor reaches only enemies that are already seasoned. Applied to everything, it made
+  // a level-1 wolf swing an intermediate kit, which is what made early Normal bite so hard.
+  // It raises how well a creature fights and never what it is, so enemyLevel takes the
+  // offset alone.
+  const useFloor = (base.enemyLevel || 1) >= from ? floor : 0;
+  const lift = lvl => Math.max((lvl || 1) + off, useFloor);
+  const retune = (live, orig) => {
+    // keep the live entries (they carry progress) and re-derive only what the setting owns
+    for (let i = 0; i < orig.length; i++) {
+      const e = live[i], b = orig[i];
+      if (!e || !b) continue;
+      e.level = lift(b.level);
+      e.uses = Math.max(b.uses || 0, e.level * uses);
+    }
+  };
+  ch.actives = ch.actives || [];
+  ch.perks = ch.perks || [];
+  // drop any perks a previous setting handed out before re-deriving
+  if (ch.perks.length > base.perks.length) ch.perks.length = base.perks.length;
+  retune(ch.actives, base.actives);
+  retune(ch.perks, base.perks);
+  const t = type || (A.DATA.ENEMIES && A.DATA.ENEMIES[ch.enemyTypeId]);
+  if (t && t.perks && !base.perks.length && (off || useFloor)) {
+    const lvl = lift(base.enemyLevel);
+    for (const id of t.perks) if (A.DATA.SKILLS[id]) ch.perks.push({ skillId: id, level: lvl, uses: lvl * uses });
+  }
+  if (base.enemyLevel) ch.enemyLevel = (base.enemyLevel || 1) + off;
   return ch;
+};
+
+// Re-arm everything already on the board for the setting now in force. Called whenever the
+// player changes difficulty, so a change takes effect on the quest they are standing in
+// rather than only on the next one they accept.
+Difficulty.retune = function (game) {
+  const g = game || bound;
+  const q = g && g.quest;
+  if (!q || !q.enemies) return 0;
+  // A fight already under way keeps the bodies it started with: the combat units were built
+  // from these creatures and hold their own health snapshots. The change lands on the next one.
+  if (q.combat && !q.combat.over) return 0;
+  let n = 0;
+  for (const ch of q.enemies) if (ch && Difficulty.isFoe(ch)) { Difficulty.toughen(ch, null); n++; }
+  return n;
 };
 
 // More enemies: the encounter's own non-boss kinds, spawned again at the same

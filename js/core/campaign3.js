@@ -1,8 +1,9 @@
 // Varenholm's Gate story campaign core (VARENHOLMS_GATE_CAMPAIGN.md §0-§2, §6).
 //
 // Differs from the two faction campaigns in three ways:
-//   1. Progress lives in game.meta.c3 — the cross-life journal — so death
-//      (reincarnation or nepotism) resumes the story at the chapter reached.
+//   1. Progress lives in game.meta.c3 — the cross-life journal — so a later
+//      life (reincarnation or nepotism) resumes the story at the chapter reached.
+//      A wipe on this road is not that death: the company walks home as if it fled.
 //   2. Branching happens INSIDE quests through choice beats, never by
 //      unlocking alternate quests; the hall stays a straight list of fourteen.
 //   3. The company is a picked subset (max 5 companions, 6 people with you) built as
@@ -294,6 +295,7 @@ C3.spawnEncounter = function (game, quest, encIdx) {
   for (const ch of out) { if (ch.campaignEnemy || ch.isMonster) delete ch.personalityId; ch.noCombatVoice = true; }
   C3.limitRecovery(out);
   C3.tuneMineChief(quest, encIdx, out);
+  C3.markEarlyFoes(game, quest, out);
   return out;
 };
 
@@ -301,6 +303,43 @@ C3.spawnEncounter = function (game, quest, encIdx) {
 // and changes existing enemies in place without respawning defeated ones.
 C3.limitRecovery = function (enemies) {
   for (const ch of enemies || []) if (ch) ch.c3RecoveryMax = D().CAMPAIGN3_RECOVERY_MAX;
+};
+// Easy and Normal open the road softer: the first two quests hit at 70% of the
+// campaign's usual output. Hard is the full blow from the first knife.
+C3.earlyFoeDmg = function (game, quest) {
+  const q = quest || game?.quest?.quest;
+  if (!q?.campaign3 || (q.n || 0) > 2) return 1;
+  const id = ADV.Difficulty && ADV.Difficulty.id ? ADV.Difficulty.id() : 'easy';
+  if (id === 'hard') return 1;
+  const n = D().CAMPAIGN3_EARLY_FOE_DMG;
+  return n != null ? n : 0.7;
+};
+C3.markEarlyFoes = function (game, quest, enemies) {
+  const mult = C3.earlyFoeDmg(game, quest);
+  for (const ch of enemies || []) if (ch) ch.c3FoeDmg = mult;
+};
+// A wipe on this road is a retreat, not a death. The player and anyone riding
+// with them stand up at one health and the quest ends the same way a flee does.
+C3.retreatFromDefeat = function (game) {
+  const q = game && game.quest;
+  if (!q?.quest?.campaign3) return false;
+  const p = ADV.Game.player(game);
+  q.failed = true;
+  q.fled = true;
+  q.over = true;
+  q.playerDead = false;
+  q.leaderDied = false;
+  if (p) {
+    p.hasFled = true;
+    p.wasDowned = false;
+    if (p.combatHp == null || p.combatHp <= 0) p.combatHp = 1;
+  }
+  for (const ch of ADV.Game.partyRoster(game, q.quest)) {
+    if (!ch) continue;
+    ch.wasDowned = false;
+    if (ch.combatHp == null || ch.combatHp <= 0) ch.combatHp = 1;
+  }
+  return true;
 };
 C3.tuneMineChief = function (quest, encIdx, enemies) {
   if (!quest || !quest.campaign3 || quest.cEnc?.[encIdx]?.mini !== 'kobold_chief') return;
@@ -649,7 +688,7 @@ ADV.Campaign3 = C3;
     const q = game.quest;
     const fresh = q && isC3(q.quest) && !q.enemies && !q.readyToComplete && !q.over && q.encIdx < q.quest.encounters.length;
     const enc = oCurrent(game);
-    if (enc && q && isC3(q.quest)) { C3.limitRecovery(q.enemies); C3.tuneMineChief(q.quest, q.encIdx, q.enemies); }
+    if (enc && q && isC3(q.quest)) { C3.limitRecovery(q.enemies); C3.tuneMineChief(q.quest, q.encIdx, q.enemies); C3.markEarlyFoes(game, q.quest, q.enemies); }
     // enemies already sitting in an older save keep no stock voice either
     if (q && isC3(q.quest) && q.enemies) for (const ch of q.enemies) { if (ch && (ch.campaignEnemy || ch.isMonster)) delete ch.personalityId; if (ch) ch.noCombatVoice = true; }
     if (enc && fresh && q.__c3openerFor !== q.encIdx) {
@@ -662,6 +701,9 @@ ADV.Campaign3 = C3;
   G.finishCombat = function (game) {
     const r = oFinish(game);
     if (r && r.won) C3.queueClosing(game);
+    if (r && !r.won && (r.playerDead || game.quest?.playerDead || game.quest?.leaderDied) && C3.retreatFromDefeat(game)) {
+      r.playerDead = false;
+    }
     return r;
   };
   G.tryVerb = function (game, verb) {

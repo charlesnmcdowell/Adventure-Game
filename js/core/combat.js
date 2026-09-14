@@ -1503,6 +1503,7 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   dmg = applyOpportunist(src, tgt, dmg, opts);
   dmg = applyTakenReduction(tgt, dmg, Object.assign({}, opts, { tag }));
   if (ADV.GatePerkCombat) dmg = ADV.GatePerkCombat.modifyDamage(st, src, tgt, dmg, tag, opts);
+  if (src && src.ch && src.ch.c3FoeDmg && src.ch.c3FoeDmg !== 1) dmg = Math.max(C().MIN_DAMAGE, Math.round(dmg * src.ch.c3FoeDmg));
   dmg = spendBasicBudget(st, src, tgt, dmg);
   if (dmg <= 0) return 0;
   // Temp HP consumed first — still counts as damage taken for reflect/retaliation (§15a),
@@ -1841,7 +1842,8 @@ Combat.skillArchetype = skillArchetype;
 // intermediate heals reach two allies, advanced four: the chosen one, then the lowest
 function pickHealTargets(st, u, tgt, tier) {
   const n = HEAL_TARGETS[tier] || 1;
-  const out = tgt ? [tgt] : [];
+  // the seed target is whatever the caller named: only take it if it is one of ours
+  const out = (tgt && tgt.side === u.side) ? [tgt] : [];
   if (n > 1) {
     const rest = livingUnits(st, u.side).filter(x => x !== tgt && !x.downed)
       .sort((a, b) => (a.chp / a.maxHp) - (b.chp / b.maxHp));
@@ -2308,6 +2310,12 @@ Combat.act = function (st, u, action) {
     // Clan Blood's share of damage-taken is applied inside pctOf
     if (d.healBehind) targets = targets.filter(x => canHealOther(u, x));
     else if (d.wardAhead) targets = targets.filter(x => canWard(u, x));
+    // A heal never crosses the line. Every path that builds `targets` is side-correct today,
+    // but the primary target arrives from the caller on trust (the player's auto list, the
+    // AI, a campaign script), so this is the backstop rather than an assumption: a healer on
+    // auto can never top up, ward or cleanse the people it is fighting.
+    targets = targets.filter(x => x.side === u.side);
+    if (!targets.length) return { ok: false, error: 'no ally to heal' };
     if (d.revive && !d.selfRevive && (tgt.downed || downedAllies(st, u.side).length)) {
       if (!canSpendBattleUse(u, skillId, d)) return { ok: false, error: 'once per battle' };
       const picks = pickReviveTargets(st, u.side, tgt, d.reviveCount || 1);
@@ -2781,21 +2789,28 @@ function doBribe(st, u, action) {
   return { ok: true, success, fee };
 }
 
-function doFlee(st, u) {
+function combatSolo(st, u) {
+  return livingUnits(st, u.side).every(x => x === u);
+}
+Combat.fleeChance = function (st, u) {
+  if (!u || !u.ch) return 0;
+  if (u.ch.isConscript || u.ch.isUndead || (u.ch.status === 'hero' && u.ch.grantsHeld)) return 0;
+  if (combatSolo(st, u)) return 1;
   const foes = livingUnits(st, u.side === 'a' ? 'b' : 'a');
   const fastest = Math.max(...foes.map(f => Ch().effStat(f.ch, 'spd')), 0);
   let p = C().FLEE_BASE + (Ch().effStat(u.ch, 'spd') - fastest) * C().FLEE_PER_SPD;
-  // rogues' instincts: Opportunist and Sneak make getting out drastically likelier
   const fleeB = Sys().knownSum(u.ch, 'fleeBonus');
   if (fleeB) p += fleeB;
   if (ADV.GatePerks && ADV.GatePerks.has(u.ch, 'routes')) p += 0.15;
-  p = Math.max(C().FLEE_MIN, Math.min(C().FLEE_MAX, p));
-  // conscripts/undead/heroes cannot flee (§15a)
-  if (u.ch.isConscript || u.ch.isUndead || (u.ch.status === 'hero' && u.ch.grantsHeld)) {
+  return Math.max(C().FLEE_MIN, Math.min(C().FLEE_MAX, p));
+};
+function doFlee(st, u) {
+  const p = Combat.fleeChance(st, u);
+  if (p <= 0) {
     ev(st, { t: 'fleeBlocked', uid: u.uid });
     return { ok: true, fled: false };
   }
-  let success = st.rng.chance(p);
+  let success = p >= 1 || st.rng.chance(p);
   if (!success && Sys().knownVal(u.ch, 'autoFlee') && !u.ch.__fallbackUsed) { success = true; u.ch.__fallbackUsed = true; }
   ev(st, { t: 'flee', uid: u.uid, success, chance: p });
   if (success) { u.fled = true; noteLeaderOut(st, u, false); checkEnd(st); }

@@ -1027,6 +1027,20 @@ Notices.pickOne = function (scene, title, body, options, onPick) {
   });
 };
 
+Notices.courtesyGold = function (scene, n, next) {
+  const game = scene.g();
+  if (game.meta) game.meta.courtesyGoldNotice = false;
+  if (ADV.Save) ADV.Save.saveMeta(game);
+  Notices.custom(scene, (keep, D, close) => {
+    const W = T().W;
+    keep(T().text(scene, W / 2, 236, 'A gift', { size: 22, display: true, ox: 0.5, color: T().css.gold }).setDepth(D));
+    keep(T().text(scene, W / 2, 284, 'Sorry for the inconvenience — here\'s some gold on us.\nNeverendingnarratives.com', {
+      size: 15, ox: 0.5, wrap: 560, align: 'center', color: T().css.ink,
+    }).setDepth(D));
+    ADV.UI.modalBtn(keep, D, T().button(scene, W / 2 - 110, 380, 220, 42, 'Thank you', () => { close(); next(); }, { size: 15, display: true, bold: true }));
+  });
+};
+
 // ---- arrival notices --------------------------------------------------------
 // Only mothers name children (request): the female player names hers at
 // birth; a male player's child is named by its NPC mother.

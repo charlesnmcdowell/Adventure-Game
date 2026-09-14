@@ -36,6 +36,10 @@ Tutor.allowed = function (game, id) {
   const step = Tutor.step(game);
   if (step === 'done') return true;
   if (id === 'settings' || id === 'difficulty') return true;
+  // A failed tutorial contract must not lock the player out of the recovery
+  // advice: let them improve equipment and skills before retrying the same step.
+  if ((step === 'firstQuest' || step === 'partyQuest') &&
+      ADV.Game.player(game).questsFailed > 0 && (id === 'blacksmith' || id === 'trainer')) return true;
   return (ALLOWED[step] || []).includes(id);
 };
 // Which contracts may be taken right now

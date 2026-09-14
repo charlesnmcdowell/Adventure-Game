@@ -2,6 +2,7 @@
 (function(){
 'use strict';
 const N={voice:'C34VRFVgUY3W0ZIN2NQ5',lines:{
+ quest_failure:'That quest went badly. It happens. You can come back better prepared. The blacksmith\'s eight-hundred-gold armor sets boost their supported skills while equipped: Basic becomes Intermediate, and Intermediate becomes Advanced. You get that boost even while you are still leveling the skill. Choose armor that supports the skills you actually use. Then visit the trainer and work on whatever let you down. Taking too much damage? Try tank skills for defense. Need more damage? Try mage skills. Healing skills can help you stay in the fight longer. You have options. Give yourself a better chance next time.',
  flee_solo:'You are below thirty percent health, and your entire rescue team is you. Use Flee. A tactical retreat beats a very small funeral.',
  shelter_two:'Two more completed quests in this shelter and you will get sick. Upgrade your house. The damp has moved in, and it is not paying rent.',
  shelter_one:'One quest left before this shelter makes you sick. Buy a better roof before your lungs start negotiating separately.',
@@ -47,11 +48,40 @@ N.say=function(scene,game,id,done){
  timer=scene.time.delayedCall(Math.max(20000,N.lines[id].length*120),finish);
  scene.events.once('shutdown',()=>{if(audio)audio.removeEventListener('ended',finish);if(ADV.Music.voiceKind==='narrator')ADV.Music.stopVoice();});
 };
+// Results and the post-funeral summary show the same dismissible, voiced advice.
+// Town is a recovery path if the player reloads before reaching either screen.
+N.questFailure=function(scene,game,done){
+ if(!game.meta.questFailureAdvice || scene.__questFailureAdvice)return false;
+ scene.__questFailureAdvice=true;
+ const T=ADV.T,body=N.lines.quest_failure;
+ const opts={size:16,ox:.5,wrap:620,align:'left',color:T.css.ink};
+ const measure=T.text(scene,0,0,body,opts).setVisible(false),bh=measure.height+156;
+ measure.destroy();
+ const top=(T.H-bh)/2;
+ let audio,closed=false,closeCard;
+ const stop=()=>{if(audio && ADV.Music.voiceEl===audio)ADV.Music.stopVoice();};
+ const play=()=>{ADV.Music.speakNarrator('quest_failure');audio=ADV.Music.voiceEl;};
+ const cleanup=()=>{
+  if(closed)return;closed=true;scene.__questFailureAdvice=false;stop();if(closeCard)closeCard();
+  scene.events.off('shutdown',cleanup);
+ };
+ closeCard=ADV.Notices.custom(scene,(keep,D,close)=>{
+  keep(T.text(scene,T.W/2,top+24,'Before your next quest',{size:23,noscale:true,display:true,ox:.5,color:T.css.gold}).setDepth(D));
+  keep(T.text(scene,T.W/2,top+72,body,opts).setDepth(D));
+  ADV.UI.modalBtn(keep,D,T.button(scene,T.W/2-210,top+bh-62,190,40,'Replay advice',play,{size:14}));
+  ADV.UI.modalBtn(keep,D,T.button(scene,T.W/2+20,top+bh-62,190,40,'Got it',()=>{cleanup();if(done)done();},{size:14,bold:true}));
+  delete game.meta.questFailureAdvice;
+  ADV.Save.saveMeta(game);
+  play();
+ },{w:700,h:bh,y:top});
+ scene.events.once('shutdown',cleanup);
+ return true;
+};
 N.town=function(scene,game){
  if(scene.__narratorQueue)return;scene.__narratorQueue=true;
  const next=()=>{
   if(!scene.sys.isActive())return;
-  if((ADV.Tutor&&ADV.Tutor.active(game)) || scene.__embarking || scene._chromeHidden || (scene.__msg&&scene.__msg.blocked) || (ADV.Music.voiceEl&&!ADV.Music.voiceEl.paused&&!ADV.Music.voiceEl.ended)) {scene.time.delayedCall(1200,next);return;}
+  if(game.meta.questFailureAdvice || (ADV.Tutor&&ADV.Tutor.active(game)) || scene.__embarking || scene._chromeHidden || (scene.__msg&&scene.__msg.blocked) || (ADV.Music.voiceEl&&!ADV.Music.voiceEl.paused&&!ADV.Music.voiceEl.ended)) {scene.time.delayedCall(1200,next);return;}
   const item=N.conditions(game)[0];if(!item){scene.__narratorQueue=false;return;}
   const m=ADV.Game.player(game).narratorMemory;m[item.key]=true;if(item.gold){m.lastGoldAt=game.world.questClock||0;m.goldCount=(m.goldCount||0)+1;}
   if(item.id.startsWith('leadership_'))game.meta.leadershipReminderSeen=(game.meta.leadershipReminderSeen||[]).concat(item.id);

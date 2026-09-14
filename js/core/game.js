@@ -82,7 +82,21 @@ Game.load = function () {
     game.meta.grantGold1000 = true;
     ADV.Save.saveGame(game);
   }
+  if (typeof window !== 'undefined') Game.grantCourtesyGold(game);
   return game;
+};
+
+// One purse of gold for everyone already on the road — sorry for the bumps.
+Game.COURTESY_GOLD = 10000;
+Game.grantCourtesyGold = function (game) {
+  if (!game || !game.meta || game.meta.grantGold10000) return false;
+  const p = Game.player(game);
+  if (!p || !p.inventory) return false;
+  p.inventory.gold = (p.inventory.gold || 0) + Game.COURTESY_GOLD;
+  game.meta.grantGold10000 = true;
+  game.meta.courtesyGoldNotice = true;
+  if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
+  return true;
 };
 
 Game.player = function (game) {
@@ -869,6 +883,15 @@ Game.resolveDefeatedNamedAll = function (game, defeatedList, choice) {
   return batch;
 };
 
+// Only a resolved quest loss earns this advice. Being downed or fleeing while
+// the company still wins is not a failure. Meta also carries it past permadeath.
+Game.queueQuestFailureAdvice = function (game, q) {
+  if (!q || !(q.failed || q.playerDead) || q.failureAdviceQueued) return false;
+  q.failureAdviceQueued = true;
+  game.meta.questFailureAdvice = { questName: q.quest.name };
+  return true;
+};
+
 // Complete the quest: payouts, reputation, world tick, ambush queue (§6).
 // Decomposed into the success (payout) and failure paths; this function owns
 // only the sequencing that runs on EVERY resolution.
@@ -878,6 +901,7 @@ Game.completeQuest = function (game) {
   const world = game.world;
   const out = { gold: 0, wage: 0, leaderTake: null, events: [] };
 
+  Game.queueQuestFailureAdvice(game, q);
   Game.releaseQuestThralls(game);
   // home again: the quest's survival growth is spent
   for (const ch of Game.partyRoster(game)) if (ch.questHp) { ch.questHp = 0; if (ch.combatHp != null) ch.combatHp = Math.min(ch.combatHp, ADV.Character.maxHp(ch)); }
@@ -1289,6 +1313,8 @@ Game.refuseRescue = function (game, rescue) {
 // ---------------------------------------------------------------- death
 // Returns {mode, heir?} — UI shows the death screen then calls continueAs*.
 Game.onPlayerDeath = function (game, killerId) {
+  // Fatal quest losses bypass completeQuest; road ambushes and other deaths do not qualify.
+  if (game.quest && game.quest.playerDead) Game.queueQuestFailureAdvice(game, game.quest);
   game.travelResolution = null;
   const world = game.world;
   const p = Game.player(game);

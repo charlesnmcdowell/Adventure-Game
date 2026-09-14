@@ -26,6 +26,9 @@ D.CAMPAIGN3_FACTION_ID = 'gate';
 // All fourteen quests: enemies must survive an opening party volley.
 // Applied only to spawned opponents, after their authored stats and boss HP floors.
 D.CAMPAIGN3_COMBAT = { hp: 5, atk: 2, def: 2 };
+// Easy/Normal only, first two quests: a moderate cut to every blow those foes deal
+// (strikes, riders, and the boss percent-of-health add). Hard keeps the full kit.
+D.CAMPAIGN3_EARLY_FOE_DMG = 0.7;
 // Recovery can restore one extra health bar per enemy, shared by all healing sources.
 // This prevents the fivefold HP increase turning a defensive party fight into a loop.
 D.CAMPAIGN3_RECOVERY_MAX = 1;

@@ -21,6 +21,7 @@ class DeathScene extends Phaser.Scene {
       return;
     }
     this.showSummary();
+    if (ADV.Narrator) ADV.Narrator.questFailure(this, game);
   }
 
   // ---- the burial ---------------------------------------------------------
