@@ -30,12 +30,17 @@ class TitleScene extends Phaser.Scene {
     const W = T().W, H = T().H;
     if(ADV.TitleBackdrop)ADV.TitleBackdrop.create(this);
     else this.add.rectangle(W / 2, H / 2, W, H, T().c.bg);
+    if (ADV.MobileTitle?.enabled()) {
+      ADV.Music.play('title');
+      ADV.MobileTitle.mount(this);
+      return;
+    }
     if(ADV.TitleBackdrop){const motion=T().button(this,54,54,175,34,ADV.Prefs.get().titleMotion===false?'Scenery motion: off':'Scenery motion: on',()=>{
       const on=ADV.Prefs.get().titleMotion===false;ADV.Prefs.set({titleMotion:on});motion.txt.setText('Scenery motion: '+(on?'on':'off'));
     },{size:12});}
     ADV.Music.play('title');
     ADV.Music.button(this, W - 44, 44);
-    if (ADV.Display) ADV.Display.button(this, W - 44, 72);
+    if (ADV.Display?.supported()) ADV.Display.button(this, W - 44, 72);
     if (ADV.AnimeArt) T().button(this, 54, H - 112, 224, 40, 'Anime art fitting room', () => {
       if (this.pwField) { this.pwField.destroy(); this.pwField = null; }
       this.scene.start('AnimePreview');
@@ -47,7 +52,9 @@ class TitleScene extends Phaser.Scene {
 
     T().text(this, W / 2, 150, 'ADVENTURER', { size: 64, display: true, ox: 0.5, color: T().css.gold, bold: true });
     T().text(this, W / 2, 218, 'a life, several times over', { size: 18, display: true, italic: true, ox: 0.5, color: T().css.inkDim });
-    T().text(this, W / 2, 268, 'Stats never change. Skills are everything. Death is not the end of what you know.', { size: 14, ox: 0.5, color: T().css.inkFaint });
+    const ver = ADV.Game && ADV.Game.versionLabel ? ADV.Game.versionLabel() : ((ADV.DATA.VERSION && ADV.DATA.VERSION.label) || '');
+    if (ver) T().text(this, W / 2, 246, 'Version ' + ver, { size: 14, ox: 0.5, color: T().css.gold });
+    T().text(this, W / 2, 278, 'Stats never change. Skills are everything. Death is not the end of what you know.', { size: 14, ox: 0.5, color: T().css.inkFaint });
 
     const leftover = ADV.Save.hasSave();
     const canContinue = ADV.Save.hasVoicedContinue ? ADV.Save.hasVoicedContinue()
@@ -69,7 +76,7 @@ class TitleScene extends Phaser.Scene {
       } else this.startCards();
     }, { display: true, bold: true, sub: startFresh ? 'wipes everything — journal, levels, lives' : null, subColor: T().css.inkFaint });
     y += 60;
-    if (ADV.Display) {
+    if (ADV.Display?.supported()) {
       const fs = T().button(this, W / 2 - 130, y, 260, 46, ADV.Display.active() ? 'Exit fullscreen' : 'Fullscreen', () => {
         ADV.Display.toggle();
       }, { display: true, bold: true, color: T().css.gold, edge: T().c.gold });

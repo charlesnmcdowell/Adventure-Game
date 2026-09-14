@@ -14,6 +14,7 @@ class TownScene extends Phaser.Scene {
     if (ADV.Game.grantCourtesyGold) ADV.Game.grantCourtesyGold(this.game_);
     if (ADV.Game.grantCourtesyGold2) ADV.Game.grantCourtesyGold2(this.game_);
     if (ADV.Game.clearCourtesyNotices) ADV.Game.clearCourtesyNotices(this.game_);
+    if (ADV.Game.applyPatch) ADV.Game.applyPatch(this.game_);
     if (ADV.GatePerks) ADV.GatePerks.reconcile(this.game_);
     const W = T().W, H = T().H;
     // Phaser reuses this scene — leftover embark/talk flags would keep the
@@ -456,6 +457,7 @@ class TownScene extends Phaser.Scene {
     const p = this.player();
     this.noticeQueue = [];
     if (ADV.Tutor && ADV.Tutor.active(this.game_)) return;   // the guide has the floor
+    if (this.game_.meta && this.game_.meta.patchNotice) this.noticeQueue.push({ kind: 'patchNotes' });
     if (w.pendingLeaderDeath) this.noticeQueue.push({ kind: 'leaderDeath' });
     if (w.pendingPlayerJilt) this.noticeQueue.push({ kind: 'jilt' });
     for (const rsc of (w.pendingRescues || [])) this.noticeQueue.push({ kind: 'rescue', rescue: rsc });
@@ -530,7 +532,7 @@ class TownScene extends Phaser.Scene {
       return;
     }
     const P = ADV.Notices;
-    ({ jilt: P.jilt, rescue: P.rescue, divine: P.divine, heroInvite: P.heroInvite, withdrawal: P.withdrawal, nameChild: P.nameChild, proposal: P.proposal, raise: P.raise, leaderDeath: P.leaderDeath, courtesyGold: P.courtesyGold, courtesyGold2: P.courtesyGold2, homeReload: P.homeReload }[n.kind])(this, n, () => this.nextNotice());
+    ({ jilt: P.jilt, rescue: P.rescue, divine: P.divine, heroInvite: P.heroInvite, withdrawal: P.withdrawal, nameChild: P.nameChild, proposal: P.proposal, raise: P.raise, leaderDeath: P.leaderDeath, courtesyGold: P.courtesyGold, courtesyGold2: P.courtesyGold2, homeReload: P.homeReload, patchNotes: P.patchNotes }[n.kind])(this, n, () => this.nextNotice());
   }
 
   promptOnce(id) {

@@ -7,6 +7,11 @@
      double-tap zoom, which a canvas game never wants. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Adventurer">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/app/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/app/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest?v=20260914-mobile1">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b0a08">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -20,9 +25,8 @@
     width: 100%; height: 100%;
     overflow: hidden;                 /* no page scroll, no horizontal scroll */
     overscroll-behavior: none;        /* no rubber-band on the body */
-    position: fixed; inset: 0;        /* iOS: body never scrolls under the toolbar */
     -webkit-text-size-adjust: 100%;
-    touch-action: none;               /* the canvas owns every gesture */
+    touch-action: manipulation;       /* DOM controls work; canvas owns its gestures */
     -webkit-user-select: none; user-select: none;
     -webkit-touch-callout: none;      /* no long-press callout over the canvas */
     -webkit-tap-highlight-color: transparent;
@@ -35,8 +39,8 @@
   /* Fullscreen: the game box owns the monitor / phone display. */
   :fullscreen, :-webkit-full-screen { background: #0b0a08; width: 100%; height: 100%; }
   #game:fullscreen, #game:-webkit-full-screen {
-    inset: 0; width: 100vw !important; height: 100vh !important;
-    width: 100dvw !important; height: 100dvh !important;
+    width: calc(100dvw - var(--adv-safe-left) - var(--adv-safe-right)) !important;
+    height: calc(100dvh - var(--adv-safe-top) - var(--adv-safe-bottom)) !important;
   }
 
   /* DOM text fields overlaid on the canvas (canvas text can't summon a
@@ -66,7 +70,6 @@
   #rotate .t { font-size: 20px; color: #e7b450; letter-spacing: 1px; }
   #rotate .s { font-size: 14px; color: #8b7d6b; }
   @keyframes advturn { 0%,25% { transform: rotate(0deg); } 60%,100% { transform: rotate(90deg); } }
-  body.portrait #rotate { display: flex; }
 
   #adv-live-update {
     display: none; position: fixed; inset: 0; z-index: 10000;
@@ -85,13 +88,15 @@
   }
   #adv-live-update button:focus { outline: 2px solid #c8a24a; }
 </style>
+<link rel="stylesheet" href="assets/mobile.css?v=20260914-ver120">
 </head>
 <body>
 <div id="game"></div>
-<div id="rotate" aria-live="polite">
-  <div class="icon"></div>
-  <div class="t">Turn your phone sideways</div>
-  <div class="s">Adventurer plays in landscape</div>
+<div id="rotate" role="dialog" aria-modal="true" aria-labelledby="rotate-title" aria-hidden="true" inert>
+  <button id="rotate-dismiss" type="button" aria-label="Dismiss rotation reminder">×</button>
+  <div class="icon" aria-hidden="true"></div>
+  <div class="t" id="rotate-title">Turn your phone sideways</div>
+  <div class="s">Adventurer plays best in landscape. Already rotated? Tap × to continue.</div>
 </div>
 <div id="adv-live-update" role="dialog" aria-modal="true" aria-labelledby="adv-live-update-title">
   <h1 id="adv-live-update-title">An update is taking place</h1>
@@ -103,6 +108,7 @@
 
 <!-- data (generated + authored) -->
 <script src="js/data/constants.js?v=20260914-pop80b"></script>
+<script src="js/data/version.js?v=20260914-ver120"></script>
 <script src="js/data/skills.js?v=20260914-balance2"></script>
 <script src="js/data/campaign_skills.js?v=20260914-balance2"></script>
 <script src="js/data/campaign_data.js?v=20260911-art3"></script>
@@ -155,10 +161,10 @@
 <script src="js/core/death.js?v=20260911-art3"></script>
 <script src="js/core/world.js?v=20260914-pop80b"></script>
 <script src="js/core/save.js?v=20260914-pop80b"></script>
-<script src="js/core/prefs.js?v=20260913-support1"></script>
+<script src="js/core/prefs.js?v=20260914-mobile1"></script>
 <script src="js/core/campaign.js?v=20260913-support2"></script>
 <script src="js/core/campaign2.js?v=20260911-art3"></script>
-<script src="js/core/game.js?v=20260914-quiet1"></script>
+<script src="js/core/game.js?v=20260914-ver120"></script>
 <script src="js/core/campaign3.js?v=20260914-gate-party1"></script>
 <script src="js/core/campaign3_perks.js?v=20260913-perks1"></script>
 <script src="js/core/campaign3_perk_combat.js?v=20260913-perks1"></script>
@@ -175,7 +181,7 @@
 <script src="js/ui/home_life.js?v=20260911-art3"></script>
 <script src="js/ui/music.js?v=20260913-gate-score2"></script>
 <script src="js/ui/narrator.js?v=20260913-quest-failure-advice"></script>
-<script src="js/ui/tooltip.js?v=20260914-balance2"></script>
+<script src="js/ui/tooltip.js?v=20260914-mobile1"></script>
 <script src="js/ui/portraits.js?v=20260911-art3"></script>
 <script src="js/ui/vfx.js?v=20260912-skills2"></script>
 <script src="js/ui/combat_presentation.js?v=20260912-skills2"></script>
@@ -189,11 +195,13 @@
 <script src="js/ui/dialoguebox.js?v=20260913-gate-mobile"></script>
 <script src="js/ui/travel.js?v=20260913-q5-flow1"></script>
 <script src="js/ui/support.js?v=20260913-support2"></script>
-<script src="js/ui/scene_boot.js?v=20260913-support2"></script>
+<script src="js/ui/mobile_viewport.js?v=20260914-mobile1"></script>
+<script src="js/ui/mobile_title.js?v=20260914-ver120"></script>
+<script src="js/ui/scene_boot.js?v=20260914-ver120"></script>
 <script src="js/ui/scene_creation.js?v=20260912-diff1"></script>
-<script src="js/ui/scene_town.js?v=20260914-quiet1"></script>
+<script src="js/ui/scene_town.js?v=20260914-ver120"></script>
 <script src="js/ui/town_panels.js?v=20260914-household1"></script>
-<script src="js/ui/town_panels2.js?v=20260914-courtesy2"></script>
+<script src="js/ui/town_panels2.js?v=20260914-ver120"></script>
 <script src="js/ui/difficulty_ui.js?v=20260914-balance2"></script>
 <script src="js/ui/party_outfit.js?v=20260911-art3"></script>
 <script src="js/ui/campaign_ui.js?v=20260913-support2"></script>
@@ -236,52 +244,8 @@ window.__game = new Phaser.Game({
   scene: [ADV.TitleScene, ADV.CreationScene, ADV.TownScene, ADV.QuestScene, ADV.CombatScene, ADV.DeathScene, ADV.AnimePreviewScene, ADV.AnimeCombatScene, ADV.GatePreviewScene],
 });
 
-// ---- mobile viewport handling -------------------------------------------
-// Phaser's FIT mode measures the parent once per resize event. On phones the
-// viewport keeps changing AFTER that event fires: iOS Safari's toolbar slides
-// away a few hundred ms after rotation, Chrome's URL bar collapses on scroll,
-// and returning from the background can land on a stale size. So every trigger
-// schedules a short burst of re-measures rather than a single one.
-(function () {
-  const game = window.__game;
-  const isPhone = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent) && !/iPad/i.test(navigator.userAgent);
-  let timers = [];
-  function refit() {
-    const el = document.getElementById('game');
-    const fs = document.fullscreenElement || document.webkitFullscreenElement;
-    const vv = window.visualViewport;
-    const w = Math.round(fs ? window.innerWidth : (vv ? vv.width : window.innerWidth));
-    const h = Math.round(fs ? window.innerHeight : (vv ? vv.height : window.innerHeight));
-    el.style.width = w + 'px';
-    el.style.height = h + 'px';
-    // Phaser reads canvas.style inside refresh(); before boot there is no
-    // canvas yet, so wait for 'ready' (hooked below) rather than call early.
-    if (game && game.scale && game.canvas) {
-      game.scale.setParentSize(w, h);
-      game.scale.refresh();
-    }
-    // Landscape-only: portrait on a phone shows the rotate prompt.
-    const portrait = isPhone && h > w;
-    document.body.classList.toggle('portrait', portrait);
-    if (ADV.UI && ADV.UI.repositionFields) ADV.UI.repositionFields();
-  }
-  function burst() {
-    timers.forEach(clearTimeout); timers = [];
-    refit();
-    [60, 200, 450, 900].forEach(ms => timers.push(setTimeout(refit, ms)));
-  }
-  window.addEventListener('resize', burst);
-  document.addEventListener('fullscreenchange', burst);
-  document.addEventListener('webkitfullscreenchange', burst);
-  window.addEventListener('orientationchange', burst);
-  window.addEventListener('pageshow', burst);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) burst(); });
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', burst);
-  if (screen.orientation) screen.orientation.addEventListener('change', burst);
-  game.events.once('ready', burst);
-  burst();
-  window.__refit = burst;   // test hook
-})();
+window.__mobileViewport = ADV.MobileViewport.install(window, document, window.__game);
+window.__refit = window.__mobileViewport.schedule;
 </script>
 <script>
 // Live update: poll the site's update.json. When the published id changes,

@@ -53,6 +53,7 @@ Game.newGame = function (opts) {
     // the guided first hour runs once per fresh game; later lives and Hiro skip it
     tutorial: (meta.lives <= 1 && !player.registryId) ? { step: 'tour', tourIdx: 0, declined: false } : { step: 'done' },
   };
+  if (ADV.DATA.VERSION) meta.patchId = ADV.DATA.VERSION.id;
   game.board = ADV.Quests.generateBoard(world, rng, game);
   if (ADV.GatePerks) ADV.GatePerks.reconcile(game);
   ADV.Save.saveGame(game);
@@ -87,6 +88,7 @@ Game.load = function () {
     Game.grantCourtesyGold(game);
     Game.grantCourtesyGold2(game);
     Game.clearCourtesyNotices(game);
+    Game.applyPatch(game);
   }
   return game;
 };
@@ -134,8 +136,30 @@ Game.clearCourtesyNotices = function (game) {
   return !!dirty;
 };
 
-Game.offerHomeReload = function (game) {
-  return Game.clearCourtesyNotices(game) && false;
+Game.currentPatch = function () {
+  return (ADV.DATA && ADV.DATA.VERSION) || null;
+};
+Game.versionLabel = function () {
+  const v = Game.currentPatch();
+  if (!v) return '';
+  return v.label || v.id || '';
+};
+
+// One thank-you purse and one notes card per published version.
+Game.applyPatch = function (game) {
+  const v = Game.currentPatch();
+  if (!game || !game.meta || !v || !v.id) return false;
+  if (game.meta.patchId === v.id) return false;
+  const hadLife = game.meta.patchId != null || game.meta.grantGold10000 || game.meta.grantGold10000b
+    || (game.life != null && game.life > 0);
+  const p = Game.player(game);
+  const gold = hadLife ? (v.gold || 0) : 0;
+  if (p && p.inventory && gold > 0) p.inventory.gold = (p.inventory.gold || 0) + gold;
+  game.meta.patchId = v.id;
+  game.meta.patchGold = gold;
+  game.meta.patchNotice = true;
+  if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
+  return true;
 };
 
 Game.reloadForUpdate = function (game) {

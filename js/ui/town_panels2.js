@@ -1074,6 +1074,28 @@ Notices.homeReload = function (scene, n, next) {
   });
 };
 
+Notices.patchNotes = function (scene, n, next) {
+  const game = scene.g();
+  const v = (ADV.Game.currentPatch && ADV.Game.currentPatch()) || ADV.DATA.VERSION || {};
+  const gold = (game.meta && game.meta.patchGold) || 0;
+  if (game.meta) game.meta.patchNotice = false;
+  if (ADV.Save) ADV.Save.saveMeta(game);
+  const notes = (v.notes || []).map(line => '• ' + line).join('\n');
+  const thanks = gold > 0
+    ? 'Sorry for the inconvenience. Thank you for playing — here\'s some gold on us.\n+' + gold + 'g'
+    : 'Sorry for the inconvenience. Thank you for playing.';
+  Notices.custom(scene, (keep, D, close) => {
+    const W = T().W;
+    keep(T().text(scene, W / 2, 168, 'Version ' + (v.label || v.id || ''), { size: 22, display: true, ox: 0.5, color: T().css.gold }).setDepth(D));
+    if (v.date) keep(T().text(scene, W / 2, 196, v.date, { size: 13, ox: 0.5, color: T().css.inkDim }).setDepth(D));
+    keep(T().text(scene, W / 2, 228, notes, { size: 14, ox: 0.5, wrap: 540, align: 'center', color: T().css.ink }).setDepth(D));
+    keep(T().text(scene, W / 2, 368, thanks + '\nNeverendingnarratives.com', {
+      size: 14, ox: 0.5, wrap: 540, align: 'center', color: T().css.gold,
+    }).setDepth(D));
+    ADV.UI.modalBtn(keep, D, T().button(scene, W / 2 - 110, 430, 220, 42, 'Thank you', () => { close(); next(); }, { size: 15, display: true, bold: true }));
+  }, { y: 120, h: 380 });
+};
+
 // ---- arrival notices --------------------------------------------------------
 // Only mothers name children (request): the female player names hers at
 // birth; a male player's child is named by its NPC mother.
