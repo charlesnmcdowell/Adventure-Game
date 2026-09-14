@@ -501,12 +501,16 @@ Q(5, {
       B('verlan', 'q5_inn_ask', without('selene', { choice: 'q5_verlan' })),
     ],
     1: [
-      B('cassian', 'q5_patrol', co('cassian')),
-      B('ilvara', 'q5_patrol', { caption: 'Holloway Vale. Three soldiers in the flame-tabard of the Burning Gauntlet have a woman in grey on her knees at the roadside.' }),
+      B('cassian', 'q5_patrol', co('cassian', { caption: 'Following the courier’s map north toward the bandit camp, you reach Holloway Vale. A patrol blocks the crossing.' })),
+      B('ilvara', 'q5_patrol', { caption: 'Holloway Vale, on the way to the bandit camp. You come upon a Burning Gauntlet patrol holding a dark-elf priestess at sword-point.' }),
       B('cassian', 'q5_patrol_cassian', co('cassian')), B('ilvara', 'q5_patrol_cassian_reply', co('cassian')), B('cassian', 'q5_patrol_cassian_after', co('cassian', { choice: 'q5_ilvara' })),
       B('ilvara', 'q5_patrol_ask', without('cassian', { choice: 'q5_ilvara' })),
     ],
-    2: [B('fennick', 'q5_camp', co('fennick')), B(W, 'q5_camp', { anyOf: [W, 'fennick'], choice: 'q5_camp' })],
+    2: [
+      B('fennick', 'q5_camp', { when: { companyAll: ['fennick', W] } }),
+      B(W, 'q5_camp', co(W, { choice: 'q5_camp' })),
+      B('fennick', 'q5_camp', { when: { company: 'fennick', noCompany: W }, choice: 'q5_camp' }),
+    ],
     3: [
       B('cael', 'q5_tent', { caption: 'The lord\'s tent. A man in chains, a chest, and an ogre in a mage\'s coat rising from the cot.' }),
       B('ithrel', 'q5_tent_ithrel', co('ithrel')), B('cael', 'q5_tent_ithrel_reply', co('ithrel')),

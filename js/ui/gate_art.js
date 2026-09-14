@@ -63,7 +63,7 @@ const encounterRoutes=G.encounterRoutes={
 };
 const journeys=G.journeys={
  1:['lanternhold','griffon'],2:['shore','open_hand'],3:['ford','dunmere'],4:['dunmere_mine','dunmere'],
- 5:['holloway','bandit_camp'],6:['mirkhollow','iron_mine'],7:['iron_mine','mirkhollow'],8:['span','nine_lanterns'],
+ 5:['thornbury','bandit_camp'],6:['mirkhollow','iron_mine'],7:['iron_mine','mirkhollow'],8:['span','nine_lanterns'],
  9:['tower','hunted_city'],10:['lanternhold','catacombs'],11:['hunted_city','hunted_city'],12:['palace','palace'],
  13:['undercity','undercity'],14:['temple','temple']
 };
@@ -83,7 +83,7 @@ for(const [id,e]of Object.entries(M.panoramas)){
 }
 G.travelId=(q,leg)=>q?.campaign3&&journeys[q.n]?'gate_'+journeys[q.n][leg==='return'?1:0]:null;
 G.travelPhase=(q,leg)=>{const id=G.travelId(q,leg);return ['gate_lanternhold','gate_griffon','gate_nine_lanterns'].includes(id)?'night':['gate_open_hand','gate_hunted_city'].includes(id)?'evening':null;};
-G.travelSequence=(q,leg)=>q?.campaign3&&leg==='outbound'&&q.n===5?['gate_thornbury','gate_holloway']:q?.campaign3&&leg==='outbound'&&q.n===8?['gate_span','gate_sewers']:[G.travelId(q,leg)].filter(Boolean);
+G.travelSequence=(q,leg)=>q?.campaign3&&leg==='outbound'&&q.n===8?['gate_span','gate_sewers']:[G.travelId(q,leg)].filter(Boolean);
 const groundFor=A.BattleArt.groundFor;
 A.BattleArt.groundFor=function(game,mode){const q=game.quest?.quest;if(q?.campaign3){const id=encounterRoutes[q.n]?.[game.quest.encIdx||0];if(id&&M.environments[id])return'gate_'+id;}return groundFor(game,mode);};
 const phaseFor=A.BattleArt.phaseFor;

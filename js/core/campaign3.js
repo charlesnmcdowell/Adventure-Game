@@ -5,7 +5,7 @@
 //      (reincarnation or nepotism) resumes the story at the chapter reached.
 //   2. Branching happens INSIDE quests through choice beats, never by
 //      unlocking alternate quests; the hall stays a straight list of fourteen.
-//   3. The company is a picked subset (max 3) of story companions built as
+//   3. The company is a picked subset (max 5 companions, 6 people with you) built as
 //      campaign actors at the quest's level, not world NPCs.
 //
 // Installation at the bottom wraps the same ADV.Campaign entry points campaign2
@@ -17,7 +17,7 @@ const D = () => ADV.DATA;
 const C3 = {};
 
 C3.FID = 'gate';
-C3.MAX_COMPANY = 3;
+C3.MAX_COMPANY = 5;                       // companions who ride; 6 people with you
 C3.QUEST_COUNT = 14;
 C3.LEVEL_BY_TIER = { 1: 6, 2: 12, 3: 18, boss: 24 };
 
@@ -352,6 +352,22 @@ C3.bypassEncounter = function (game) {
     if (q.quest.campaign3 && !q.__c3closed) { q.__c3closed = true; q.closingBeats = C3.closingBeats(game, q.quest); }
   }
   return true;
+};
+// The inn's map points through the vale. Layla is a roadside encounter on that
+// journey, not a contact the company already knows. No extra encounter or cost.
+C3.travelBridge = function (game) {
+  const q = game.quest;
+  if (!q?.quest?.campaign3 || q.quest.n !== 5 || q.encIdx !== 1 || q.__q5ValeJourney || q.over || q.failed || q.playerDead) return null;
+  const choice = C3.state(game).choices.q5_verlan;
+  const lead = choice === 'pay' ? 'Femi’s map marks a camp beyond Holloway Vale, under the old oak line.'
+    : choice === 'pocket' ? 'The map Hiwot lifted marks a camp beyond Holloway Vale, under the old oak line.'
+    : 'Among the courier’s papers you find a map to the bandit camp, beyond Holloway Vale.';
+  return {
+    key: 'gate:q5:inn-to-holloway:v1', heading: 'Thornbury → Holloway Vale',
+    caption: lead + ' You leave the inn and follow the river north, keeping off the watched road.',
+    arrivalCaption: 'At the crossing, soldiers block the path. A dark-elf woman is kneeling between them. You stop to see what is happening.',
+    location: 'gate_holloway', durationMs: 11000,
+  };
 };
 // A reply beat, with a same-named follow-up choice attached when one exists.
 // opt / choiceId: an `ask` option's reply re-presents the same choice (minus the question).

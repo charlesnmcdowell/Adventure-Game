@@ -47,7 +47,7 @@ function view(scene,raw,phase,opts){
  opts=opts||{};const id=resolve(raw),lease=acquire(scene,id),detail=DETAILS[id]||{};
  if(INDOOR.has(id))phase='day';
  const root=scene.add.container(0,0).setDepth(opts.depth??-10),art=scene.add.container(0,0);root.add(art);
- const shade=scene.add.rectangle(W/2,H/2,W,H,0x152235);art.add(shade);
+ const shade=scene.add.rectangle(W/2,H/2,W,H,0x080c12);art.add(shade);
  const status=A.T.text(scene,W/2,H/2,'Preparing the scenery…',{size:16,ox:.5,color:'#e9dbc0'});root.add(status);
  const effects=scene.add.graphics();root.add(effects);let bg=null,water=[],cloth=[],alive=true;
  function fitImage(img){const sw=img.frame.realWidth,sh=img.frame.realHeight,s=Math.max((W+24)/sw,(H+18)/sh);img.setScale(s).setPosition(W/2,H/2);}

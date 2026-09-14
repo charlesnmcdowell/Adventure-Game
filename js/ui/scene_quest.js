@@ -33,6 +33,12 @@ class QuestScene extends Phaser.Scene {
     }
     if (q.readyToComplete || q.over || (q.encIdx >= q.quest.encounters.length && !q.rivalFight)) { this.completeFlow(); return; }
 
+    const bridge = ADV.Campaign3?.travelBridge(game);
+    if (bridge && ADV.GateArt?.playBridge) {
+      ADV.GateArt.playBridge(this, game, bridge, () => { q.__q5ValeJourney = true; this.scene.restart(); });
+      return;
+    }
+
     if (ADV.TravelUI && q.quest.midLegAfterEncounter === q.encIdx && !q.travelMidShown && !q.rivalFight) {
       q.travelMidShown=true;
       ADV.TravelUI.play(this,game,q.quest,'midleg',()=>this.scene.restart());return;

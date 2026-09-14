@@ -90,14 +90,14 @@ function ambience(scene,terrain){
 ADV.TravelUI={
  play(scene,game,q,leg,done,options){
   options=options||{};
-  const plan=options.__readyPlan||ADV.Travel.plan(game,q,leg);if(plan.bypass){if(done)done();return;}
+  const plan=options.__readyPlan||options.plan||ADV.Travel.plan(game,q,leg);if(plan.bypass){if(done)done();return;}
   // First-view time starts when the illustration is ready, even on a cold cache.
-  const sequence=ADV.GateArt?.travelSequence(q,leg)||[];
+  const sequence=options.sequence||ADV.GateArt?.travelSequence(q,leg)||[];
   const panoramaId=sequence[0]||ADV.GateArt?.travelId(q,leg)||(plan.location.terrain==='port'&&leg==='midleg'?'sea':plan.location.id);
   if(ADV.TravelPanorama&&!scene.game.__artPreview&&!options.__readyPlan){
    const leases=(sequence.length?sequence:[panoramaId]).map(id=>ADV.TravelPanorama.acquire(scene,id)),oldCut=scene.__cutscene;
    scene.__cutscene=true;if(scene.hideChrome)scene.hideChrome();
-   const shade=scene.add.rectangle(640,380,1280,760,0x142032).setDepth(990).setInteractive();
+   const shade=scene.add.rectangle(640,380,1280,760,0x080c12).setDepth(990).setInteractive();
    const label=ADV.T.text(scene,640,360,'Preparing the journey…',{size:23,ox:.5,color:ADV.T.css.gold}).setDepth(991);
    let stopped=false,button=null;
    const clean=transfer=>{if(stopped)return;stopped=true;scene.events.off('shutdown',clean);shade.destroy();label.destroy();if(button){button.g.destroy();button.txt.destroy();button.zone.destroy();}leases.forEach(l=>l.release());scene.__cutscene=oldCut;if(transfer!==true)scene.showChrome?.();};
@@ -146,6 +146,9 @@ ADV.TravelUI={
   if(plan.event==='party-friction')sub.setText('There is room on the road. They choose opposite sides.');
   if(plan.event==='weather-turn')sub.setText('The light changes. The weather is following you in.');
   if(leg==='outbound'&&!plan.event&&plan.visits===0)sub.setText(r.caption||q.name);
+  if(options.heading)heading.setText(options.heading);
+  if(options.caption)sub.setText(options.caption);
+  if(options.arrivalCaption)later(5500,()=>sub.setText(options.arrivalCaption));
   if(leg==='outbound'){
     heading.setAlpha(0);sub.setAlpha(0);
     scene.tweens.add({targets:[heading,sub],alpha:1,delay:800,duration:400});
@@ -232,10 +235,10 @@ ADV.TravelUI={
   let endAt=0;scene.events.on('update',tick);
   const end=()=>{endAt=elapsed;finish();};
   if(plan.skip)later(1200,()=>ADV.UI.modalBtn(keep,950,ADV.T.button(scene,W-176,22,150,36,'Skip journey',end,{size:13})));
-  const lines=ADV.Travel.dialogue(game,q,leg,plan);let li=0;
+  const lines=options.silent?[]:ADV.Travel.dialogue(game,q,leg,plan);let li=0;
   function next(){
    if(ended||ending)return;
-   const line=lines[li++];if(!line){later(Math.max(500,(leg==='outbound'?10000:7000)-elapsed),end);return;}
+   const line=lines[li++];if(!line){later(Math.max(500,(options.durationMs||(leg==='outbound'?10000:7000))-elapsed),end);return;}
    const card=cards.find(c=>c.c===line.speaker);if(card){card.cont.setScale(1.05);card.img.setTint(0xfff3cc);}
    if(line.campaign) ADV.Music.speakCampaign(line.campaign,line.band,line.idx+1);
    else ADV.Music.speakFile(line.speaker.personalityId,line.band,line.idx+1);

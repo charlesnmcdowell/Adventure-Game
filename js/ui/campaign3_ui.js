@@ -205,7 +205,7 @@ UI3.pickSeat = function (scene, game, who, opts, done) {
   const by = Math.max(36, Math.round((T().H - bh) / 2) - 16);
   ADV.Notices.custom(scene, (keep, Dp, close) => {
     keep(T().text(scene, W / 2, by + 22, 'The company is full', { size: 20, display: true, ox: 0.5, color: T().css.gold }).setDepth(Dp));
-    keep(T().text(scene, W / 2, by + 52, name + ' wants to ride, but only ' + C3().MAX_COMPANY + ' can. Who stays at the inn?', {
+    keep(T().text(scene, W / 2, by + 52, name + ' wants to ride, but only ' + (C3().MAX_COMPANY + 1) + ' can. Who stays at the inn?', {
       size: 13, ox: 0.5, wrap: bw - 48, align: 'center', color: T().css.inkDim,
     }).setDepth(Dp));
     let y = by + 86;
@@ -289,7 +289,7 @@ Panels.story = function (scene, r) {
   const cx = r.x + r.w - 290, cw = 270;
   let cy = r.y + 70;
   const ridingN = v.company.length, full = ridingN >= C3().MAX_COMPANY;
-  scene.keep(T().text(scene, cx, cy, 'THE COMPANY  ·  ' + ridingN + '/' + C3().MAX_COMPANY + ' ride along', { size: 11, color: full ? T().css.gold : T().css.inkDim })); cy += 20;
+  scene.keep(T().text(scene, cx, cy, 'THE COMPANY  ·  ' + (ridingN + 1) + '/' + (C3().MAX_COMPANY + 1), { size: 11, color: full ? T().css.gold : T().css.inkDim })); cy += 20;
   if (!v.roster.length) { scene.keep(T().text(scene, cx, cy, 'Nobody yet. The road will provide.', { size: 12, italic: true, color: T().css.inkFaint })); cy += 22; }
   const companyTop = cy, companyH = Math.min(v.roster.length * 40, Math.max(80, r.h - 260));
   const companyScroll = v.roster.length ? ADV.UI.scrollArea(scene, { x: cx - 3, y: cy, w: cw + 6, h: companyH }, { keep: o => scene.keep(o) }) : null;

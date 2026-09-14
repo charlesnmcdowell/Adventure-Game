@@ -88,15 +88,27 @@ G.withScene=function(scene,game,beat,done,play){
  if(!spec||JSON.stringify(spec)===JSON.stringify(state.spec)){play(done);return;}
  const view=spec.kind==='environments'?A.AnimeEnvironments.view(scene,'gate_'+spec.id,spec.phase,{depth:400}):G.view(scene,spec.kind,spec.id);
  if(!view){play(done);return;}
+ // Retain the current painting while the next image loads. Its temporary
+ // background must not cover a finished scene with a blue loading flash.
+ view.setVisible(false);
  state.pending=view;
  view.ready.then(()=>{
   if(state.ended||!view.active)return;
-  state.weather?.destroy();state.weather=null;state.view?.destroy(true);state.view=view;state.spec=spec;state.pending=null;
+  state.weather?.destroy();state.weather=null;state.view?.destroy(true);view.setVisible(true);state.view=view;state.spec=spec;state.pending=null;
   const profile=A.GateAmbience[spec.kind]?.[spec.id],phase=spec.phase||profile?.phase||'day';
   const indoor=spec.kind==='environments'?M.environments[spec.id].indoor:!profile?.outdoor;
   state.weather=A.GateAmbience.weather(scene,view,profile,indoor,A.Weather.at(game.world,{phase,override:game.quest?.travel?.weather}),phase,{depth:405,independent:true});
   if(state.weather&&spec.kind==='stills')view.addAt(state.weather.container,view.length-2);
   play(done);
+ });
+};
+G.playBridge=function(scene,game,bridge,done){
+ const visits=A.Travel.views(game,bridge.key);
+ const location={...A.DATA.TRAVEL_LOCATIONS[bridge.location],caption:bridge.caption};
+ const plan={key:bridge.key,visits,skip:visits>0,bypass:visits>=2,event:null,location,leg:'midleg'};
+ A.TravelUI.play(scene,game,game.quest.quest,'midleg',done,{
+  plan,sequence:[bridge.location],heading:bridge.heading,caption:bridge.caption,
+  arrivalCaption:bridge.arrivalCaption,durationMs:bridge.durationMs,silent:true,
  });
 };
 const playBeats=A.CampaignUI.playBeats;
