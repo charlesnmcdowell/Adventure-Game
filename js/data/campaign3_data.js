@@ -52,7 +52,7 @@ chr({ id: 'dorran', name: 'Beau', region: 'thornbury', role: 'companion', compan
   perks: ['bulwark'], actives: ['cleave', 'shield_wall', 'sunder', 'taunt'],
   portrait: { skin: 'brown', hair: 'fringe', wardrobe: 'armor', color: '#4e5a3a' } });
 chr({ id: 'selene', name: 'Delphine', region: 'thornbury', role: 'companion', companion: true, sex: 'f', campaignExit: true, romance: true, favours: 'hero', romanceWhen: { dead: 'dorran' },
-  desc: 'A Warden druid of the Shore Road, Tesfaye\'s old friend. Blunt, protective, allergic to self-pity. Speaks for the balance of things.',
+  desc: 'Beau\'s wife and an old friend of your late stepfather, Tesfaye. A Warden druid of the Shore Road: blunt, protective, allergic to self-pity. Speaks for the balance of things.',
   perks: ['wild_form'], actives: ['thorn_skin', 'mend', 'beast_shape', 'grove_raise'],
   portrait: { skin: 'brown', hair: 'braids', wardrobe: 'hide', color: '#3a5a3a' } });
 chr({ id: 'vess', name: 'Desmond', region: 'hand', role: 'companion', companion: true, sex: 'm', campaignExit: true,

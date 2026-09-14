@@ -19,6 +19,10 @@
 // {target} is the listener's name.
 // Editorial rule: no ink-on-body character shorthand or "question" metaphors.
 // Literal requests for information are fine; ask them directly.
+// Keep the action and stakes concrete. Do not give unrelated speakers the same
+// chained metaphors, mock-profound reversals or compulsory punchline cadence.
+// Contextual humour, distinctive idiom, cruelty and profanity stay in character.
+// Revise individual recorded segments; preserve clip indices and plot callbacks.
 (function () {
 'use strict';
 globalThis.ADV = globalThis.ADV || {};
@@ -186,7 +190,7 @@ L('morwin', 'q2_morwin_inn', `[cursing] Oh, that's low. That's — I hear the do
 L(W, 'q2_notice', `[picking up the paper] He was carrying this. Your face, and a bounty, and a seal of an iron hand in red wax. No name.|[quiet] Somebody with a great deal of money wants you dead badly enough to send two men in one night and a third to wait at the one door Tesfaye trusted. I am keeping this. Somebody at that inn will know the mark.`);
 // The Open Hand: Delphine wants the whole account before she decides anything
 L('dorran', 'q2_selene', `[stammering, warm] You're — y-you're his. Tesfaye's. I'd know that coat anywhere; he w-wore it the day we met. Come in. Come in out of the road.|[quiet] Del. It's the ward. He sent the ward.`);
-L('selene', 'q2_selene', `[blunt] Sit down before you fall down, honey. Both of you. Beau, get the good bread.|[steady] Tesfaye wrote to us every year for twenty years, and every letter said the same thing: if the child ever comes to your door alone, it means I am dead, and you are to do what I would have done.|[quiet, direct] So. How did he die? All of it. Don't you spare me.`);
+L('selene', 'q2_selene', `[warm, gentle] I'm Delphine, Beau's wife. Your late stepfather, Tesfaye, was an old friend of ours. Sit down, honey. Beau, get the good bread.|[steady] He wrote to us from Lanternhold every year for twenty years. Said you and Hiwot were growing up in that keepers' library, getting into everything he tried to keep you out of. His last letter said if you came here without him, we were to keep you safe.|[quiet, direct] So. How did he die? All of it. Don't you spare me.`);
 CH('q2_selene_how', [
   { id: 'armour', text: 'A man in black plate, taller than a man should be. He asked for me by name. Tesfaye said no.', set: { toldArmour: true }, reply: B('selene', 'q2_how_armour') },
   { id: 'quick', text: 'Quickly. He did not suffer.', reply: B('selene', 'q2_how_quick') },
@@ -235,7 +239,7 @@ Q(2, {
   closing: [B(W, 'q2_notice', co(W))],
   arrival: [
     B('dorran', 'q2_selene', { caption: 'The inn door opens. A broad man with a shield on his back, and behind him a woman with grey in her braids and a look that has already counted you.' }),
-    B('selene', 'q2_selene', { choice: 'q2_selene_how' }),
+    B('selene', 'q2_selene', { choice: 'q2_selene_how', caption: 'Delphine — Beau’s wife, a Warden druid and an old friend of your late stepfather, Tesfaye.' }),
     B('dorran', 'q2_beau_seal'),
     B('selene', 'q2_selene_seal', { choice: 'q2_selene' }),
     B('selene', 'q2_join', { recruit: ['dorran', 'selene'] }),
@@ -379,13 +383,15 @@ L('tollan', 'q4_thanks', `[overjoyed] The crews went down at dawn and came up wi
 // Camp: Hiwot has been wanting to ask this since the inn
 L(W, 'q4_camp_hiwot', `[quiet, at the fire] Delphine. Was he a good Warden? Tesfaye. He never talked about it, and I have been wondering all day whether that was because it was bad, or because it was good.`);
 L('selene', 'q4_camp_selene', `[after a moment] He was the best of us, sugar. And he quit. Those ain't two different stories either.`);
-L('aldric', 'q4_dream', `[echoing] You are dreaming, my child, and I am dead, and both of those things are true at once.|[gentle] There is a throne in this dream. You will see it more clearly each time you come here. Do not sit in it. Do not look at it for long.|[fading] Something in your blood is waking. You can feed it or you can starve it. That is the only choice that matters, and you will make it more than once.`);
+// Core succession lore belongs before the first heritage choice, on every route.
+// Later evidence distinguishes Adigun's iron monopoly from Kolade's use of it.
+L('aldric', 'q4_dream', `[echoing] You are dreaming, my child, and I am dead, and both of those things are true at once.|[gentle] That throne belonged to Morrak, the god of murder. He died before you were born. You are one of his children, and part of his power lives in you.|[grave] He intended his children to kill one another and take that power for themselves, until one could claim his throne. You can refuse, my child. You do not have to kill for him.`);
 CH('q4_dream', [
-  { id: 'ask', text: 'What am I, Tesfaye? Tell me plainly.', ask: true, reply: B('aldric', 'q4_dream_ask') },
+  { id: 'ask', text: 'You knew what I was when you brought me to Lanternhold?', ask: true, reply: B('aldric', 'q4_dream_ask') },
   { id: 'reject', text: 'I do not want whatever this is. Starve it.', heritage: -1, set: { dream1: 'reject' }, reply: B('aldric', 'q4_dream_reject') },
   { id: 'embrace', text: 'Show me the throne.', heritage: 1, set: { dream1: 'embrace' }, reply: B('aldric', 'q4_dream_embrace') },
 ]);
-L('aldric', 'q4_dream_ask', `[sorrowful] If I could, I would. Dreams are not letters; they carry only what you already half-know. You are the child of something that should have stayed dead — and you are mine. Both. Only the second is yours to keep.`);
+L('aldric', 'q4_dream_ask', `[sorrowful] I did. I brought you there to keep you out of Morrak's followers' reach. I should have told you while I was alive. I was afraid of what it would do to you.`);
 L('aldric', 'q4_dream_reject', `[warm] Good. That is the harder road, and the right one. You will wake with a gift for closing wounds. Spend it on other people.`);
 L('aldric', 'q4_dream_embrace', `[grieving] I cannot stop you here; only you can. You will wake with a gift for opening wounds. Mind what it makes you want.`);
 Q(4, {
@@ -578,7 +584,7 @@ CH('q6_selene_fire', [
 ]);
 L('selene', 'q6_fire_letters', `[fond] The first year, that you'd learned to walk and walked straight into the library. The seventh, that you'd stolen honey from the brothers and let a cat take the blame. The last — that you were ready, and that he wasn't.`);
 L('selene', 'q6_fire_warm', `[a soft laugh] Enough. Yeah. That's a very Tesfaye amount.|[warm] Goodnight, {target}. Wake me if the trees start walking.`);
-L('selene', 'q6_fire_deflect', `[dry] I should. So should you. Neither one of us will.|[calm] Goodnight.`);
+L('selene', 'q6_fire_deflect', `[quiet] All right. Get some rest. We can talk another time.|[calm] Goodnight.`);
 L('selene', 'q6_fire_dorran', `[fond] He is. He also snores like a bear in a barrel, so the fortune runs both ways.|[warm] Goodnight, {target}. Don't you tell him I said that.`);
 Q(6, {
   departure: [B('selene', 'q6_forest', { anyOf: ['selene', W] })],
@@ -593,7 +599,7 @@ Q(6, {
     3: [B('selene', 'q6_gate', co('selene'))],
   },
   closing: [],
-  arrival: [B('selene', 'q6_fire', { when: { recruited: 'selene', alive: 'selene' }, choice: 'q6_selene_fire' })],
+  arrival: [B('selene', 'q6_fire', { when: { recruited: 'selene', alive: 'selene' }, choice: 'q6_selene_fire', caption: 'Delphine, Beau’s wife and Tesfaye’s old friend, sits beside you at the fire.' })],
 });
 
 // =====================================================================
@@ -620,7 +626,7 @@ L('durnik', 'q7_durnik_paper', `[grim] A debt we didn't owe, bought off a man wh
 L('durnik', 'q7_durnik_free', `[grunting to his feet] With you. Aye. There's lovely. Mind the third level; the mage keeps his study there, and he doesn't care for knocking.`);
 L('durnik', 'q7_durnik_leave', `[flat] Come back for me. Aye. Everybody says that, bach.`);
 // Olamide's study — Dai has one question before anyone asks about papers
-L('malvane', 'q7_study', `[irritated] You have tracked mud across the ledgers. Do you know how long a clean ledger takes?|[cold] Guards. The Consortium has paid for this mine three times over, and it will not pay a fourth time for the likes of you.`);
+L('malvane', 'q7_study', `[irritated] Get away from my desk. Those ledgers are Consortium property.|[cold] Guards, kill them. The Consortium wants this mine kept running.`);
 L('durnik', 'q7_study_dai', `[very level] Morgan. Bryn and Gareth Morgan. My cousins. Which ledger are they in, mage?`);
 L('malvane', 'q7_study_dai_reply', `[without looking up] Ledger four. The deceased column, I should think; the deep levels take the dwarves first. Guards!`);
 L('durnik', 'q7_study_dai_after', `[quiet] ...Then I'll be having ledger four. Go on, {target}.`);
@@ -628,7 +634,7 @@ L('fennick', 'q7_study_winston', `[flat] Two sets of books, mage. Which one goes
 L('malvane', 'q7_study_winston_reply', `[contemptuous] Both. One to each partner, and neither to you. Guards!`);
 CH('q7_malvane', [
   { id: 'who', text: 'Who do you answer to? Say the name and I may let you keep your ledgers.', ask: true, reply: B('malvane', 'q7_malvane_who') },
-  { id: 'fight', text: 'Then it will pay in another coin.', reply: B('malvane', 'q7_malvane_fight') },
+  { id: 'fight', text: 'Enough. We’re freeing the prisoners.', reply: B('malvane', 'q7_malvane_fight') },
 ]);
 L('malvane', 'q7_malvane_who', `[contemptuous] To the Gate office, and the Gate office answers to the men whose names are on the letters you have not yet found. You will not find them, my friend. Guards!`);
 L('malvane', 'q7_malvane_fight', `[cold] So be it.`);
@@ -656,13 +662,13 @@ CH('q7_vess_papers', [
 L('fennick', 'q7_papers_who', `[level] The Umbral Hand. You have heard the name; everybody has, and everybody pretends they haven't. Merchants, mostly, of a kind. They want to know who is cornering iron on this coast, and why, and they don't much care who dies of the knowing.`);
 L('fennick', 'q7_papers_give', `[nodding] Copies. Fair. You won't regret keeping us.|[dry] You may regret Desmond. That is a separate matter.`);
 L('vess', 'q7_papers_refuse', `[very calm] Then we go, and you will see us again, and it won't be as friends.|[light] It never was, really. I did tell you stories like yours get told badly.`);
-L('aldric', 'q7_dream', `[echoing] Closer to the throne this time, my child. You did not walk here. It walked to you.|[grave] There are others like you. More than you would believe. All of them dreaming of the same chair.|[fading] You can still refuse it, my child. It will offer you more power each time. Remember what taking it would cost.`);
+L('aldric', 'q7_dream', `[echoing] The throne is closer this time, my child. You'll keep seeing it as your power grows.|[grave] Morrak, the god of murder, left many children. You are one of them. Some of your kin have begun killing the others for his power. The man who hunts you is using the Consortium's money and hired killers to find them.|[fading] Each child he kills makes him stronger and removes another rival for the throne. That is why he wants you dead. You can stop him without claiming Morrak's throne yourself.`);
 CH('q7_dream', [
   { id: 'others', text: 'Others. How many? Who?', ask: true, reply: B('aldric', 'q7_dream_others') },
-  { id: 'reject', text: 'Starve it. I am not sitting in anyone\'s chair.', heritage: -1, set: { dream2: 'reject' }, reply: B('aldric', 'q7_dream_reject') },
+  { id: 'reject', text: 'I will stop him. I will not claim Morrak\'s throne.', heritage: -1, set: { dream2: 'reject' }, reply: B('aldric', 'q7_dream_reject') },
   { id: 'embrace', text: 'If there are others, I had better be the strongest.', heritage: 1, set: { dream2: 'embrace' }, reply: B('aldric', 'q7_dream_embrace') },
 ]);
-L('aldric', 'q7_dream_others', `[quiet] I never learned the number. Enough that the one who hunts you has made a study of it, and is not afraid of running out.`);
+L('aldric', 'q7_dream_others', `[quiet] I do not know how many are still alive. Most were raised by mortal families, as you were. Some may not know what they are. The man in black has been searching for them for years.`);
 L('aldric', 'q7_dream_reject', `[proud] Twice now. It grows harder each time and you keep saying no. That is what courage is. No one warns you that it is dull.`);
 L('aldric', 'q7_dream_embrace', `[grieving] The strongest of them is waiting for you at the end of this road, and he thinks exactly that.|[fading] Please, my child. Be careful what you become on the way to him.`);
 Q(7, {
@@ -748,7 +754,7 @@ CH('q8_duke_seen', [
 L('halvard', 'q8_seen_nobody', `[a nod] Good. Keep it so. A paper nobody has read is worth twice one everybody has argued about.`);
 L('halvard', 'q8_seen_hand', `[a long breath] The Umbral Hand. Then the whole market will have read them by the week's end, and the Council will hear it from fishwives before it hears it from me. Ah-ah. — Fine. Faster than my clerks, at least. It is not a small thing you have done, and I am not yet sure whether it was a good one.`);
 L('halvard', 'q8_seen_wardens', `[dry] Wardens. Then they are honest and nobody in this city will believe them. Good. That is one problem I already know how to solve.`);
-L('halvard', 'q8_duke_work', `[precise] The Iron Consortium has been strangling this city's iron for a year and blaming Calder for it. War with Calder would kill ten thousand people, and the Council votes on that war in a fortnight. I need their papers — the ones in their own tower, in their own hand — before the vote. It is not a small matter.`);
+L('halvard', 'q8_duke_work', `[precise] The Consortium poisoned its rivals' ore and kept its own iron to sell at a higher price. Now it blames Calder for the shortage. If the Council votes for war, the city will need swords, armour and wagons, and Adigun's company will supply the iron. I need the orders from their tower before the vote in a fortnight. Without proof, ten thousand people could die making those men rich.`);
 CH('q8_halvard', [
   { id: 'city', text: 'Then we will get them. For the city.', allegianceLean: 'gauntlet', aff: { cassian: 1, selene: 1 }, reply: B('halvard', 'q8_halvard_city') },
   { id: 'pay', text: 'For the city, and for a price.', aff: { wren_ward: 1, faelen: 1 }, reply: B('halvard', 'q8_halvard_pay') },
@@ -811,7 +817,7 @@ CH('q9_lysandra', [
   { id: 'kill', text: 'You share his bed. You share his end.', heritage: 1, set: { lysandraDead: true }, aff: { selene: -1, amara: -1 }, reply: B('lysandra', 'q9_lysandra_kill') },
 ]);
 L('lysandra', 'q9_lysandra_kolade', `[precise] Adigun Adeyinka's foster-son, and the head of the Consortium in everything but the ledger. The man in the black armour on your road; he told me about the road himself, and he told it fondly. He collects people like you. He says you are family. He does not mean it kindly, and he does not mean it as a threat either, which is the frightening part.`);
-L('lysandra', 'q9_lysandra_deal', `[pleased] Kolade is not a merchant's son. He is something older, and he believes you are the same. He wants a war so that a great many people die at once; he believes that makes him a god, and his tutor believes it too, and the tutor is the clever one.|[soft] When you need a way into the palace, come to me. I will have one. The price is his head, and the Consortium afterward — for me.`);
+L('lysandra', 'q9_lysandra_deal', `[pleased] Adigun expects to make a fortune supplying a war. Kolade has been using his father's couriers to hunt Morrak's children behind his back. His tutor also promises him godhood through mass murder. That is why he needs the war, even if it ruins the Consortium.|[soft] When you need a way into the palace, come to me. I will have one. The price is his head, and the Consortium afterward — for me.`);
 L('lysandra', 'q9_lysandra_arrest', `[amused] Chains. How lawful. Fine. I will tell Adebayo everything and he will hang me for it, and Kolade will still be sworn in on time.|[bitter] Go upstairs. The top floor is where he keeps the truth about you.`);
 L('lysandra', 'q9_lysandra_kill', `[whispering] He will feel this. That is the only thing I am sorry for.`);
 L('selene', 'q9_top', `[reading] Adigun Adeyinka, Bankole, Rotimi. Gone to Lanternhold — to LANTERNHOLD — for a summit with the keepers.|[cold] The three men behind all of this are sitting in the library you grew up in.`);
@@ -883,7 +889,7 @@ L('hadrian', 'q10_where_refuse', `[cold] "On the road." Very well. It is what he
 L('ambrose', 'q10_gate', `[kind] Pay him no mind. He mourns like a wall. — Come and find me in the upper reading room before you do anything else, my child. Tesfaye left something with me. For you. For now.`);
 L(W, 'q10_home', `[strange] It smells the same. Ink and dust and the brothers' lentils. I thought it would feel like home, and it feels like a trap.`);
 // The summit: Adigun, and Delphine's one question about the seal
-L('maddox', 'q10_summit', `[startled] Guards — no. No, hold. I know who you are.|[shaking] Adigun Adeyinka. I run the Consortium's Gate office. I did not order Tesfaye killed. I did not order YOU killed. That was — ah-ah, that was my son. My foster-son. He does not answer to me anymore.`);
+L('maddox', 'q10_summit', `[startled] Guards — no. No, hold. I know who you are.|[shaking] Adigun Adeyinka. The mines, the bandits, the lies about Calder — we paid for those. War would have made us the city's only iron supplier. But the orders to kill you and Tesfaye came from my foster-son. He used my seal and my couriers. By the time I found out, they were obeying him.`);
 L('selene', 'q10_summit_selene', `[flat] Then answer me this, Adeyinka, before anybody decides anything. The iron hand in red wax on the ore wagons. Whose seal is that?`);
 L('maddox', 'q10_summit_selene_reply', `[miserable] Mine. The house's. — He took it off my desk in the spring, and my couriers with it, and I have been signing for a man who no longer asks me.`);
 L('selene', 'q10_summit_selene_after', `[to you, quiet] Your seal on the wagons and his on the bounty. Same wax. I've been right since the inn, honey, and I ain't glad of it.`);
@@ -894,7 +900,7 @@ CH('q10_summit', [
   { id: 'arrest', text: 'You will answer to Adebayo. All three of you. Nobody dies in a library.', bypass: true, set: { leadersSpared: true, leadersArrested: true }, aff: { cassian: 1 }, heritage: -1, reply: B('maddox', 'q10_summit_arrest') },
 ]);
 L('maddox', 'q10_summit_kill', `[terrified] He will not stop when we are dead. He will not STOP —`);
-L('maddox', 'q10_summit_talk', `[whispering] Kolade. Kolade Adeyinka. I found him in a gutter and I raised him to count money, and he has been counting something else since a tutor filled his head with prophecies.|[broken] He is in this keep tonight. I do not know what face he is wearing.`);
+L('maddox', 'q10_summit_talk', `[whispering] Kolade. Kolade Adeyinka. His tutor told him who his real father was. Then he started paying for reports on other children, all over the coast. I thought he was looking for relatives. I found the death notices with the bounty payments.|[broken] He is in this keep tonight. I do not know what face he is wearing.`);
 L('maddox', 'q10_summit_arrest', `[relieved] Yes. Yes. Adebayo. Anything. Take us out of here before he —`);
 // The letter — Dawit asks his one question first, because he has waited twenty years to ask it
 L('ambrose', 'q10_letter', `[gently] Sit. I have Tesfaye's letter here. Before you read it... did he say anything at the end? I need to know.`);
@@ -944,7 +950,7 @@ L('faelen', 'q10_double_strike_alone', `[breathless] Not him — and you knew. I
 L('faelen', 'q10_double_listen', `[shouting] Not them! NOT them! It has teeth, {target}!`);
 L('selene', 'q10_shore', `[weary] The shore. Air. We're out.|[hard] Every keeper in Lanternhold thinks we killed three men tonight, and the man who did it was inside those walls wearing somebody's face.`);
 L(W, 'q10_shore', `[shaking] Out. We are out. I am never going home again, am I.|[small] He was IN there. He was in the library, with us.`);
-L('aldric', 'q10_dream', `[echoing] You know now. I am sorry it was a letter.|[grave] He is your brother, and he will be a god if enough people die at once. That is the whole of his plan. It is not a stupid plan.|[fading] The last time I ask. Feed it, or starve it.`);
+L('aldric', 'q10_dream', `[echoing] Now you have my letter. I should have told you about your brother myself, when I could still help you face him.|[grave] Kolade plans to murder the other children and take their power. His tutor means to use the deaths in the war as an offering to Morrak, to make Kolade a god. Stop the war and you deny him that sacrifice.|[fading] The last time I ask. Feed it, or starve it.`);
 CH('q10_dream', [
   { id: 'reject', text: 'Starve it. I will stop him as myself.', heritage: -1, set: { dream3: 'reject' }, reply: B('aldric', 'q10_dream_reject') },
   { id: 'embrace', text: 'If it takes a god to stop a god, then feed it.', heritage: 1, set: { dream3: 'embrace' }, reply: B('aldric', 'q10_dream_embrace') },
