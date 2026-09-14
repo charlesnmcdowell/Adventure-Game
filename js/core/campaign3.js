@@ -30,6 +30,7 @@ C3.fresh = function () {
     ending: null, epilogue: null, endCardDue: false,
     beats: [], choices: {}, asked: {}, gearIssued: false,
     banterHeard: [], lastBanter: null, lastBanterSpeaker: null,
+    partyNoticeSeen: false,
   };
 };
 C3.state = function (game) {
@@ -158,8 +159,18 @@ C3.actor = function (game, id) {
   return game.__c3actors[cacheKey];
 };
 C3.alliesFor = function (game, q) {
-  if (!q || !q.campaign3) return [];
-  return C3.companyIds(game).map(id => C3.actor(game, id)).filter(Boolean);
+  // Hiwot joins after the prologue. Even a restarted/debugged Q1 begins alone.
+  if (!q || !q.campaign3 || q.n === 1) return [];
+  return C3.companyIds(game).filter(id => D().CAMPAIGN_CHARS[id]?.faction === C3.FID && D().CAMPAIGN_CHARS[id]?.companion)
+    .slice(0, C3.MAX_COMPANY).map(id => C3.actor(game, id)).filter(Boolean);
+};
+C3.departureNotice = function (game, q) {
+  if (!q?.campaign3 || C3.state(game).partyNoticeSeen) return null;
+  const player = ADV.Game.player(game);
+  if (!ADV.Party.of(game.world, player) && ADV.Party.battleRoster(game.world, player).length < 2) return null;
+  return 'Your regular party and followers wait at home during Varenholm’s Gate. '
+    + (q.n === 1 ? 'You begin this quest alone and recruit companions through the story. ' : 'Only companions recruited in this campaign travel with you. ')
+    + 'Your regular party stays intact, and you won’t owe them wages for this quest.';
 };
 
 // ---------------------------------------------------------------- quests (§4)

@@ -117,27 +117,26 @@ Game.youngDependents = function (ch) {
   return (ch.dependents || []).filter(d => d.age < C().CHILD_SELF_SUFFICIENT).length;
 };
 
+// A Gate expedition is led by the player, independently of their world party.
+// Keep the world party intact so its members and wages are there on return.
+Game.questParty = function (game, quest) {
+  const activeQuest = quest || (game.quest && game.quest.quest);
+  return activeQuest && activeQuest.campaign3 ? null : ADV.Party.of(game.world, Game.player(game));
+};
+
 Game.partyRoster = function (game, quest) {
   const player = Game.player(game);
-  const roster = ADV.Party.battleRoster(game.world, player);
   const activeQuest = quest || (game.quest && game.quest.quest);
+  const roster = activeQuest && activeQuest.campaign3 ? [player] : ADV.Party.battleRoster(game.world, player);
   // campaign allies (rival / boss) ride along on campaign quests only (§5a)
   if (ADV.Campaign && activeQuest && activeQuest.campaign) {
     const allies = ADV.Campaign.alliesFor(game, activeQuest);
-    if (activeQuest.campaign3) {
-      // The Story hall's selected companions must reach combat, even when the
-      // player also has a hired party or followers. Keep an employer's leader
-      // present too: the leader's survival still determines the contract.
-      const party = ADV.Party.of(game.world, player);
-      const leader = party && ADV.Party.leader(game.world, party);
-      const ordered = [player, roster.includes(leader) ? leader : null, ...allies, ...roster].filter(Boolean);
-      roster.splice(0, roster.length, ...new Set(ordered));
-    } else for (const a of allies) if (!roster.includes(a)) roster.push(a);
+    for (const a of allies) if (!roster.includes(a)) roster.push(a);
   }
   // quest-scoped necromancy thralls walk until the contract ends (even if
   // they dropped last fight — they stand up again for the next field)
   const cap = ADV.Party.companyCap ? ADV.Party.companyCap() : 8;
-  if (game.quest && game.quest.thralls) {
+  if (game.quest && game.quest.quest === activeQuest && game.quest.thralls) {
     for (const t of game.quest.thralls) {
       if (roster.length >= cap) break;
       if (t && t.alive !== false && !t.hasFled && !roster.includes(t)) roster.push(t);
@@ -202,7 +201,7 @@ Game.leaderPick = function (game) {
 // Can this leader afford to take the contract at all? (request 8)
 Game.contractCoversPayroll = function (game, quest) {
   const p = Game.player(game);
-  const party = ADV.Party.of(game.world, p);
+  const party = Game.questParty(game, quest);
   if (!party || party.leaderId !== p.id) return true;
   return quest.payout > ADV.Party.payroll(game.world, party);
 };
@@ -235,9 +234,9 @@ Game.departureInfo = function (game, quest) {
     dependents: kids,
     tuition: kids * C().GOLD.tuitionPerChildPerQuest * (travel ? travel.days : 1),
     travel,
-    roster: Game.partyRoster(game),
+    roster: Game.partyRoster(game, quest),
     payroll: (() => {
-      const party = ADV.Party.of(game.world, p);
+      const party = Game.questParty(game, quest);
       return party && party.leaderId === p.id ? ADV.Party.payroll(game.world, party) : 0;
     })(),
   };
@@ -579,7 +578,10 @@ Game.autoRaiseFallen = function (game, fallen) {
       const player = Game.player(game);
       if (player && ADV.SkillSys.entryFor(player, 'conscript')) continue;
     }
-    if (ADV.Party.followerRoom(game.world, caster, q.thralls) <= 0) break;
+    // Stored followers waiting at home must not consume Gate summon slots.
+    const room = q.quest?.campaign3 ? ADV.Party.companyCap() - Game.partyRoster(game).length
+      : ADV.Party.followerRoom(game.world, caster, q.thralls);
+    if (room <= 0) break;
     if (src.isMonster || src.isQuestThrall) {
       const thrall = Game.makeQuestThrall(src, caster);
       q.thralls.push(thrall);
@@ -639,7 +641,7 @@ Game.startCombat = function (game, ambush) {
   const q = game.quest;
   Game.restoreQuestThralls(game);
   const roster = Game.partyRoster(game).filter(c => (c.combatHp == null || c.combatHp > 0) && !c.hasFled);
-  const party = ADV.Party.of(game.world, Game.player(game));
+  const party = Game.questParty(game);
   const lead = party ? ADV.Party.leader(game.world, party) : Game.player(game);
   const st = ADV.Combat.create(roster, q.enemies, {
     rng: game.rng.fork('combat' + game.world.questClock + ':' + (q.rivalFight ? 'rival' : q.encIdx)),
@@ -669,8 +671,8 @@ Game.resolveLeaderFall = function (game, st) {
   const q = game.quest;
   const world = game.world;
   const p = Game.player(game);
-  const party = ADV.Party.of(world, p);
-  const leader = party ? ADV.Party.leader(world, party) : null;
+  const party = Game.questParty(game);
+  const leader = party ? ADV.Party.leader(world, party) : q.quest?.campaign3 ? p : null;
   q.failed = true;
   q.over = true;
   if (st && st.leaderFled) {
@@ -954,7 +956,7 @@ function applyQuestSuccess(game, q, out) {
   const p = Game.player(game);
   const world = game.world;
   const stage = Game.careerStage(game);
-  const party = ADV.Party.of(world, p);
+  const party = Game.questParty(game, q.quest);
   p.questsCompleted++;
   p.reputation = Math.min(20, p.reputation + C().REP_QUEST_WIN);
   p.rank = 1 + Math.floor(p.questsCompleted / 8);
@@ -1020,7 +1022,7 @@ function applyQuestFailure(game, q, out) {
   const p = Game.player(game);
   const world = game.world;
   const stage = Game.careerStage(game);
-  const party = ADV.Party.of(world, p);
+  const party = Game.questParty(game, q.quest);
   p.questsFailed++;
   p.reputation = Math.max(-20, p.reputation - (q.fled ? C().REP_FLEE : -C().REP_QUEST_FAIL));
   if (stage === 'leader' && party) {

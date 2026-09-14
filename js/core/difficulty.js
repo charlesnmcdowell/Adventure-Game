@@ -12,6 +12,10 @@
 //               (1/3 from normal up, 0 = uncapped). A basic skill is an opener, not an
 //               execution: however far the wielder outclasses a mook, they cannot delete it
 //               in one press. The allowance covers the whole action, riders included.
+//   foeSkillFloorFrom the lowest natural enemy level the kit floor reaches. Below it a
+//               creature fights with the kit it was written with: a wolf on a first contract
+//               is a wolf, not a veteran wolf. Better enemies are meant to be enemies that
+//               are already something, not every mook on the road.
 //   foeSkillFloor every enemy skill is at least this level (10 = intermediate kits
 //               on normal and hard; hard's +4 levels carry seasoned kits up to advanced) — the "better enemies" lever
 //   foeHp/Atk/Def a small stat edge on top
@@ -30,20 +34,20 @@ const LEVELS = {
     id: 'easy', name: 'Easy', tagline: 'Short on time? This road moves.',
     blurb: 'The game as it has always played. Fights are quick, pay is generous, and auto combat stops for you below half health so progress comes fast in a short session.',
     extraFoes: 0, foeLevel: 0, foeSkillFloor: 0, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
-    basicHitCap: 0,
+    basicHitCap: 0, foeSkillFloorFrom: 0,
     playerHp: 2.0, recoverPct: 0.5, payBonus: 100, payMult: 1.0, autoStopPct: 0.5, fleeWarn: true,
   },
   normal: {
     id: 'normal', name: 'Normal', tagline: 'A fair fight.',
-    blurb: 'One more enemy in every fight and better ones — every kit at least intermediate, with their perks and a little more bite. Your health buffer is smaller and less of it comes back between fights. Auto combat stops below 30%. A basic-tier skill can take at most a third of an enemy in one blow.',
-    extraFoes: 1, foeLevel: 2, foeSkillFloor: 10, foeHp: 1.05, foeAtk: 1.05, foeDef: 1.0,
+    blurb: 'One more enemy in every fight and better ones — the seasoned ones fighting with better kits, and their perks. Your health buffer is smaller and less of it comes back between fights. Auto combat stops below 30%. A basic-tier skill can take at most a third of an enemy in one blow.',
+    extraFoes: 1, foeLevel: 2, foeSkillFloor: 10, foeSkillFloorFrom: 8, foeHp: 1.05, foeAtk: 1.05, foeDef: 1.0,
     basicHitCap: 1 / 3,
     playerHp: 1.5, recoverPct: 0.35, payBonus: 50, payMult: 1.0, autoStopPct: 0.3, fleeWarn: true,
   },
   hard: {
     id: 'hard', name: 'Hard', tagline: 'Outnumbered and outclassed.',
-    blurb: 'Two more enemies in every fight, all of them veterans with their perks — the seasoned ones carry advanced kits. No health buffer, little rest between fights, leaner pay, and auto combat never stops itself. A basic-tier skill can take at most a third of an enemy in one blow.',
-    extraFoes: 2, foeLevel: 4, foeSkillFloor: 10, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
+    blurb: 'Two more enemies in every fight, all of them veterans with their perks, and anything with a little experience fighting well above a mook. No health buffer, little rest between fights, leaner pay, and auto combat never stops itself. A basic-tier skill can take at most a third of an enemy in one blow.',
+    extraFoes: 2, foeLevel: 4, foeSkillFloor: 10, foeSkillFloorFrom: 4, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
     basicHitCap: 1 / 3,
     playerHp: 1.0, recoverPct: 0.2, payBonus: 0, payMult: 0.85, autoStopPct: 0, fleeWarn: false,
   },
@@ -122,13 +126,23 @@ Difficulty.toughen = function (ch, type) {
   if (!ch || (!off && !floor) || ch.__toughened || !Difficulty.isFoe(ch)) return ch;
   ch.__toughened = true;
   const uses = (A.DATA.CONST && A.DATA.CONST.USES_PER_LEVEL) || 10;
-  const lift = lvl => Math.max((lvl || 1) + off, floor);
+  // The floor raises how well an enemy USES what it has — its kit — and nothing else. It must
+  // never touch enemyLevel: doing so turned a level-1 wolf on a first contract into a level-10
+  // one, and its stats climbed with it, which is the "bigger numbers" this lever exists to
+  // avoid. The creature stays what it is; it simply fights like something better trained.
+  // The floor reaches only enemies that are already seasoned (foeSkillFloorFrom). Applied to
+  // everything, it made a level-1 wolf swing an intermediate kit — +40% damage, and a second
+  // hit on the skills that gain one — which is what made early fights on Normal bite so hard.
+  const from = Difficulty.def().foeSkillFloorFrom || 0;
+  const seasoned = (ch.enemyLevel || 1) >= from;
+  const useFloor = seasoned ? floor : 0;
+  const lift = lvl => Math.max((lvl || 1) + off, useFloor);
   for (const e of (ch.perks || []).concat(ch.actives || [])) { e.level = lift(e.level); e.uses = Math.max(e.uses || 0, e.level * uses); }
   if (type && type.perks && !(ch.perks || []).length) {
     const lvl = lift(ch.enemyLevel);
     for (const p of type.perks) if (A.DATA.SKILLS[p]) ch.perks.push({ skillId: p, level: lvl, uses: lvl * uses });
   }
-  if (ch.enemyLevel) ch.enemyLevel = lift(ch.enemyLevel);
+  if (ch.enemyLevel) ch.enemyLevel = (ch.enemyLevel || 1) + off;
   return ch;
 };
 

@@ -195,7 +195,15 @@ Panels.gateCapacity = function (scene, then) {
 
 // Departure confirmation (§8): the carry-vs-vault decision at the moment of risk.
 Panels.departure = function (scene, q) {
-  Panels.gateCapacity(scene, () => Panels.departureConfirm(scene, q));
+  Panels.gateCapacity(scene, () => {
+    const game = scene.g(), notice = ADV.Campaign3?.departureNotice(game, q);
+    if (!notice) { Panels.departureConfirm(scene, q); return; }
+    ADV.Notices.confirm(scene, 'Your regular party stays home', notice, 'Got it', () => {
+      ADV.Campaign3.state(game).partyNoticeSeen = true;
+      ADV.Campaign3.save(game);
+      Panels.departureConfirm(scene, q);
+    });
+  });
 };
 
 Panels.departureConfirm = function (scene, q) {
@@ -235,8 +243,8 @@ Panels.departureConfirm = function (scene, q) {
     tx(W / 2 - 240, yy, `Payroll owed on return, win or lose: ${info.payroll}g`, { size: 14, color: T().css.gold });
     yy += 26;
   }
-  const going = q.campaign3 ? ADV.Game.partyRoster(game, q) : info.roster.concat(ADV.Campaign ? ADV.Campaign.alliesFor(game, q).filter(c => !info.roster.includes(c)) : []);
-  const goingLine = tx(W / 2 - 240, yy, 'Going: ' + going.map(c => c.name + (c.campaign ? ' (' + (c.title || 'campaign') + ')' : '')).join(', '), { size: 13, color: T().css.inkDim, wrap: 480 });
+  const going = info.roster;
+  const goingLine = tx(W / 2 - 240, yy, 'Going: ' + going.map(c => c.name + (c.campaign && !q.campaign3 ? ' (' + (c.title || 'campaign') + ')' : '')).join(', '), { size: 13, color: T().css.inkDim, wrap: 480 });
   yy += Math.max(40, goingLine.height + 10);
   const v = info.vault;
   if (v && v.sharedWithId) {

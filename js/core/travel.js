@@ -29,7 +29,7 @@ Travel.declare = function(q) {
 Travel.quote = function(game,q,provisions=true) {
  Travel.declare(q);
  const far=q.distance==='far', days=far?2:1, supplies=far&&provisions?8:0;
- const party=ADV.Party.of(game.world,ADV.Game.player(game));
+ const party=ADV.Game.questParty(game,q);
  const payer=party?ADV.Party.leader(game.world,party):ADV.Game.player(game);
  return {location:L()[q.travelLocation],days,passage:q.passageCost,supplies,total:q.passageCost+supplies,payer,provisions:!!provisions};
 };
@@ -41,7 +41,7 @@ Travel.mark = function(game,key) {
  ADV.Save.saveMeta(game);
 };
 Travel.roster = function(game) {
- const p=ADV.Game.player(game), party=ADV.Party.of(game.world,p), leader=party&&ADV.Party.leader(game.world,party);
+ const p=ADV.Game.player(game), party=ADV.Game.questParty(game,game.travelResolution?.q?.quest), leader=party&&ADV.Party.leader(game.world,party);
  const snapshot=game.travelResolution&&game.travelResolution.roster;
  return (snapshot||ADV.Game.partyRoster(game)).filter(c=>c&&c.alive!==false&&!c.hasFled)
   .sort((a,b)=>(b.id===(leader||p).id)-(a.id===(leader||p).id));
