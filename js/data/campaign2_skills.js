@@ -38,7 +38,10 @@ def({ id: 'kunai_line', name: 'Kunai Line', kind: 'active', archetype: 'ranger',
 def({ id: 'smoke_step', name: 'Smoke Step', kind: 'active', archetype: 'rogue', faction: BELL,
   power: 0, reach: 'any', target: 'self', stealthOnUse: true, stealthRounds: 2, laneShift: true, reflectImmuneNext: true,
   desc: 'Vanish, move, and come back out of a direction nothing can answer — your next strike takes no reflect.',
-  tiers: tiers('Smoke Step', 'Ash Step', 'Nowhere', {}, { stealthRounds: 2 }, { stealthRounds: 2, evadeNext: 1 }) });
+  // Ash Step used to restate the base's own stealthRounds: 2, which made the middle tier an
+  // exact copy of the tier below it. Stealth itself is capped at Combat.HIDE_CAP rounds, so
+  // the step up is who goes with you rather than how long you are gone.
+  tiers: tiers('Smoke Step', 'Ash Step', 'Nowhere', {}, { allyStealth: true }, { allyStealth: true, evadeNext: 1 }) });
 def({ id: 'bell_silence', name: 'Bell-Silence', kind: 'active', archetype: 'rogue', faction: BELL,
   power: 1.2, reach: 'any', target: 'enemy', silent: true,
   desc: 'A struck nerve: the target cannot counter, riposte, guard or interrupt while it holds.',

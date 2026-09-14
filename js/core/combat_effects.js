@@ -54,11 +54,19 @@ E.venomDraw = (I, st, u, tgt, d) => {
 // Last Breath: a downed ally rises for one round, then falls
 E.lastBreath = (I, st, u, tgt, d) => {
   const downed = st.units.filter(x => x.side === u.side && x.downed && !x.fled && !x.reserved);
-  const t = downed.includes(tgt) ? tgt : downed[0];
-  if (!t) return;
-  t.downed = false; t.chp = 1;
-  I.addStatus(st, t, { kind: 'lastBreath', rounds: 1 });
-  I.ev(st, { t: 'revive', uid: t.uid, by: u.uid });
+  if (!downed.length) return;
+  // The three tiers used to be three names over one behaviour: one body, up at exactly 1 HP,
+  // for exactly one round. They now buy something — more under the ally when they stand, a
+  // second round to use it, and at the top the whole line comes up instead of one of them.
+  const pct = d.reviveHp != null ? d.reviveHp : 0.01;
+  const rounds = d.breathRounds || 1;
+  const list = d.breathAll ? downed : [downed.includes(tgt) ? tgt : downed[0]];
+  for (const t of list) {
+    t.downed = false;
+    t.chp = Math.max(1, Math.round(t.maxHp * pct));
+    I.addStatus(st, t, { kind: 'lastBreath', rounds });
+    I.ev(st, { t: 'revive', uid: t.uid, by: u.uid });
+  }
 };
 
 // Bulwark Formation / Contract Bound: share incoming damage across a group
@@ -89,8 +97,14 @@ E.paidInFull = (I, st, u, tgt, d) => {
 E.companyMedic = (I, st, u, tgt, d) => {
   const tier = d.tier || 'basic';
   const pct = (Combat.HEAL_PCT[tier] || 0.5) * (d.medicPct || 0.45);
+  // The patient list widens with the tier. It used to be a flat "under half" at every tier
+  // while the heal itself climbed to 82% of a body's maximum, so Triage Line poured most of
+  // its work into the gap above a target's missing health and scored BELOW its own basic
+  // tier over a long fight — the upgrade healed harder and accomplished less. A bigger heal
+  // needs more patients to land on, not the same three.
+  const below = d.medicBelow || 0.5;
   for (const x of I.livingUnits(st, u.side)) {
-    if (x.chp / x.maxHp >= 0.5) continue;
+    if (x.chp / x.maxHp >= below) continue;
     I.healUnit(st, u, x, Math.max(1, Math.round(x.maxHp * pct)));
   }
 };

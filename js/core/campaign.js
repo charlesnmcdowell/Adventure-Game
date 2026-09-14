@@ -278,7 +278,15 @@ Campaign.isTankSkill = function (id) {
 };
 Campaign.guardBoss = function (game, out, factionId, level, rng, spawn) {
   const p = ADV.Game.player(game);
-  const floor = p ? ADV.Character.maxHp(p) / 2 : 0; // exclude the player's safety buffer
+  // Exclude the player's safety buffer, which is a difficulty lever and not part of how
+  // tough the character actually is. Dividing by a literal 2 only undid it on Easy, where
+  // playerHp happens to be 2.0: on Normal and Hard the boss kept part of a buffer the
+  // player no longer had. Because nothing scales the player's DAMAGE with difficulty, a
+  // bigger floor is purely a longer fight, so Easy was fielding bosses at twice the health
+  // of Hard and taking twice as many rounds to put them down — with the companions, who
+  // get no buffer at all, absorbing every extra round. Character.syncNpcHeroFloor has
+  // divided the buffer out correctly all along; this is the same sum.
+  const floor = p ? ADV.Character.maxHp(p) / (ADV.Difficulty ? ADV.Difficulty.playerHpMult() : 2) : 0;
   const restores = (id) => { const d = D().SKILLS[id]; return !!(d && d.heal && (d.power || d.hotRounds || d.healFromTaken || d.revive) && d.target !== 'enemy'); };
   const guardish = (id) => Campaign.isTankSkill(id);
   const skillsOf = (ch) => (ch.actives || []).concat(ch.perks || []).map(a => a.skillId);

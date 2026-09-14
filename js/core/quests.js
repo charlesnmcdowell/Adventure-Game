@@ -340,7 +340,9 @@ Quests.campRoleIds = function (camp, role) {
 Quests.guardBoardBoss = function (out, quest, rng, game) {
   if (!out || !out.length) return out;
   const p = game && ADV.Game && ADV.Game.player(game);
-  const floor = p ? ADV.Character.maxHp(p) / 2 : 0; // player safety HP does not scale enemies
+  // Player safety HP does not scale enemies — and the buffer is 2.0 only on Easy, so a
+  // literal 2 here left part of it in the floor on Normal and Hard (see Campaign.guardBoss).
+  const floor = p ? ADV.Character.maxHp(p) / (ADV.Difficulty ? ADV.Difficulty.playerHpMult() : 2) : 0;
   for (const ch of out) {
     const def = ADV.DATA.BOSSES[ch.enemyTypeId];
     if (ch.boss || (def && (def.boss || def.miniboss))) {

@@ -121,7 +121,13 @@ def({ id: 'venom_draw', name: 'Venom Draw', kind: 'active', archetype: 'healer',
 def({ id: 'last_breath', name: 'Last Breath', kind: 'active', archetype: 'healer', faction: MAW,
   power: 0, reach: 'any', target: 'ally', heal: true, revive: true, effect: 'lastBreath',
   desc: 'A downed ally acts once more before falling.',
-  tiers: tiers('Last Breath', 'Borrowed Breath', 'One More') });
+  // The three tiers were renames over identical behaviour: one downed ally, up at 1 HP, for
+  // one round. They now buy something — the ally comes back with more under them, and the
+  // top tier lifts the whole line instead of one body.
+  tiers: tiers('Last Breath', 'Borrowed Breath', 'One More',
+    { reviveHp: 0.01, breathRounds: 1 },
+    { reviveHp: 0.15, breathRounds: 2 },
+    { reviveHp: 0.25, breathRounds: 2, breathAll: true }) });
 // Utility
 def({ id: 'case_the_room', name: 'Case the Room', kind: 'perk', noTierGrowth: true, archetype: null, faction: MAW,
   desc: 'See enemy skill loadouts before the encounter begins.', revealLoadouts: true,
@@ -230,7 +236,9 @@ def({ id: 'company_medic', name: 'Company Medic', kind: 'active', archetype: 'he
   power: 1.2, reach: 'any', target: 'party', heal: true, effect: 'companyMedic',
   desc: 'Heal every ally below 50% at once, each for about half what a single-target heal would give them.',
   tiers: tiers('Company Medic', 'Line Medic', 'Triage Line',
-    { tier: 'basic', medicPct: 0.45 }, { tier: 'intermediate', power: 1.4, medicPct: 0.5 }, { tier: 'advanced', power: 1.6, medicPct: 0.55 }) });
+    { tier: 'basic', medicPct: 0.45, medicBelow: 0.5 },
+    { tier: 'intermediate', power: 1.4, medicPct: 0.5, medicBelow: 0.65 },
+    { tier: 'advanced', power: 1.6, medicPct: 0.55, medicBelow: 0.8 }) });
 def({ id: 'contract_bound', name: 'Contract Bound', kind: 'active', archetype: 'healer', faction: ANT,
   power: 0, reach: 'any', target: 'ally', effect: 'share', shareWith: 'pair',
   desc: 'Bind yourself to an ally: damage they take is split with you.',

@@ -34,7 +34,11 @@ def({ id: 'frost_touch', name: 'Frost Touch', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Frost Touch', freeze: 1 },
     intermediate: { name: 'Frost Chain', multiTarget: 2, freeze: 1 },
-    advanced:     { name: 'Blizzard', target: 'enemyLane', freeze: 1 },
+    // Blizzard used to be a lane, which is not reliably bigger than Frost Chain's two bodies —
+    // against a spread-out enemy side it could freeze FEWER of them than the tier below it,
+    // so the upgrade was a coin toss on the enemy's layout. Every enemy, at a share of the
+    // power beyond the one you aimed at.
+    advanced:     { name: 'Blizzard', target: 'allEnemies', freeze: 1, spreadPct: 0.5 },
   } });
 
 def({ id: 'spark', name: 'Spark', kind: 'active', archetype: 'mage',
@@ -43,7 +47,10 @@ def({ id: 'spark', name: 'Spark', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Spark',           shock: 0.05, shockRounds: 3 },
     intermediate: { name: 'Chain Lightning', shock: 0.15, shockRounds: 3, multiTarget: 2 },
-    advanced:     { name: 'Thunderstorm',    shock: 0.25, shockRounds: 3, target: 'allEnemies', power: 1.3 },
+    // Same shape as Volley: widening the tier used to be paid for by halving its power, so
+    // Thunderstorm dealt 75% of Chain Lightning against a single target and only broke even
+    // at two bodies. Full power on the one you aimed at, a share to the rest.
+    advanced:     { name: 'Thunderstorm',    shock: 0.25, shockRounds: 3, target: 'allEnemies', power: 2.7, spreadPct: 0.5 },
   } });
 def({ id: 'pyromaniac', name: 'Pyromaniac', kind: 'perk', archetype: 'mage',
   desc: 'Fire answers to you: resist fire damage, and heal for a share of the fire damage you deal.',
@@ -184,7 +191,14 @@ def({ id: 'aimed_shot', name: 'Aimed Shot', kind: 'active', archetype: 'ranger',
   tiers: {
     basic:        { name: 'Aimed Shot' },
     intermediate: { name: 'Piercing Shot', pierceBehind: true },
-    advanced:     { name: 'Volley', target: 'allEnemies', power: 1.4 },
+    // Volley keeps the spread but no longer pays for it out of the single-target number.
+    // At power 1.4 the upgrade dealt 47% of Piercing Shot against one enemy and did not
+    // break even until roughly the third body — so the ranger's main attack went backwards
+    // in every boss fight, the one place it matters most, and the tier read as a punishment
+    // for levelling. It also lost Marksman's back-lane bonus, which combat.js withholds from
+    // allEnemies skills: two penalties on the same upgrade. 3.0 holds the line a boss feels,
+    // and the spread is the reward.
+    advanced:     { name: 'Volley', target: 'allEnemies', power: 3.0, spreadPct: 0.55 },
   } });
 def({ id: 'snare', name: 'Snare', kind: 'active', archetype: 'ranger',
   power: 1.2, reach: 'any', target: 'enemy', delayTarget: true,
@@ -239,9 +253,11 @@ def({ id: 'dual_swords', name: 'Dual Swords', kind: 'active', archetype: 'fighte
   power: 2.0, reach: 'front', target: 'enemy', hits: 2, critSecondAdjacent: true,
   desc: 'Two attacks in one action. Each counts for Momentum. The second is always a critical — double damage — on an adjacent enemy.',
   tiers: {
+    // Renames only, on a damage skill: levelling Dual Swords changed nothing at all. The
+    // blades now bite harder and, at the top, there is a third of them.
     basic:        { name: 'Dual Swords' },
-    intermediate: { name: 'Twin Blades' },
-    advanced:     { name: 'Blade Storm' },
+    intermediate: { name: 'Twin Blades', power: 2.4 },
+    advanced:     { name: 'Blade Storm', power: 2.6, hits: 3 },
   } });
 
 // ============ DRUID / SHAPESHIFTER ============
@@ -316,7 +332,11 @@ def({ id: 'guardian_ward', name: 'Guardian Ward', kind: 'active', archetype: 'he
   offensive: { name: 'Retribution Ward', wardReflect: true, target: 'ally' },
   desc: 'Shields an ally from the next hit. Offensive mode adds damage reflect to the ward.',
   tiers: {
-    basic:        { name: 'Guardian Ward', shieldHits: 1 },
+    // Two hits, not one. Sanctuary stops a whole round of everything aimed at the ally, so a
+    // single blocked blow below it made the basic tier worth about a tenth of the tier above
+    // in a real fight — a cliff inside one skill rather than a step. Two hits is still clearly
+    // less than a round, and it is worth an action on the turn you spend it.
+    basic:        { name: 'Guardian Ward', shieldHits: 2 },
     intermediate: { name: 'Sanctuary', shieldRounds: 1 },
     advanced:     { name: 'Divine Aegis', shieldRounds: 1, target: 'allyLane' },
   } });

@@ -40,7 +40,14 @@ const LEVELS = {
   normal: {
     id: 'normal', name: 'Normal', tagline: 'A fair fight.',
     blurb: 'One more enemy in every fight and better ones — the seasoned ones fighting with better kits, and their perks. Your health buffer is smaller and less of it comes back between fights. Auto combat stops below 30%. A basic-tier skill can take at most a third of an enemy in one blow.',
-    extraFoes: 1, foeLevel: 2, foeSkillFloor: 10, foeSkillFloorFrom: 8, foeHp: 1.05, foeAtk: 1.05, foeDef: 1.0,
+    // No per-body stat bump. Normal already fields one more enemy, two levels higher, with
+    // intermediate kits from quest 8 — three penalties. The 5% on top made a Normal enemy
+    // stronger body-for-body than a HARD one (hard runs foeHp/foeAtk at 1.0), and it was the
+    // step that turned Normal into a cliff for parties rather than a rung: measured over 470
+    // party contracts, a party won 89% on Easy and 63% on Normal, where the ladder asks for
+    // at least four fifths of Easy's wins. A lone player barely felt it (98% -> 96%), because
+    // the extra body is what a party has to absorb.
+    extraFoes: 1, foeLevel: 2, foeSkillFloor: 10, foeSkillFloorFrom: 8, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
     basicHitCap: 1 / 3,
     playerHp: 1.5, recoverPct: 0.35, payBonus: 50, payMult: 1.0, autoStopPct: 0.3, fleeWarn: true,
   },

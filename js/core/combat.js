@@ -2627,7 +2627,13 @@ Combat.act = function (st, u, action) {
       }
       continue;
     }
-    const powerOverride = d.chainDecay ? (d.power || 2.0) * Math.pow(d.chainDecay, targets.indexOf(t)) : undefined;
+    // spreadPct: the body you aimed at takes the skill's full power and everyone else takes
+    // a share of it. It lets a skill widen on its top tier without paying for the spread out
+    // of the single-target number — the shape that made Volley weaker than the tier below it
+    // against a boss, where there is only ever one body to hit.
+    const spread = (d.spreadPct != null && t !== tgt) ? (d.power || 0) * d.spreadPct : undefined;
+    const powerOverride = d.chainDecay ? (d.power || 2.0) * Math.pow(d.chainDecay, targets.indexOf(t))
+      : spread;
     const flarePower = (hi >= hits && flareHitMult) ? (d.power || 0) * flareHitMult : undefined;
     let dmg = computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
       : (powerOverride != null ? { power: powerOverride } : undefined));

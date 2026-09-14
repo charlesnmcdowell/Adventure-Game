@@ -149,9 +149,6 @@ Tooltip.attachZone = function (scene, x, y, w, h, textFn) {
 // Human labels for every engine parameter a tier can carry. Anything not
 // listed still prints raw as `key: value` so nothing is ever hidden.
 const PARAM_LABEL = {
-  dispelCap: v => `removes up to ${v} positive effects from the target`,
-  drawFromAll: () => 'draws poison and bleeding from the whole company',
-  medicPct: v => `heals injured allies for ${Math.round(v * 100)}% of this tier's normal healing`,
   // ---- second campaign (add-on §3): the new engine primitives -------------
   immovable: () => 'cannot be moved, pulled or pushed out of this lane',
   laneNoDelay: () => 'ignores Shock and any effect that delays your place in the order',
@@ -200,6 +197,16 @@ const PARAM_LABEL = {
   bonusHpPct: v => `+${Math.round(v * 100)}% of the target's max HP as extra damage (strikes, bleed, and poison)`,
   killRefundsAction: () => 'kills refund the action (act again)',
   backLaneBonus: v => `×${v} damage while you stand in the back lane`,
+  // Added alongside the healing and dispel rework: without wording here the tooltip prints
+  // the raw key at the player, which is what test/skill_audit.js guards against.
+  medicPct: v => `restores ${Math.round(v * 100)}% of the tier's share of each target's max HP`,
+  medicBelow: v => `treats every ally below ${Math.round(v * 100)}% health`,
+  breathRounds: v => `the borrowed turn lasts ${v} round${v === 1 ? '' : 's'}`,
+  breathAll: () => 'lifts every downed ally, not just one',
+  spreadPct: v => `everyone other than the target you picked takes ${Math.round(v * 100)}% of the damage`,
+  drawKinds: v => `pulls ${[].concat(v).join(' and ')} across`,
+  drawFromAll: () => 'pulls from every ally at once, not just the worst off',
+  dispelCap: v => `strips at most ${v} effect${v === 1 ? '' : 's'}`,
   ignoreCover: () => 'ignores lane cover',
   noReflect: () => 'back-lane attacks take NO reflect damage from any source',
   openerOrStealth: () => 'usable ONLY as the opening action of an encounter, or from stealth',
