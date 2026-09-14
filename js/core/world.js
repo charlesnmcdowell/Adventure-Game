@@ -151,7 +151,6 @@ World.tick = function (world, rng, opts) {
     if (lowPop) deathChance *= 0.3; // suppress lethality below the population floor (§6)
     if (roll < power) {
       npc.questsCompleted++; npc.reputation = Math.min(20, npc.reputation + 1);
-      for (const e of npc.perks) { const sk = ADV.DATA.SKILLS[e.skillId]; if (sk && sk.survivalHp) { npc.stats.hp += sk.survivalHp; npc.survivalBattles = (npc.survivalBattles || 0) + 1; } }
       npc.rank = 1 + Math.floor(npc.questsCompleted / 8);
       let pay = party && party.leaderId === npc.id ? rng.int(60, 140) :
                 party ? (npc.wage || 30) : rng.int(30, 45);

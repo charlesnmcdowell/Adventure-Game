@@ -427,7 +427,7 @@ Game.startQuest = function (game, quest, opts) {
   const gate = ADV.Quests.repGate(quest, p);
   if (!gate.ok) { game.quest = null; return { ok: false, error: gate.error }; }
   if (!Game.contractCoversPayroll(game, quest)) { game.quest = null; return { ok: false, error: 'that contract would not cover payroll' }; }
-  for (const ch of roster) { ch.combatHp = ADV.Character.maxHp(ch); ch.wasDowned = false; ch.hasFled = false; }
+  for (const ch of roster) { ch.questHp = 0; ch.survivalBattles = 0; ch.combatHp = ADV.Character.maxHp(ch); ch.wasDowned = false; ch.hasFled = false; }
   if (travel) {
     travel.payer.inventory.gold -= travel.total;
     game.meta.travelJourneyCount=(game.meta.travelJourneyCount||0)+1;
@@ -877,6 +877,8 @@ Game.completeQuest = function (game) {
   const out = { gold: 0, wage: 0, leaderTake: null, events: [] };
 
   Game.releaseQuestThralls(game);
+  // home again: the quest's survival growth is spent
+  for (const ch of Game.partyRoster(game)) if (ch.questHp) { ch.questHp = 0; if (ch.combatHp != null) ch.combatHp = Math.min(ch.combatHp, ADV.Character.maxHp(ch)); }
 
   if (!q.failed && !q.playerDead) applyQuestSuccess(game, q, out);
   else if (q.failed) applyQuestFailure(game, q, out);

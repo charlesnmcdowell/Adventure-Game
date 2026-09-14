@@ -43,6 +43,13 @@ for(const [key,hf]of Object.entries(F)){
  };
 }
 if(N.amara&&frame('extras','amara_docks')){const b=frame('extras','amara_docks');N.amara_docks={...N.amara,key:'amara_docks',bodySheet:b.sheet,bodyFrame:b.frame,set:'plain'};}
+// Sanni is a civilian disguise, not a hidden face. Reuse Kolade's reserved
+// face and an existing merchant coat; his road appearance remains armoured.
+if(N.korvath&&N.rennick){
+ N.sarn={...N.korvath,key:'sarn',set:'plain',bodySheet:N.rennick.bodySheet,bodyFrame:N.rennick.bodyFrame,
+  bodyWidth:1100,clothColor:'#403046',head:{...N.korvath.head,masked:false,noEyes:false,browsCovered:false,
+   clipPolygon:[[120,0],[505,0],[505,350],[448,350],[432,392],[385,437],[333,457],[291,457],[245,433],[203,390],[184,350],[120,350]]}};
+}
 // These superseded head atlases are no longer loaded alongside their replacements.
 for(let i=1;i<=12;i++)if(M.parts['gate_heads_'+i])delete A.AnimeManifest.parts['heads_named_gate'+i];
 G.named=(ch,base)=>N[ch.gateAppearance]||base;
@@ -94,7 +101,7 @@ A.Travel.key=(q,leg,event)=>G.travelId(q,leg)?'travel:'+G.travelId(q,leg)+':v1:'
 const plan=A.Travel.plan;
 A.Travel.plan=function(game,q,leg){const p=plan(game,q,leg);if(q?.campaign3){const id=G.travelId(q,leg);p.location={...p.location,name:A.DATA.TRAVEL_LOCATIONS[id]?.name||p.location.name,caption:q.name};}return p;};
 const actor=A.Campaign3.actor;
-A.Campaign3.actor=function(game,id){const ch=actor(game,id);if(ch&&id==='korvath')ch.gateAppearance=A.Campaign3.state(game).stage<11&&!A.Campaign3.state(game).artKoladeRevealed?'korvath_helmet':'korvath';return ch;};
+A.Campaign3.actor=function(game,id){const ch=actor(game,id);if(ch&&id==='korvath')ch.gateAppearance=A.Campaign3.state(game).stage<11&&!A.Campaign3.flag(game,'sarnUnmasked')&&!A.Campaign3.state(game).artKoladeRevealed?'korvath_helmet':'korvath';return ch;};
 G.speaker=function(game,beat,ch){if(!ch)return ch;const copy={...ch};if(beat.who==='korvath')copy.gateAppearance=beat.key.startsWith('q1_')?'korvath_helmet':'korvath';if(beat.who==='amara')copy.gateAppearance=beat.key.startsWith('q11_')?'amara_docks':'amara';return copy;};
 const spawn=A.Campaign3.spawnEncounter;
 A.Campaign3.spawnEncounter=function(game,q,n){const out=spawn(game,q,n),spec=A.Campaign3.resolveSpec(game,q.cEnc?.[n]);if(spec?.mini){const d=A.DATA.CAMPAIGN_MINIBOSSES[spec.mini];for(const ch of out)if(d&&ch.enemyTypeId===d.base&&ch.name.startsWith(d.name)){ch.campaignMiniId=spec.mini;if(['nib','verlan'].includes(spec.mini))ch.portraitId=spec.mini;}}return out;};

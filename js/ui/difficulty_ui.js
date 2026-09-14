@@ -17,7 +17,7 @@ function facts(def) {
     : 'health ' + fmt(pct(def.foeHp)) + ', attack ' + fmt(pct(def.foeAtk)) + (def.foeDef !== 1 ? ', defence ' + fmt(pct(def.foeDef)) : '');
   const lines = [
     'Enemies per fight: ' + (def.extraFoes ? '+' + def.extraFoes + ' (never more than your companions)' : 'as authored'),
-    'Enemy skill: ' + (def.foeLevel ? '+' + def.foeLevel + ' levels, perks on every mook' : 'as authored') + '; stats ' + stats,
+    'Enemy skill: ' + (def.foeSkillFloor >= 25 ? 'advanced kits' : def.foeSkillFloor >= 10 ? 'intermediate kits' : 'as authored') + (def.foeLevel ? ', +' + def.foeLevel + ' levels, perks on every mook' : '') + '; stats ' + stats,
     'Your health: ' + (def.playerHp === 1 ? 'natural' : '×' + def.playerHp) + '; ' + Math.round((def.recoverPct != null ? def.recoverPct : 0.5) * 100) + '% back after a won fight',
     'Pay: ' + (def.payBonus ? '+' + def.payBonus + 'g a contract' : 'no bonus') + (def.payMult !== 1 ? ', ×' + def.payMult : ''),
     'Auto combat: ' + (def.autoStopPct ? 'stops below ' + Math.round(def.autoStopPct * 100) + '% health' : 'never stops itself'),

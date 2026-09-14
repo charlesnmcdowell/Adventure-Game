@@ -31,11 +31,11 @@ G.view=function(scene,kind,id,opts={}){
 // Stage locations belong to story beats, including arrival after quest state clears.
 const departures=['','lanternhold','shore','shore','dunmere_mine','thornbury','mirkhollow','iron_mine','span','tower','griffon','hunted_city','palace','undervault','temple'];
 const arrivals=['','shore','open_hand','dunmere','dunmere','thornbury','mirkhollow','mirkhollow','palace','nine_lanterns','catacombs','hunted_city','palace','undercity','temple'];
-const changes={q1_catchup:'shore',q2_morwin:'open_hand',q3_ithrel:'shore',q3_lessa:'dunmere',q5_sage:'thornbury',q5_inn:'thornbury',q8_duke:'palace',q10_ring:'griffon',q10_letter:'lanternhold',q10_arrest:'lanternhold',q10_catacombs:'catacombs',q10_shore:'shore',q11_cured:'sickroom',q11_docks:'hunted_city'};
+const changes={q1_catchup:'shore',q2_morwin:'open_hand',q3_ithrel:'shore',q3_lessa:'dunmere',q5_sage:'thornbury',q5_inn:'thornbury',q8_duke:'palace',q9_tower:'tower',q10_ring:'griffon',q10_letter:'catacombs',q10_arrest:'lanternhold',q10_escape:'catacombs',q10_catacombs:'catacombs',q10_shore:'shore',q11_cured:'sickroom',q11_docks:'hunted_city'};
 const phases={q1_wake:'night',q1_store:'night',q1_road:'night',q1_appear:'night',q1_catchup:'night',q3_lessa:'night',q4_camp_hiwot:'night',q4_camp_selene:'night',q6_fire:'night',q9_romance:'night',q10_ring:'day',q10_shore:'night',q11_posters:'day',q11_docks:'evening',q12_steps:'night'};
 const sceneLocations=new Map();
 function annotate(beats,location,phase){return (beats||[]).map(b=>{
- location=changes[b.key]||location;phase=phases[b.key]||phase;
+ location=b.artLocation||changes[b.key]||location;phase=b.artPhase||phases[b.key]||phase;
  return {...b,artLocation:location,artPhase:phase};
 });}
 for(let n=1;n<=14;n++){
@@ -53,6 +53,9 @@ for(const method of ['departureBeats','openerBeats','closingBeats','arrivalBeats
 }
 G.sceneForBeat=function(game,beat,context){
  const k=beat.key||'',n=Number((k.match(/^q(\d+)_/)||[])[1]);
+ // The letter is now delivered in custody; its questions and replies stay
+ // behind the cell bars until Dawit opens the escape passage.
+ if(beat.artPrison||(context?.prison&&/^q10_(?:letter|end)/.test(k)))return{kind:'environments',id:'catacombs',phase:'night',prison:true};
  let id=null;
  if(k==='q1_death')id='death';
  else if(n===2&&/notice|bounty/.test(k))id='bounty';
@@ -95,6 +98,14 @@ G.withScene=function(scene,game,beat,done,play){
  view.ready.then(()=>{
   if(state.ended||!view.active)return;
   state.weather?.destroy();state.weather=null;state.view?.destroy(true);view.setVisible(true);state.view=view;state.spec=spec;state.pending=null;
+  if(spec.prison){
+   const bars=scene.add.graphics();
+   bars.fillStyle(0x080b10,.95);bars.fillRect(0,85,W,22);bars.fillRect(0,650,W,22);
+   for(let x=90;x<W;x+=155){bars.fillStyle(0x080b10,.96);bars.fillRect(x,85,16,587);bars.fillStyle(0x627080,.35);bars.fillRect(x+2,85,3,587);}
+   bars.fillStyle(0x10151d,1);bars.fillRoundedRect(700,335,38,65,4);
+   bars.fillStyle(0x050609,1);bars.fillCircle(719,359,5);bars.fillRect(716,359,6,14);
+   view.add(bars);view.prisonBars=bars;
+  }
   const profile=A.GateAmbience[spec.kind]?.[spec.id],phase=spec.phase||profile?.phase||'day';
   const indoor=spec.kind==='environments'?M.environments[spec.id].indoor:!profile?.outdoor;
   state.weather=A.GateAmbience.weather(scene,view,profile,indoor,A.Weather.at(game.world,{phase,override:game.quest?.travel?.weather}),phase,{depth:405,independent:true});

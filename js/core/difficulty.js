@@ -7,7 +7,9 @@
 // death and a new life. The levers, in order of weight:
 //   extraFoes   more enemies per encounter (copies of the encounter's own kinds;
 //               never more adds than the player has companions)
-//   foeLevel    enemy level offset: skills climb a tier, tier-1 mooks bring perks
+//   foeLevel    enemy level offset: skills climb, tier-1 mooks bring perks
+//   foeSkillFloor every enemy skill is at least this level (10 = intermediate kits
+//               on normal and hard; hard's +4 levels carry seasoned kits up to advanced) — the "better enemies" lever
 //   foeHp/Atk/Def a small stat edge on top
 //   playerHp    the player's health buffer (easy doubles HP; hard has none)
 //   recoverPct  health back after each won encounter
@@ -23,19 +25,19 @@ const LEVELS = {
   easy: {
     id: 'easy', name: 'Easy', tagline: 'Short on time? This road moves.',
     blurb: 'The game as it has always played. Fights are quick, pay is generous, and auto combat stops for you below half health so progress comes fast in a short session.',
-    extraFoes: 0, foeLevel: 0, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
+    extraFoes: 0, foeLevel: 0, foeSkillFloor: 0, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
     playerHp: 2.0, recoverPct: 0.5, payBonus: 100, payMult: 1.0, autoStopPct: 0.5, fleeWarn: true,
   },
   normal: {
     id: 'normal', name: 'Normal', tagline: 'A fair fight.',
-    blurb: 'One more enemy in every fight and better ones — seasoned, with their perks and a little more bite. Your health buffer is smaller and less of it comes back between fights. Auto combat stops below 30%.',
-    extraFoes: 1, foeLevel: 2, foeHp: 1.05, foeAtk: 1.05, foeDef: 1.0,
+    blurb: 'One more enemy in every fight and better ones — every kit at least intermediate, with their perks and a little more bite. Your health buffer is smaller and less of it comes back between fights. Auto combat stops below 30%.',
+    extraFoes: 1, foeLevel: 2, foeSkillFloor: 10, foeHp: 1.05, foeAtk: 1.05, foeDef: 1.0,
     playerHp: 1.5, recoverPct: 0.35, payBonus: 50, payMult: 1.0, autoStopPct: 0.3, fleeWarn: true,
   },
   hard: {
     id: 'hard', name: 'Hard', tagline: 'Outnumbered and outclassed.',
-    blurb: 'Two more enemies in every fight, all of them veterans with full kits. No health buffer, little rest between fights, leaner pay, and auto combat never stops itself.',
-    extraFoes: 2, foeLevel: 4, foeHp: 1.1, foeAtk: 1.1, foeDef: 1.0,
+    blurb: 'Two more enemies in every fight, all of them veterans with their perks — the seasoned ones carry advanced kits. No health buffer, little rest between fights, leaner pay, and auto combat never stops itself.',
+    extraFoes: 2, foeLevel: 4, foeSkillFloor: 10, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
     playerHp: 1.0, recoverPct: 0.2, payBonus: 0, payMult: 0.85, autoStopPct: 0, fleeWarn: false,
   },
 };
@@ -108,16 +110,17 @@ Difficulty.pay = function (base) { const d = Difficulty.def(); return Math.round
 // base game sends out perkless picks up its type's perks once it is a veteran.
 // Called by Character.makeEnemy and Campaign.spawnEnemy; idempotent per unit.
 Difficulty.toughen = function (ch, type) {
-  const off = Difficulty.foeLevel();
-  if (!ch || !off || ch.__toughened || !Difficulty.isFoe(ch)) return ch;
+  const off = Difficulty.foeLevel(), floor = Difficulty.def().foeSkillFloor || 0;
+  if (!ch || (!off && !floor) || ch.__toughened || !Difficulty.isFoe(ch)) return ch;
   ch.__toughened = true;
   const uses = (A.DATA.CONST && A.DATA.CONST.USES_PER_LEVEL) || 10;
-  for (const e of (ch.perks || []).concat(ch.actives || [])) { e.level = (e.level || 1) + off; e.uses = Math.max(e.uses || 0, e.level * uses); }
+  const lift = lvl => Math.max((lvl || 1) + off, floor);
+  for (const e of (ch.perks || []).concat(ch.actives || [])) { e.level = lift(e.level); e.uses = Math.max(e.uses || 0, e.level * uses); }
   if (type && type.perks && !(ch.perks || []).length) {
-    const lvl = (ch.enemyLevel || 1) + off;
+    const lvl = lift(ch.enemyLevel);
     for (const p of type.perks) if (A.DATA.SKILLS[p]) ch.perks.push({ skillId: p, level: lvl, uses: lvl * uses });
   }
-  if (ch.enemyLevel) ch.enemyLevel += off;
+  if (ch.enemyLevel) ch.enemyLevel = lift(ch.enemyLevel);
   return ch;
 };
 

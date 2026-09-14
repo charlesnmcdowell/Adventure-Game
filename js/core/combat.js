@@ -1142,7 +1142,7 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   const fn = perkVal(ch, 'fifty_names', 'lifeKillScale');
   if (fn) dmg *= 1 + (ch.lifeKills || 0) * fn;
   // Rising Cut / Before the Breath: doubled on anyone who has not moved yet
-  if (m.data.unactedDouble && defUnit && !defUnit.attackedThisRound && !defUnit.actedThisRound) dmg *= 2;
+  if (m.data.unactedDouble && defUnit && !defUnit.attackedThisRound && !defUnit.actedThisRound) dmg *= 1.5;   // balance pass: was ×2
   // Ranging Cannon: every consecutive round on the same lane finds the range
   if (m.data.laneFocusScale && defUnit) {
     if (atkUnit.laneFocus.lane === defUnit.lane) atkUnit.laneFocus.n++;
@@ -1195,8 +1195,10 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
   if (defUnit && defUnit.statuses.some(x => x.kind === 'contractMark' && x.side === atkUnit.side)) dmg *= 1.25;
   dmg = Math.round(dmg);
   if (defUnit && atkUnit && atkUnit.ch) {
-    if (isGod(atkUnit.ch)) dmg += Math.round((defUnit.maxHp || 0) * 0.5);
-    else if (atkUnit.ch.boss) dmg += Math.round((defUnit.maxHp || 0) * 0.2);
+    // balance pass: a boss blow still bites whatever your health bar says, but a
+    // two-turn boss no longer ends anyone in three rounds regardless of level
+    if (isGod(atkUnit.ch)) dmg += Math.round((defUnit.maxHp || 0) * C().GOD_HIT_PCT);
+    else if (atkUnit.ch.boss) dmg += Math.round((defUnit.maxHp || 0) * C().BOSS_HIT_PCT);
   }
   let def = defUnit ? Ch().effStat(defUnit.ch, 'def') + (defUnit.armorBonus || 0) - (defUnit.defStripped || 0) : 0;
   if (defUnit) {
@@ -1834,7 +1836,10 @@ function tickCooldowns(st) {
 // Poison & bleed: a tick is a percentage of the TARGET's max HP by the
 // applying skill's tier, spread evenly over DOT_TICKS (8) so the full
 // amount never lands in one turn.
-const DOT_PCT = { basic: 0.5, intermediate: 1.0, advanced: 1.25 };
+// Balance pass: a single application takes 35% / 60% / 85% of the target's max HP
+// over eight ticks (was 50 / 100 / 125 — one Throat Cut took a whole health bar).
+const DOT_PCT = { basic: 0.35, intermediate: 0.6, advanced: 0.85 };
+const BURN_TICK = 1.5;                 // flat DoTs (burn, shadow): srcAtk × power × this per tick (was 0.5)
 const DOT_TICKS = 8;
 Combat.DOT_PCT = DOT_PCT;
 Combat.DOT_TICKS = DOT_TICKS;
@@ -1846,7 +1851,7 @@ Combat.dotWindow = dotWindow;
 function normaliseDot(status) {
   if (!isPctDot(status.kind)) return status;
   status.tier = DOT_PCT[status.tier] != null ? status.tier : 'basic';
-  status.pct = DOT_PCT[status.tier];
+  status.pct = DOT_PCT[status.tier] * (status.pctMult || 1);      // pctMult: a lighter rider (class flare)
   if (status.ticks == null) status.ticks = dotWindow(status.rounds);
   if (status.ticksTotal == null) status.ticksTotal = status.ticks;
   if (status.dealt == null) status.dealt = 0;
@@ -1944,7 +1949,7 @@ function endRoundTicks(st) {
     if (u.statuses.some(x => x.kind === 'serpent')) u.evade = Math.max(u.evade, 1);
     for (const s of u.statuses.slice()) {
       if (DOT_STATUSES.includes(s.kind)) {
-        let dot = isPctDot(s.kind) ? dotTick(st, s, u) : Math.max(1, Math.round((s.srcAtk || 8) * s.power * 0.5 * (1 + (s.srcLevel || 1) * 0.015)));
+        let dot = isPctDot(s.kind) ? dotTick(st, s, u) : Math.max(1, Math.round((s.srcAtk || 8) * s.power * BURN_TICK * (1 + (s.srcLevel || 1) * 0.02)));
         const srcU = s.srcUid ? st.units.find(x => x.uid === s.srcUid) : null;
         const srcSeptic = srcU && (s.kind === 'bleed' || s.kind === 'poison') ? perkVal(srcU.ch, 'septic_sanguine', null) : null;
         if (srcSeptic) dot = Math.round(dot * srcSeptic.dotMult);
@@ -2663,8 +2668,9 @@ function applyFlareOnHit(st, u, t, m) {
   const f = m && m.flare;
   if (!f || !t || t.downed) return;
   const atk = Ch().effStat(u.ch, 'atk');
-  if (f.poison && t.side !== u.side) addStatus(st, t, { kind: 'poison', tier: m.tier, power: f.poison.power, rounds: f.poison.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
-  if (f.bleed) addStatus(st, t, { kind: 'bleed', tier: m.tier, power: f.bleed.power, rounds: f.bleed.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
+  // the flare's cut is a garnish, not the kill tool: half a tier's poison and bleed
+  if (f.poison && t.side !== u.side) addStatus(st, t, { kind: 'poison', tier: m.tier, pctMult: 0.5, power: f.poison.power, rounds: f.poison.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
+  if (f.bleed) addStatus(st, t, { kind: 'bleed', tier: m.tier, pctMult: 0.5, power: f.bleed.power, rounds: f.bleed.rounds, stacks: true, srcAtk: atk, srcUid: u.uid });
   if (f.rootRounds) addStatus(st, t, { kind: 'rooted', rounds: f.rootRounds });
   if (f.defStrip) { t.defStripped = Math.max(t.defStripped || 0, f.defStrip); ev(st, { t: 'sundered', uid: t.uid }); }
 }
@@ -2826,9 +2832,11 @@ Combat.applyPostVictoryRecovery = function (chars) {
 };
 
 // Export end-of-encounter HP back onto characters for attrition across the quest (§8).
-// Survival growth (request): Bulwark and Arena Champion holders gain 20 max HP
-// for every battle they come out of alive — each encounter of a quest counts.
-// Applied once per battle, on export.
+// Survival growth (request, balance pass): Bulwark and Arena Champion holders gain
+// 20 max HP for every battle they come out of alive — each encounter of a quest
+// counts — but it is a quest's worth of health: `questHp` rides on max HP until the
+// company is home again (Game.startQuest / completeQuest clear it). Applied once
+// per battle, on export.
 Combat.applySurvivalGrowth = function (st) {
   if (st.__growthApplied) return [];
   st.__growthApplied = true;
@@ -2841,7 +2849,7 @@ Combat.applySurvivalGrowth = function (st) {
     let gain = 0;
     for (const e of ch.perks) { const sk = SK()[e.skillId]; if (sk && sk.survivalHp) gain += sk.survivalHp; }
     if (!gain) continue;
-    ch.stats.hp += gain;
+    ch.questHp = (ch.questHp || 0) + gain;
     ch.survivalBattles = (ch.survivalBattles || 0) + 1;
     if (u.gateBaseMax) {
       const bonus = u.maxHp - u.gateBaseMax;

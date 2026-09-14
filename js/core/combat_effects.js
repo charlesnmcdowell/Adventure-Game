@@ -30,15 +30,25 @@ E.unseenGuard = (I, st, u, tgt, d) => {
 };
 
 // Venom Draw: strip all Poison from an ally and put the total on one enemy
+// Balance pass: the three tiers were the same skill under three names. What it can draw off
+// now widens with the tier — poison, then bleed as well, then every wound on every ally.
 E.venomDraw = (I, st, u, tgt, d) => {
+  const kinds = d.drawKinds || ['poison'];
+  const takes = x => x.statuses.some(s => kinds.includes(s.kind));
   const allies = I.livingUnits(st, u.side);
-  const donor = allies.filter(x => x.statuses.some(s => s.kind === 'poison'))
-    .sort((a, b) => b.statuses.filter(s => s.kind === 'poison').length - a.statuses.filter(s => s.kind === 'poison').length)[0];
+  const count = x => x.statuses.filter(s => kinds.includes(s.kind)).length;
+  const donors = d.drawFromAll ? allies.filter(takes) : allies.filter(takes).sort((a, b) => count(b) - count(a)).slice(0, 1);
   const foe = tgt.side !== u.side ? tgt : I.livingUnits(st, u.side === 'a' ? 'b' : 'a')[0];
-  if (!donor || !foe) return;
-  const drawn = donor.statuses.filter(s => s.kind === 'poison');
-  for (const s of drawn) { I.removeStatus(donor, s); I.addStatus(st, foe, (ADV.Combat.reseatDot || ((x) => x))(Object.assign({}, s), foe)); }
-  I.ev(st, { t: 'venomDraw', from: donor.uid, to: foe.uid, n: drawn.length });
+  if (!donors.length || !foe) return;
+  let n = 0;
+  for (const donor of donors) {
+    for (const s of donor.statuses.filter(x => kinds.includes(x.kind))) {
+      I.removeStatus(donor, s);
+      I.addStatus(st, foe, (ADV.Combat.reseatDot || ((x) => x))(Object.assign({}, s), foe));
+      n++;
+    }
+  }
+  I.ev(st, { t: 'venomDraw', from: donors[0].uid, to: foe.uid, n });
 };
 
 // Last Breath: a downed ally rises for one round, then falls
@@ -70,17 +80,31 @@ E.paidInFull = (I, st, u, tgt, d) => {
   I.dealDamage(st, u, foe, amt, 'attack', { melee: true });
 };
 
-// Company Medic: heal every ally below 50% for a reduced amount
+// Company Medic: heal every ally below 50% for a reduced amount.
+// Balance pass: this used to pay out of the medic's ATTACK stat while every other heal in
+// the game restores a share of the target's own health — which made a whole-party heal worth
+// about a tenth of a single-target one (an 18-attack medic healed ~35 a body against Mend's
+// 300). It now draws on the same pool as every other heal, at a reduced rate per body
+// because it lands on everyone hurt.
 E.companyMedic = (I, st, u, tgt, d) => {
-  const atk = Ch().effStat(u.ch, 'atk');
-  const amt = Math.round(atk * (d.power || 1.2) * C().TIER_MULT[d.tier || 'basic']);
-  for (const x of I.livingUnits(st, u.side)) if (x.chp / x.maxHp < 0.5) I.healUnit(st, u, x, amt);
+  const tier = d.tier || 'basic';
+  const pct = (Combat.HEAL_PCT[tier] || 0.5) * (d.medicPct || 0.45);
+  for (const x of I.livingUnits(st, u.side)) {
+    if (x.chp / x.maxHp >= 0.5) continue;
+    I.healUnit(st, u, x, Math.max(1, Math.round(x.maxHp * pct)));
+  }
 };
 
 // Dispel: strip all buffs and wards from one enemy (perks are untouchable, §13d-2)
+// Balance pass: how much it can strip now grows with the tier (it used to take everything at
+// every tier, so Unwrite and Struck From the Record were names with nothing behind them).
 E.dispel = (I, st, u, tgt, d) => {
+  const cap = d.dispelCap != null ? d.dispelCap : 99;
   let n = 0;
-  for (const s of tgt.statuses.slice()) if (I.POS_STATUSES.includes(s.kind)) { I.removeStatus(tgt, s); n++; }
+  for (const s of tgt.statuses.slice()) {
+    if (n >= cap) break;
+    if (I.POS_STATUSES.includes(s.kind)) { I.removeStatus(tgt, s); n++; }
+  }
   I.ev(st, { t: 'dispelled', uid: tgt.uid, n });
 };
 

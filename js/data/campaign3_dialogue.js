@@ -754,7 +754,7 @@ CH('q8_duke_seen', [
 L('halvard', 'q8_seen_nobody', `[a nod] Good. Keep it so. A paper nobody has read is worth twice one everybody has argued about.`);
 L('halvard', 'q8_seen_hand', `[a long breath] The Umbral Hand. Then the whole market will have read them by the week's end, and the Council will hear it from fishwives before it hears it from me. Ah-ah. — Fine. Faster than my clerks, at least. It is not a small thing you have done, and I am not yet sure whether it was a good one.`);
 L('halvard', 'q8_seen_wardens', `[dry] Wardens. Then they are honest and nobody in this city will believe them. Good. That is one problem I already know how to solve.`);
-L('halvard', 'q8_duke_work', `[precise] The Consortium poisoned its rivals' ore and kept its own iron to sell at a higher price. Now it blames Calder for the shortage. If the Council votes for war, the city will need swords, armour and wagons, and Adigun's company will supply the iron. I need the orders from their tower before the vote in a fortnight. Without proof, ten thousand people could die making those men rich.`);
+L('halvard', 'q8_duke_work', `[precise] The Consortium poisoned its rivals' ore and kept its own iron to sell at a higher price. Adigun blames Calder for the shortage. Now someone is demanding we settle it with a war. The Council votes in a fortnight. I need the orders from their tower to prove who caused this, before ten thousand people die over a shortage those men arranged.`);
 CH('q8_halvard', [
   { id: 'city', text: 'Then we will get them. For the city.', allegianceLean: 'gauntlet', aff: { cassian: 1, selene: 1 }, reply: B('halvard', 'q8_halvard_city') },
   { id: 'pay', text: 'For the city, and for a price.', aff: { wren_ward: 1, faelen: 1 }, reply: B('halvard', 'q8_halvard_pay') },
@@ -778,6 +778,9 @@ Q(8, {
 // Q9 — The Consortium Tower
 // =====================================================================
 L('halvard', 'q9_plan', `[precise] The Consortium is hiring swords. You walk in the front door as swords. The ledgers are on the top floor with three men who never leave it.|[dry] If you can do it without burning the tower down, the city would appreciate it. If you cannot, the city will understand.`);
+// Sanni's account is a deliberate lie: he attributes his own war plan to Adigun.
+// The player can investigate that claim and refuse to kill at the Q10 summit.
+L('sarn', 'q9_tower', `[quiet, city-formal] Tesfaye's ward. I am Sanni. I knew him through the keep's book trade. He wrote about you and Hiwot. I was sorry to hear what happened on the Griffon Road.|[low] Adigun Adeyinka is my father. He runs this office. Those orders from the mine carry his seal, and he has gone to Lanternhold to secure the keepers' support. The papers upstairs will prove it.|[urgent] He is preparing a war with Calder. Kill him before he buys the Council's vote and you could save thousands of lives. Go to the summit at Lanternhold. Read the evidence first, and hear what he has to say. I will meet you there.`);
 L(W, 'q9_lobby', `[whispering] A clerk. Two guards. A very long list of names on his desk, and we are not on it.`);
 L('selene', 'q9_lobby', `[murmuring] A clerk with a list and two guards who are paid to believe him.`);
 L('faelen', 'q9_lobby', `[murmuring] A clerk. A list. Two guards. Forgive me — I love a lobby.`);
@@ -817,7 +820,7 @@ CH('q9_lysandra', [
   { id: 'kill', text: 'You share his bed. You share his end.', heritage: 1, set: { lysandraDead: true }, aff: { selene: -1, amara: -1 }, reply: B('lysandra', 'q9_lysandra_kill') },
 ]);
 L('lysandra', 'q9_lysandra_kolade', `[precise] Adigun Adeyinka's foster-son, and the head of the Consortium in everything but the ledger. The man in the black armour on your road; he told me about the road himself, and he told it fondly. He collects people like you. He says you are family. He does not mean it kindly, and he does not mean it as a threat either, which is the frightening part.`);
-L('lysandra', 'q9_lysandra_deal', `[pleased] Adigun expects to make a fortune supplying a war. Kolade has been using his father's couriers to hunt Morrak's children behind his back. His tutor also promises him godhood through mass murder. That is why he needs the war, even if it ruins the Consortium.|[soft] When you need a way into the palace, come to me. I will have one. The price is his head, and the Consortium afterward — for me.`);
+L('lysandra', 'q9_lysandra_deal', `[pleased] Adigun wants high iron prices. A frightened city pays them. Kolade wants the war to happen. He has been using his father's couriers to hunt Morrak's children behind his back, and his tutor promises him godhood through mass murder. His father would stop the war if he knew how close it was.|[soft] When you need a way into the palace, come to me. I will have one. The price is his head, and the Consortium afterward — for me.`);
 L('lysandra', 'q9_lysandra_arrest', `[amused] Chains. How lawful. Fine. I will tell Adebayo everything and he will hang me for it, and Kolade will still be sworn in on time.|[bitter] Go upstairs. The top floor is where he keeps the truth about you.`);
 L('lysandra', 'q9_lysandra_kill', `[whispering] He will feel this. That is the only thing I am sorry for.`);
 L('selene', 'q9_top', `[reading] Adigun Adeyinka, Bankole, Rotimi. Gone to Lanternhold — to LANTERNHOLD — for a summit with the keepers.|[cold] The three men behind all of this are sitting in the library you grew up in.`);
@@ -844,7 +847,7 @@ L('amara', 'q9_romance_yes', `[exhaling] Then we will find out what it is togeth
 L('amara', 'q9_romance_no', `[calm] That is fair. I have asked enough of you for one life. The altar, then.`);
 L(W, 'q9_romance_none', `[teasing] Nobody is in love with you. Good. It would have been unbearable.|[fond] Sleep. Lanternhold in the morning.`);
 Q(9, {
-  departure: [B('halvard', 'q9_plan')],
+  departure: [B('halvard', 'q9_plan'), B('sarn', 'q9_tower', { caption: 'Inside the Consortium headquarters, a man in a fine merchant\'s coat draws you aside before the clerk can ask your business. He introduces himself as Sanni.' })],
   openers: {
     0: [B(W, 'q9_lobby', { anyOf: [W, 'selene', 'faelen', 'durnik'], choice: 'q9_lobby' })],
     1: [B('vess', 'q9_betrayal', { when: { flag: 'umbralBetrayed' } }), B('fennick', 'q9_betrayal', { when: { flag: 'umbralBetrayed' } })],
@@ -864,18 +867,18 @@ L('lysandra', 'q9_floor_business', `[brisk, pleasant] Now. He is going to be a G
 // =====================================================================
 // Q10 — Return to Lanternhold
 // =====================================================================
-// Sanni: a quiet, courteous stranger who enjoys being asked things and gives nothing away
-L('sarn', 'q10_ring', `[quiet, city-formal] You are Tesfaye's ward. I knew him. Not well; well enough to be sorry.|[calm] Take this ring. It was his once, before it was mine. And know this, my friend: the three men inside deserve whatever you decide to give them. Nobody will weep.`);
+// The familiar merchant renews his invitation; the ring and claimed friendship are bait.
+L('sarn', 'q10_ring', `[quiet, city-formal] You found the papers, then. My father is in the reading room with Bankole and Rotimi. Before you go in, I have something of Tesfaye's for you.|[calm] Take this ring. It was his once, before it was mine. And know this, my friend: the three men inside deserve whatever you decide to give them. Nobody will weep.`);
 L(W, 'q10_ring_hiwot', `[suspicious] How did you know Tesfaye? I lived in that keep twenty years and I never once saw you.`);
-L('sarn', 'q10_ring_hiwot_reply', `[a warm, easy smile] The way one knows a rumour, young lady. From a distance, and better than the rumour would like.`);
+L('sarn', 'q10_ring_hiwot_reply', `[a warm, easy smile] He had dealings outside the keep, young lady. Some of them were confidential. I gave him my word that they would stay that way.`);
 L(W, 'q10_ring_hiwot_after', `[flat] That is not an answer.`);
 L('sarn', 'q10_ring_hiwot_end', `[pleasantly] No. It is not. — The ring, {target}. Take it or do not; I have a long walk either way.`);
 CH('q10_sarn', [
-  { id: 'take', text: '...Thank you. Who are you?', set: { sarnRing: true }, reply: B('sarn', 'q10_sarn_take') },
-  { id: 'refuse', text: 'I do not take gifts from strangers on roads.', aff: { wren_ward: 1 }, reply: B('sarn', 'q10_sarn_refuse') },
+  { id: 'take', text: 'If it was Tesfaye\'s, I want it back.', set: { sarnRing: true }, reply: B('sarn', 'q10_sarn_take') },
+  { id: 'refuse', text: 'Keep it. I have not decided whether to trust you.', aff: { wren_ward: 1 }, reply: B('sarn', 'q10_sarn_refuse') },
   { id: 'threat', text: 'If this is a trick, I will find you.', heritage: 1, set: { sarnRing: true }, reply: B('sarn', 'q10_sarn_threat') },
 ]);
-L('sarn', 'q10_sarn_take', `[soft] Sanni. Nobody. Wear it inside; the keepers will know it. Go well.`);
+L('sarn', 'q10_sarn_take', `[soft] Wear it inside. The keepers will know it. Find my father before he leaves the reading room.`);
 L('sarn', 'q10_sarn_refuse', `[amused] Wise. Tesfaye taught you that. Go well anyway.`);
 L('sarn', 'q10_sarn_threat', `[pleased] I believe you would. Go well, {target}.`);
 // The gate: Abba Gebre's grief comes out as procedure
@@ -889,14 +892,14 @@ L('hadrian', 'q10_where_refuse', `[cold] "On the road." Very well. It is what he
 L('ambrose', 'q10_gate', `[kind] Pay him no mind. He mourns like a wall. — Come and find me in the upper reading room before you do anything else, my child. Tesfaye left something with me. For you. For now.`);
 L(W, 'q10_home', `[strange] It smells the same. Ink and dust and the brothers' lentils. I thought it would feel like home, and it feels like a trap.`);
 // The summit: Adigun, and Delphine's one question about the seal
-L('maddox', 'q10_summit', `[startled] Guards — no. No, hold. I know who you are.|[shaking] Adigun Adeyinka. The mines, the bandits, the lies about Calder — we paid for those. War would have made us the city's only iron supplier. But the orders to kill you and Tesfaye came from my foster-son. He used my seal and my couriers. By the time I found out, they were obeying him.`);
+L('maddox', 'q10_summit', `[startled] Guards — no. No, hold. I know who you are.|[shaking] Adigun Adeyinka. The mines, the bandits, the lies about Calder — we paid for those. I wanted higher prices, not a war that would close our trade routes. My foster-son is buying votes to send the army across the border. He used my seal to order your death, and Tesfaye's. My own couriers obey him now.`);
 L('selene', 'q10_summit_selene', `[flat] Then answer me this, Adeyinka, before anybody decides anything. The iron hand in red wax on the ore wagons. Whose seal is that?`);
 L('maddox', 'q10_summit_selene_reply', `[miserable] Mine. The house's. — He took it off my desk in the spring, and my couriers with it, and I have been signing for a man who no longer asks me.`);
 L('selene', 'q10_summit_selene_after', `[to you, quiet] Your seal on the wagons and his on the bounty. Same wax. I've been right since the inn, honey, and I ain't glad of it.`);
 L('vask', 'q10_summit', `[bluster] Kill them, Adigun, they have swords in a LIBRARY —`);
 CH('q10_summit', [
-  { id: 'kill', text: 'Three names on a letter. Three men in a room. Easy arithmetic.', heritage: 1, set: { leadersKilled: true }, aff: { cassian: -1, selene: -1, ilvara: 1 }, reply: B('maddox', 'q10_summit_kill') },
-  { id: 'talk', text: 'Your son. Say his name.', bypass: true, set: { leadersSpared: true }, reply: B('maddox', 'q10_summit_talk') },
+  { id: 'kill', text: 'You paid for the mines and the bandits. You will not leave this room alive.', heritage: 1, set: { leadersKilled: true }, aff: { cassian: -1, selene: -1, ilvara: 1 }, reply: B('maddox', 'q10_summit_kill') },
+  { id: 'talk', text: 'I will not kill you. Tell me what your son has been doing.', bypass: true, set: { leadersSpared: true }, reply: B('maddox', 'q10_summit_talk') },
   { id: 'arrest', text: 'You will answer to Adebayo. All three of you. Nobody dies in a library.', bypass: true, set: { leadersSpared: true, leadersArrested: true }, aff: { cassian: 1 }, heritage: -1, reply: B('maddox', 'q10_summit_arrest') },
 ]);
 L('maddox', 'q10_summit_kill', `[terrified] He will not stop when we are dead. He will not STOP —`);
@@ -922,9 +925,11 @@ CH('q10_letter', [
 L('ambrose', 'q10_letter_grief', `[soft] He raised a child. What the child became was always going to be the child's own work. He knew that. He hoped.`);
 L('ambrose', 'q10_letter_anger', `[sad] He tried, every year. He wrote it out and burned it. He thought one more year of not knowing was one more year of you being only his.`);
 L('ambrose', 'q10_letter_hunger', `[frightened] Do not — {target}. He wrote the last line for exactly that look on your face. Read it again.`);
-L('hadrian', 'q10_arrest', `[thundering] Three men are dead in my reading room, and this — this THING was seen leaving it. Take them. Take all of them.`);
-L('hadrian', 'q10_arrest_spared', `[thundering] Three men are dead in my reading room — found at midnight, throats opened — and this company was the last to speak with them. Take them. Take all of them.`);
-L('ambrose', 'q10_escape', `[urgent] The catacombs. There is a way to the shore under the old tombs. Gebre does not know it; Tesfaye did. Go, and do not trust any face you meet down there. Not even mine.`);
+L('sarn', 'q10_murder', `[cold] You were supposed to kill him. Very well. Father, your couriers brought me your letter to the Council. You will not be calling off my war.`);
+L('sarn', 'q10_accuse', `[shouting] Guards! In here! Tesfaye's ward has murdered my father and his partners. Take their weapons. Do not let this company leave the keep!`);
+L('hadrian', 'q10_arrest', `[thundering] Three men dead in my reading room. Put down your weapons. You and your whole company are under arrest. To the cells. Now.`);
+L('hadrian', 'q10_arrest_spared', `[thundering] You say you spared them. Sanni says he found you over their bodies. I will hear you separately, under guard. Put down your weapons. To the cells.`);
+L('ambrose', 'q10_escape', `[urgent] I brought the cell key. Your gear is in the chest outside; take it. Sanni has ordered your transfer to the Gate at dawn. I do not trust him. The old passage behind this wall leads through the catacombs to the shore. Go, and do not trust any face you meet down there.`);
 // Gbenga: a professional, bored, and only mildly curious which of you he is paid for
 L('grell', 'q10_catacombs', `[bored] Down here, then. Good. Fewer witnesses and no keepers.|[professional] Gbenga. Your brother sends his regards and would like this finished before breakfast. — Which of you is the ward? I was given a face, not a name, and it is dark.`);
 L('ilvara', 'q10_catacombs_ilvara', `[amused] Guess.`);
@@ -948,8 +953,10 @@ L('selene', 'q10_double_strike_alone', `[grim] That wasn't him, and you knew it 
 L('ilvara', 'q10_double_strike_alone', `[approving] Good. You did not even let it finish. There are more behind it; kill them the same way.`);
 L('faelen', 'q10_double_strike_alone', `[breathless] Not him — and you knew. It is down. Two more behind it, and I do not like their faces either.`);
 L('faelen', 'q10_double_listen', `[shouting] Not them! NOT them! It has teeth, {target}!`);
-L('selene', 'q10_shore', `[weary] The shore. Air. We're out.|[hard] Every keeper in Lanternhold thinks we killed three men tonight, and the man who did it was inside those walls wearing somebody's face.`);
-L(W, 'q10_shore', `[shaking] Out. We are out. I am never going home again, am I.|[small] He was IN there. He was in the library, with us.`);
+L('selene', 'q10_shore', `[weary] The shore. Air. We're out.|[hard] Sanni sent us after his father. Then he called the guards on us. With Adigun dead and us wanted for murder, who is left to stop him?`);
+L(W, 'q10_shore', `[shaking] Out. We are out. I am never going home again, am I.|[small] Sanni sent us into that room. Then he told the guards we'd murdered his father. He had this planned before we ever left the city.`);
+L('ostwin', 'q10_unmasked', `[dry] Your father is dead, Kolade. The ward has escaped the keep. I take it we are continuing with the war?`);
+L('korvath', 'q10_unmasked', `[calm] Of course. Adigun wanted frightened customers paying twice the price. He would never have let the armies march. Now the Consortium is mine, and the ward will be hunted as a murderer.|[pleased] Let them run. We know where to look for the other children. Once the war begins, nobody will spare soldiers to protect them. I will deal with Tesfaye's ward when I choose.`);
 L('aldric', 'q10_dream', `[echoing] Now you have my letter. I should have told you about your brother myself, when I could still help you face him.|[grave] Kolade plans to murder the other children and take their power. His tutor means to use the deaths in the war as an offering to Morrak, to make Kolade a god. Stop the war and you deny him that sacrifice.|[fading] The last time I ask. Feed it, or starve it.`);
 CH('q10_dream', [
   { id: 'reject', text: 'Starve it. I will stop him as myself.', heritage: -1, set: { dream3: 'reject' }, reply: B('aldric', 'q10_dream_reject') },
@@ -959,7 +966,7 @@ L('aldric', 'q10_dream_reject', `[at peace] Then I did enough. Go and finish it,
 L('aldric', 'q10_dream_embrace', `[quiet] Then I hope I am wrong about what that costs. I have been wrong before. Not about this. Go.`);
 Q(10, {
   departure: [
-    B('sarn', 'q10_ring', { caption: 'The hill road to Lanternhold. A quiet man in a plain coat is waiting at the milestone with something small in his hand.' }),
+    B('sarn', 'q10_ring', { caption: 'The hill road to Lanternhold. Sanni, the merchant you met at the Consortium headquarters, is waiting at the milestone with a ring in his hand.' }),
     B(W, 'q10_ring_hiwot', co(W)), B('sarn', 'q10_ring_hiwot_reply', co(W)), B(W, 'q10_ring_hiwot_after', co(W)), B('sarn', 'q10_ring_hiwot_end', co(W, { choice: 'q10_sarn' })),
     B('sarn', 'q10_ring_ask', without(W, { choice: 'q10_sarn' })),
   ],
@@ -971,12 +978,15 @@ Q(10, {
       B('vask', 'q10_summit', { choice: 'q10_summit' }),
     ],
     2: [
-      B('ambrose', 'q10_letter', { choice: 'q10_letter_end', caption: 'The upper reading room. Dawit has a sealed letter under his hand. The wax is twenty years old.' }),
+      B('sarn', 'q10_murder', { when: { not: 'leadersKilled' }, caption: 'Before you can escort the merchants out, Sanni enters and bars the door. Two of his retainers seize Bankole and Rotimi. Sanni draws a knife and steps toward Adigun.' }),
+      B('maddox', 'q10_summit_kill', { when: { not: 'leadersKilled' }, death: true, caption: 'Sanni drives the knife into Adigun. Behind him, his retainers cut the other two merchants\' throats. Sanni wipes the blade inside his sleeve and opens the door.' }),
+      B('sarn', 'q10_accuse', { caption: 'Sanni calls the keep\'s guards into the reading room. He points at your company, standing beside the three bodies. His retainers step aside to let the guards through.' }),
+      B('hadrian', 'q10_arrest', { when: { flag: 'leadersKilled' } }),
+      B('hadrian', 'q10_arrest_spared', { when: { not: 'leadersKilled' } }),
+      B('ambrose', 'q10_letter', { choice: 'q10_letter_end', artPrison: true, caption: 'The lock turns behind your company. Your weapons are taken to a chest outside the cell. Hours later, Dawit comes to the bars with Tesfaye\'s sealed letter.' }),
       B('ambrose', 'q10_letter_give'),
       B('aldric', 'q10_letter', { choice: 'q10_letter', caption: 'You read it twice. Then you read the last line a third time.' }),
-      B('hadrian', 'q10_arrest', { when: { flag: 'leadersKilled' } }),
-      B('hadrian', 'q10_arrest_spared', { when: { flag: 'leadersSpared' } }),
-      B('ambrose', 'q10_escape'),
+      B('ambrose', 'q10_escape', { caption: 'Dawit opens the cell. You reclaim your gear while he uncovers a narrow passage behind the wall. Footsteps are already coming down the stairs.' }),
       B('grell', 'q10_catacombs'),
       B('ilvara', 'q10_catacombs_ilvara', co('ilvara')), B(W, 'q10_catacombs_hiwot', { when: { company: W, noCompany: 'ilvara' } }),
       B('grell', 'q10_catacombs_end'),
@@ -985,6 +995,8 @@ Q(10, {
   },
   closing: [B('selene', 'q10_shore', { anyOf: ['selene', W] })],
   arrival: [
+    B('ostwin', 'q10_unmasked', { to: 'korvath', caption: 'Back at the Consortium tower, away from your company: Sanni has set aside his merchant\'s coat. He wears the spiked black armour from the Griffon Road. His tutor calls him Kolade.', artLocation: 'counting' }),
+    B('korvath', 'q10_unmasked', { to: 'ostwin', set: { sarnUnmasked: true }, artLocation: 'counting' }),
     B('aldric', 'q10_dream', { choice: 'q10_dream', caption: 'The throne is close enough to touch. A man in black armour is already sitting in it, and he is smiling at you like a brother.', dream: true }),
   ],
 });

@@ -343,8 +343,15 @@ C3.afterCounterHealing = function (st, u, act, result) {
   st.events.push({ t: 'campaignBanter', beat: { c3: true, combat: true, to: 'company', fid: C3.FID, who: 'fennick', key: 'q4_healing' } });
 };
 // Mirrors Game.tryVerb's success branch: this encounter is talked past.
+C3.spareSummit = function (game) {
+  // A successful bribe/intimidation is mercy even after choosing a hostile
+  // dialogue answer. The following scene must not describe a fight that never happened.
+  C3.setFlag(game, 'leadersKilled', false);
+  C3.setFlag(game, 'leadersSpared', true);
+};
 C3.bypassEncounter = function (game) {
   const q = game.quest; if (!q) return false;
+  if (q.quest?.campaign3 && q.quest.n === 10 && q.encIdx === 1) C3.spareSummit(game);
   q.encIdx++; q.enemies = null; q.verbs = null; q.openerBeats = [];
   if (q.encIdx >= q.quest.encounters.length) {
     q.readyToComplete = true;
@@ -468,6 +475,12 @@ C3.applyOption = function (game, choiceId, opt) {
   if (opt.ask) { s.asked = s.asked || {}; s.asked[choiceId] = (s.asked[choiceId] || []).concat(opt.id); }
   else s.choices[choiceId] = opt.id;
   if (opt.set) for (const [k, v] of Object.entries(opt.set)) C3.setFlag(game, k, v);
+  if (choiceId === 'q10_summit') {
+    // Replaying a failed quest may leave the previous attempt's choice flags.
+    C3.setFlag(game, 'leadersKilled', opt.id === 'kill');
+    C3.setFlag(game, 'leadersSpared', opt.id !== 'kill');
+    C3.setFlag(game, 'leadersArrested', opt.id === 'arrest');
+  }
   if (opt.aff) for (const [who, n] of Object.entries(opt.aff)) s.aff[who] = (s.aff[who] || 0) + n;
   if (opt.heritage) s.heritage = Math.max(-3, Math.min(3, s.heritage + opt.heritage));
   if (opt.allegiance) s.allegiance = opt.allegiance;
@@ -641,8 +654,16 @@ ADV.Campaign3 = C3;
     return r;
   };
   G.tryVerb = function (game, verb) {
+    const summit = game.quest?.quest?.campaign3 && game.quest.quest.n === 10 && game.quest.encIdx === 1;
     const r = oVerb(game, verb);
-    if (r && r.success && r.mode === 'bypass') C3.queueClosing(game);
+    if (r && r.success && r.mode === 'bypass') {
+      if (summit) {
+        C3.spareSummit(game);
+        C3.save(game);
+        ADV.Save.saveGame(game);
+      }
+      C3.queueClosing(game);
+    }
     return r;
   };
 })();

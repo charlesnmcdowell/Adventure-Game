@@ -83,6 +83,8 @@ ADV.DATA.CONST = {
   POST_VICTORY_RECOVERY_PCT: 0.5, // restore 50% max HP after winning an encounter
   ARMORED_BONUS_DEF: 12,
   HEAL_MULT: 1.1,                 // healing skills +10% (request)
+  BOSS_HIT_PCT: 0.12,             // every boss hit adds this share of the target's max HP (balance pass: was 0.2)
+  GOD_HIT_PCT: 0.3,               // and a god's (was 0.5)
   DOT_ENEMY_MULT: 1.0,            // poison/bleed ticks dealt BY enemies TO the party (DOT_PROMPT.md §3); 1 = symmetric
   FLEE_BASE: 0.40, FLEE_PER_SPD: 0.05, FLEE_MIN: 0.10, FLEE_MAX: 0.90,
   AMBUSH_EXTRA_TURNS: 2,          // sneaking character's consecutive turns at top of round 1

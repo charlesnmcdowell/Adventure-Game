@@ -90,6 +90,7 @@ Character.base = function (o) {
 
 Character.effStat = function (ch, key) {
   let v = ch.stats[key] + (ch.bonusStats[key] || 0);
+  if (key === 'hp' && ch.questHp) v += ch.questHp;                 // survival growth, for this quest only
   if (ch.meal && ch.meal.bonus && ch.meal.bonus[key]) v += ch.meal.bonus[key];   // a meal lasts one quest
   if (ch.status === 'hero' && ch.heroPowerMult > 0 && ch.grantsHeld) v = Math.round(v * ch.heroPowerMult);
   if (ch.status === 'villain' && ch.heroPowerMult > 0) v = Math.round(v * ch.heroPowerMult);

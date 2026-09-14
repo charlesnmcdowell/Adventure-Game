@@ -24,12 +24,12 @@ function tiers(b, i, a, ob, oi, oa) {
 const BELL = 'bell';
 // Ranger — thrown steel
 def({ id: 'shuriken_fan', name: 'Shuriken Fan', kind: 'active', archetype: 'ranger', faction: BELL,
-  power: 1.5, reach: 'any', target: 'enemyLane', hits: 3,
+  power: 1.2, reach: 'any', target: 'enemyLane', hits: 3,
   desc: 'Three stars across a lane. Every one that lands opens a cut.',
   tiers: tiers('Shuriken Fan', 'Falling Stars', 'Storm of Iron',
     { status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
-    { power: 1.7, status: { bleed: { power: 0.8, rounds: 3, stacks: true } } },
-    { power: 2.0, hits: 4, status: { bleed: { power: 1.0, rounds: 4, stacks: true } } }) });
+    { power: 1.4, status: { bleed: { power: 0.8, rounds: 3, stacks: true } } },
+    { power: 1.6, hits: 4, status: { bleed: { power: 1.0, rounds: 4, stacks: true } } }) });
 def({ id: 'kunai_line', name: 'Kunai Line', kind: 'active', archetype: 'ranger', faction: BELL,
   power: 2.4, reach: 'any', target: 'enemy', pull: 1,
   desc: 'A weighted blade on a cord: it hits, and it drags them a lane closer.',
@@ -115,9 +115,9 @@ def({ id: 'iai_draw', name: 'Iai Draw', kind: 'active', archetype: 'fighter', fa
   desc: 'One motion, sheath to sheath. Opening action only — and no guard, ward or formation is in the way.',
   tiers: tiers('Iai Draw', 'Drawn Silence', 'One Motion', {}, { power: 6.2 }, { power: 7.0, defStripAll: true }) });
 def({ id: 'rising_cut', name: 'Rising Cut', kind: 'active', archetype: 'fighter', faction: GREEN,
-  power: 2.8, reach: 'front', target: 'enemy', melee: true, unactedDouble: true,
-  desc: 'Up through the guard. Doubled against anyone who has not moved this round.',
-  tiers: tiers('Rising Cut', 'Rising Silence', 'Before the Breath', {}, { power: 3.2 }, { power: 3.6, adjacent: 1 }) });
+  power: 2.4, reach: 'front', target: 'enemy', melee: true, unactedDouble: true,
+  desc: 'Up through the guard. Half again as hard against anyone who has not moved this round.',
+  tiers: tiers('Rising Cut', 'Rising Silence', 'Before the Breath', {}, { power: 2.8 }, { power: 3.2, adjacent: 1 }) });
 // Ranger — the bow
 def({ id: 'longbow_volley', name: 'Longbow Volley', kind: 'active', archetype: 'ranger', faction: GREEN,
   power: 1.9, reach: 'any', target: 'enemyLane',

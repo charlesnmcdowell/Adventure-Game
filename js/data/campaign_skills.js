@@ -115,8 +115,9 @@ def({ id: 'stitch_and_run', name: 'Stitch and Run', kind: 'active', archetype: '
   tiers: tiers('Stitch and Run', 'Stitch and Slip', 'Cut and Carry', {}, { power: 2.2 }, { power: 2.6, grantEvade: 2 }) });
 def({ id: 'venom_draw', name: 'Venom Draw', kind: 'active', archetype: 'healer', faction: MAW,
   power: 0, reach: 'any', target: 'enemy', effect: 'venomDraw',
-  desc: 'Remove all Poison from an ally and apply the total to one enemy.',
-  tiers: tiers('Venom Draw', 'Venom Pull', 'Transfer') });
+  desc: 'Pull the poison out of an ally and put it in an enemy. Venom Pull takes bleeding too; Transfer empties every wound off the whole company at once.',
+  tiers: tiers('Venom Draw', 'Venom Pull', 'Transfer',
+    { drawKinds: ['poison'] }, { drawKinds: ['poison', 'bleed'] }, { drawKinds: ['poison', 'bleed', 'burn'], drawFromAll: true }) });
 def({ id: 'last_breath', name: 'Last Breath', kind: 'active', archetype: 'healer', faction: MAW,
   power: 0, reach: 'any', target: 'ally', heal: true, revive: true, effect: 'lastBreath',
   desc: 'A downed ally acts once more before falling.',
@@ -165,9 +166,9 @@ def({ id: 'paid_shot', name: 'Paid Shot', kind: 'active', archetype: 'ranger', f
   tiers: tiers('Paid Shot', 'Bonus Shot', 'Full Fee', { tierScale: 0.3 }, { tierScale: 0.45 }, { tierScale: 0.6 }) });
 // Fighter
 def({ id: 'shield_breaker', name: 'Shield Breaker', kind: 'active', archetype: 'fighter', faction: ANT,
-  power: 2.6, reach: 'front', target: 'enemy', stripGuards: true, defStrip: 12,
+  power: 2.4, reach: 'front', target: 'enemy', stripGuards: true, defStrip: 12,
   desc: 'A heavy strike that removes guard effects and armour bonuses.',
-  tiers: tiers('Shield Breaker', 'Wall Breaker', 'Opened Up', {}, { power: 3.0 }, { power: 3.4 }) });
+  tiers: tiers('Shield Breaker', 'Wall Breaker', 'Opened Up', {}, { power: 2.7 }, { power: 3.0 }) });
 def({ id: 'line_advance', name: 'Line Advance', kind: 'active', archetype: 'fighter', faction: ANT,
   power: 2.2, reach: 'front', target: 'enemy',
   desc: 'Attack and press your whole lane forward: allies in your lane hit harder next round.',
@@ -227,8 +228,9 @@ def({ id: 'stanch', name: 'Stanch', kind: 'active', archetype: 'healer', faction
   tiers: tiers('Stanch', 'Bind Wound', 'Field Dressing', {}, { power: 2.4 }, { power: 2.8, cures: ['bleed', 'burn', 'poison'] }) });
 def({ id: 'company_medic', name: 'Company Medic', kind: 'active', archetype: 'healer', faction: ANT,
   power: 1.2, reach: 'any', target: 'party', heal: true, effect: 'companyMedic',
-  desc: 'Heal every ally below 50% at once, for a reduced amount.',
-  tiers: tiers('Company Medic', 'Line Medic', 'Triage Line', { tier: 'basic' }, { tier: 'intermediate', power: 1.4 }, { tier: 'advanced', power: 1.6 }) });
+  desc: 'Heal every ally below 50% at once, each for about half what a single-target heal would give them.',
+  tiers: tiers('Company Medic', 'Line Medic', 'Triage Line',
+    { tier: 'basic', medicPct: 0.45 }, { tier: 'intermediate', power: 1.4, medicPct: 0.5 }, { tier: 'advanced', power: 1.6, medicPct: 0.55 }) });
 def({ id: 'contract_bound', name: 'Contract Bound', kind: 'active', archetype: 'healer', faction: ANT,
   power: 0, reach: 'any', target: 'ally', effect: 'share', shareWith: 'pair',
   desc: 'Bind yourself to an ally: damage they take is split with you.',
@@ -303,8 +305,11 @@ def({ id: 'absorption_field', name: 'Absorption Field', kind: 'active', archetyp
     { partyStatus: { kind: 'absorb', pct: 0.3, rounds: 3 } }, { partyStatus: { kind: 'absorb', pct: 0.4, rounds: 3 } }, { partyStatus: { kind: 'absorb', pct: 0.5, rounds: 4 } }) });
 def({ id: 'aegis_protocol', name: 'Aegis Protocol', kind: 'active', archetype: 'tank', faction: VAR,
   power: 0, reach: 'any', target: 'ally', heal: true, wardAhead: true, shieldRounds: 1, wardAll: true,
-  desc: 'Grant one ally complete immunity for one round.',
-  tiers: tiers('Aegis Protocol', 'Aegis Writ', 'Sanctioned Protection', {}, {}, { shieldRounds: 2 }) });
+  desc: 'Grant one ally complete immunity for one round. From Aegis Writ on, the ward answers back: what it stops is dealt to the attacker.',
+  // Balance pass: the middle tier was a rename with nothing behind it (basic and intermediate
+  // were both one round of immunity). It now earns its name with a reflecting ward.
+  tiers: tiers('Aegis Protocol', 'Aegis Writ', 'Sanctioned Protection',
+    {}, { wardReflect: true }, { shieldRounds: 2, wardReflect: true }) });
 // Mage
 def({ id: 'chain_lightning', name: 'Chain Lightning', kind: 'active', archetype: 'mage', faction: VAR,
   power: 2.4, reach: 'any', target: 'enemy', elemental: true, element: 'lightning', chainDecay: 0.7,
@@ -355,8 +360,9 @@ def({ id: 'see_invisibility', name: 'See Invisibility', kind: 'perk', noTierGrow
   tiers: { advanced: { name: 'Full Sight', seeInvis: true, revealLoadouts: true, revealPerks: true } } });
 def({ id: 'dispel', name: 'Dispel', kind: 'active', archetype: null, faction: VAR,
   power: 0, reach: 'any', target: 'enemy', effect: 'dispel',
-  desc: 'Remove all buffs and wards from one enemy.',
-  tiers: tiers('Dispel', 'Unwrite', 'Struck From the Record') });
+  desc: 'Strip an enemy of what is holding them up: two of their buffs and wards at first, four once practised, then everything.',
+  tiers: tiers('Dispel', 'Unwrite', 'Struck From the Record',
+    { dispelCap: 2 }, { dispelCap: 4 }, { dispelCap: 99 }) });
 def({ id: 'prodigy', name: 'Prodigy', kind: 'perk', noTierGrowth: true, archetype: null, faction: VAR,
   desc: 'Every skill you own levels 5× faster.', levelMult: 5,
   tiers: { advanced: { name: 'Once In A Generation', levelMult: 5 } } });

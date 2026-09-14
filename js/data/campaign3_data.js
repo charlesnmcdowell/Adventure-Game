@@ -158,9 +158,9 @@ chr({ id: 'ostwin', name: 'Baba Olusegun', region: 'gate', role: 'tutor', sex: '
   perks: ['arcane_focus'], actives: ['frost_touch', 'spark'],
   portrait: { skin: 'dark', hair: 'bald', wardrobe: 'robe', color: '#3a3a4a' } });
 chr({ id: 'sarn', name: 'Sanni', region: 'gate', role: 'stranger', sex: 'm', fights: false, level: 30,
-  desc: 'A quiet stranger with a ring to give away. The disguise Kolade wears when he wants to watch you choose.',
+  desc: 'Sanni, a courteous merchant who claims to know Tesfaye and steers the ward against Adigun. Kolade\'s civilian identity, used to engineer the murder and arrest.',
   perks: [], actives: ['cleave'],
-  portrait: { skin: 'dark', hair: 'hood', wardrobe: 'hiking', color: '#3a3a3a' } });
+  portrait: { skin: 'dark', hair: 'bald', wardrobe: 'suit', color: '#403046' } });
 
 chr({ id: 'nib', name: 'Nib', region: 'thornbury', role: 'knife', sex: 'm', fights: false, level: 5,
   desc: 'The first hired knife, a Shore Road man in a road-cloak with a purse to earn. Easy-going about murder; not paid enough to be brave.',
@@ -440,7 +440,7 @@ D.CAMPAIGN3_QUESTS = [
       { mini: 'lantern_master', with: ['shadow_double', 'shadow_double'], label: 'The upper office' },
     ] },
   { n: 9, name: 'The Consortium Tower', tier: 3, chapter: 'Chapter 5', travel: 'city',
-    brief: "Duke Adebayo wants the Iron Consortium's papers. You go in as a mercenary looking for work and come out with the top floor's secrets.",
+    brief: "The mine's orders lead to the Iron Consortium's headquarters. Adebayo wants their records. Inside, a well-dressed merchant offers help and asks you to stop his father.",
     enc: [
       { types: ['consortium_guard', 'consortium_guard'], label: 'The lobby' },
       { variants: { umbralBetrayed: { mini: 'umbral_pair', with: ['consortium_guard'], label: 'The counting floor — old friends' } },
@@ -449,7 +449,7 @@ D.CAMPAIGN3_QUESTS = [
       { mini: 'tower_captain', with: ['consortium_mage', 'consortium_mage', 'consortium_guard'], label: 'The top floor' },
     ] },
   { n: 10, name: 'Return to Lanternhold', tier: 3, chapter: 'Chapter 6', travel: 'crypt',
-    brief: 'The Consortium leaders have gone to the library you grew up in. Adebayo gives you a book to buy your way through the gate. Something is waiting inside that is not the Consortium.',
+    brief: 'Sanni has accused his father of planning a war. The Consortium leaders are meeting at Lanternhold. Take the evidence, hear Adigun out, and decide whether to kill him or bring him before Adebayo.',
     enc: [
       { types: ['consortium_guard', 'consortium_guard', 'hired_knife'], label: 'The reading rooms' },
       { boss: 'maddox', with: ['vask', 'rennick', 'consortium_guard'], label: 'The summit', named: ['vask', 'rennick'] },

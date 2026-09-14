@@ -26,7 +26,7 @@ def({ id: 'fire_bolt', name: 'Fire Bolt', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Fire Bolt', status: { burn: { power: 0.8, rounds: 3 } } },
     intermediate: { name: 'Fire Blast', status: { burn: { power: 1.1, rounds: 3 } } },
-    advanced:     { name: 'Fire Ball', target: 'enemyLane', power: 1.6, status: { burn: { power: 1.4, rounds: 3 } } },
+    advanced:     { name: 'Fire Ball', target: 'enemyLane', power: 2.0, status: { burn: { power: 1.4, rounds: 3 } } },
   } });
 def({ id: 'frost_touch', name: 'Frost Touch', kind: 'active', archetype: 'mage',
   elemental: true, element: 'ice', power: 2.4, reach: 'any', target: 'enemy', delayTarget: true,
@@ -59,38 +59,44 @@ def({ id: 'ice_queen', name: 'Ice Queen', kind: 'perk', archetype: 'mage',
     intermediate: { name: 'Ice Queen+',   iceArmorPerHit: 0.15 },
     advanced:     { name: 'Winter Court', iceArmorPerHit: 0.25 },
   } });
-def({ id: 'lightning_king', name: 'Lightning King', kind: 'perk', noTierGrowth: true, archetype: 'mage',
-  desc: 'You move at storm speed: two turns every round, back to back.',
-  turnsPerRound: 2, consecutive: true,
+def({ id: 'lightning_king', name: 'Lightning King', kind: 'perk', archetype: 'mage',
+  desc: 'You move at storm speed: two turns every round — spread through the round at first, back to back once the perk matures. A sovereign of the storm is also hard to catch.',
+  // Balance pass: the capstone gains evasion rather than a third action — this perk already
+  // grants the most actions in the game and did not need more of them.
+  turnsPerRound: 2,
   tiers: {
-    basic:        { name: 'Lightning King' },
-    intermediate: { name: 'Lightning King' },
-    advanced:     { name: 'Storm Sovereign' },
+    basic:        { name: 'Lightning King', turnPlacement: 'distributed' },
+    intermediate: { name: 'Lightning King', consecutive: true },
+    advanced:     { name: 'Storm Sovereign', consecutive: true, evadePct: 0.15 },
   } });
 
 // ============ TANK — every skill has an offensive component ============
 def({ id: 'bulwark', name: 'Bulwark', kind: 'perk', archetype: 'tank', survivalHp: 20,
-  desc: 'Cuts physical wounds and percent-of-HP blows in half at first, then 75%, then 90%, and reflects part of what remains. When any enemy dies you heal 15% of your max HP and every status on you is cleared. Every battle you walk out of adds 20 max HP, permanently.',
+  desc: 'Cuts physical wounds and percent-of-HP blows in half at first, then 65%, then 75%, and reflects part of what remains. When any enemy dies you heal 15% of your max HP and every status on you is cleared. Every battle you walk out of adds 20 max HP for the rest of the quest.',
   tiers: {
     basic:        { name: 'Bulwark',   dmgTakenMult: 0.5,  physicalTaken: true, reflectPct: 0.25, killHealPct: 0.15, killCleanse: true },
-    intermediate: { name: 'Bulwark+',  dmgTakenMult: 0.25, physicalTaken: true, reflectPct: 0.40, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
-    advanced:     { name: 'Rampart',   dmgTakenMult: 0.10, physicalTaken: true, reflectPct: 0.60, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
+    intermediate: { name: 'Bulwark+',  dmgTakenMult: 0.35, physicalTaken: true, reflectPct: 0.35, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
+    advanced:     { name: 'Rampart',   dmgTakenMult: 0.25, physicalTaken: true, reflectPct: 0.50, protectAdjacent: true, killHealPct: 0.15, killCleanse: true },
   } });
 def({ id: 'shield_wall', name: 'Shield Wall', kind: 'active', archetype: 'tank',
   power: 0, target: 'self', reach: 'any',
-  desc: 'Negates incoming damage for 2 turns; all damage prevented is dealt to the attacker. Guards those behind or beside you, never ahead.',
+  desc: 'Negates incoming damage for a round; all damage prevented is dealt to the attacker. Covers those beside you at first, then everyone behind you, then the whole party.',
+  // Balance pass: basic and intermediate used to be the same skill under two names — same
+  // scope, same round, same absorption. The cover now widens a step at a time.
   tiers: {
-    basic:        { name: 'Shield Wall', guardScope: 'behind', guardRounds: 1, guardAbsorb: 1 },
+    basic:        { name: 'Shield Wall', guardScope: 'lane',   guardRounds: 1, guardAbsorb: 1 },
     intermediate: { name: 'Iron Wall',   guardScope: 'behind', guardRounds: 1, guardAbsorb: 1 },
     advanced:     { name: 'Aegis',       guardScope: 'party',  guardRounds: 1, guardAbsorb: 1 },
   } });
 def({ id: 'taunt', name: 'Taunt', kind: 'active', archetype: 'tank',
   power: 0, target: 'enemy', reach: 'any', retaliationPower: 1.5,
   desc: 'Marks every enemy: they must attack you and take retaliation each time they do. Splashes and volleys stay on you while marked.',
+  // Balance pass: Provoke used to last exactly as long as Taunt. The mark now holds a round
+  // longer at each step.
   tiers: {
     basic:        { name: 'Taunt',     marks: 'all', markRounds: 3 },
-    intermediate: { name: 'Provoke',   marks: 'all', markRounds: 3 },
-    advanced:     { name: 'Challenge', marks: 'all', markRounds: 4 },
+    intermediate: { name: 'Provoke',   marks: 'all', markRounds: 4 },
+    advanced:     { name: 'Challenge', marks: 'all', markRounds: 5 },
   } });
 def({ id: 'stand_fast', name: 'Stand Fast', kind: 'active', archetype: 'tank',
   power: 0, target: 'self', reach: 'any', selfRevive: true,
@@ -103,25 +109,27 @@ def({ id: 'stand_fast', name: 'Stand Fast', kind: 'active', archetype: 'tank',
 
 // ============ ROGUE ============
 def({ id: 'opportunist', name: 'Opportunist', kind: 'perk', archetype: 'rogue',
-  desc: 'When a foe is below half health, every wound you deal — strikes, bleed, and poison — hits for an extra 10% of their max HP.',
+  desc: 'When a foe is hurt, every wound you deal — strikes, bleed, and poison — hits for an extra 10% of their max HP. You start reading them as hurt sooner as the perk grows.',
+  // Balance pass: the middle tier was identical to the first. The window widens instead of
+  // the damage growing — this rider is already a percentage of max health.
   tiers: {
     basic:        { name: 'Opportunist',  executeThreshold: 0.50, bonusHpPct: 0.10 },
-    intermediate: { name: 'Opportunist+', executeThreshold: 0.50, bonusHpPct: 0.10 },
-    advanced:     { name: 'Predator',     executeThreshold: 0.50, bonusHpPct: 0.10, killRefundsAction: true, fleeBonus: 0.35 },
+    intermediate: { name: 'Opportunist+', executeThreshold: 0.60, bonusHpPct: 0.10 },
+    advanced:     { name: 'Predator',     executeThreshold: 0.60, bonusHpPct: 0.10, killRefundsAction: true, fleeBonus: 0.35 },
   } });
 def({ id: 'arena_champion', name: 'Arena Champion', kind: 'perk', noTierGrowth: true, archetype: 'fighter', survivalHp: 20,
-  desc: 'Every enemy you put down restores half your health, stacks +10% damage for the battle, and taunts every enemy onto you for 2 rounds. Every battle you walk out of adds 20 max HP, permanently.',
+  desc: 'Every enemy you put down restores a third of your health, stacks +10% damage for the battle, and taunts every enemy onto you for 2 rounds. Every battle you walk out of adds 20 max HP for the rest of the quest.',
   tiers: {
-    basic:        { name: 'Arena Champion', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
-    intermediate: { name: 'Arena Champion', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
-    advanced:     { name: 'Crowd Favourite', killHealPct: 0.5, stackPct: 0.10, tauntRounds: 2 },
+    basic:        { name: 'Arena Champion', killHealPct: 0.35, stackPct: 0.10, tauntRounds: 2 },
+    intermediate: { name: 'Arena Champion', killHealPct: 0.35, stackPct: 0.10, tauntRounds: 2 },
+    advanced:     { name: 'Crowd Favourite', killHealPct: 0.35, stackPct: 0.10, tauntRounds: 2 },
   } });
 def({ id: 'septic_sanguine', name: 'Septic Sanguine', kind: 'perk', archetype: 'rogue',
   desc: 'Bleed and poison feed you — yours on them, and theirs on you. The ticks also hit harder and leap to the nearest ally within two rows. At advanced you feast on every poison and bleed on the field, whoever cast it and whoever wears it.',
   tiers: {
-    basic:        { name: 'Septic Sanguine', dotMult: 1.25, dotLeech: 0.5 },
-    intermediate: { name: 'Septic Sanguine+', dotMult: 1.5, dotLeech: 1.0 },
-    advanced:     { name: 'Blood Culture',   dotMult: 2.0, dotLeech: 2.0, leechAny: true },
+    basic:        { name: 'Septic Sanguine', dotMult: 1.2, dotLeech: 0.5 },
+    intermediate: { name: 'Septic Sanguine+', dotMult: 1.4, dotLeech: 0.75 },
+    advanced:     { name: 'Blood Culture',   dotMult: 1.6, dotLeech: 1.0, leechAny: true },
   } });
 def({ id: 'lookism', name: 'Lookism', kind: 'perk', noTierGrowth: true, archetype: null,
   desc: 'A face that opens doors: hired for 10g over your price, your hires take 10g under theirs, the opposite sex starts out Friendly, the ones you leave stay Friendly, and enemies would rather hit anyone but you.',
@@ -136,7 +144,7 @@ def({ id: 'backstab', name: 'Backstab', kind: 'active', archetype: 'rogue',
   tiers: {
     basic:        { name: 'Backstab', power: 3.0 },
     intermediate: { name: 'Throat Cut', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
-    advanced:     { name: 'Assassinate', executeBelow: 0.25 },
+    advanced:     { name: 'Assassinate', executeBelow: 0.25, status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
   } });
 def({ id: 'smoke_bomb', name: 'Smoke Bomb', kind: 'active', archetype: 'rogue',
   power: 0, target: 'self', reach: 'any', freeAction: true,
@@ -167,8 +175,8 @@ def({ id: 'sniper', name: 'Sniper', kind: 'perk', archetype: 'ranger',
   desc: 'A percentage chance to read incoming attacks and slip them, plus one extra ranger-skill use each round. Not a dodge charge — a real evade roll.',
   tiers: {
     basic:        { name: 'Sniper',            evadePct: 0.10, rangerExtraUse: 1 },
-    intermediate: { name: 'Sniper+',           evadePct: 0.25, rangerExtraUse: 1 },
-    advanced:     { name: 'Ghost of the Ridge', evadePct: 0.50, rangerExtraUse: 1 },
+    intermediate: { name: 'Sniper+',           evadePct: 0.20, rangerExtraUse: 1 },
+    advanced:     { name: 'Ghost of the Ridge', evadePct: 0.35, rangerExtraUse: 1 },
   } });
 def({ id: 'aimed_shot', name: 'Aimed Shot', kind: 'active', archetype: 'ranger',
   power: 3.0, reach: 'any', target: 'enemy',
@@ -209,7 +217,7 @@ def({ id: 'sunder', name: 'Sunder', kind: 'active', archetype: 'fighter',
   tiers: {
     basic:        { name: 'Sunder', defStrip: 12 },
     intermediate: { name: 'Rend', defStrip: 12, status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
-    advanced:     { name: 'Shatter', defStripAll: true },
+    advanced:     { name: 'Shatter', defStripAll: true, status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
   } });
 def({ id: 'defiant_stand', name: 'Defiant Stand', kind: 'active', archetype: 'fighter',
   power: 0, target: 'self', reach: 'any', selfRevive: true,
@@ -468,7 +476,7 @@ def({ id: 'venom_fang', name: 'Venom Fang', kind: 'active', archetype: 'rogue',
     advanced:     { name: 'Plague Fang', status: { poison: { power: 1.0, rounds: 4, stacks: true }, bleed: { power: 1.0, rounds: 4, stacks: true } }, adjacent: 1 },
   } });
 def({ id: 'ember_lash', name: 'Ember Lash', kind: 'active', archetype: 'mage',
-  elemental: true, element: 'fire', power: 1.8, reach: 'any', target: 'enemy',
+  elemental: true, element: 'fire', power: 2.2, reach: 'any', target: 'enemy',
   desc: 'A whip of coals: less bite than Fire Bolt, but the Burn is the point.',
   tiers: {
     basic:        { name: 'Ember Lash', status: { burn: { power: 1.0, rounds: 3 } } },

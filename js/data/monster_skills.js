@@ -187,12 +187,12 @@ def({ id: 'carapace_burst', name: 'Carapace Burst', kind: 'active',
     { shock: 0.25, shockRounds: 3, thornPct: 0.5, rounds: 3 }) });
 
 def({ id: 'red_fury', name: 'Red Fury', kind: 'active',
-  power: 2.8, reach: 'front', target: 'enemy', melee: true, lifeSteal: 0.35,
+  power: 2.6, reach: 'front', target: 'enemy', melee: true, lifeSteal: 0.25,
   desc: 'A blood ape drinks the swing. Lifesteal and bleed.',
   tiers: tiers('Red Fury', 'Red Rage', 'Red Feast',
     { status: { bleed: { power: 0.8, rounds: 3, stacks: true } } },
-    { lifeSteal: 0.45, status: { bleed: { power: 1.0, rounds: 3, stacks: true } } },
-    { lifeSteal: 0.55, status: { bleed: { power: 1.2, rounds: 4, stacks: true } } }) });
+    { lifeSteal: 0.35, status: { bleed: { power: 1.0, rounds: 3, stacks: true } } },
+    { lifeSteal: 0.45, status: { bleed: { power: 1.2, rounds: 4, stacks: true } } }) });
 
 def({ id: 'sand_sting', name: 'Sand Sting', kind: 'active',
   power: 2.1, reach: 'front', target: 'enemy', melee: true,
