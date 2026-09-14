@@ -86,7 +86,7 @@ Game.load = function () {
   if (typeof window !== 'undefined') {
     Game.grantCourtesyGold(game);
     Game.grantCourtesyGold2(game);
-    Game.offerHomeReload(game);
+    Game.clearCourtesyNotices(game);
   }
   return game;
 };
@@ -99,7 +99,6 @@ Game.grantCourtesyGold = function (game) {
   if (!p || !p.inventory) return false;
   p.inventory.gold = (p.inventory.gold || 0) + Game.COURTESY_GOLD;
   game.meta.grantGold10000 = true;
-  game.meta.courtesyGoldNotice = true;
   if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
   return true;
 };
@@ -117,25 +116,26 @@ Game.grantCourtesyGold2 = function (game) {
   if (!p || !p.inventory) return false;
   p.inventory.gold = (p.inventory.gold || 0) + Game.COURTESY_GOLD;
   game.meta.grantGold10000b = true;
-  game.meta.courtesyGoldNotice2 = true;
-  if (!justBootedForUpdate() && !game.meta.homeReloadDone) game.meta.homeReloadNotice = true;
   if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
   return true;
 };
 
 Game.HOME_RELOAD_WAVE = 'live7';
-Game.offerHomeReload = function (game) {
+Game.clearCourtesyNotices = function (game) {
   if (!game || !game.meta) return false;
-  const key = 'homeReloadDone_' + Game.HOME_RELOAD_WAVE;
-  if (game.meta[key]) return false;
-  if (justBootedForUpdate()) {
-    game.meta[key] = true;
-    game.meta.homeReloadNotice = false;
-    if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
-    return false;
-  }
-  game.meta.homeReloadNotice = true;
-  return true;
+  const m = game.meta;
+  const dirty = m.courtesyGoldNotice || m.courtesyGoldNotice2 || m.homeReloadNotice;
+  m.courtesyGoldNotice = false;
+  m.courtesyGoldNotice2 = false;
+  m.homeReloadNotice = false;
+  m.homeReloadDone = true;
+  m['homeReloadDone_' + Game.HOME_RELOAD_WAVE] = true;
+  if (dirty && ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
+  return !!dirty;
+};
+
+Game.offerHomeReload = function (game) {
+  return Game.clearCourtesyNotices(game) && false;
 };
 
 Game.reloadForUpdate = function (game) {

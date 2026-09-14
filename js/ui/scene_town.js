@@ -13,8 +13,7 @@ class TownScene extends Phaser.Scene {
     if (ADV.BalanceSupport) ADV.BalanceSupport.migrate(this.game_);
     if (ADV.Game.grantCourtesyGold) ADV.Game.grantCourtesyGold(this.game_);
     if (ADV.Game.grantCourtesyGold2) ADV.Game.grantCourtesyGold2(this.game_);
-    if (ADV.Game.offerHomeReload) ADV.Game.offerHomeReload(this.game_);
-    if (typeof window !== 'undefined' && window.__advLiveUpdateCheck) window.__advLiveUpdateCheck();
+    if (ADV.Game.clearCourtesyNotices) ADV.Game.clearCourtesyNotices(this.game_);
     if (ADV.GatePerks) ADV.GatePerks.reconcile(this.game_);
     const W = T().W, H = T().H;
     // Phaser reuses this scene — leftover embark/talk flags would keep the
@@ -457,9 +456,6 @@ class TownScene extends Phaser.Scene {
     const p = this.player();
     this.noticeQueue = [];
     if (ADV.Tutor && ADV.Tutor.active(this.game_)) return;   // the guide has the floor
-    if (this.game_.meta && this.game_.meta.courtesyGoldNotice) this.noticeQueue.push({ kind: 'courtesyGold' });
-    if (this.game_.meta && this.game_.meta.courtesyGoldNotice2) this.noticeQueue.push({ kind: 'courtesyGold2' });
-    if (this.game_.meta && this.game_.meta.homeReloadNotice) this.noticeQueue.push({ kind: 'homeReload' });
     if (w.pendingLeaderDeath) this.noticeQueue.push({ kind: 'leaderDeath' });
     if (w.pendingPlayerJilt) this.noticeQueue.push({ kind: 'jilt' });
     for (const rsc of (w.pendingRescues || [])) this.noticeQueue.push({ kind: 'rescue', rescue: rsc });
