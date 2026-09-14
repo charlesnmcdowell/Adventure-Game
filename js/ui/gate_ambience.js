@@ -99,7 +99,9 @@ function attach(scene,root,bg,profile,opts={}){
   const pixels=ctx.getImageData(0,0,cw,ch),data=pixels.data;
   for(let py=0;py<ch;py++)for(let px=0;px<cw;px++){
    const at=(py*cw+px)*4,r=data[at],g=data[at+1],b=data[at+2];
-   const warmth=Math.max(0,Math.min(1,(r-150)/65,(g-70)/70,(r-b-35)/65));
+   const warmth=profile.flameTone==='blue'
+    ?Math.max(0,Math.min(1,(b-150)/65,(g-70)/70,(b-r-25)/65))
+    :Math.max(0,Math.min(1,(r-150)/65,(g-70)/70,(r-b-35)/65));
    const edge=Math.min(1,px/3,(cw-1-px)/3,py/3,(ch-1-py)/3);data[at+3]=Math.round(255*warmth*Math.max(0,edge));
   }
   ctx.putImageData(pixels,0,0);const key='gate_fire_'+(++serial)+'_'+index;scene.textures.addCanvas(key,c);flameKeys.push(key);
@@ -108,7 +110,7 @@ function attach(scene,root,bg,profile,opts={}){
  root.add(layer);let alive=true,time=0;const copies=opts.panorama?2:1,layers=[];
  for(let copy=0;copy<copies;copy++){
   const plane=scene.add.container(0,0),paint=scene.add.container(copy*sw,0);paintLayer.add(paint);layer.add(plane);layers.push(plane);
-  for(const kind of ['water','cloth'])for(const r of profile[kind]||[]){
+  for(const kind of ['water','cloth','foliage'])for(const r of profile[kind]||[]){
    const [x,y,w,h]=r,count=kind==='water'?10:8;
    for(let i=0;i<count;i++){
     const s=scene.add.image(0,0,textureKey).setOrigin(0).setCrop(x*sw,(y+h*i/count)*sh,w*sw,h*sh/count+.5);
@@ -117,12 +119,18 @@ function attach(scene,root,bg,profile,opts={}){
    }
   }
   const g=copy===0?fx:scene.add.graphics();plane.add(g);plane.fx=g;
+  // Regular journeys give birds a flight corridor inside the painted sky.
+  // The moving silhouette also keeps them behind trees and rooftops.
+  if(Array.isArray(profile.birds)){
+   plane.skyFx=scene.add.graphics();plane.add(plane.skyFx);
+   if(opts.panorama&&root.skyMask)plane.skyFx.setMask(root.skyMask);
+  }
   (profile.fires||[]).forEach(([x,y],i)=>{const s=scene.add.image(x*sw,y*sh,flameKeys[i]).setOrigin(.5,1);plane.add(s);flames.push({s,i,x:x*sw});});
  }
  const fire=(g,[x,y,w,h],t,index)=>{
   x*=sw;y*=sh;w*=sw;h*=sh;const beat=t/130+index*2.3,k=.86+Math.sin(beat)*.11+Math.sin(beat*1.7)*.07;
   for(let r=3;r>0;r--){g.fillStyle(profile.fireColor||0xffa34e,.025*k);g.fillEllipse(x,y-h*.38,w*(2+r),h*(1+r*.7));}
-  if(w>13)for(let i=0;i<4;i++){const age=(t/1400+i*.25+index*.31)%1;g.fillStyle(0xffc06b,.65*(1-age));g.fillEllipse(x+Math.sin(age*9+i)*w*.4+age*w*.22,y-h*.5-age*h*2.2,1.5,2.4);}
+  if(w>13)for(let i=0;i<4;i++){const age=(t/1400+i*.25+index*.31)%1;g.fillStyle(profile.fireColor||0xffc06b,.65*(1-age));g.fillEllipse(x+Math.sin(age*9+i)*w*.4+age*w*.22,y-h*.5-age*h*2.2,1.5,2.4);}
  };
  function paint(g,t){
   g.clear();(profile.fires||[]).forEach((f,i)=>fire(g,f,t,i));
@@ -142,7 +150,12 @@ function attach(scene,root,bg,profile,opts={}){
   for(const [x,y,c,r]of profile.glow||[]){const k=.62+Math.sin(t/630)*.3;for(let j=3;j>0;j--){g.fillStyle(c,.035*k);g.fillEllipse(x*sw,y*sh,r*sw*j,r*sh*j);}}
   if(profile.mist)for(let i=0;i<7;i++){g.fillStyle(0xaac4d0,.04);g.fillEllipse((i*sw/6+t*.009)%(sw+200)-100,profile.mist*sh+Math.sin(t/3500+i)*12,280,20);}
   if(profile.leaves||profile.dust)for(let i=0;i<16;i++){const x=(i*113+t*.017)%(sw+10),y=(i*59+t*.01)%(sh+10);g.fillStyle(profile.leaves?0xc5cb96:0xe2d8be,profile.leaves?.4:.22);g.fillEllipse(x,y,profile.leaves?4+Math.sin(t/220+i)*2:1.5,profile.leaves?2:1);}
-  if(profile.birds){g.lineStyle(1.2,0x354553,.7);for(let i=0;i<3;i++){const x=(t*.037+i*27)%(sw+100)-50,y=sh*.13+i*4,f=Math.sin(t/140+i)*3;g.lineBetween(x-5,y+f,x,y);g.lineBetween(x,y,x+5,y+f);}}
+  if(profile.birds===true){g.lineStyle(1.2,0x354553,.7);for(let i=0;i<3;i++){const x=(t*.037+i*27)%(sw+100)-50,y=sh*.13+i*4,f=Math.sin(t/140+i)*3;g.lineBetween(x-5,y+f,x,y);g.lineBetween(x,y,x+5,y+f);}}
+  for(const [x,y,w,h]of profile.motes||[])for(let i=0;i<8;i++){
+   const a=(t/6400+i/8)%1,px=(x+(.5+Math.sin(i*2.7+t/1700)*.4)*w)*sw,py=(y+(1-a)*h)*sh,k=Math.sin(a*Math.PI);
+   g.fillStyle(profile.moteColor||0xa0e5cb,.10*k);g.fillCircle(px,py,5);
+   g.fillStyle(profile.moteColor||0xa0e5cb,.75*k);g.fillCircle(px,py,1.3);
+  }
   if(profile.frost){for(let i=0;i<32;i++){const a=i/32*Math.PI*2+t/4000,x=(.51+Math.cos(a)*.25)*sw,y=(.55+Math.sin(a)*.39)*sh;g.lineStyle(1.5,0xcaf0ff,.3+Math.sin(t/310+i)*.18);g.lineBetween(x,y,x+Math.cos(a)*8,y+Math.sin(a)*8);}}
  }
  const update=(_t,dt=16)=>{
@@ -160,8 +173,20 @@ function attach(scene,root,bg,profile,opts={}){
     maskedWeather.celestial?.setVisible(false);
    }
   }
-  for(let i=0;i<layers.length;i++){layers[i].x=i*sw;paint(layers[i].fx,time);}
-  for(const {s,i,count,kind}of strips)s.x=Math.sin(time/(kind==='water'?570:420)+i*.63)*(kind==='water'?1.8:(i+1)/count*2.8);
+  for(let i=0;i<layers.length;i++){
+   const plane=layers[i];plane.x=i*sw;paint(plane.fx,time);
+   if(plane.skyFx){
+    const g=plane.skyFx;g.clear();
+    if(opts.phase!=='night'){
+     const [x,y,w,h]=profile.birds;
+     for(let j=0;j<3;j++){
+      const a=(time/18000+j*.095)%1,px=(x+a*w)*sw,py=(y+h*(.45+j*.13+Math.sin(time/3200)*.08))*sh,f=Math.sin(time/145+j)*2.5;
+      g.lineStyle(1.2,0x354553,.75*Math.sin(a*Math.PI));g.lineBetween(px-5,py+f,px,py);g.lineBetween(px,py,px+5,py+f);
+     }
+    }
+   }
+  }
+  for(const {s,i,count,kind}of strips)s.x=Math.sin(time/(kind==='water'?570:kind==='foliage'?1100:420)+i*.63)*(kind==='water'?1.8:kind==='foliage'?.85:(i+1)/count*2.8);
   for(const {s,i,x}of flames){const pulse=time/125+i*2.3;s.setScale(1+Math.sin(pulse)*.12,1+Math.sin(pulse*1.31)*.16).setAlpha(.76+Math.sin(pulse*.8)*.21);s.x=x+Math.sin(pulse*.65)*1.4;}
   api.elapsed=time;
  };

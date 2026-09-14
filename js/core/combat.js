@@ -750,6 +750,7 @@ function tickHatredClock(st) {
 }
 
 Combat.advance = function (st) {
+  st.basicBudget = null;          // no action in flight: end-of-round ticks are not charged to one
   const entry = st.turnQueue[st.turnIdx];
   const u = entry && st.units.find(x => x.uid === entry.uid);
   if (u) u.freeActionUsed = false;
@@ -1213,7 +1214,20 @@ function computeDamage(st, atkUnit, defUnit, m, opts) {
         livingUnits(st, defUnit.side).some(x => x !== defUnit && perkVal(x.ch, 'beast_handler', null))) def += 4;
   }
   if (ADV.GatePerkCombat && ADV.GatePerkCombat.focus(st, atkUnit)) def = Math.round(Math.max(0, def) * 0.8);
-  return Math.max(C().MIN_DAMAGE, dmg - Math.max(0, def));
+  let out = Math.max(C().MIN_DAMAGE, dmg - Math.max(0, def));
+  // Normal and above: one use of a BASIC-tier skill takes at most a third of a foe's maximum
+  // health, however far its wielder outclasses them — a basic skill is an opener, not an
+  // execution. Measured before this, every basic-tier skill in the game cleared a third
+  // against a low-level mook and most of them killed outright, including a plain attack; that
+  // is a property of the gap between the two characters, not of any skill's numbers, so it
+  // belongs here rather than in a hundred power values. The running total for one action —
+  // extra hits, and riders the skill sets off — is held to the same share by the budget below.
+  const capPct = (ADV.Difficulty && ADV.Difficulty.basicHitCap) ? ADV.Difficulty.basicHitCap() : 0;
+  if (capPct && m.tier === 'basic' && defUnit && defUnit.maxHp && ADV.Difficulty.isFoe(defUnit.ch)) {
+    const cap = Math.max(C().MIN_DAMAGE, Math.floor(defUnit.maxHp * capPct));
+    if (out > cap) out = cap;
+  }
+  return out;
 }
 
 // Apply damage with all defensive triggers. Returns actual damage dealt to hp.
@@ -1457,6 +1471,29 @@ function applyTakenReduction(tgt, dmg, opts) {
 }
 Combat.applyTakenReduction = applyTakenReduction;
 
+// One use of a basic-tier skill is allowed a fixed share of each foe it hits — its own blow
+// and everything that blow sets off (extra strikes, an Exposed burst, an on-hit rider, a gate
+// perk's modifier) drawing on the same allowance. Opened at the top of every action and spent
+// last in applyRawDamage, which every damage path funnels through, so nothing downstream can
+// push a basic blow past its share. Reflects and retaliation onto the actor are not charged to
+// it: the allowance is about what the actor can take off a foe.
+function openBasicBudget(st, u, m) {
+  st.basicBudget = null;
+  const capPct = (ADV.Difficulty && ADV.Difficulty.basicHitCap) ? ADV.Difficulty.basicHitCap() : 0;
+  if (!capPct || !u || !m || m.tier !== 'basic') return;
+  st.basicBudget = { uid: u.uid, pct: capPct, spent: {} };
+}
+function spendBasicBudget(st, src, tgt, dmg) {
+  const b = st && st.basicBudget;
+  if (!b || !src || src.uid !== b.uid || !tgt || !tgt.maxHp || dmg <= 0) return dmg;
+  if (!ADV.Difficulty.isFoe(tgt.ch)) return dmg;
+  const cap = Math.max(C().MIN_DAMAGE, Math.floor(tgt.maxHp * b.pct));
+  const left = Math.max(0, cap - (b.spent[tgt.uid] || 0));
+  const out = Math.min(dmg, left);
+  b.spent[tgt.uid] = (b.spent[tgt.uid] || 0) + out;
+  return out;
+}
+
 function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   if (!tgt || tgt.downed || tgt.fled) return 0;
   opts = opts || {};
@@ -1466,6 +1503,7 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   dmg = applyOpportunist(src, tgt, dmg, opts);
   dmg = applyTakenReduction(tgt, dmg, Object.assign({}, opts, { tag }));
   if (ADV.GatePerkCombat) dmg = ADV.GatePerkCombat.modifyDamage(st, src, tgt, dmg, tag, opts);
+  dmg = spendBasicBudget(st, src, tgt, dmg);
   if (dmg <= 0) return 0;
   // Temp HP consumed first — still counts as damage taken for reflect/retaliation (§15a),
   // which is honored because those triggers fire in dealDamage before this point.
@@ -2151,6 +2189,7 @@ Combat.act = function (st, u, action) {
   const skillId = action.kind === 'attack' ? 'basic_attack' : action.skillId;
   const m = manifestFor(u, skillId);
   if (!m) return { ok: false, error: 'unknown skill' };
+  openBasicBudget(st, u, m);
   // Bind/Root Field seal: skills of the sealed tiers are unusable; the
   // universal Basic Attack never seals (no unit may be left without a move)
   if (skillId !== 'basic_attack') {
