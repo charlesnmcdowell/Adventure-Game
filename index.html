@@ -9,7 +9,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b0a08">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Adventurer</title>
+<!-- live-7 20260914T0503 -->
 <style>
   html, body {
     margin: 0; padding: 0; background: #0b0a08;
@@ -154,7 +158,7 @@
 <script src="js/core/prefs.js?v=20260913-support1"></script>
 <script src="js/core/campaign.js?v=20260913-support2"></script>
 <script src="js/core/campaign2.js?v=20260911-art3"></script>
-<script src="js/core/game.js?v=20260914-courtesy2"></script>
+<script src="js/core/game.js?v=20260914-live7"></script>
 <script src="js/core/campaign3.js?v=20260914-gate-party1"></script>
 <script src="js/core/campaign3_perks.js?v=20260913-perks1"></script>
 <script src="js/core/campaign3_perk_combat.js?v=20260913-perks1"></script>
@@ -187,7 +191,7 @@
 <script src="js/ui/support.js?v=20260913-support2"></script>
 <script src="js/ui/scene_boot.js?v=20260913-support2"></script>
 <script src="js/ui/scene_creation.js?v=20260912-diff1"></script>
-<script src="js/ui/scene_town.js?v=20260914-courtesy2"></script>
+<script src="js/ui/scene_town.js?v=20260914-live7"></script>
 <script src="js/ui/town_panels.js?v=20260914-household1"></script>
 <script src="js/ui/town_panels2.js?v=20260914-courtesy2"></script>
 <script src="js/ui/difficulty_ui.js?v=20260914-balance2"></script>
@@ -281,22 +285,25 @@ window.__game = new Phaser.Game({
 </script>
 <script>
 // Live update: poll the site's update.json. When the published id changes,
-// wait until the player is home (town or title), then show one OK card and
-// restart. Sessions that loaded an older page without this script cannot be
-// reached.
+// show one OK card on the town/title screen and restart. A leftover Quest
+// scene must not hide the card — phones were stuck that way. Sessions that
+// loaded an older page without this script cannot be reached.
 (function () {
   if (location.protocol === 'file:') return;
   const box = document.getElementById('adv-live-update');
   const ok = document.getElementById('adv-live-update-ok');
   if (!box || !ok) return;
   let mine = null, shown = false, pending = false;
-  function atHome() {
+  function on(name) {
     try {
       const g = window.__game;
-      if (!g || !g.scene) return false;
-      if (g.scene.isActive('Quest') || g.scene.isActive('Combat')) return false;
-      return g.scene.isActive('Town') || g.scene.isActive('Title') || g.scene.isActive('Boot');
+      return !!(g && g.scene && typeof g.scene.isActive === 'function' && g.scene.isActive(name));
     } catch (e) { return false; }
+  }
+  function atHome() {
+    if (on('Town') || on('Title') || on('Boot') || on('Creation')) return true;
+    if (on('Quest') || on('Combat')) return false;
+    return !window.__game;
   }
   function restart() {
     try {
@@ -305,6 +312,7 @@ window.__game = new Phaser.Game({
     } catch (e) {}
     const u = new URL(location.href);
     u.searchParams.set('boot', String(Date.now()));
+    u.searchParams.set('cb', 'live7');
     location.replace(u.pathname + u.search + u.hash);
   }
   function show() {
@@ -314,22 +322,35 @@ window.__game = new Phaser.Game({
     box.classList.add('show');
     try { ok.focus(); } catch (e) {}
   }
+  async function pull() {
+    const urls = [
+      'update.json?t=' + Date.now() + '&cb=live7',
+      'update-live-7.json?t=' + Date.now()
+    ];
+    for (let i = 0; i < urls.length; i++) {
+      try {
+        const r = await fetch(urls[i], { cache: 'no-store', headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' } });
+        if (!r.ok) continue;
+        const data = await r.json();
+        if (data && data.id) return data;
+      } catch (e) {}
+    }
+    return null;
+  }
   async function check() {
     if (shown) return;
     try {
-      const r = await fetch('update.json?t=' + Date.now(), { cache: 'no-store' });
-      if (!r.ok) return;
-      const data = await r.json();
-      if (!data || !data.id) return;
+      const data = await pull();
+      if (!data) return;
       if (mine == null) { mine = data.id; return; }
-      if (data.id !== mine) { pending = true; show(); }
+      if (data.id !== mine) pending = true;
     } catch (e) {}
     if (pending) show();
   }
   ok.addEventListener('click', restart);
   window.__advLiveUpdateCheck = check;
   check();
-  setInterval(check, 15000);
+  setInterval(check, 8000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
 })();
 </script>

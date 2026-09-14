@@ -86,6 +86,7 @@ Game.load = function () {
   if (typeof window !== 'undefined') {
     Game.grantCourtesyGold(game);
     Game.grantCourtesyGold2(game);
+    Game.offerHomeReload(game);
   }
   return game;
 };
@@ -122,15 +123,32 @@ Game.grantCourtesyGold2 = function (game) {
   return true;
 };
 
+Game.HOME_RELOAD_WAVE = 'live7';
+Game.offerHomeReload = function (game) {
+  if (!game || !game.meta) return false;
+  const key = 'homeReloadDone_' + Game.HOME_RELOAD_WAVE;
+  if (game.meta[key]) return false;
+  if (justBootedForUpdate()) {
+    game.meta[key] = true;
+    game.meta.homeReloadNotice = false;
+    if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game);
+    return false;
+  }
+  game.meta.homeReloadNotice = true;
+  return true;
+};
+
 Game.reloadForUpdate = function (game) {
   if (game && game.meta) {
     game.meta.homeReloadNotice = false;
     game.meta.homeReloadDone = true;
+    game.meta['homeReloadDone_' + Game.HOME_RELOAD_WAVE] = true;
   }
   try { if (game && ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(game); } catch (e) {}
   if (typeof location === 'undefined') return true;
   const u = new URL(location.href);
   u.searchParams.set('boot', String(Date.now()));
+  u.searchParams.set('cb', Game.HOME_RELOAD_WAVE);
   location.replace(u.pathname + u.search + u.hash);
   return true;
 };

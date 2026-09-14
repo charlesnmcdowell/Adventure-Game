@@ -13,6 +13,7 @@ class TownScene extends Phaser.Scene {
     if (ADV.BalanceSupport) ADV.BalanceSupport.migrate(this.game_);
     if (ADV.Game.grantCourtesyGold) ADV.Game.grantCourtesyGold(this.game_);
     if (ADV.Game.grantCourtesyGold2) ADV.Game.grantCourtesyGold2(this.game_);
+    if (ADV.Game.offerHomeReload) ADV.Game.offerHomeReload(this.game_);
     if (typeof window !== 'undefined' && window.__advLiveUpdateCheck) window.__advLiveUpdateCheck();
     if (ADV.GatePerks) ADV.GatePerks.reconcile(this.game_);
     const W = T().W, H = T().H;
