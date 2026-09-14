@@ -155,6 +155,10 @@ C3.actor = function (game, id) {
   if (!game.__c3actors[cacheKey]) {
     const ch = ADV.Campaign.makeActor(Object.assign({}, def, { level: lvl }));
     if (def.statMult && !def.godLine) for (const k of ['hp', 'atk', 'def', 'spd']) ch.stats[k] = Math.round(ch.stats[k] * def.statMult);
+    // Enemies get CAMPAIGN3_COMBAT at spawn; companions get the matching allowance here, so
+    // both sides of the fight are on the campaign's scale rather than only one.
+    const ally = def.companion && D().CAMPAIGN3_ALLY;
+    if (ally) for (const k of ['hp', 'atk', 'def']) ch.stats[k] = Math.round(ch.stats[k] * (ally[k] || 1));
     game.__c3actors[cacheKey] = ch;
   }
   return game.__c3actors[cacheKey];
@@ -207,7 +211,7 @@ C3.musicFor = function (quest) {
   const M = D().CAMPAIGN3_MUSIC;
   if (!M || !quest || !quest.campaign3) return null;
   const n = quest.n;
-  const combat = n >= M.cityFrom ? M.combat.city : M.combat.road;
+  const combat = M.combatByQuest?.[n] || (n >= M.cityFrom ? M.combat.city : M.combat.road);
   return { quest: M.quest[n] || M.quest[1], combat, boss: n === C3.QUEST_COUNT ? M.boss : combat };
 };
 // The hub plays the camp cue while the road is still open.
@@ -280,10 +284,23 @@ C3.spawnEncounter = function (game, quest, encIdx) {
     out.unshift(boss);
   }
   if (spec.mini || spec.boss) ADV.Campaign.guardBoss(game, out, quest.factionId, hi, rng, (t, l, o) => C3.spawnEnemy(rng, t, l, Object.assign({ world }, o || {})));
-  const strength = D().CAMPAIGN3_COMBAT;
+  // The multiplier exists so enemies survive an opening volley from a PARTY. Quest 1 is
+  // deliberately walked alone (see alliesFor), so there is no volley to survive and the full
+  // figure turned the prologue's second fight into an unwinnable one. A lone ward meets a
+  // smaller version of the same people.
+  const base = D().CAMPAIGN3_COMBAT;
+  const alone = !C3.alliesFor(game, quest).length;
+  const solo = D().CAMPAIGN3_SOLO || {};
+  const strength = alone
+    ? { hp: base.hp * (solo.hp != null ? solo.hp : 1), atk: base.atk * (solo.atk != null ? solo.atk : 1), def: base.def * (solo.def != null ? solo.def : 1) }
+    : base;
   for (const ch of out) {
-    // Include the previous boss floor and undead rounding in the HP guarantee.
-    const hp = Math.max(ADV.Character.maxHp(ch), ch.hpFloor || 0);
+    // Include the previous boss floor and undead rounding in the HP guarantee. Alone, drop
+    // that floor: guardBoss pins it to half the PLAYER's maximum health, which exists to stop
+    // a party bursting a boss down in one volley. A lone ward has no volley, and because
+    // health grows over a career while attack does not, the floor made the boss bigger every
+    // time the player got tougher — the prologue's fight scaled itself out of reach.
+    const hp = alone ? ADV.Character.maxHp(ch) : Math.max(ADV.Character.maxHp(ch), ch.hpFloor || 0);
     for (const k of ['hp', 'atk', 'def']) {
       ch.stats[k] *= strength[k];
       ch.bonusStats[k] = (ch.bonusStats[k] || 0) * strength[k];

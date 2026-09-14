@@ -51,7 +51,11 @@ class CombatScene extends Phaser.Scene {
     // ordinary encounters rotate the battle pool ("switch it up often")
     const heavy = this.mode !== 'quest' || st.units.some(u => u.ch.boss);
     const scored = this.mode === 'quest' && this.game_.quest && this.game_.quest.quest && this.game_.quest.quest.campaign3;
-    ADV.Music.play(scored ? (st.units.some(u => u.ch.isBossFight) ? 'boss' : 'combat') : (heavy ? 'boss' : 'combat'));
+    const musicQuest = this.mode === 'quest' ? this.game_.quest?.quest
+      : this.mode === 'ambush' ? this.game_.travelResolution?.q?.quest : null;
+    if (musicQuest?.campaign3) {
+      ADV.Music.playQuest(musicQuest, this.mode === 'quest' && st.units.some(u => u.ch.isBossFight) ? 'boss' : 'combat');
+    } else ADV.Music.play(heavy ? 'boss' : 'combat');
     // battlefield ground
     const g = this.add.graphics().setDepth(-2);
     // translucent so the ground reads at the edges without costing lane clarity

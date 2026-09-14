@@ -689,7 +689,7 @@ Panels.vault = function (scene, r) {
   const game = scene.g();
   const world = game.world;
   const p = scene.player();
-  header(scene, r, 'Vault', 'What you carry is lost when you die. What is here is not — it passes to your heirs. Couples share one. You may draw your share once per stay; after a quest you can ask again.');
+  header(scene, r, 'Vault', 'What you carry is lost when you die. What is here is not — it passes to your heirs. Every spouse in the marriage shares one vault. You may draw your share once per stay; after a quest you can ask again.');
   const listTop = r.y + 92;
   const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: listTop, w: r.w - 16, h: r.y + r.h - listTop - 8 });
   let y = listTop;
@@ -700,16 +700,19 @@ Panels.vault = function (scene, r) {
     scroll.addBtn(T().button(scene, r.x + 24, y, 240, 36, 'Open a vault (deposit 0g)', () => { ADV.Vault.ensureOwn(world, p); ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel('vault'); }, { size: 13 }));
     return;
   }
-  const other = ADV.Vault.sharePartner ? ADV.Vault.sharePartner(world, v, p) : null;
-  const shared = !!other;
-  scroll.add(T().text(scene, r.x + 24, y, `In the vault: ${v.gold}g${shared && other ? ` · shared with ${other.name}` : ''}${shared ? ` · shared-quest streak ${v.sharedQuestStreak}` : ''}`, { size: 15, color: T().css.gold })); y += 30;
+  const others = ADV.Vault.sharePartners ? ADV.Vault.sharePartners(world, v, p)
+    : ((ADV.Vault.sharePartner && ADV.Vault.sharePartner(world, v, p)) ? [ADV.Vault.sharePartner(world, v, p)] : []);
+  const other = others[0] || null;
+  const shared = others.length > 0;
+  const shareNames = others.map(c => c.name).join(', ');
+  scroll.add(T().text(scene, r.x + 24, y, `In the vault: ${v.gold}g${shared ? ` · shared with ${shareNames}` : ''}${shared ? ` · shared-quest streak ${v.sharedQuestStreak}` : ''}`, { size: 15, color: T().css.gold })); y += 30;
   if (p.inventory.gold > 0) {
     scroll.addBtn(T().button(scene, r.x + 24, y, 240, 34, `Deposit all (${p.inventory.gold}g)`, () => { ADV.Vault.deposit(world, p, p.inventory.gold); p.inventory.gold = 0; ADV.Save.saveGame(game); scene.refreshAll(); scene.openPanel('vault'); }, { size: 13 }));
     y += 42;
   }
-  if (shared && other) {
+  if (shared) {
     const cap = ADV.Vault.withdrawalCap ? ADV.Vault.withdrawalCap(world, v, p) : null;
-    if (cap) { scroll.add(T().text(scene, r.x + 24, y, `${other.name} is ${cap.state}: you may draw up to ${Math.round(cap.pct * 100)}% of the vault at once.`, { size: 12, color: T().css.inkDim })); y += 22; }
+    if (cap && other) { scroll.add(T().text(scene, r.x + 24, y, `${other.name} is ${cap.state}: you may draw up to ${Math.round(cap.pct * 100)}% of the vault at once.`, { size: 12, color: T().css.inkDim })); y += 22; }
     const waited = ADV.Vault.withdrawnThisStay(world, v, p);
     scroll.addBtn(T().button(scene, r.x + 24, y, 240, 34, waited ? 'Already drew this stay' : 'Request a withdrawal', () => {
       if (waited) { ADV.Notices.toast(scene, 'You already took your share this stay. Come back after the next quest.'); return; }

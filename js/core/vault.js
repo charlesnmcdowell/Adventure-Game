@@ -1,4 +1,6 @@
 // Shared vault, estate, insurance, death claims (§7, §10).
+// One household vault for the whole current marriage: every living spouse
+// shares it. A second wife does not open a new box and lock the first.
 (function () {
 'use strict';
 const C = () => ADV.DATA.CONST;
@@ -9,12 +11,18 @@ Vault.resetIds = function (n) { NEXT = n || 1; };
 
 Vault.create = function (world, holderId) {
   const v = { id: 'v' + (NEXT++), holderId, gold: 0, items: [],
-    sharedWithId: null, insuranceActive: false,
+    sharedWithId: null, sharedWithIds: [], insuranceActive: false,
     pendingWithdrawals: [], sharedQuestStreak: 0, questsSinceShared: 0,
     lastWithdrawAt: {} };
   world.vaults.push(v);
   return v;
 };
+
+function partnerIdsOf(ch) {
+  if (!ch) return [];
+  if (ADV.Rel && ADV.Rel.partnerIds) return ADV.Rel.partnerIds(ch);
+  return ch.partnerId ? [ch.partnerId] : [];
+}
 
 function stillPartners(world, a, b) {
   if (!a || !b || !a.alive || !b.alive) return false;
@@ -22,57 +30,201 @@ function stillPartners(world, a, b) {
   return a.partnerId === b.id || b.partnerId === a.id;
 }
 
-// Living spouse who still shares this vault, or null if they died or were jilted.
-Vault.livingShare = function (world, v) {
-  if (!v || !v.sharedWithId) return null;
-  const other = ADV.World.byId(world, v.sharedWithId);
-  const holder = ADV.World.byId(world, v.holderId);
-  return stillPartners(world, holder, other) ? other : null;
+function writeShares(v, ids) {
+  const shares = [];
+  for (const id of ids || []) {
+    if (id && id !== v.holderId && shares.indexOf(id) < 0) shares.push(id);
+  }
+  v.sharedWithIds = shares;
+  v.sharedWithId = shares[0] || null;
+}
+
+// Holder plus every id stored on the vault (old saves only have sharedWithId).
+Vault.memberIds = function (v) {
+  if (!v) return [];
+  const ids = [];
+  const add = (id) => { if (id && ids.indexOf(id) < 0) ids.push(id); };
+  add(v.holderId);
+  add(v.sharedWithId);
+  for (const id of v.sharedWithIds || []) add(id);
+  return ids;
 };
 
-// Drop a dead or jilted key-holder. A remaining living husband still shares.
-Vault.reconcile = function (world, v) {
-  if (!v || !world) return v;
-  const holder = ADV.World.byId(world, v.holderId);
-  const other = v.sharedWithId ? ADV.World.byId(world, v.sharedWithId) : null;
-  if (holder && !holder.alive) {
-    if (other && other.vaultId === v.id && other.id !== v.holderId) other.vaultId = null;
-    v.sharedWithId = null;
-    return v;
+Vault.isMember = function (v, ch) {
+  return !!(v && ch && Vault.memberIds(v).includes(ch.id));
+};
+
+// Everyone tied to `ch` by a current marriage, walking every spouse.
+// A dead seed is included so death claims can still see the household.
+Vault.householdPeople = function (world, ch) {
+  if (!ch || !world) return [];
+  const out = [];
+  const seen = {};
+  const walk = (c, allowDead) => {
+    if (!c || seen[c.id]) return;
+    if (!c.alive && !allowDead) return;
+    seen[c.id] = true;
+    out.push(c);
+    for (const id of partnerIdsOf(c)) walk(ADV.World.byId(world, id), false);
+  };
+  walk(ch, !ch.alive);
+  return out;
+};
+
+function vaultsTouching(world, people) {
+  const vs = [];
+  const seen = {};
+  const take = (v) => {
+    if (!v || seen[v.id]) return;
+    seen[v.id] = true;
+    vs.push(v);
+  };
+  const ids = {};
+  for (const ch of people) {
+    if (ch) ids[ch.id] = true;
+    if (ch && ch.vaultId) take((world.vaults || []).find(x => x.id === ch.vaultId));
   }
-  if (v.sharedWithId && !stillPartners(world, holder, other)) {
-    if (other && other.vaultId === v.id && v.holderId !== other.id) other.vaultId = null;
-    let next = null;
-    if (holder && holder.alive && ADV.Rel && ADV.Rel.partnerIds) {
-      next = ADV.Rel.partnerIds(holder).map(id => ADV.World.byId(world, id))
-        .find(c => c && c.alive && c.sex === 'm');
-    }
-    v.sharedWithId = next ? next.id : null;
-    if (next) next.vaultId = v.id;
-    v.pendingWithdrawals = [];
-    if (!v.sharedWithId) { v.sharedQuestStreak = 0; v.questsSinceShared = 0; }
+  for (const v of world.vaults || []) {
+    if (Vault.memberIds(v).some(id => ids[id])) take(v);
   }
+  return vs;
+}
+
+Vault.mergeInto = function (world, dest, src) {
+  if (!dest || !src || dest === src || dest.id === src.id) return dest;
+  dest.gold = (dest.gold || 0) + (src.gold || 0);
+  dest.items = (dest.items || []).concat(src.items || []);
+  if (src.insuranceActive) dest.insuranceActive = true;
+  dest.sharedQuestStreak = Math.max(dest.sharedQuestStreak || 0, src.sharedQuestStreak || 0);
+  dest.questsSinceShared = Math.min(dest.questsSinceShared || 0, src.questsSinceShared || 0);
+  dest.lastWithdrawAt = Object.assign({}, src.lastWithdrawAt || {}, dest.lastWithdrawAt || {});
+  if (src.pendingWithdrawals && src.pendingWithdrawals.length) {
+    dest.pendingWithdrawals = (dest.pendingWithdrawals || []).concat(src.pendingWithdrawals);
+  }
+  src.gold = 0; src.items = [];
+  for (const ch of world.characters || []) {
+    if (ch.vaultId === src.id) ch.vaultId = dest.id;
+  }
+  const i = (world.vaults || []).indexOf(src);
+  if (i >= 0) world.vaults.splice(i, 1);
+  return dest;
+};
+
+function preferVault(world, vs) {
+  return vs.slice().sort((a, b) => {
+    if ((b.gold || 0) !== (a.gold || 0)) return (b.gold || 0) - (a.gold || 0);
+    const aw = ADV.World.byId(world, a.holderId);
+    const bw = ADV.World.byId(world, b.holderId);
+    return ((bw && bw.sex === 'f') ? 1 : 0) - ((aw && aw.sex === 'f') ? 1 : 0);
+  })[0];
+}
+
+Vault.bindHousehold = function (world, v, people) {
+  if (!v || !people || !people.length) return v;
+  const living = people.filter(c => c && c.alive);
+  if (!living.length) return v;
+  let holder = ADV.World.byId(world, v.holderId);
+  if (!holder || !holder.alive || !living.some(c => c.id === holder.id) || holder.sex !== 'f') {
+    holder = living.find(c => c.sex === 'f') || living[0];
+    v.holderId = holder.id;
+  }
+  writeShares(v, living.map(c => c.id));
+  for (const ch of living) ch.vaultId = v.id;
   return v;
+};
+
+// Collapse every vault in this marriage into one and point every spouse at it.
+Vault.unifyHousehold = function (world, ch) {
+  if (!ch || !world) return null;
+  const people = Vault.householdPeople(world, ch);
+  if (!people.length) return null;
+  const living = people.filter(c => c.alive);
+  const vs = vaultsTouching(world, people);
+  let dest = preferVault(world, vs);
+  if (!dest) {
+    if (!living.length) return null;
+    const woman = living.find(c => c.sex === 'f') || living[0];
+    dest = Vault.create(world, woman.id);
+  }
+  for (const src of vaultsTouching(world, people)) {
+    if (src.id !== dest.id) Vault.mergeInto(world, dest, src);
+  }
+  return Vault.bindHousehold(world, dest, people);
+};
+
+// Living spouses who still share this vault (not the viewer).
+Vault.sharePartners = function (world, v, viewer) {
+  if (!v) return [];
+  v = Vault.reconcile(world, v) || v;
+  return Vault.memberIds(v).map(id => ADV.World.byId(world, id))
+    .filter(c => c && c.alive && (!viewer || c.id !== viewer.id)
+      && (!viewer || stillPartners(world, viewer, c) || stillPartners(world, ADV.World.byId(world, v.holderId), c)));
+};
+
+// Living spouse who still shares this vault, or null if they died or were jilted.
+Vault.livingShare = function (world, v) {
+  if (!v) return null;
+  const holder = ADV.World.byId(world, v.holderId);
+  return Vault.memberIds(v).map(id => ADV.World.byId(world, id))
+    .find(c => c && holder && c.id !== holder.id && stillPartners(world, holder, c)) || null;
 };
 
 Vault.sharePartner = function (world, v, viewer) {
   if (!v || !viewer) return null;
-  Vault.reconcile(world, v);
-  if (v.holderId === viewer.id) return Vault.livingShare(world, v);
-  if (v.sharedWithId === viewer.id) {
-    const holder = ADV.World.byId(world, v.holderId);
-    return holder && holder.alive ? holder : null;
+  const others = Vault.sharePartners(world, v, viewer);
+  return others[0] || null;
+};
+
+// Drop a dead or jilted key-holder. Remaining living spouses still share.
+Vault.reconcile = function (world, v) {
+  if (!v || !world) return v;
+  const holder = ADV.World.byId(world, v.holderId);
+  const seed = (holder && holder.alive) ? holder
+    : Vault.memberIds(v).map(id => ADV.World.byId(world, id)).find(c => c && c.alive);
+  if (seed && Vault.householdPeople(world, seed).filter(c => c.alive).length > 1) {
+    return Vault.unifyHousehold(world, seed) || v;
   }
-  return null;
+  const other = v.sharedWithId ? ADV.World.byId(world, v.sharedWithId) : null;
+  if (holder && !holder.alive) {
+    if (other && other.vaultId === v.id && other.id !== v.holderId) other.vaultId = null;
+    writeShares(v, []);
+    return v;
+  }
+  const keep = [];
+  for (const id of Vault.memberIds(v)) {
+    if (id === v.holderId) continue;
+    const otherCh = ADV.World.byId(world, id);
+    if (stillPartners(world, holder, otherCh)) keep.push(id);
+    else if (otherCh && otherCh.vaultId === v.id && v.holderId !== otherCh.id) otherCh.vaultId = null;
+  }
+  if (!keep.length && holder && holder.alive) {
+    const next = partnerIdsOf(holder).map(id => ADV.World.byId(world, id))
+      .find(c => c && c.alive);
+    if (next) {
+      keep.push(next.id);
+      next.vaultId = v.id;
+    }
+  }
+  writeShares(v, keep);
+  if (!v.sharedWithId) { v.sharedQuestStreak = 0; v.questsSinceShared = 0; }
+  return v;
 };
 
 Vault.of = function (world, ch) {
-  if (!ch || !ch.vaultId) return null;
+  if (!ch) return null;
+  if (ch.alive && Vault.householdPeople(world, ch).filter(c => c.alive).length > 1) {
+    return Vault.unifyHousehold(world, ch);
+  }
+  if (!ch.vaultId) return null;
   const v = (world.vaults || []).find(x => x.id === ch.vaultId) || null;
   if (!v) { ch.vaultId = null; return null; }
+  if (!ch.alive) return v;
   Vault.reconcile(world, v);
-  if (ch.vaultId !== v.id) return null;
-  if (v.holderId !== ch.id && v.sharedWithId !== ch.id) {
+  if (ch.vaultId !== v.id) {
+    const now = (world.vaults || []).find(x => x.id === ch.vaultId);
+    return now || null;
+  }
+  if (v.holderId !== ch.id && !Vault.isMember(v, ch)) {
     ch.vaultId = null;
     return null;
   }
@@ -81,67 +233,91 @@ Vault.of = function (world, ch) {
 
 Vault.ensureOwn = function (world, ch) {
   // A woman holds her own vault; an unpartnered man banks into his own too —
-  // custody transfers on commitment (§7).
+  // custody transfers on commitment (§7). Married people join the household
+  // vault instead of opening a second box.
   let v = Vault.of(world, ch);
-  if (!v) { v = Vault.create(world, ch.id); ch.vaultId = v.id; }
+  if (v) return v;
+  if (ch && ch.alive && Vault.householdPeople(world, ch).filter(c => c.alive).length > 1) {
+    return Vault.unifyHousehold(world, ch);
+  }
+  v = Vault.create(world, ch.id);
+  ch.vaultId = v.id;
   return v;
 };
 
 Vault.wealthOf = function (world, ch) {
   let g = ch.inventory.gold || 0;
   const v = Vault.of(world, ch);
-  if (v && (v.holderId === ch.id || v.sharedWithId === ch.id)) g += v.gold;
+  if (v && Vault.isMember(v, ch)) g += v.gold;
   return g;
 };
 
-// On commitment: all of the male partner's assets transfer into her vault (§7).
+// On commitment: the household keeps one vault. A new spouse joins it;
+// a bachelor's personal box is poured in. The woman holds the name (§7).
 Vault.onCommit = function (world, woman, man) {
-  const hers = Vault.ensureOwn(world, woman);
-  const his = Vault.of(world, man);
-  if (his && his.holderId === man.id) {
-    hers.gold += his.gold; hers.items.push(...his.items);
-    if (his.insuranceActive) hers.insuranceActive = true;
-    his.gold = 0; his.items = [];
-    const i = world.vaults.indexOf(his);
-    if (i >= 0) world.vaults.splice(i, 1);
+  const people = [];
+  const seen = {};
+  for (const seed of [woman, man]) {
+    for (const c of Vault.householdPeople(world, seed)) {
+      if (c && !seen[c.id]) { seen[c.id] = true; people.push(c); }
+    }
   }
-  hers.gold += man.inventory.gold; man.inventory.gold = 0;
-  hers.sharedWithId = man.id;
-  man.vaultId = hers.id;
-  hers.sharedQuestStreak = 0; hers.questsSinceShared = 0;
+  let dest = preferVault(world, vaultsTouching(world, people));
+  if (!dest) dest = Vault.create(world, woman.id);
+  if (dest.holderId === man.id || !ADV.World.byId(world, dest.holderId) || ADV.World.byId(world, dest.holderId).sex !== 'f') {
+    dest.holderId = woman.id;
+  }
+  for (const src of vaultsTouching(world, people)) {
+    if (src.id !== dest.id) Vault.mergeInto(world, dest, src);
+  }
+  dest.gold += man.inventory.gold || 0;
+  man.inventory.gold = 0;
+  dest.sharedQuestStreak = 0;
+  dest.questsSinceShared = 0;
+  Vault.bindHousehold(world, dest, people);
+  return dest;
 };
 
 Vault.spouses = function (world, ch) {
   if (!ch) return [];
-  const ids = ADV.Rel && ADV.Rel.partnerIds ? ADV.Rel.partnerIds(ch) : (ch.partnerId ? [ch.partnerId] : []);
-  return ids.map(id => ADV.World.byId(world, id)).filter(c => c && c.alive);
+  return partnerIdsOf(ch).map(id => ADV.World.byId(world, id)).filter(c => c && c.alive);
 };
 
-// On breakup: he loses access permanently; she keeps everything (§7).
-// A remaining spouse still shares — Rel.jilt has already unlinked this pair.
+// On breakup: he loses access permanently; she keeps everything (§7) — unless
+// a remaining household is still married, in which case that house keeps the box.
 Vault.onBreakup = function (world, a, b) {
   const woman = a.sex === 'f' ? a : b;
   const man = a.sex === 'f' ? b : a;
-  const still = (ch) => (ADV.Rel ? ADV.Rel.partnerIds(ch) : []).map(id => ADV.World.byId(world, id)).filter(c => c && c.alive);
-  const v = Vault.of(world, woman);
-  const nextMan = still(woman).find(c => c.sex === 'm');
-  if (v && v.holderId === woman.id) {
-    v.sharedWithId = nextMan ? nextMan.id : null;
-    v.pendingWithdrawals = [];
-    v.lastWithdrawAt = {};
-    // A dissolved household does not keep the old policy. The next marriage
-    // buys its own — otherwise the desk stays locked on "Insurance active".
-    if (!nextMan) v.insuranceActive = false;
+  const hers = Vault.householdPeople(world, woman).filter(c => c && c.alive);
+  const his = Vault.householdPeople(world, man).filter(c => c && c.alive);
+  const used = (world.vaults || []).filter(v =>
+    (woman && woman.vaultId === v.id) || (man && man.vaultId === v.id)
+    || Vault.isMember(v, woman) || Vault.isMember(v, man));
+
+  if (hers.length > 1) {
+    const dest = Vault.unifyHousehold(world, woman);
+    if (his.length <= 1 && dest && man.vaultId === dest.id) man.vaultId = null;
+    return;
   }
-  if (man.vaultId && v && man.vaultId === v.id) man.vaultId = null;
-  if (nextMan) nextMan.vaultId = v ? v.id : nextMan.vaultId;
-  const nextWife = still(man).find(c => c.sex === 'f');
-  if (nextWife) {
-    const hers = Vault.ensureOwn(world, nextWife);
-    hers.sharedWithId = man.id;
-    if (!man.vaultId) man.vaultId = hers.id;
+  if (his.length > 1) {
+    const dest = Vault.unifyHousehold(world, man);
+    if (dest && woman.vaultId === dest.id) woman.vaultId = null;
+    return;
   }
-  if (v) Vault.reconcile(world, v);
+  const v = used[0] || Vault.of(world, woman);
+  if (!v) {
+    if (man && man.vaultId) man.vaultId = null;
+    return;
+  }
+  writeShares(v, []);
+  v.pendingWithdrawals = [];
+  v.lastWithdrawAt = {};
+  v.insuranceActive = false;
+  v.sharedQuestStreak = 0;
+  v.questsSinceShared = 0;
+  if (woman && woman.sex === 'f') v.holderId = woman.id;
+  if (woman) woman.vaultId = v.id;
+  if (man && man.vaultId === v.id) man.vaultId = null;
 };
 
 // Deposits are always free (§7).
@@ -163,7 +339,7 @@ Vault.partnerState = function (v) {
 };
 const CAPS = { f: { happy: 0.8, content: 0.5, neutral: 0.25 }, m: { happy: 0.9, content: 0.6, neutral: 0.35 } };
 Vault.withdrawalCap = function (world, v, requester) {
-  Vault.reconcile(world, v);
+  v = Vault.reconcile(world, v) || v;
   const partner = Vault.sharePartner(world, v, requester);
   if (!partner) return { pct: 1, state: 'own', partner: null };
   const state = Vault.partnerState(v);
@@ -196,7 +372,8 @@ Vault.requestWithdrawal = function (world, rng, requester, amount) {
   if (cap.partner && Vault.withdrawnThisStay(world, v, requester)) {
     return { ok: true, approved: false, waited: true, amount: 0, cap: cap.pct, state: cap.state };
   }
-  const allowed = Math.min(amount, Math.floor(v.gold * cap.pct));
+  let allowed = Math.min(amount, Math.floor(v.gold * cap.pct));
+  if (allowed <= 0 && cap.pct > 0 && v.gold > 0) allowed = 1;
   if (allowed <= 0) return { ok: true, approved: false, amount: 0, cap: cap.pct, state: cap.state };
   v.gold -= allowed; requester.inventory.gold += allowed;
   if (cap.partner) {
@@ -227,7 +404,7 @@ Vault.resolvePending = function (world, v, idx, approve) {
 // Shared quest bookkeeping, called on quest resolution.
 Vault.onQuestResolved = function (world, ch, questedWithPartner) {
   const v = Vault.of(world, ch);
-  if (!v || !Vault.livingShare(world, v)) return;
+  if (!v || !Vault.sharePartners(world, v, ch).length) return;
   if (questedWithPartner) { v.sharedQuestStreak++; v.questsSinceShared = 0; }
   else { v.sharedQuestStreak = 0; v.questsSinceShared++; }
 };
@@ -254,42 +431,46 @@ Vault.payPremium = function (world, ch) {
 // ---- Death claims (§7) ------------------------------------------------------
 // Returns {vaultTo: 'killerEx'|'eldestChild'|'lost', payoutTo}
 Vault.onDeath = function (world, deceased, killerId) {
-  const v = Vault.of(world, deceased);
+  const living = Vault.spouses(world, deceased);
+  const v = (world.vaults || []).find(x => x.id === deceased.vaultId)
+    || (living[0] && (world.vaults || []).find(x => x.id === living[0].vaultId))
+    || (world.vaults || []).find(x => Vault.isMember(x, deceased))
+    || null;
   const killer = killerId ? ADV.World.byId(world, killerId) : null;
-  for (const xv of (world.vaults || [])) {
-    if (xv.holderId === deceased.id || xv.sharedWithId === deceased.id) Vault.reconcile(world, xv);
-  }
-  if (deceased.vaultId && v && v.holderId !== deceased.id) deceased.vaultId = null;
   const out = { vaultTo: 'lost', gold: v ? v.gold : 0 };
   // insurance covers the household: whichever of the pair dies, the
   // survivor is paid — the policy may sit on either partner's vault
-  const spouses = Vault.spouses(world, deceased);
-  const seen = new Set();
+  const seen = {};
   const policies = [];
-  const take = (x) => { if (x && x.insuranceActive && !seen.has(x.id)) { seen.add(x.id); policies.push(x); } };
+  const take = (x) => { if (x && x.insuranceActive && !seen[x.id]) { seen[x.id] = true; policies.push(x); } };
   take(v);
-  for (const s of spouses) take(Vault.of(world, s));
-  for (const xv of world.vaults || []) {
-    if (xv.holderId === deceased.id || xv.sharedWithId === deceased.id) take(xv);
-  }
+  for (const s of living) take((world.vaults || []).find(x => x.id === s.vaultId));
   if (policies.length) {
-    const survivor = spouses[0];
+    const survivor = living[0];
     if (survivor) {
       survivor.inventory.gold += C().GOLD.insurancePayout;
       out.payoutTo = survivor.id;
     }
     for (const pol of policies) pol.insuranceActive = false;
   }
-  if (!v || v.holderId !== deceased.id) return out;
-  // An ex (or husband) who kills her takes the entire vault — outranks every heir (§7)
-  const wasEx = killer && killer.sex === 'm' &&
-    (deceased.exIds || []).includes(killer.id);
-  const isSpouse = killer && deceased.partnerId === killer.id;
-  if (killer && (wasEx || isSpouse)) {
+  if (!v) return out;
+  const wasEx = killer && killer.sex === 'm' && (deceased.exIds || []).includes(killer.id);
+  const isSpouse = killer && (ADV.Rel ? ADV.Rel.isPartner(deceased, killer) : deceased.partnerId === killer.id);
+  if (v.holderId === deceased.id && killer && (wasEx || isSpouse)) {
     killer.inventory.gold += v.gold;
     killer.inventory.items = (killer.inventory.items || []).concat(v.items);
     v.gold = 0; v.items = [];
     out.vaultTo = 'killerEx'; out.claimantId = killer.id;
+    return out;
+  }
+  if (living.find(c => c.sex === 'f') || (living.length && v.holderId !== deceased.id)) {
+    if (living.length) Vault.unifyHousehold(world, living[0]);
+    if (deceased.vaultId && v.holderId !== deceased.id) deceased.vaultId = null;
+    out.vaultTo = 'household';
+    return out;
+  }
+  if (v.holderId !== deceased.id) {
+    if (deceased.vaultId === v.id) deceased.vaultId = null;
     return out;
   }
   // Otherwise: eldest surviving child (adult heir preferred, else recorded for maturation)

@@ -10,6 +10,13 @@ class QuestScene extends Phaser.Scene {
     this.game_ = this.registry.get('game');
     const game = this.game_;
     const W = T().W, H = T().H;
+    // Restore the exploration score before either the encounter view or the
+    // return/results path. A road-home ambush has already cleared game.quest.
+    const musicQuest = game.quest || game.travelResolution?.q;
+    if (musicQuest) {
+      ADV.Music.playQuest(musicQuest.quest);
+      musicQuest.musicStarted = true;
+    }
     if (game.travelResolution) { this.completeFlow(); return; }
     this.add.rectangle(W / 2, H / 2, W, H, T().c.bg).setDepth(-30);
     if (ADV.BattleArt && game.quest) {
@@ -21,10 +28,6 @@ class QuestScene extends Phaser.Scene {
       ADV.WeatherFX.attach(this, ADV.Weather.at(game.world, { phase }), phase, { x: 0, y: 0, w: W, h: H }, { depth: -5 });
     }
     if (!game.quest) { this.scene.start('Town'); return; }
-    // one track per quest: chosen on the first screen of the run, kept until town
-    if (!game.quest.musicStarted) { game.quest.musicStarted = true; ADV.Music.startRun(!!game.quest.quest.isBoss, ADV.Campaign3 && ADV.Campaign3.musicFor(game.quest.quest)); }
-    else ADV.Music.play('quest');
-
     const q = game.quest;
     if (q.playerDead) {
       if (q.quest?.campaign3 && ADV.Campaign3?.retreatFromDefeat(game)) { this.completeFlow(); return; }

@@ -20,7 +20,7 @@ const TOUR = [
   ['create',   'Create Party',    'With 100 gold you can lead your own: hire people, set wages, take the whole payout — and owe payroll win or lose.'],
   ['roster',   'Guild Roster',    'Everyone in town: what they run, who they ride with, what they think of you.'],
   ['rel',      'Relationships',   'Regard moves with shared quests, money and how you treat people. Friendly opens romance; Hatred opens knives.'],
-  ['vault',    'Vault',           'Gold you carry is lost when you die. Gold in the vault is not. Married couples share one.'],
+  ['vault',    'Vault',           'Gold you carry is lost when you die. Gold in the vault is not. Every spouse in the marriage shares one.'],
   ['faction',  'Faction Status',  'Law, criminal, neutral — the contracts you take decide who trusts you, and who comes recruiting.'],
   ['journal',  'Skill Journal',   'Every skill you have ever seen used, across every life. The journal is the real save file.'],
   ['codex',    'Codex',           'Everything the world has explained to you so far, kept for reference.'],
@@ -192,7 +192,7 @@ Tutor.panel = function (scene, game, id, r) {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 122, w: r.w - 48, h: 200 }, 'Skills for sale', 'Gold-priced skills you have never seen; free ones you witnessed in battle. Click a skill you already own to buy tutoring — 300 gold to Intermediate, 600 gold to Advanced. Nothing to buy yet? Come back richer.', { onNext: () => { s.step = 'vault'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'skills_sale' });
   }
   if (s.step === 'vault' && id === 'vault') {
-    Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 120 }, 'Safe keeping', 'This is your vault. Gold here survives your death and passes to your heirs. Before every quest you choose what to leave behind. When you marry, the two of you share one — you may draw your share once per stay.', { onNext: () => { s.step = 'party'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'safe_keeping' });
+    Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 120 }, 'Safe keeping', 'This is your vault. Gold here survives your death and passes to your heirs. Before every quest you choose what to leave behind. Every spouse you marry shares the same one — you may draw your share once per stay.', { onNext: () => { s.step = 'party'; ADV.Save.saveGame(game); scene.buildMenu(); Tutor.town(scene, game); }, label: 'Understood', vo: 'safe_keeping' });
   }
   if (s.step === 'party' && id === 'apply') {
     Tutor.callout(scene, { x: r.x + 24, y: r.y + 84, w: r.w - 48, h: 80 }, s.declined ? 'Try another' : 'Ask to join', s.declined

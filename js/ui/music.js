@@ -247,6 +247,17 @@ const Music = {
   },
   endRun() { Music.run = null; Music.storyEls = null; },
 
+  // A saved quest may say musicStarted even though this browser session has
+  // no audio run. Rebuild its score instead of falling into the random pools.
+  // Also used by the return journey, after game.quest has been settled.
+  playQuest(quest, context = 'quest') {
+    const story = ADV.Campaign3 && ADV.Campaign3.musicFor(quest);
+    if (!Music.run || (story ? Music.run.story?.quest !== story.quest : Music.run.story)) {
+      Music.startRun(!!quest?.isBoss, story);
+    }
+    Music.play(context);
+  },
+
   // Story tracks are cached per run so leaving a fight resumes the underscore
   // mid-phrase instead of restarting it.
   storyEls: null,

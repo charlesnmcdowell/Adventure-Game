@@ -247,9 +247,11 @@ Panels.departureConfirm = function (scene, q) {
   const goingLine = tx(W / 2 - 240, yy, 'Going: ' + going.map(c => c.name + (c.campaign && !q.campaign3 ? ' (' + (c.title || 'campaign') + ')' : '')).join(', '), { size: 13, color: T().css.inkDim, wrap: 480 });
   yy += Math.max(40, goingLine.height + 10);
   const v = info.vault;
-  if (v && v.sharedWithId) {
-    const along = info.roster.some(c => c.id === (v.holderId === p.id ? v.sharedWithId : v.holderId));
-    tx(W / 2 - 240, yy, along ? 'Your partner rides with you — the vault will remember it.' : 'Questing without your partner. The vault drifts toward locking.', { size: 12, italic: true, color: along ? T().css.green : T().css.inkFaint, wrap: 480 });
+  const house = v && ADV.Vault.sharePartners ? ADV.Vault.sharePartners(game.world, v, p)
+    : (v && v.sharedWithId ? [ADV.World.byId(game.world, v.holderId === p.id ? v.sharedWithId : v.holderId)].filter(Boolean) : []);
+  if (v && house.length) {
+    const along = info.roster.some(c => house.some(s => s && s.id === c.id));
+    tx(W / 2 - 240, yy, along ? 'A spouse rides with you — the vault will remember it.' : 'Questing without a spouse. The vault drifts toward locking.', { size: 12, italic: true, color: along ? T().css.green : T().css.inkFaint, wrap: 480 });
     yy += 26;
   }
   const insured = v && v.insuranceActive;

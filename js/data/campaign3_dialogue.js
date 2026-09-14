@@ -289,9 +289,9 @@ L('bramm', 'q3_bramm_argue', `[hot] Tell them why Vashk burns women, wizard! Tel
 L('aurelius', 'q3_bramm_argue', `[coolly] Vashk and Kalden have been at war, in one form or another, since before these strangers' grandparents were born. I do not expect the large gentleman to understand policy. I expect him to understand a hundred in gold — which I am offering to you, not to him. A hundred to see her burned, and my considerable talents beside you until the Gate.`);
 CH('q3_bramm', [
   { id: 'why', text: 'Why would a Crimson Wizard care what happens to one witch?', ask: true, reply: B('aurelius', 'q3_bramm_why') },
-  { id: 'rescue', text: 'We are freeing her. Bahadır, with me.', recruit: ['bramm'], aff: { bramm: 2 }, heritage: -1, reply: B('bramm', 'q3_bramm_rescue') },
+  { id: 'rescue', text: 'We are freeing her. Bahadır, with me.', recruit: ['bramm', 'ysolde'], aff: { bramm: 2 }, heritage: -1, reply: B('bramm', 'q3_bramm_rescue') },
   { id: 'coin', text: 'A hundred gold, and your staff until the Gate. Done.', recruit: ['aurelius'], set: { brammEnemy: true }, gold: 100, heritage: 1, aff: { aurelius: 1 }, reply: B('aurelius', 'q3_bramm_coin') },
-  { id: 'both', text: 'The witch lives, and the wizard walks with us and holds his tongue about it.', recruit: ['bramm', 'aurelius'], aff: { bramm: 1, aurelius: -1 }, reply: B('aurelius', 'q3_bramm_both') },
+  { id: 'both', text: 'The witch lives, and the wizard walks with us and holds his tongue about it.', recruit: ['bramm', 'aurelius', 'ysolde'], aff: { bramm: 1, aurelius: -1 }, reply: B('aurelius', 'q3_bramm_both') },
 ]);
 L('aurelius', 'q3_bramm_why', `[coolly] Because one witch becomes a coven, and a coven becomes a border dispute, and a border dispute becomes my problem. That I am polite about it is a courtesy, not a change of policy.`);
 L('bramm', 'q3_bramm_rescue', `[overjoyed] With you! Yes! Fındık, did you hear? We have friends, and they are good ones. Come — the gate is that way, and I am going through it.`);
