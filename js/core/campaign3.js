@@ -830,6 +830,11 @@ C3.verbFinished=function(game,r,context){
   return r;
 };
 ADV.CampaignRoutes.register('gate',{...C3,onCampaignQuestDone:C3.onQuestDone,
+  spawnEncounter:(...args)=>C3.spawnEncounter(...args),
+  alliesFor:(...args)=>C3.alliesFor(...args),
+  encounterReady:(...args)=>C3.encounterReady(...args),
+  combatFinished:(...args)=>C3.combatFinished(...args),
+  verbFinished:(...args)=>C3.verbFinished(...args),
   departureBeats:(...args)=>C3.departureBeats(...args),
   acceptsFaction:fid=>fid===C3.FID,rivalDeathSequence:()=>[],finalOpener:()=>[],afterBossBeats:()=>[]});
 ADV.CampaignRoutes.install(ADV.Campaign);

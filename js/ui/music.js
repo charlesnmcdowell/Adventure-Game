@@ -80,7 +80,7 @@ function playEl(el) {
   el.__playBlocked = false;
   el.volume = Music.muted ? 0 : (el === Music.voiceEl ? 1 : musicGain());
   if (el === Music.voiceEl) rampMusic(120);
-  if (Music.muted || Music.hidden) return;
+  if (Music.muted || Music.hidden || Music.movieHeld) return;
   const failed = err => {
     // A cancelled/older request belongs to the line we have already left.
     if (el.__playGen !== gen || !el.__wantPlay || err?.name === 'AbortError') return;
@@ -95,7 +95,7 @@ function playEl(el) {
   try { p = el.play(); } catch (err) { failed(err); return; }
   if (p && p.then) {
     p.then(() => {
-      if (!el.__wantPlay || Music.hidden || Music.muted) {
+      if (!el.__wantPlay || Music.hidden || Music.muted || Music.movieHeld) {
         try { el.pause(); } catch (e) {}
       } else if (el.__playGen === gen) {
         Music.unlocked = true;

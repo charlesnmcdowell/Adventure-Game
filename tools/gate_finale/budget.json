@@ -1,0 +1,41 @@
+{
+  "remainingCredits": 113843,
+  "pendingClips": 0,
+  "estimatedCredits": 0,
+  "reserve": 500,
+  "voices": [
+    {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "name": "VG: Hiwot",
+      "category": "generated",
+      "isOwner": null,
+      "rate": null,
+      "financialRewards": null
+    },
+    {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "name": "VG: Kolade Adeyinka",
+      "category": "generated",
+      "isOwner": null,
+      "rate": null,
+      "financialRewards": null
+    },
+    {
+      "voice": "EFtnObJs7ex53VSB3niw",
+      "name": "VG: Tesfaye",
+      "category": "generated",
+      "isOwner": null,
+      "rate": null,
+      "financialRewards": null
+    },
+    {
+      "voice": "jDMhBWlFSleqsyqVHw2R",
+      "name": "VG: Dawit",
+      "category": "generated",
+      "isOwner": null,
+      "rate": null,
+      "financialRewards": null
+    }
+  ],
+  "checkedAt": 1789457489.0546916
+}

@@ -9,6 +9,7 @@ class QuestScene extends Phaser.Scene {
   create() {
     this.game_ = this.registry.get('game');
     const game = this.game_;
+    ADV.GateFinale?.upgradeQuest(game);
     const W = T().W, H = T().H;
     // Restore the exploration score before either the encounter view or the
     // return/results path. A road-home ambush has already cleared game.quest.

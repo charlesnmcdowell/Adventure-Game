@@ -101,6 +101,10 @@
       "args": []
     },
     {
+      "file": "test/gate_finale.js",
+      "args": []
+    },
+    {
       "file": "test/campaign3_family.js",
       "args": []
     },
@@ -293,6 +297,10 @@
   "browser": [
     {
       "file": "test/browser_gate_voice.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_gate_finale.js",
       "args": []
     },
     {

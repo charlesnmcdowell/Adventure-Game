@@ -3,6 +3,7 @@
 'use strict';
 const A=ADV,M=A.GateManifest,N=A.AnimeIdentities.named,F=M.frames;
 const G=A.GateArt={version:1,manifest:M};
+M.environments.morrak_realm={file:'assets/anime/gate/v1/runtime/environment_morrak_realm.webp',width:1774,height:887,indoor:true};
 const frame=(kind,id)=>F[kind+':'+id];
 Object.assign(A.AnimeManifest.parts,M.parts);
 // Nose / anatomical chin landmarks in the original 627px head cells.
@@ -66,7 +67,7 @@ const encounterRoutes=G.encounterRoutes={
  6:['mirkhollow','grove','cliffs','iron_mine'],7:['iron_mine','iron_mine','iron_mine','study','valve'],
  8:['sewers','nine_lanterns','counting','counting'],9:['tower','counting','silk_floor','tower'],
  10:['lanternhold','lanternhold','catacombs','catacombs','catacombs'],11:['hunted_city','sickroom','hunted_city','undervault'],
- 12:['palace','palace','palace'],13:['undervault','undercity','undercity','undercity','temple'],14:['temple','mirrors','temple']
+ 12:['palace','palace','palace'],13:['undervault','undercity','undercity','undercity','temple'],14:['temple','mirrors','temple','morrak_realm']
 };
 const journeys=G.journeys={
  1:['lanternhold','griffon'],2:['shore','open_hand'],3:['ford','dunmere'],4:['dunmere_mine','dunmere'],

@@ -1,0 +1,494 @@
+{
+  "checks": [
+    {
+      "path": "audio/vo/campaign/aldric/q10_blood_of_two_1.mp3",
+      "voice": "EFtnObJs7ex53VSB3niw",
+      "audioHash": "4da76f458ddc1c106723b818be5c91f6b1dab7a7827df4d4ded7867c1c782791",
+      "duration": 17.68,
+      "peak": 0.8045682311058044,
+      "rms": 0.08144856939168352
+    },
+    {
+      "path": "audio/vo/campaign/aldric/q10_blood_of_two_2.mp3",
+      "voice": "EFtnObJs7ex53VSB3niw",
+      "audioHash": "270e59f3c479c6fb5b8a91d05c137f34e3076dc02e1cae738dfbff02445e87c9",
+      "duration": 12.4,
+      "peak": 0.8893903493881226,
+      "rms": 0.09893897785118318
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_open_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "49fab13fbde9fc00c2e0814baf9000e9a8c2c7c2befd5cfb68c1bc1835ef5a12",
+      "duration": 10.8,
+      "peak": 0.9100131988525391,
+      "rms": 0.1163882281475649
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_open_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "5676f2d6ac687ec47a0910861eb938ec525140a5526db4b276b28fc4011e88b7",
+      "duration": 11.76,
+      "peak": 0.9540311098098755,
+      "rms": 0.1047445476991373
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_anger_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "a2295ef2166ffc02837eca6e9f48da74963882115869937d8d9ec5a8a4bda66f",
+      "duration": 10,
+      "peak": 0.8294064402580261,
+      "rms": 0.09286202360248225
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_justice_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "dee8d1107bcad1543a88f005a152c74764d4161db4e7a5496e3a22986773b629",
+      "duration": 7.84,
+      "peak": 1.00179922580719,
+      "rms": 0.13018847732363145
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_truth_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "4585fd57d5b0d1a7998ae0236631b190eb37a1989fbfaa7f147cf86e8c4b0568",
+      "duration": 5.6,
+      "peak": 0.9052039384841919,
+      "rms": 0.10227579873688483
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_reports_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "90c1fc86cd3460cde31a8cd337ac8b894a37e1e229c11e3aa6e1c7c3a6c8cbaf",
+      "duration": 7.84,
+      "peak": 0.940805196762085,
+      "rms": 0.14061142806271304
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_amara_dead_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "f2d319a1f502049eed8d8b31b78cf5062ab1c3fbf1f4b954702de627fa7fc6b4",
+      "duration": 11.44,
+      "peak": 0.8620102405548096,
+      "rms": 0.07900930983305474
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_amara_here_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "95207a52383bb2e1d4ed53102d9a0913c03cdd66e35dc7a3cefd7aa4ab731f39",
+      "duration": 7.28,
+      "peak": 0.9759450554847717,
+      "rms": 0.16010725540878276
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_amara_spared_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "08884268508f297a19b7beb2ffd413eba2992c69fe8616ac123ae09416f332fd",
+      "duration": 7.04,
+      "peak": 0.5816351175308228,
+      "rms": 0.06973875782613603
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_folake_dead_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "84bf50a3645845d2dba18680d92215e31933a96ac679d96d9540ebc1ce1330ba",
+      "duration": 6.88,
+      "peak": 0.8040153384208679,
+      "rms": 0.10721185013395451
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_folake_arrested_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "437ba5feaf2bbc6024d2cf664d960eb7963707141d40f1d839e470b606c6e994",
+      "duration": 9.12,
+      "peak": 0.9311663508415222,
+      "rms": 0.12616853997706423
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_folake_bargain_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "576d2acef0ddefb36a2f496b697430866a8d0540cc70d1af9979bf3825795334",
+      "duration": 9.68,
+      "peak": 0.9468003511428833,
+      "rms": 0.12436048798176996
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_grove_peace_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "bfa8956e7682ba8a2243dfbd7b85d209dd8448af1bd9cbf0b232039c57e33175",
+      "duration": 6.48,
+      "peak": 0.9460205435752869,
+      "rms": 0.12268517792277821
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_grove_retreat_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "8826e2d1b25e283d6ba010a3eb14bb27bcfef50abb4c99e18ef20d6014c92213",
+      "duration": 6.96,
+      "peak": 0.9434373378753662,
+      "rms": 0.1540775419578747
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_grukhar_dead_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "3a37b576baaa03950c01231850005c446c3cace1342beba48a1e1fccc309a735",
+      "duration": 8.64,
+      "peak": 0.9163534045219421,
+      "rms": 0.1272443291894164
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_grukhar_spared_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "a0508c82919c96cfefdf3a462e496379b1fc57abdf3e5b575febf6bc6bd13810",
+      "duration": 8.56,
+      "peak": 0.7794836163520813,
+      "rms": 0.11958594169087217
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_flood_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "6a0e0aafbfe9da2ff820dc4e8f5ed2621f83e36139f70845cf44d5cdaf3ddfe3",
+      "duration": 9.28,
+      "peak": 0.9216564297676086,
+      "rms": 0.10791276618894428
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_rescue_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "bebb177ce1a2502015ed0180bf7f13d289dee217376aeccca7598a559191b1f6",
+      "duration": 9.84,
+      "peak": 0.932087779045105,
+      "rms": 0.14594284801050916
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_segun_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "ed3beb033a70188777a611c57ff96cfe05bf7411adaf4fdefb71bac6396b0766",
+      "duration": 8.64,
+      "peak": 0.9721251130104065,
+      "rms": 0.14946212477952958
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_accuse_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "91e484dc961eedf05b9c04b7c92d313459cf5a29472e01b2a6487f0f05f3d341",
+      "duration": 11.92,
+      "peak": 0.9353840351104736,
+      "rms": 0.11891706825960972
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_mercy_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "6a2040c70a928d9c3d54c5f6cb27e30659f6b0ca2cbf5f351b8604515afb9cf3",
+      "duration": 8.88,
+      "peak": 0.9260081052780151,
+      "rms": 0.12923642135900892
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_rebuttal_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "2b33c3486869dad5de28158ca8b36600c922483d86b2f6693bf8d21dd6c778d4",
+      "duration": 6.96,
+      "peak": 0.8262454867362976,
+      "rms": 0.10645836238155384
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_regret_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "2b063141ce58643983a542045ec6862d7ba51b8b4cdce2e87b4c8e3eae0da824",
+      "duration": 5.04,
+      "peak": 0.8676521182060242,
+      "rms": 0.10675843898896903
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_mercy_reply_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "88ade8153c869fb549cc309a4fd3496e6a5fee2f52b1b047d1216ea33484840c",
+      "duration": 5.2,
+      "peak": 0.6972946524620056,
+      "rms": 0.08565665914000054
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_questions_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "6c036e4f77e9a6c259541a749669d0d5ff42decbad249fc1b55f6b42924a2ce3",
+      "duration": 2.8,
+      "peak": 0.8994595408439636,
+      "rms": 0.14030921351657225
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_lineage_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "b476cd97b0050e835eb91b25a0125d9afafd7513511a444b8fc70596408e86f1",
+      "duration": 13.68,
+      "peak": 0.9400520324707031,
+      "rms": 0.14482090124641783
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_lineage_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "8701255ccb5ed92245fff21ca973fc3072e72b559614192f305fa2e2db656d2b",
+      "duration": 15.84,
+      "peak": 0.9539552330970764,
+      "rms": 0.1364602694195082
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_rescue_truth_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "867ad5819d39bae2b8dcbecc8358da181c1e2cda2cc187970d5ca9ff3b874282",
+      "duration": 15.68,
+      "peak": 0.9522018432617188,
+      "rms": 0.10289238866716376
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_rescue_truth_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "998d5a0346b331ff282ee1e9739d95c1c842639a2cdf55616c5e9cab679d7538",
+      "duration": 14.4,
+      "peak": 0.9394968152046204,
+      "rms": 0.09723919715606837
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_blame_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "3f91db3d919bad45b5ee2593a05fb04e8cc716ac1ca3a542a28ab0b34f0bbaa6",
+      "duration": 11.44,
+      "peak": 0.9772886037826538,
+      "rms": 0.16843858154148694
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_blame_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "1ed58b5bd40f40dc6b660a5e330564e76b714a053a67c62a0110f436bf919b92",
+      "duration": 10,
+      "peak": 0.9552817940711975,
+      "rms": 0.12120043693412484
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_father_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "13536a82506d1ade9662e824ec253b29a848c3bff3384ed9c4e240dda8a3d604",
+      "duration": 15.12,
+      "peak": 0.9707698225975037,
+      "rms": 0.14181961346553384
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_father_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "5beb107a06cc013545f039398eda2bddd398231d96e4894ba9cd3be83e6fe359",
+      "duration": 11.44,
+      "peak": 0.950336217880249,
+      "rms": 0.12181440708480863
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_trap_killed_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "201c1ec0ac27cecbe1d93d2c4beeb2b18f2a72b3297aa8b6e09838377fb1a46f",
+      "duration": 15.28,
+      "peak": 0.9181234240531921,
+      "rms": 0.09752040940106604
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_trap_spared_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "87b5b2a59bf89a74a552d8086f23ac74385a4b7fcae0b874cf50e7dba40cf403",
+      "duration": 14.64,
+      "peak": 0.9504217505455017,
+      "rms": 0.11670116132234074
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_trap_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "42db10194522abfb1d51d1574fa1fcf21c90c73257f346175c786aa133a463ec",
+      "duration": 9.2,
+      "peak": 0.8568863272666931,
+      "rms": 0.10046942093774909
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_rite_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "13a43029057c209f66581dc591ce678a3cdf219c96577bd68f781c278af92a84",
+      "duration": 14.08,
+      "peak": 0.8995050191879272,
+      "rms": 0.1007899692840353
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_rite_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "2bea75958e72bc92ed3a56b9d579043cd031bb4234e0fbbae5dc996d28ca01a1",
+      "duration": 5.84,
+      "peak": 0.6966946721076965,
+      "rms": 0.0869999547946149
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_hiwot_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "0571f6aeb75eb5bd75165d3983b2b35366a147f559afc8264e5d2529616cae5b",
+      "duration": 13.44,
+      "peak": 0.9076927304267883,
+      "rms": 0.10978654507736883
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_plea_reply_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "73c4625e65b5a9ebf6f8a81f0a8468b5f8dbf093bf75ac99da7895a0442efa81",
+      "duration": 5.92,
+      "peak": 0.939146876335144,
+      "rms": 0.14410013827510437
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_last_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "01c47de435bb19212a44b770a7713cf25ee9b5ef9514e7941e6e9c6e49d1a62a",
+      "duration": 3.76,
+      "peak": 0.9148232936859131,
+      "rms": 0.13565592051794
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_draw_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "2a156f4dc1e726fb44f79bfa951b2bb8238e8752a1eb3395398f011c1e5d5b0d",
+      "duration": 4,
+      "peak": 0.9271636009216309,
+      "rms": 0.16929634266765775
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_power_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "eab0cdec9f69c91a90af409fef41195cfc6a81fa81411cf168aa08cb16e4182f",
+      "duration": 8.88,
+      "peak": 0.7438707947731018,
+      "rms": 0.10674023935011404
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_abducted_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "374f3d718d62dd39154f26c2ea560e636c02c61c04f4fdfcdc2ac0c36afcc4b5",
+      "duration": 9.36,
+      "peak": 0.9438061714172363,
+      "rms": 0.14529597204481878
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_absent_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "a97bba943de2743b027b40d54e036f4ccc61847b561119e654a266e754b125ff",
+      "duration": 8,
+      "peak": 0.9360281229019165,
+      "rms": 0.12251576435224523
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_dead_sister_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "a03688449e78e0b440e634df9c47ad6ed1d59de3614a51f7c5a6bbf36627e3b4",
+      "duration": 9.04,
+      "peak": 0.8951958417892456,
+      "rms": 0.13247802340720055
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_ritual_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "a71ad2d50b56f23e415b6edd3a11b27ce5e5796ee03cbfd5516f71fc2503f54a",
+      "duration": 6.08,
+      "peak": 0.8412182927131653,
+      "rms": 0.08193297588461315
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_crossing_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "fe490c7c4291e19334ec79f5e0fd38fdf0abe3ee4cb70c093b304633e37e4d93",
+      "duration": 5.92,
+      "peak": 0.9624698758125305,
+      "rms": 0.1820727206691466
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_realm_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "46cc480ab19f4f337e8c63926c5b59a8e79b25d857795090f9c81e38f554e1cc",
+      "duration": 3.2,
+      "peak": 0.7605215311050415,
+      "rms": 0.09298915762105954
+    },
+    {
+      "path": "audio/vo/campaign/korvath/q14_final_realm_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "audioHash": "9d884157bb04fad2d3b5d0f00cde56506e9719d9283ff8a6a7b5b7f3d1a7c260",
+      "duration": 4.88,
+      "peak": 0.901515007019043,
+      "rms": 0.12330161053420073
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_warning_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "83f9fd746438f543d06e4c36abe80ded358fe4feb8dba34ff43546fc8a51ba94",
+      "duration": 4.08,
+      "peak": 0.8991271257400513,
+      "rms": 0.21874531800148028
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_taken_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "3f7c49168b836099251d53b83f586aaac9cd8b98479db45ae48af635301c8f5d",
+      "duration": 2.08,
+      "peak": 0.912935733795166,
+      "rms": 0.2251071373228442
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_soul_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "243a74489002118fd0d51b84c23453e55748b650f9ee078fd7788917e883de1c",
+      "duration": 5.2,
+      "peak": 0.8376792669296265,
+      "rms": 0.1175980119082536
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_choice_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "98cbd394fbd4361aeb81db8ebea832dc9888f8100bf45f01434710f76bb30d11",
+      "duration": 7.44,
+      "peak": 0.5851234793663025,
+      "rms": 0.06351068918122944
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_choice_2.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "fa416e1ac6d543e16e1dd211bde4cd3ca693e2fc74bb17980c38f364951e4027",
+      "duration": 12.96,
+      "peak": 0.732971727848053,
+      "rms": 0.09117148206754773
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_restored_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "774d9ab13fcfae1a5b9da395c94f3a09c919b8a3af6c66b98c1f462879c59d70",
+      "duration": 3.12,
+      "peak": 0.4810096025466919,
+      "rms": 0.0845626597383671
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_restored_2.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "35c5ee36ca4875ee0bc6a3e435cefc2160963935fa785b390f3313d0f8d5de45",
+      "duration": 3.68,
+      "peak": 0.8539932370185852,
+      "rms": 0.114861996541113
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q14_final_farewell_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "8fd13ec81e4549dfe557e7f09cadfe1bf9c65991624a0e7eb9806ffce77f0b31",
+      "duration": 4,
+      "peak": 0.35970354080200195,
+      "rms": 0.0556537021931796
+    },
+    {
+      "path": "audio/vo/campaign/ambrose/q10_letter_give_1.mp3",
+      "voice": "jDMhBWlFSleqsyqVHw2R",
+      "audioHash": "45e75a84cf493f6a03bdc784142bdeb657531aaa277c93f2e6257f0203dbf5a2",
+      "duration": 11.04,
+      "peak": 0.8564367294311523,
+      "rms": 0.09634499110940832
+    }
+  ],
+  "billed": 4246,
+  "installedAt": "2026-09-15T07:31:26.494Z"
+}

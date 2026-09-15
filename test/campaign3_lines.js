@@ -26,7 +26,7 @@ const speakersOf = {};   // choice id -> speakers whose beat carries it (for $sp
 const companions = Object.values(D.CAMPAIGN_CHARS).filter(c => c.companion).map(c => c.id);
 
 // flags that the data may set (choices + beats) — gates must name one of these
-const settable = new Set(['lean_gauntlet', 'dukeDead', 'bothDukesDead']);
+const settable = new Set(['lean_gauntlet', 'dukeDead', 'bothDukesDead', 'amaraDead', 'finaleMercyKnown']);
 for (const c of Object.values(CH)) for (const o of c.options) for (const k of Object.keys(o.set || {})) settable.add(k);
 for (const n of Object.keys(SCRIPT)) for (const list of [SCRIPT[n].departure, SCRIPT[n].closing, SCRIPT[n].arrival, ...Object.values(SCRIPT[n].openers || {})]) for (const b of list || []) for (const k of Object.keys(b.set || {})) settable.add(k);
 
@@ -68,9 +68,10 @@ function checkOption(o, cid) {
     for (const w of whos) usedBeats.add(w + ':' + o.reply.key);
     if (CH[o.reply.key]) { usedChoices.add(o.reply.key); speakersOf[o.reply.key] = (speakersOf[o.reply.key] || []).concat(whos); }
   }
+  if (o.menu) { ok(!!CH[o.menu], `${where}: submenu exists`); usedChoices.add(o.menu); }
   for (const k of ['recruit', 'dismiss', 'gone', 'kill']) for (const id of o[k] || []) ok(companions.includes(id), `${where}: ${k} names a companion (${id})`);
   for (const id of Object.keys(o.aff || {})) ok(companions.includes(id), `${where}: aff names a companion (${id})`);
-  if (o.ending) ok(['kill', 'gauntlet', 'usurp', 'walk'].includes(o.ending), `${where}: ending is a known resolution`);
+  if (o.ending) ok(['kill', 'gauntlet', 'usurp', 'walk', 'restore', 'ascend'].includes(o.ending), `${where}: ending is a known resolution`);
   checkWhen(o.when, where);
 }
 
@@ -95,6 +96,39 @@ for (const q of QUESTS) {
     ok(!!e.label, `Q${q.n}: encounter has a label`);
     for (const v of Object.values(e.variants || {})) { for (const t of (v.types || []).concat(v.with || [])) ok(!!(D.CAMPAIGN_ENEMIES[t] || D.CAMPAIGN_CHARS[t]), `Q${q.n}: variant enemy ${t} exists`); }
   }
+}
+// Runtime-selected finale beats: explore mutually exclusive facts and sister
+// whereabouts, plus the legacy script retained for already-queued saved endings.
+for (const list of [D.GATE_LEGACY_FINALE.departure, D.GATE_LEGACY_FINALE.closing, ...Object.values(D.GATE_LEGACY_FINALE.openers)]) for (const beat of list || []) checkBeat(beat, 'legacy finale');
+const scenarios = [
+ {}, { outcomes: {'13:1': {actors:{amara:'killed'}}} },
+ { company:['amara'], recruited:['amara'] }, { flags:{amaraPassed:true} },
+ { flags:{druidsPeace:true} }, { outcomes:{'6:1':{actors:{thornwise:'withdrew'}}} },
+ { outcomes:{'4:3':{actors:{grukhar:'killed'}}} }, { flags:{grukharSpared:true} },
+ { flags:{floodedEarly:true} }, { flags:{waitedForDorran:true} },
+ { flags:{grukharSpared:true,druidsPeace:true} },
+ { flags:{floodedEarly:true}, outcomes:{'13:1':{actors:{amara:'killed'}}} },
+];
+for (const scenario of scenarios) {
+ const game = { meta:{c3:{...ADV.Campaign3.fresh(),stage:13,...scenario}},world:{characters:[]} };
+ ADV.GateFinale.state(game).outcomes = scenario.outcomes || {};
+ for (const b of ADV.GateFinale.history(game)) checkBeat(b,'finale history');
+}
+for (const folake of ['kill','arrest','deal']) {
+ const game={meta:{c3:ADV.Campaign3.fresh()},world:{characters:[]}};
+ ADV.GateFinale.state(game).folake=folake;
+ for(const b of ADV.GateFinale.history(game))checkBeat(b,'finale Folake');
+}
+for (const state of ['company','inn','dead','absent']) {
+ const game = { meta:{c3:{...ADV.Campaign3.fresh(),stage:13}},world:{characters:[]} }, s=ADV.Campaign3.state(game);
+ if (state !== 'absent') s.recruited.push('wren_ward');
+ if (state === 'company') s.company.push('wren_ward');
+ if (state === 'dead') s.dead.push('wren_ward');
+ for (const i of [2,3]) for (const b of ADV.Campaign3.openerBeats(game,{n:14},i)) checkBeat(b,'finale sister '+state);
+}
+for (const flag of ['leadersKilled','leadersSpared']) {
+ const game={meta:{c3:{...ADV.Campaign3.fresh(),flags:{[flag]:true}}},world:{characters:[]}};
+ checkBeat(ADV.Campaign3.replyBeat({who:'korvath',key:'q14_final_trap'},'korvath',game),'finale trap');
 }
 for (const [cid, c] of Object.entries(CH)) {
   ok(c.options.length >= 2 && c.options.length <= 4, `choice ${cid}: two to four options`, c.options.length);

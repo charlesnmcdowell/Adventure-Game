@@ -149,7 +149,7 @@ G.chapter=function(scene,game,beat,done){const chapter=beat.artChapter,id=G.chap
 };
 const departure=A.Campaign3.departureBeats;
 A.Campaign3.departureBeats=function(game,q){const beats=departure(game,q),chapter=firstQuest[q?.n],s=A.Campaign3.state(game);if(q?.campaign3&&chapter!==undefined&&!s.artChapters?.[chapter])beats.unshift({c3:true,who:'aldric',key:'art_chapter',artChapter:chapter,artTitle:q.name});return beats;};
-G.endingId=ending=>({hero:'ending_hero',monster:'ending_vengeance',usurper:'ending_usurper',mercy:'ending_mercy',ascetic:'ending_empty'})[ending];
+G.endingId=ending=>({hero:'ending_hero',monster:'ending_vengeance',usurper:'ending_usurper',mercy:'ending_mercy',ascetic:'ending_empty',restored:'ending_hero',ascended:'ending_usurper'})[ending];
 G.hallBanner=function(scene,r){const view=G.view(scene,'ui','story_banner',{depth:0,x:r.x+4,y:r.y+4,w:r.w-8,h:66,banner:true,cover:true});if(view)scene.keep(view);};
 G.choiceFrame=function(scene,keep,depth,rect){const view=G.view(scene,'ui','choice_frame',{depth:depth-1,...rect,banner:true});if(view){view.setAlpha(.25);keep(view);}};
 })();

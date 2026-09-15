@@ -826,6 +826,7 @@ function processMercies(game, st) {
 Game.finishCombat = function (game) {
   const q = game.quest;
   const st = q.combat;
+  const resolvedEncIdx = q.encIdx;
   const p = Game.player(game);
   ADV.Combat.exportHp(st);
   processMercies(game, st);
@@ -914,7 +915,7 @@ Game.finishCombat = function (game) {
       q.playerDead = true; q.over = true;
     } else { q.failed = true; q.over = true; }
   }
-  return ADV.CampaignRoutes.hook(game,'combatFinished',{won,playerDead:q.playerDead});
+  return ADV.CampaignRoutes.hook(game,'combatFinished',{won,playerDead:q.playerDead},{encIdx:resolvedEncIdx,units:st.units});
 };
 
 // Post-victory choice for one defeated named NPC (§3a).

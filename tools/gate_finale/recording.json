@@ -1,0 +1,927 @@
+{
+  "reserved": 7724,
+  "completed": {
+    "79f0d179271bafc8bf5956a0b40315fee451573709ef22f93edd0c61735fda13": {
+      "voice": "EFtnObJs7ex53VSB3niw",
+      "model": "eleven_v3",
+      "audioHash": "4da76f458ddc1c106723b818be5c91f6b1dab7a7827df4d4ded7867c1c782791",
+      "bytes": 283838,
+      "cost": 127.0,
+      "requestId": "Fexvw6MJPBEa8YebOpwV",
+      "textHash": "79f0d179271bafc8bf5956a0b40315fee451573709ef22f93edd0c61735fda13"
+    },
+    "b35817e1b83e45d4eac58ce6db89dcd611ed64b10963fd5642f392668ccff7c8": {
+      "voice": "EFtnObJs7ex53VSB3niw",
+      "model": "eleven_v3",
+      "audioHash": "270e59f3c479c6fb5b8a91d05c137f34e3076dc02e1cae738dfbff02445e87c9",
+      "bytes": 199410,
+      "cost": 90.0,
+      "requestId": "llXRPQ8JW38W4FcVODNV",
+      "textHash": "b35817e1b83e45d4eac58ce6db89dcd611ed64b10963fd5642f392668ccff7c8"
+    },
+    "c15ab68261d48c2afc74e6992e048f46d11bf63c66360bfa7ac459016b23abca": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "49fab13fbde9fc00c2e0814baf9000e9a8c2c7c2befd5cfb68c1bc1835ef5a12",
+      "bytes": 173915,
+      "cost": 89.0,
+      "requestId": "ARKuaEhnjzHTci3L0J0i",
+      "textHash": "c15ab68261d48c2afc74e6992e048f46d11bf63c66360bfa7ac459016b23abca"
+    },
+    "399f33fccb10792ac6ddd82eceb56ab5e60088324ec596aee143c96443437dee": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "5676f2d6ac687ec47a0910861eb938ec525140a5526db4b276b28fc4011e88b7",
+      "bytes": 189379,
+      "cost": 91.0,
+      "requestId": "fKCSzx9kvENN4AzsHRBz",
+      "textHash": "399f33fccb10792ac6ddd82eceb56ab5e60088324ec596aee143c96443437dee"
+    },
+    "d85c58b3c6e8e92d285956a81e6ce1a3028266e7b763f69a904478b396bbe1f3": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "a2295ef2166ffc02837eca6e9f48da74963882115869937d8d9ec5a8a4bda66f",
+      "bytes": 160958,
+      "cost": 74.0,
+      "requestId": "43V2jlscFzAWddmqOiqP",
+      "textHash": "d85c58b3c6e8e92d285956a81e6ce1a3028266e7b763f69a904478b396bbe1f3"
+    },
+    "0797a779280b6ee32792429e854796480e4526b0fde2cc3ebc1d6706e658970f": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "dee8d1107bcad1543a88f005a152c74764d4161db4e7a5496e3a22986773b629",
+      "bytes": 126685,
+      "cost": 63.0,
+      "requestId": "EkbtupISpmqBHf6jFE9W",
+      "textHash": "0797a779280b6ee32792429e854796480e4526b0fde2cc3ebc1d6706e658970f"
+    },
+    "3284a9655d01dae84ca61b9dd8b18131fe8363e6d3aa3a85f4ae1c87b562aaf1": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "4585fd57d5b0d1a7998ae0236631b190eb37a1989fbfaa7f147cf86e8c4b0568",
+      "bytes": 90741,
+      "cost": 51.0,
+      "requestId": "BvHjPWzHAv9dJ54csRRB",
+      "textHash": "3284a9655d01dae84ca61b9dd8b18131fe8363e6d3aa3a85f4ae1c87b562aaf1"
+    },
+    "a62ae28babaeec714a6b7e5c060650ed1ef551a2b1766e9f0e2f2e09c08fac32": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "90c1fc86cd3460cde31a8cd337ac8b894a37e1e229c11e3aa6e1c7c3a6c8cbaf",
+      "bytes": 126685,
+      "cost": 58.0,
+      "requestId": "lVSiZgOexNqAGLTXWEPM",
+      "textHash": "a62ae28babaeec714a6b7e5c060650ed1ef551a2b1766e9f0e2f2e09c08fac32"
+    },
+    "186014eb47f173a0305a068822c0201ebe7d2bda3ccb25e998039d9cc9815eb3": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "f2d319a1f502049eed8d8b31b78cf5062ab1c3fbf1f4b954702de627fa7fc6b4",
+      "bytes": 183946,
+      "cost": 81.0,
+      "requestId": "2JJ7llSSF8eZvV0XCkZF",
+      "textHash": "186014eb47f173a0305a068822c0201ebe7d2bda3ccb25e998039d9cc9815eb3"
+    },
+    "359b68cf04227c02733acca67caf9f1c92f999e8cc845261c793046667d6d81c": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "95207a52383bb2e1d4ed53102d9a0913c03cdd66e35dc7a3cefd7aa4ab731f39",
+      "bytes": 117490,
+      "cost": 53.0,
+      "requestId": "AOpZmmU9qRqL2066ChS0",
+      "textHash": "359b68cf04227c02733acca67caf9f1c92f999e8cc845261c793046667d6d81c"
+    },
+    "b120a5ddc1ce2d628d1aea2c0759ffc04b3d4b23fc2b0f2ee7ae24f8d351a85f": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "08884268508f297a19b7beb2ffd413eba2992c69fe8616ac123ae09416f332fd",
+      "bytes": 113728,
+      "cost": 43.0,
+      "requestId": "fq6g1YDW6UJAdxAeudoo",
+      "textHash": "b120a5ddc1ce2d628d1aea2c0759ffc04b3d4b23fc2b0f2ee7ae24f8d351a85f"
+    },
+    "f4459244dd5a00dd82bfd07830a2dbb7d4f53fa58e7bb5b1cc99f842f8a64d0f": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "bfa8956e7682ba8a2243dfbd7b85d209dd8448af1bd9cbf0b232039c57e33175",
+      "bytes": 104951,
+      "cost": 61.0,
+      "requestId": "zK4TWHzBaiTNALQs3xG7",
+      "textHash": "f4459244dd5a00dd82bfd07830a2dbb7d4f53fa58e7bb5b1cc99f842f8a64d0f"
+    },
+    "60c5cfbf4a45d59760988991956da208ed189d0bb49a20cfbf182405144b1450": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "8826e2d1b25e283d6ba010a3eb14bb27bcfef50abb4c99e18ef20d6014c92213",
+      "bytes": 112475,
+      "cost": 62.0,
+      "requestId": "NwEYjazngA0DyiLka6k4",
+      "textHash": "60c5cfbf4a45d59760988991956da208ed189d0bb49a20cfbf182405144b1450"
+    },
+    "1bccd86560fe19942a344d1982570fb2b49279382885eebdf455255488aa0675": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "3a37b576baaa03950c01231850005c446c3cace1342beba48a1e1fccc309a735",
+      "bytes": 139224,
+      "cost": 68.0,
+      "requestId": "7efd2v71cQC0ukX5wP55",
+      "textHash": "1bccd86560fe19942a344d1982570fb2b49279382885eebdf455255488aa0675"
+    },
+    "722f4153802e48e0ab560b24c61623a271614ca7826fd8ea70fd366c1ed96a25": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "a0508c82919c96cfefdf3a462e496379b1fc57abdf3e5b575febf6bc6bd13810",
+      "bytes": 137970,
+      "cost": 63.0,
+      "requestId": "dHMEdZnKsbaThkTGZEx5",
+      "textHash": "722f4153802e48e0ab560b24c61623a271614ca7826fd8ea70fd366c1ed96a25"
+    },
+    "b5e7bd56247805376b596c2993f3053d86288e3bec1d04a089fd331e0cfa82be": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "6a0e0aafbfe9da2ff820dc4e8f5ed2621f83e36139f70845cf44d5cdaf3ddfe3",
+      "bytes": 149673,
+      "cost": 71.0,
+      "requestId": "vLsTZIiDJCSCAJD4Y4P4",
+      "textHash": "b5e7bd56247805376b596c2993f3053d86288e3bec1d04a089fd331e0cfa82be"
+    },
+    "b1915398c187c2360fa101fbbd2eb96eedd60dd742bf89ad30be96af36f9efde": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "bebb177ce1a2502015ed0180bf7f13d289dee217376aeccca7598a559191b1f6",
+      "bytes": 158450,
+      "cost": 86.0,
+      "requestId": "9s8sDaoEvsCotXN33Ch9",
+      "textHash": "b1915398c187c2360fa101fbbd2eb96eedd60dd742bf89ad30be96af36f9efde"
+    },
+    "b26b0f3e992d104d6c6637b01e49b9c33d54d7ff5c5f3572f7cbb95922a5bb24": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "ed3beb033a70188777a611c57ff96cfe05bf7411adaf4fdefb71bac6396b0766",
+      "bytes": 139224,
+      "cost": 66.0,
+      "requestId": "FLpUDmesisKYR2RSKvpw",
+      "textHash": "b26b0f3e992d104d6c6637b01e49b9c33d54d7ff5c5f3572f7cbb95922a5bb24"
+    },
+    "49410c5aac76d01b55c747b5eac0673adc47c6a1d2559ccc561d3a55f7fe74e7": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "91e484dc961eedf05b9c04b7c92d313459cf5a29472e01b2a6487f0f05f3d341",
+      "bytes": 191887,
+      "cost": 101.0,
+      "requestId": "xhcd9KFyX39eYlYc4o3V",
+      "textHash": "49410c5aac76d01b55c747b5eac0673adc47c6a1d2559ccc561d3a55f7fe74e7"
+    },
+    "3a807edb7e627bd9f4f8103039131a81785824a474290f92310f353909fc5386": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "6a2040c70a928d9c3d54c5f6cb27e30659f6b0ca2cbf5f351b8604515afb9cf3",
+      "bytes": 142986,
+      "cost": 72.0,
+      "requestId": "9NoyvilcvUrj84UIHxrk",
+      "textHash": "3a807edb7e627bd9f4f8103039131a81785824a474290f92310f353909fc5386"
+    },
+    "98eea7008d7d8839185fc1b4d07b6b238d87babc6d913f964074a2ee7c40434c": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "2b33c3486869dad5de28158ca8b36600c922483d86b2f6693bf8d21dd6c778d4",
+      "bytes": 112475,
+      "cost": 56.0,
+      "requestId": "0DHXkx2DHKywWNjfyPmj",
+      "textHash": "98eea7008d7d8839185fc1b4d07b6b238d87babc6d913f964074a2ee7c40434c"
+    },
+    "06c7cd19f8cfc4f584e0655725f5596535ae9a4f4f7626f324c6b1c8c4b47e00": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "2b063141ce58643983a542045ec6862d7ba51b8b4cdce2e87b4c8e3eae0da824",
+      "bytes": 81546,
+      "cost": 46.0,
+      "requestId": "E3ZFWB46piFmXG6kPccJ",
+      "textHash": "06c7cd19f8cfc4f584e0655725f5596535ae9a4f4f7626f324c6b1c8c4b47e00"
+    },
+    "e85c9a71690b033a9d0e49fdb83c094939e894a229b3456f633b4d2ed797d126": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "88ade8153c869fb549cc309a4fd3496e6a5fee2f52b1b047d1216ea33484840c",
+      "bytes": 84471,
+      "cost": 42.0,
+      "requestId": "2sj2hPlXwo3c8X5sXhYf",
+      "textHash": "e85c9a71690b033a9d0e49fdb83c094939e894a229b3456f633b4d2ed797d126"
+    },
+    "d7b505cc4925c8a1975193fe0d31f017089f06c40184df2c5875cb3940932c7c": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "6c036e4f77e9a6c259541a749669d0d5ff42decbad249fc1b55f6b42924a2ce3",
+      "bytes": 46019,
+      "cost": 32.0,
+      "requestId": "Kvs51ZdPypAcqNHSCdUh",
+      "textHash": "d7b505cc4925c8a1975193fe0d31f017089f06c40184df2c5875cb3940932c7c"
+    },
+    "b96297f552905cfb5e82adeac48721bd03687927ffa1b0c15cf4f9b2632e8c94": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "b476cd97b0050e835eb91b25a0125d9afafd7513511a444b8fc70596408e86f1",
+      "bytes": 219890,
+      "cost": 115.0,
+      "requestId": "iiKZ3swwLlGfZcI8BK4k",
+      "textHash": "b96297f552905cfb5e82adeac48721bd03687927ffa1b0c15cf4f9b2632e8c94"
+    },
+    "b265abf1870babe6793ab1200bcffc5a1a8fdee647b446f968ba68bfca6a9d9a": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "8701255ccb5ed92245fff21ca973fc3072e72b559614192f305fa2e2db656d2b",
+      "bytes": 254581,
+      "cost": 104.0,
+      "requestId": "u2Z0fSnpk9v4OZK8hzeR",
+      "textHash": "b265abf1870babe6793ab1200bcffc5a1a8fdee647b446f968ba68bfca6a9d9a"
+    },
+    "3d1900834ea8878a380c3935b85e20bda67b58380d9c29853e27716069738e39": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "867ad5819d39bae2b8dcbecc8358da181c1e2cda2cc187970d5ca9ff3b874282",
+      "bytes": 252073,
+      "cost": 122.0,
+      "requestId": "rwdw0rc6pOGT97mLSkJE",
+      "textHash": "3d1900834ea8878a380c3935b85e20bda67b58380d9c29853e27716069738e39"
+    },
+    "46d776da3d491ba2a9b3ed232647be61fab09fc4af28ef888673ce8b697ee7be": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "998d5a0346b331ff282ee1e9739d95c1c842639a2cdf55616c5e9cab679d7538",
+      "bytes": 231593,
+      "cost": 100.0,
+      "requestId": "Z8YfTEWpuW9WCX8o0mHH",
+      "textHash": "46d776da3d491ba2a9b3ed232647be61fab09fc4af28ef888673ce8b697ee7be"
+    },
+    "772976ef5704d2ed3fb410aa9239d38d9a5016d1c895da94e6465b3f79ab964c": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "3f91db3d919bad45b5ee2593a05fb04e8cc716ac1ca3a542a28ab0b34f0bbaa6",
+      "bytes": 183946,
+      "cost": 76.0,
+      "requestId": "HIZjC2LV3vtoZFqeYfdj",
+      "textHash": "772976ef5704d2ed3fb410aa9239d38d9a5016d1c895da94e6465b3f79ab964c"
+    },
+    "5b60513055df7aeda2ccd90932ea0dda14d9b59873464d89c050b386531d2348": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "1ed58b5bd40f40dc6b660a5e330564e76b714a053a67c62a0110f436bf919b92",
+      "bytes": 160958,
+      "cost": 73.0,
+      "requestId": "q6Sug9tk3WSBheGNe91s",
+      "textHash": "5b60513055df7aeda2ccd90932ea0dda14d9b59873464d89c050b386531d2348"
+    },
+    "2c387188813b3703801a274bb04004370e0c224420d47028dcc1748d955c64a9": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "13536a82506d1ade9662e824ec253b29a848c3bff3384ed9c4e240dda8a3d604",
+      "bytes": 242878,
+      "cost": 133.0,
+      "requestId": "IN6M0mVbanWfgcOjPFE8",
+      "textHash": "2c387188813b3703801a274bb04004370e0c224420d47028dcc1748d955c64a9"
+    },
+    "cf98394c3f7b4aadfd656f0d88a713ca808fb170e7ca5badbc08e1e463136065": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "5beb107a06cc013545f039398eda2bddd398231d96e4894ba9cd3be83e6fe359",
+      "bytes": 183946,
+      "cost": 96.0,
+      "requestId": "RRBoP245rHfMk97r1t6j",
+      "textHash": "cf98394c3f7b4aadfd656f0d88a713ca808fb170e7ca5badbc08e1e463136065"
+    },
+    "23f45f1022ef65e2540f8f85ee3509c0a3dc75a14ded9046915c4470a15fe31f": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "201c1ec0ac27cecbe1d93d2c4beeb2b18f2a72b3297aa8b6e09838377fb1a46f",
+      "bytes": 245386,
+      "cost": 119.0,
+      "requestId": "W3nbC3onUW43EqTtmzcT",
+      "textHash": "23f45f1022ef65e2540f8f85ee3509c0a3dc75a14ded9046915c4470a15fe31f"
+    },
+    "c55586ee2c4d492c922fd1b12d1facda1807529f48b458b077761eab20f057b0": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "87b5b2a59bf89a74a552d8086f23ac74385a4b7fcae0b874cf50e7dba40cf403",
+      "bytes": 235355,
+      "cost": 109.0,
+      "requestId": "qat73BEipdxTXb8gl5zE",
+      "textHash": "c55586ee2c4d492c922fd1b12d1facda1807529f48b458b077761eab20f057b0"
+    },
+    "f7d1f8d315e8adf5666efee91c66b82388c60c138ba357aeec1ebeb55a023333": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "42db10194522abfb1d51d1574fa1fcf21c90c73257f346175c786aa133a463ec",
+      "bytes": 148419,
+      "cost": 74.0,
+      "requestId": "k12W7EEHddQDBxq8ZVl8",
+      "textHash": "f7d1f8d315e8adf5666efee91c66b82388c60c138ba357aeec1ebeb55a023333"
+    },
+    "25fe34769cb919e199e9bf39ffbef086c3ee0eaef46ac8b241e31d782320d82b": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "13a43029057c209f66581dc591ce678a3cdf219c96577bd68f781c278af92a84",
+      "bytes": 226159,
+      "cost": 108.0,
+      "requestId": "PLt74H0p2R1yenuzpzcV",
+      "textHash": "25fe34769cb919e199e9bf39ffbef086c3ee0eaef46ac8b241e31d782320d82b"
+    },
+    "bdcf575adf9d83cdf11750d3014516643dbfa7d3791f3396a41d2d6649a0e8fa": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "2bea75958e72bc92ed3a56b9d579043cd031bb4234e0fbbae5dc996d28ca01a1",
+      "bytes": 94502,
+      "cost": 46.0,
+      "requestId": "SxAjDz5oAuFwCsLQ4zgn",
+      "textHash": "bdcf575adf9d83cdf11750d3014516643dbfa7d3791f3396a41d2d6649a0e8fa"
+    },
+    "d82b9f6ec1ee6e4d9f39cedbf50d316b25ed7008be095a3b54e0843b0ebd3836": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "0571f6aeb75eb5bd75165d3983b2b35366a147f559afc8264e5d2529616cae5b",
+      "bytes": 216128,
+      "cost": 94.0,
+      "requestId": "0triqhzVGEQOGCdpb9uH",
+      "textHash": "d82b9f6ec1ee6e4d9f39cedbf50d316b25ed7008be095a3b54e0843b0ebd3836"
+    },
+    "38e8c5c349e3a262db5c7bf5ddf54caa63357abbad1ab31ab1f80c5999bf3ea3": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "73c4625e65b5a9ebf6f8a81f0a8468b5f8dbf093bf75ac99da7895a0442efa81",
+      "bytes": 95756,
+      "cost": 56.0,
+      "requestId": "zic7hSkKNABydvoeM1U7",
+      "textHash": "38e8c5c349e3a262db5c7bf5ddf54caa63357abbad1ab31ab1f80c5999bf3ea3"
+    },
+    "2ae8f74d1e745ecc8c61032d57d973d418db7c6ba1114b6682705d20e1fa2eb1": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "01c47de435bb19212a44b770a7713cf25ee9b5ef9514e7941e6e9c6e49d1a62a",
+      "bytes": 61066,
+      "cost": 35.0,
+      "requestId": "FAgdJ4H74w0X62BJEqC5",
+      "textHash": "2ae8f74d1e745ecc8c61032d57d973d418db7c6ba1114b6682705d20e1fa2eb1"
+    },
+    "c30dfe821b75dbaeba3b92fbfc83709936d363484b88c987c43501327093e276": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "2a156f4dc1e726fb44f79bfa951b2bb8238e8752a1eb3395398f011c1e5d5b0d",
+      "bytes": 65245,
+      "cost": 30.0,
+      "requestId": "7vDdbmKlomt4JojmBCT3",
+      "textHash": "c30dfe821b75dbaeba3b92fbfc83709936d363484b88c987c43501327093e276"
+    },
+    "a15170180549af3f4e57ea25f53587d203eaa3e601fc3d6c25f768fe5775ce15": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "eab0cdec9f69c91a90af409fef41195cfc6a81fa81411cf168aa08cb16e4182f",
+      "bytes": 142986,
+      "cost": 75.0,
+      "requestId": "exTU7G2Wzm71tjLbsbQE",
+      "textHash": "a15170180549af3f4e57ea25f53587d203eaa3e601fc3d6c25f768fe5775ce15"
+    },
+    "5baca4957c5d7ec3d3b7eda9ca0e191bb436065c75062e5c0531006b1d4cd594": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "374f3d718d62dd39154f26c2ea560e636c02c61c04f4fdfcdc2ac0c36afcc4b5",
+      "bytes": 150927,
+      "cost": 83.0,
+      "requestId": "do5jaDaBoXnakWiRdbvL",
+      "textHash": "5baca4957c5d7ec3d3b7eda9ca0e191bb436065c75062e5c0531006b1d4cd594"
+    },
+    "e1b0d13c23989e17bafb05046cd9bef82c0a64a81485ea302321614359c3c653": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "a97bba943de2743b027b40d54e036f4ccc61847b561119e654a266e754b125ff",
+      "bytes": 129193,
+      "cost": 78.0,
+      "requestId": "Uxv50Q4oKGu3LXB79SuH",
+      "textHash": "e1b0d13c23989e17bafb05046cd9bef82c0a64a81485ea302321614359c3c653"
+    },
+    "e0e56f8f8c62d491b03d69b745b07af8403062f40726106aeafff024784b534a": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "a03688449e78e0b440e634df9c47ad6ed1d59de3614a51f7c5a6bbf36627e3b4",
+      "bytes": 145911,
+      "cost": 69.0,
+      "requestId": "HB2mtzy7f1mTeLl9cYKR",
+      "textHash": "e0e56f8f8c62d491b03d69b745b07af8403062f40726106aeafff024784b534a"
+    },
+    "964a162f2d3a1baf4c2eb24313f6619a0a31dec73c2bb163faffdfdaa51254f6": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "a71ad2d50b56f23e415b6edd3a11b27ce5e5796ee03cbfd5516f71fc2503f54a",
+      "bytes": 98264,
+      "cost": 52.0,
+      "requestId": "jAy6BnE15QfwOz7audV3",
+      "textHash": "964a162f2d3a1baf4c2eb24313f6619a0a31dec73c2bb163faffdfdaa51254f6"
+    },
+    "678acf5c90bd17f3ed5204fdd157e0e789b38641cf6769b506f3b3a90698f44f": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "fe490c7c4291e19334ec79f5e0fd38fdf0abe3ee4cb70c093b304633e37e4d93",
+      "bytes": 95756,
+      "cost": 48.0,
+      "requestId": "ALTzsd5vR0zixeP5UF8L",
+      "textHash": "678acf5c90bd17f3ed5204fdd157e0e789b38641cf6769b506f3b3a90698f44f"
+    },
+    "922b0f9bee44f821b041988e3f17ec1b14c516b63f20747a88b70ab62810c73c": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "46cc480ab19f4f337e8c63926c5b59a8e79b25d857795090f9c81e38f554e1cc",
+      "bytes": 52288,
+      "cost": 32.0,
+      "requestId": "WNJ8eOHxuU7Ptn5Il8JP",
+      "textHash": "922b0f9bee44f821b041988e3f17ec1b14c516b63f20747a88b70ab62810c73c"
+    },
+    "9f187a736e53307c94477dd0f67fdbaa69f1b880ef7e8d0f3b704bb5c31473e2": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "9d884157bb04fad2d3b5d0f00cde56506e9719d9283ff8a6a7b5b7f3d1a7c260",
+      "bytes": 79038,
+      "cost": 35.0,
+      "requestId": "VbxhEv7IIPJeB0YLRlF3",
+      "textHash": "9f187a736e53307c94477dd0f67fdbaa69f1b880ef7e8d0f3b704bb5c31473e2"
+    },
+    "5cf10bc2ebee58918d505aecd41415d51eed7552d9381a315a13037b31d32093": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "83f9fd746438f543d06e4c36abe80ded358fe4feb8dba34ff43546fc8a51ba94",
+      "bytes": 66499,
+      "cost": 42.0,
+      "requestId": "4cjShgToI5rCZAWIicqF",
+      "textHash": "5cf10bc2ebee58918d505aecd41415d51eed7552d9381a315a13037b31d32093"
+    },
+    "0637a05a09ad96eeb55c9d5625509999b2dead58a94a4be465f877a51355b01e": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "3f7c49168b836099251d53b83f586aaac9cd8b98479db45ae48af635301c8f5d",
+      "bytes": 34316,
+      "cost": 15.0,
+      "requestId": "tVzdYlyYGCSBRnlDTy8z",
+      "textHash": "0637a05a09ad96eeb55c9d5625509999b2dead58a94a4be465f877a51355b01e"
+    },
+    "e8f0a26048abcfa0cf7d12384e341286498753603a73b13aeb357bc2e4dd7639": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "243a74489002118fd0d51b84c23453e55748b650f9ee078fd7788917e883de1c",
+      "bytes": 84471,
+      "cost": 49.0,
+      "requestId": "8oznrBPChND8pupW6Zji",
+      "textHash": "e8f0a26048abcfa0cf7d12384e341286498753603a73b13aeb357bc2e4dd7639"
+    },
+    "52df48aa15344cedf3c93a7b5126a90258b906872c72b5e9b616626e139d2d82": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "98cbd394fbd4361aeb81db8ebea832dc9888f8100bf45f01434710f76bb30d11",
+      "bytes": 119998,
+      "cost": 49.0,
+      "requestId": "fuk4nmPcEJDcTk4SjcPo",
+      "textHash": "52df48aa15344cedf3c93a7b5126a90258b906872c72b5e9b616626e139d2d82"
+    },
+    "a0219466839c1196b3794a93a45b3738efaf40b0eda99d084e10e449ce06bd10": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "fa416e1ac6d543e16e1dd211bde4cd3ca693e2fc74bb17980c38f364951e4027",
+      "bytes": 208605,
+      "cost": 101.0,
+      "requestId": "PZOBYfpUcty70TypuAg6",
+      "textHash": "a0219466839c1196b3794a93a45b3738efaf40b0eda99d084e10e449ce06bd10"
+    },
+    "39da911528985c91b065d95684029114c1fb3de9c788b193b77e539e9b1dcaa4": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "774d9ab13fcfae1a5b9da395c94f3a09c919b8a3af6c66b98c1f462879c59d70",
+      "bytes": 51035,
+      "cost": 29.0,
+      "requestId": "tGRCsOTSC9SIiStEYZzv",
+      "textHash": "39da911528985c91b065d95684029114c1fb3de9c788b193b77e539e9b1dcaa4"
+    },
+    "af1090d6b776354ed9f7bf2bdaa298e753a94461b862901cf126e3f5f9dc4446": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "35c5ee36ca4875ee0bc6a3e435cefc2160963935fa785b390f3313d0f8d5de45",
+      "bytes": 59812,
+      "cost": 32.0,
+      "requestId": "XHbrbgSybt5EtjXoZh0C",
+      "textHash": "af1090d6b776354ed9f7bf2bdaa298e753a94461b862901cf126e3f5f9dc4446"
+    },
+    "beae434c8acc644bff5db9aed95364484b0f6a3a7e6b219e60ca4f0f843c6373": {
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "model": "eleven_v3",
+      "audioHash": "8fd13ec81e4549dfe557e7f09cadfe1bf9c65991624a0e7eb9806ffce77f0b31",
+      "bytes": 65245,
+      "cost": 35.0,
+      "requestId": "m4yWPQrKNUgNceKCzn44",
+      "textHash": "beae434c8acc644bff5db9aed95364484b0f6a3a7e6b219e60ca4f0f843c6373"
+    },
+    "1fe88acd689aeedb1b0501cb8bbf179fd35ad7f61db5249524d8b4e5c0b916d5": {
+      "voice": "jDMhBWlFSleqsyqVHw2R",
+      "model": "eleven_v3",
+      "audioHash": "45e75a84cf493f6a03bdc784142bdeb657531aaa277c93f2e6257f0203dbf5a2",
+      "bytes": 177676,
+      "cost": 82.0,
+      "requestId": "CB4re6wui9WtIUPBaJBC",
+      "textHash": "1fe88acd689aeedb1b0501cb8bbf179fd35ad7f61db5249524d8b4e5c0b916d5"
+    },
+    "ab7efe7296fe9d0ade41d643d94743cd260b9534d66b90af33ba1a4eda19ca20": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "84bf50a3645845d2dba18680d92215e31933a96ac679d96d9540ebc1ce1330ba",
+      "bytes": 111221,
+      "cost": 56.0,
+      "requestId": "3MqBnO1xZlBzfLQzOfNx",
+      "textHash": "ab7efe7296fe9d0ade41d643d94743cd260b9534d66b90af33ba1a4eda19ca20"
+    },
+    "a4e051670a30cb5079eeda235aef8d54c49566e78f6088b70de0a4c235ea9465": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "437ba5feaf2bbc6024d2cf664d960eb7963707141d40f1d839e470b606c6e994",
+      "bytes": 147165,
+      "cost": 70.0,
+      "requestId": "Q9GWGEoJSTp4DEOYOa6c",
+      "textHash": "a4e051670a30cb5079eeda235aef8d54c49566e78f6088b70de0a4c235ea9465"
+    },
+    "31c10ced1f6919b48f92925d7464c8f1d0f71fb23ff966e264d0bb27c8387a8b": {
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "model": "eleven_v3",
+      "audioHash": "576d2acef0ddefb36a2f496b697430866a8d0540cc70d1af9979bf3825795334",
+      "bytes": 155942,
+      "cost": 78.0,
+      "requestId": "S8vhd8fagJobKFH6kY4O",
+      "textHash": "31c10ced1f6919b48f92925d7464c8f1d0f71fb23ff966e264d0bb27c8387a8b"
+    }
+  },
+  "attempts": [
+    {
+      "hash": "79f0d179271bafc8bf5956a0b40315fee451573709ef22f93edd0c61735fda13",
+      "path": "audio/vo/campaign/aldric/q10_blood_of_two_1.mp3",
+      "voice": "EFtnObJs7ex53VSB3niw",
+      "at": 1789456231.9337978
+    },
+    {
+      "hash": "b35817e1b83e45d4eac58ce6db89dcd611ed64b10963fd5642f392668ccff7c8",
+      "path": "audio/vo/campaign/aldric/q10_blood_of_two_2.mp3",
+      "voice": "EFtnObJs7ex53VSB3niw",
+      "at": 1789456249.7608786
+    },
+    {
+      "hash": "c15ab68261d48c2afc74e6992e048f46d11bf63c66360bfa7ac459016b23abca",
+      "path": "audio/vo/campaign/korvath/q14_final_open_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456265.5730143
+    },
+    {
+      "hash": "399f33fccb10792ac6ddd82eceb56ab5e60088324ec596aee143c96443437dee",
+      "path": "audio/vo/campaign/korvath/q14_final_open_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456273.7024176
+    },
+    {
+      "hash": "d85c58b3c6e8e92d285956a81e6ce1a3028266e7b763f69a904478b396bbe1f3",
+      "path": "audio/vo/campaign/korvath/q14_final_anger_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456282.1859293
+    },
+    {
+      "hash": "0797a779280b6ee32792429e854796480e4526b0fde2cc3ebc1d6706e658970f",
+      "path": "audio/vo/campaign/korvath/q14_final_justice_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456289.123547
+    },
+    {
+      "hash": "3284a9655d01dae84ca61b9dd8b18131fe8363e6d3aa3a85f4ae1c87b562aaf1",
+      "path": "audio/vo/campaign/korvath/q14_final_truth_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456296.6102104
+    },
+    {
+      "hash": "a62ae28babaeec714a6b7e5c060650ed1ef551a2b1766e9f0e2f2e09c08fac32",
+      "path": "audio/vo/campaign/korvath/q14_final_reports_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456306.3670115
+    },
+    {
+      "hash": "186014eb47f173a0305a068822c0201ebe7d2bda3ccb25e998039d9cc9815eb3",
+      "path": "audio/vo/campaign/korvath/q14_final_amara_dead_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456311.5965025
+    },
+    {
+      "hash": "359b68cf04227c02733acca67caf9f1c92f999e8cc845261c793046667d6d81c",
+      "path": "audio/vo/campaign/korvath/q14_final_amara_here_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456319.573634
+    },
+    {
+      "hash": "b120a5ddc1ce2d628d1aea2c0759ffc04b3d4b23fc2b0f2ee7ae24f8d351a85f",
+      "path": "audio/vo/campaign/korvath/q14_final_amara_spared_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456324.774528
+    },
+    {
+      "hash": "f4459244dd5a00dd82bfd07830a2dbb7d4f53fa58e7bb5b1cc99f842f8a64d0f",
+      "path": "audio/vo/campaign/korvath/q14_final_grove_peace_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456331.806035
+    },
+    {
+      "hash": "60c5cfbf4a45d59760988991956da208ed189d0bb49a20cfbf182405144b1450",
+      "path": "audio/vo/campaign/korvath/q14_final_grove_retreat_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456339.6403685
+    },
+    {
+      "hash": "1bccd86560fe19942a344d1982570fb2b49279382885eebdf455255488aa0675",
+      "path": "audio/vo/campaign/korvath/q14_final_grukhar_dead_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456348.742982
+    },
+    {
+      "hash": "722f4153802e48e0ab560b24c61623a271614ca7826fd8ea70fd366c1ed96a25",
+      "path": "audio/vo/campaign/korvath/q14_final_grukhar_spared_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456354.9428594
+    },
+    {
+      "hash": "b5e7bd56247805376b596c2993f3053d86288e3bec1d04a089fd331e0cfa82be",
+      "path": "audio/vo/campaign/korvath/q14_final_flood_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456360.9853349
+    },
+    {
+      "hash": "b1915398c187c2360fa101fbbd2eb96eedd60dd742bf89ad30be96af36f9efde",
+      "path": "audio/vo/campaign/korvath/q14_final_rescue_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456367.6770568
+    },
+    {
+      "hash": "b26b0f3e992d104d6c6637b01e49b9c33d54d7ff5c5f3572f7cbb95922a5bb24",
+      "path": "audio/vo/campaign/korvath/q14_final_segun_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456374.1552236
+    },
+    {
+      "hash": "49410c5aac76d01b55c747b5eac0673adc47c6a1d2559ccc561d3a55f7fe74e7",
+      "path": "audio/vo/campaign/korvath/q14_final_accuse_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456380.6643963
+    },
+    {
+      "hash": "3a807edb7e627bd9f4f8103039131a81785824a474290f92310f353909fc5386",
+      "path": "audio/vo/campaign/korvath/q14_final_mercy_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456388.728066
+    },
+    {
+      "hash": "98eea7008d7d8839185fc1b4d07b6b238d87babc6d913f964074a2ee7c40434c",
+      "path": "audio/vo/campaign/korvath/q14_final_rebuttal_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456395.4769354
+    },
+    {
+      "hash": "06c7cd19f8cfc4f584e0655725f5596535ae9a4f4f7626f324c6b1c8c4b47e00",
+      "path": "audio/vo/campaign/korvath/q14_final_regret_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456400.1732993
+    },
+    {
+      "hash": "e85c9a71690b033a9d0e49fdb83c094939e894a229b3456f633b4d2ed797d126",
+      "path": "audio/vo/campaign/korvath/q14_final_mercy_reply_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456407.2347999
+    },
+    {
+      "hash": "d7b505cc4925c8a1975193fe0d31f017089f06c40184df2c5875cb3940932c7c",
+      "path": "audio/vo/campaign/korvath/q14_final_questions_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456410.854797
+    },
+    {
+      "hash": "b96297f552905cfb5e82adeac48721bd03687927ffa1b0c15cf4f9b2632e8c94",
+      "path": "audio/vo/campaign/korvath/q14_final_lineage_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456415.3190231
+    },
+    {
+      "hash": "b265abf1870babe6793ab1200bcffc5a1a8fdee647b446f968ba68bfca6a9d9a",
+      "path": "audio/vo/campaign/korvath/q14_final_lineage_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456423.5771403
+    },
+    {
+      "hash": "3d1900834ea8878a380c3935b85e20bda67b58380d9c29853e27716069738e39",
+      "path": "audio/vo/campaign/korvath/q14_final_rescue_truth_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456432.707205
+    },
+    {
+      "hash": "46d776da3d491ba2a9b3ed232647be61fab09fc4af28ef888673ce8b697ee7be",
+      "path": "audio/vo/campaign/korvath/q14_final_rescue_truth_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456441.1084642
+    },
+    {
+      "hash": "772976ef5704d2ed3fb410aa9239d38d9a5016d1c895da94e6465b3f79ab964c",
+      "path": "audio/vo/campaign/korvath/q14_final_blame_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456448.7074726
+    },
+    {
+      "hash": "5b60513055df7aeda2ccd90932ea0dda14d9b59873464d89c050b386531d2348",
+      "path": "audio/vo/campaign/korvath/q14_final_blame_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456456.0292015
+    },
+    {
+      "hash": "2c387188813b3703801a274bb04004370e0c224420d47028dcc1748d955c64a9",
+      "path": "audio/vo/campaign/korvath/q14_final_father_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456463.6727638
+    },
+    {
+      "hash": "cf98394c3f7b4aadfd656f0d88a713ca808fb170e7ca5badbc08e1e463136065",
+      "path": "audio/vo/campaign/korvath/q14_final_father_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456473.2368467
+    },
+    {
+      "hash": "23f45f1022ef65e2540f8f85ee3509c0a3dc75a14ded9046915c4470a15fe31f",
+      "path": "audio/vo/campaign/korvath/q14_final_trap_killed_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456481.146874
+    },
+    {
+      "hash": "c55586ee2c4d492c922fd1b12d1facda1807529f48b458b077761eab20f057b0",
+      "path": "audio/vo/campaign/korvath/q14_final_trap_spared_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456490.882604
+    },
+    {
+      "hash": "f7d1f8d315e8adf5666efee91c66b82388c60c138ba357aeec1ebeb55a023333",
+      "path": "audio/vo/campaign/korvath/q14_final_trap_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456498.1593893
+    },
+    {
+      "hash": "25fe34769cb919e199e9bf39ffbef086c3ee0eaef46ac8b241e31d782320d82b",
+      "path": "audio/vo/campaign/korvath/q14_final_rite_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456504.0674257
+    },
+    {
+      "hash": "bdcf575adf9d83cdf11750d3014516643dbfa7d3791f3396a41d2d6649a0e8fa",
+      "path": "audio/vo/campaign/korvath/q14_final_rite_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456511.787421
+    },
+    {
+      "hash": "d82b9f6ec1ee6e4d9f39cedbf50d316b25ed7008be095a3b54e0843b0ebd3836",
+      "path": "audio/vo/campaign/korvath/q14_final_hiwot_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456516.7001836
+    },
+    {
+      "hash": "38e8c5c349e3a262db5c7bf5ddf54caa63357abbad1ab31ab1f80c5999bf3ea3",
+      "path": "audio/vo/campaign/korvath/q14_final_plea_reply_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456524.01375
+    },
+    {
+      "hash": "2ae8f74d1e745ecc8c61032d57d973d418db7c6ba1114b6682705d20e1fa2eb1",
+      "path": "audio/vo/campaign/korvath/q14_final_last_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456529.09973
+    },
+    {
+      "hash": "c30dfe821b75dbaeba3b92fbfc83709936d363484b88c987c43501327093e276",
+      "path": "audio/vo/campaign/korvath/q14_final_draw_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456532.7578967
+    },
+    {
+      "hash": "a15170180549af3f4e57ea25f53587d203eaa3e601fc3d6c25f768fe5775ce15",
+      "path": "audio/vo/campaign/korvath/q14_final_power_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456536.547467
+    },
+    {
+      "hash": "5baca4957c5d7ec3d3b7eda9ca0e191bb436065c75062e5c0531006b1d4cd594",
+      "path": "audio/vo/campaign/korvath/q14_final_abducted_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456542.0177636
+    },
+    {
+      "hash": "e1b0d13c23989e17bafb05046cd9bef82c0a64a81485ea302321614359c3c653",
+      "path": "audio/vo/campaign/korvath/q14_final_absent_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456548.3875103
+    },
+    {
+      "hash": "e0e56f8f8c62d491b03d69b745b07af8403062f40726106aeafff024784b534a",
+      "path": "audio/vo/campaign/korvath/q14_final_dead_sister_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456553.3102367
+    },
+    {
+      "hash": "964a162f2d3a1baf4c2eb24313f6619a0a31dec73c2bb163faffdfdaa51254f6",
+      "path": "audio/vo/campaign/korvath/q14_final_ritual_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456559.4033563
+    },
+    {
+      "hash": "678acf5c90bd17f3ed5204fdd157e0e789b38641cf6769b506f3b3a90698f44f",
+      "path": "audio/vo/campaign/korvath/q14_final_crossing_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456564.2999077
+    },
+    {
+      "hash": "922b0f9bee44f821b041988e3f17ec1b14c516b63f20747a88b70ab62810c73c",
+      "path": "audio/vo/campaign/korvath/q14_final_realm_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456569.0256286
+    },
+    {
+      "hash": "9f187a736e53307c94477dd0f67fdbaa69f1b880ef7e8d0f3b704bb5c31473e2",
+      "path": "audio/vo/campaign/korvath/q14_final_realm_2.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789456572.4503539
+    },
+    {
+      "hash": "5cf10bc2ebee58918d505aecd41415d51eed7552d9381a315a13037b31d32093",
+      "path": "audio/vo/campaign/wren_ward/q14_final_warning_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456575.817711
+    },
+    {
+      "hash": "0637a05a09ad96eeb55c9d5625509999b2dead58a94a4be465f877a51355b01e",
+      "path": "audio/vo/campaign/wren_ward/q14_final_taken_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456582.5409358
+    },
+    {
+      "hash": "e8f0a26048abcfa0cf7d12384e341286498753603a73b13aeb357bc2e4dd7639",
+      "path": "audio/vo/campaign/wren_ward/q14_final_soul_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456585.1632633
+    },
+    {
+      "hash": "52df48aa15344cedf3c93a7b5126a90258b906872c72b5e9b616626e139d2d82",
+      "path": "audio/vo/campaign/wren_ward/q14_final_choice_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456589.3790808
+    },
+    {
+      "hash": "a0219466839c1196b3794a93a45b3738efaf40b0eda99d084e10e449ce06bd10",
+      "path": "audio/vo/campaign/wren_ward/q14_final_choice_2.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456594.7836626
+    },
+    {
+      "hash": "39da911528985c91b065d95684029114c1fb3de9c788b193b77e539e9b1dcaa4",
+      "path": "audio/vo/campaign/wren_ward/q14_final_restored_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456603.0481753
+    },
+    {
+      "hash": "af1090d6b776354ed9f7bf2bdaa298e753a94461b862901cf126e3f5f9dc4446",
+      "path": "audio/vo/campaign/wren_ward/q14_final_restored_2.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456606.7072773
+    },
+    {
+      "hash": "beae434c8acc644bff5db9aed95364484b0f6a3a7e6b219e60ca4f0f843c6373",
+      "path": "audio/vo/campaign/wren_ward/q14_final_farewell_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "at": 1789456610.474217
+    },
+    {
+      "hash": "1fe88acd689aeedb1b0501cb8bbf179fd35ad7f61db5249524d8b4e5c0b916d5",
+      "path": "audio/vo/campaign/ambrose/q10_letter_give_1.mp3",
+      "voice": "jDMhBWlFSleqsyqVHw2R",
+      "at": 1789456613.9640436
+    },
+    {
+      "hash": "ab7efe7296fe9d0ade41d643d94743cd260b9534d66b90af33ba1a4eda19ca20",
+      "path": "audio/vo/campaign/korvath/q14_final_folake_dead_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789457382.7031667
+    },
+    {
+      "hash": "a4e051670a30cb5079eeda235aef8d54c49566e78f6088b70de0a4c235ea9465",
+      "path": "audio/vo/campaign/korvath/q14_final_folake_arrested_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789457387.073484
+    },
+    {
+      "hash": "31c10ced1f6919b48f92925d7464c8f1d0f71fb23ff966e264d0bb27c8387a8b",
+      "path": "audio/vo/campaign/korvath/q14_final_folake_bargain_1.mp3",
+      "voice": "CmD1sSN0Gj3pJq3OxRyg",
+      "at": 1789457391.5545096
+    }
+  ],
+  "startingCount": 2911,
+  "endingCount": 6953,
+  "accountDelta": 4042,
+  "remainingCredits": 114047,
+  "reportedClipCosts": 4246.0
+}

@@ -172,7 +172,7 @@ console.log('\n-- hero path --');
   ok(logs[12].beats.some(b => b === 'amara:q13_gate') && s.dead.includes('amara'), 'Amara fought and killed at the gate');
   ok(!logs[12].beats.includes('gorruk:q13_again'), 'no Gorruk rematch when he died at Q5');
   ok(s.heritage <= -2, 'heritage rejected', s.heritage);
-  eq(s.ending, 'hero', 'ending: hero');
+  eq(s.ending, 'restored', 'ending: Hiwot restored');
   ok(s.epilogue && s.epilogue.length >= 8, 'epilogue assembled', s.epilogue && s.epilogue.length);
   ok(s.epilogue.some(t => /his knighting/.test(t)) && s.epilogue.some(t => /rebuild the damaged streets/.test(t)), 'epilogue carries the romance and the favoured-ending line');
   ok(ADV.Game.player(g).ownedSets.includes('wardens_gear'), 'Warden\'s Gear issued');
@@ -184,7 +184,7 @@ console.log('\n-- hero path --');
   ADV.Save.saveGame(g);
   const g2 = ADV.Game.newGame({ seed: 12, name: 'Heir', sex: 'm', portraitSlot: 1, portraitSeed: 2, startingSkills: ['bulwark', 'aimed_shot', 'cleave'] });
   eq(C3.state(g2).stage, 14, 'reincarnation: story progress survives death');
-  eq(C3.state(g2).ending, 'hero', 'reincarnation: ending survives death');
+  eq(C3.state(g2).ending, 'restored', 'reincarnation: ending survives death');
   ok(meta === g.meta, 'meta object stable');
 }
 
@@ -200,7 +200,7 @@ console.log('\n-- monster path --');
     q6_faelen: 'leave', q6_nettle: 'fight', q7_dorran: 'mission', q7_durnik: 'leave', q7_flood: 'now', q7_dream: 'embrace', q7_vess_papers: 'refuse',
     q8_halloran: 'pay', q8_door: 'force', q8_halvard: 'blood', q9_lobby: 'fight', q9_lysandra: 'deal', romance: 'ilvara',
     q10_sarn: 'threat', q10_summit: 'kill', q10_letter: 'hunger', q10_double: 'strike', q10_dream: 'embrace',
-    q11_allegiance: 'consortium', q11_amara: 'lie', q12_dukes: 'korvath', q12_face: 'throne', q13_maze: 'cut', q13_amara_gate: 'lie', q14_last: 'throne', q14_resolution: 'usurp',
+    q11_allegiance: 'consortium', q11_amara: 'lie', q12_dukes: 'korvath', q12_face: 'throne', q13_maze: 'cut', q13_amara_gate: 'lie', q14_final_last: 'power', q14_final_resolution: 'ascend',
     company: { 3: ['wren_ward', 'vess', 'fennick'], 5: ['wren_ward', 'vess', 'fennick'], 7: ['wren_ward', 'dorran', 'selene'], 8: ['wren_ward', 'ilvara', 'aurelius'], 9: ['wren_ward', 'ilvara', 'selene'], 10: ['wren_ward', 'ilvara', 'selene'], 13: ['ilvara', 'selene', 'aurelius'], 14: ['wren_ward', 'ilvara', 'selene'] },
   };
   const logs = [];
@@ -223,7 +223,7 @@ console.log('\n-- monster path --');
   eq(s.romance, 'ilvara', 'romanced Ilvara');
   ok(C3.flag(g, 'wrenHurt') && logs[12].beats.includes('wren_ward:q13_return'), 'Wren hurt in the catacombs, returned for the Undercity');
   ok(s.heritage >= 2, 'heritage embraced', s.heritage);
-  eq(s.ending, 'usurper', 'ending: usurper');
+  eq(s.ending, 'ascended', 'ending: divine throne claimed');
   ok(s.epilogue.some(t => /keeping her own duties/.test(t)), 'Ilvara\'s favoured-ending line');
   ok(s.epilogue.some(t => /Beau is buried/.test(t)), 'Beau\'s grave in the epilogue');
   ok(!(logs[8].romanceOffers || []).includes('selene'), 'Delphine will not court the one who drowned Beau', JSON.stringify(logs[8].romanceOffers));
@@ -262,8 +262,8 @@ console.log('\n-- mercy path --');
   eq(s.romance, 'faelen', 'romanced Faelen');
   ok(C3.flag(g, 'promisedAmara') && C3.isRecruited(g, 'amara') && logs[12].bypasses >= 2, 'Amara promised, then joined at the gate');
   ok(logs[13].beats.includes('amara:q14_plea'), 'Amara pleads at the altar');
-  eq(s.ending, 'mercy', 'ending: mercy');
-  ok(s.epilogue.some(t => /brings bread/.test(t)), 'Amara visits the cell');
+  eq(s.ending, 'restored', 'ending: Hiwot restored');
+  ok(s.epilogue.some(t => /Amara mourns Kolade/.test(t)), 'Amara mourns rather than visiting a nonexistent prisoner');
   ok(s.epilogue.some(t => /His work with the Undervault/.test(t)), 'Faelen favours the thieves\' road');
   // restart wipes only the story
   const lives = g.meta.lives;
