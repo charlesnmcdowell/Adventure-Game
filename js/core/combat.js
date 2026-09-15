@@ -1322,7 +1322,13 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
   let prevented = 0;
   const guarded = opts.ignoreGuards ? null : findGuard(st, tgt);
   if (guarded && (tag === 'attack' || tag === 'spell' || tag === 'dot')) {
-    const absorb = guarded.absorb != null ? guarded.absorb : 0.5;
+    let absorb = guarded.absorb != null ? guarded.absorb : 0.5;
+    // A full-negate wall is for the people you cover. Once your own bar is
+    // gone — or so thin it paints as empty on a Gate-sized pool — the next
+    // blow finishes you. Otherwise a tank mini recasts the wall forever.
+    const life = Math.max(0, tgt.chp) + Math.max(0, tgt.tempHp || 0);
+    const sliver = tgt.maxHp > 0 && life / tgt.maxHp <= 0.02;
+    if (absorb >= 1 && guarded.owner === tgt && (life <= 0 || sliver)) absorb = 0;
     prevented = Math.ceil(dmg * absorb);
     dmg -= prevented;
     guarded.owner.preventedStored += prevented;               // Paid in Full ledger
@@ -1494,9 +1500,65 @@ function spendBasicBudget(st, src, tgt, dmg) {
   return out;
 }
 
+function resolveLethal(st, src, tgt, dmg, tag) {
+  if (!tgt || tgt.downed || tgt.fled || tgt.chp > 0) return;
+  // Vital Anchor: holds at 1 HP — but an anchor is spent by the blow it
+  // catches, and each unit can be anchored only once per battle (no 45-round
+  // stalemates against a re-casting healer)
+  const anc = tgt.statuses.find(x => x.kind === 'anchor');
+  if (anc) { removeStatus(tgt, anc); tgt.anchorSpent = true; tgt.chp = 1; ev(st, { t: 'anchored', uid: tgt.uid }); return; }
+  // Wild Form advanced: survive one lethal blow per battle at 1 HP
+  const wf = perkVal(tgt.ch, 'wild_form', null);
+  if (wf && wf.surviveLethal && !tgt.survivedLethal) {
+    tgt.survivedLethal = true; tgt.chp = 1;
+    ev(st, { t: 'surviveLethal', uid: tgt.uid });
+    return;
+  }
+  if (tgt.ch.campaignExit && !tgt.ch.__scriptedDeath) {
+    // Campaign rivals/bosses cannot die in combat (§5a): they exit the
+    // encounter with their signature line and return next encounter.
+    tgt.chp = 0; tgt.fled = true; tgt.exited = true;
+    ev(st, { t: 'campaignExit', uid: tgt.uid, name: tgt.ch.name });
+    checkEnd(st);
+    return;
+  }
+  tgt.chp = 0; tgt.downed = true;
+  ev(st, { t: 'down', uid: tgt.uid, by: src ? src.uid : null });
+  onUnitDown(st, tgt);
+  if (src && tgt.downed) {
+    Combat.addThreat(st, src, 20, 'kill');
+    src.killStreak++;                                        // Executioner's Rhythm
+    src.ch.lifeKills = (src.ch.lifeKills || 0) + 1;          // Fifty Names' tally
+    if (src.stealthOnKillPending) { applyStealth(src, HIDE_CAP); src.stealthOnKillPending = false; ev(st, { t: 'stealth', uid: src.uid }); }
+    // Opportunist advanced: kills refund your action
+    const opp = perkVal(src.ch, 'opportunist', null);
+    if (opp && opp.killRefundsAction && (tag === 'attack' || tag === 'spell')) src.refundAction = true;
+    // Arena Champion: every kill heals half, stacks damage, and taunts the field
+    const ac = perkVal(src.ch, 'arena_champion', null);
+    if (ac) {
+      healUnit(st, null, src, Math.max(1, Math.round(src.maxHp * ac.killHealPct)));
+      src.arenaStacks = (src.arenaStacks || 0) + 1;
+      for (const f of livingUnits(st, tgt.side)) {
+        if (!f.marksBy.includes(src.uid)) f.marksBy.push(src.uid);
+        const existing = f.statuses.find(x => x.kind === 'taunted' && x.srcUid === src.uid);
+        if (existing) existing.rounds = ac.tauntRounds; else addStatus(st, f, { kind: 'taunted', srcUid: src.uid, rounds: ac.tauntRounds });
+      }
+      Combat.resetThreat(st, src.side);
+      Combat.addThreat(st, src, 40, 'taunt');
+      ev(st, { t: 'arenaChampion', uid: src.uid, stacks: src.arenaStacks });
+    }
+  }
+}
+
 function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   if (!tgt || tgt.downed || tgt.fled) return 0;
   opts = opts || {};
+  // A fully absorbed hit used to return before this check, so a 0-HP body
+  // behind Shield Wall kept taking turns. Empty is empty.
+  if ((tgt.chp || 0) <= 0 && (tgt.tempHp || 0) <= 0) {
+    resolveLethal(st, src, tgt, dmg, tag);
+    return 0;
+  }
   if (!opts.evadeChecked && tryEvade(st, src, tgt, tag, opts)) return 0;
   // Hollow Discipline: being hit does not break stealth. Only attacking does.
   if (tgt.stealth && !perkVal(tgt.ch, 'hollow_discipline', 'stealthKeepsOnHit')) { /* base rules elsewhere */ }
@@ -1532,52 +1594,9 @@ function applyRawDamage(st, src, tgt, dmg, tag, opts) {
   ev(st, hitEvent);
   if (ADV.GatePerkCombat) ADV.GatePerkCombat.damaged(st, src, tgt, Math.min(hpBefore, remaining), tag);
   if (tgt.chp <= 0) {
-    // Vital Anchor: cannot drop below 1 HP
-    // Vital Anchor: holds at 1 HP — but an anchor is spent by the blow it
-    // catches, and each unit can be anchored only once per battle (no 45-round
-    // stalemates against a re-casting healer)
-    const anc = tgt.statuses.find(x => x.kind === 'anchor');
-    if (anc) { removeStatus(tgt, anc); tgt.anchorSpent = true; tgt.chp = 1; ev(st, { t: 'anchored', uid: tgt.uid }); return dmg; }
-    // Wild Form advanced: survive one lethal blow per battle at 1 HP
-    const wf = perkVal(tgt.ch, 'wild_form', null);
-    if (wf && wf.surviveLethal && !tgt.survivedLethal) {
-      tgt.survivedLethal = true; tgt.chp = 1;
-      ev(st, { t: 'surviveLethal', uid: tgt.uid });
-    } else if (tgt.ch.campaignExit && !tgt.ch.__scriptedDeath) {
-      // Campaign rivals/bosses cannot die in combat (§5a): they exit the
-      // encounter with their signature line and return next encounter.
-      tgt.chp = 0; tgt.fled = true; tgt.exited = true;
-      ev(st, { t: 'campaignExit', uid: tgt.uid, name: tgt.ch.name });
-      checkEnd(st);
-      return dmg;
-    } else {
-      tgt.chp = 0; tgt.downed = true;
-      ev(st, { t: 'down', uid: tgt.uid, by: src ? src.uid : null });
-      onUnitDown(st, tgt);
-      if (src && tgt.downed) {
-        Combat.addThreat(st, src, 20, 'kill');
-        src.killStreak++;                                        // Executioner's Rhythm
-        src.ch.lifeKills = (src.ch.lifeKills || 0) + 1;          // Fifty Names' tally
-        if (src.stealthOnKillPending) { applyStealth(src, HIDE_CAP); src.stealthOnKillPending = false; ev(st, { t: 'stealth', uid: src.uid }); }
-        // Opportunist advanced: kills refund your action
-        const opp = perkVal(src.ch, 'opportunist', null);
-        if (opp && opp.killRefundsAction && (tag === 'attack' || tag === 'spell')) src.refundAction = true;
-        // Arena Champion: every kill heals half, stacks damage, and taunts the field
-        const ac = perkVal(src.ch, 'arena_champion', null);
-        if (ac) {
-          healUnit(st, null, src, Math.max(1, Math.round(src.maxHp * ac.killHealPct)));
-          src.arenaStacks = (src.arenaStacks || 0) + 1;
-          for (const f of livingUnits(st, tgt.side)) {
-            if (!f.marksBy.includes(src.uid)) f.marksBy.push(src.uid);
-            const existing = f.statuses.find(x => x.kind === 'taunted' && x.srcUid === src.uid);
-            if (existing) existing.rounds = ac.tauntRounds; else addStatus(st, f, { kind: 'taunted', srcUid: src.uid, rounds: ac.tauntRounds });
-          }
-          Combat.resetThreat(st, src.side);
-          Combat.addThreat(st, src, 40, 'taunt');
-          ev(st, { t: 'arenaChampion', uid: src.uid, stacks: src.arenaStacks });
-        }
-      }
-    }
+    resolveLethal(st, src, tgt, dmg, tag);
+    if (tgt.chp > 0) return dmg;
+    if (tgt.fled) return dmg;
   }
   checkEnd(st);
   return dmg;
@@ -1978,6 +1997,12 @@ function endRoundTicks(st) {
   }
   for (const u of st.units) {
     if (u.downed || u.fled || u.reserved) continue;
+    if ((u.chp || 0) <= 0 && (u.tempHp || 0) <= 0) {
+      u.chp = 0; u.downed = true;
+      ev(st, { t: 'down', uid: u.uid, by: null });
+      onUnitDown(st, u);
+      continue;
+    }
     // Last Breath: the borrowed round ends
     const lb = u.statuses.find(x => x.kind === 'lastBreath');
     if (lb && !lb.fresh) { removeStatus(u, lb); u.chp = 0; u.downed = true; ev(st, { t: 'down', uid: u.uid, by: null }); onUnitDown(st, u); continue; }

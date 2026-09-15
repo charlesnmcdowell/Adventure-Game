@@ -216,7 +216,9 @@ class CombatScene extends Phaser.Scene {
     const by = v.y + v.img.displayHeight / 2 + 3;
     v.hpBar.fillStyle(0x0d0c0a, 1); v.hpBar.fillRect(v.x - w / 2, by, w, 7);
     v.hpBar.fillStyle(pct > 0.5 ? 0x5d8a4a : pct > 0.25 ? 0xd4a94e : T().c.hp, 1);
-    v.hpBar.fillRect(v.x - w / 2, by, w * pct, 7);
+    // Gate fights multiply enemy HP; a leftover sliver rounded to 0px looked dead.
+    const fill = u.chp > 0 ? Math.min(w, Math.max(w * pct, 2)) : 0;
+    v.hpBar.fillRect(v.x - w / 2, by, fill, 7);
     v.hpBar.lineStyle(1, 0x000000, 0.8); v.hpBar.strokeRect(v.x - w / 2, by, w, 7);
     if (u.tempHp > 0) {
       const tp = Math.min(1, u.tempHp / u.maxHp);
