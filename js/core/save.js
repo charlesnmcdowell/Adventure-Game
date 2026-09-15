@@ -137,14 +137,13 @@ Save.peekPlayer = function () {
 };
 
 // Continue is only real if the full save loads and the player is still alive.
-// A leftover world key must not offer a dead Continue.
+// A leftover world key must not offer a dead Continue. Voice is assigned at
+// creation or once on town arrival; it is not a Continue gate.
 Save.hasValidContinue = function () {
   const player = Save.peekPlayer();
   return !!(player && player.alive);
 };
 
-// Old lives have no personality. This expansion needs a fresh character; do not
-// offer Continue until the current life has a locked voice.
 Save.hasVoicedContinue = function () {
   const player = Save.peekPlayer();
   return !!(player && player.alive && player.personalityId);

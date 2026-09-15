@@ -44,7 +44,7 @@ const SHOT = (n) => path.join('/tmp/shots', n + '.png');
   // advance dialogue boxes until a modal shows or none is open
   const clickThrough = async (max) => { for (let i = 0; i < (max || 12); i++) { if (await modalOpen()) return 'modal'; if (!(await dlgOpen())) return 'done'; await click(640, 690); await click(640, 690); await page.waitForTimeout(250); } return 'stuck'; };
 
-  // 1. fresh strong player, straight to town (a voiced life — Town sends unvoiced ones back to Title)
+  // 1. fresh strong player, straight to town (voiced so the arrival picker is skipped)
   await page.evaluate(() => {
     ADV.Save.reset();
     const game = ADV.Game.newGame({ seed: 777, name: 'Ward', sex: 'f', portraitSlot: 2, portraitSeed: 3, startingSkills: ['bulwark', 'aimed_shot', 'cleave'] });

@@ -263,6 +263,8 @@ console.log('\n-- Retired title notice; Continue still validates saves --');
   ADV.Game.newGame({ name: 'Keep', sex: 'm', portrait: 1, archetype: 'fighter' });
   ok(ADV.Save.hasValidContinue(), 'a valid save can still Continue');
   ok(!ADV.Save.hasVoicedContinue(), 'a life with no personality is not a voiced Continue');
+  const unvoiced = ADV.Game.load();
+  ok(!!unvoiced && ADV.Game.player(unvoiced).name === 'Keep', 'an unvoiced living save still loads');
   ADV.Game.newGame({ name: 'Keep', sex: 'm', portrait: 1, archetype: 'fighter', personalityId: 'M01' });
   ok(ADV.Save.hasVoicedContinue(), 'a voiced life can Continue');
   const broken = memBackend();

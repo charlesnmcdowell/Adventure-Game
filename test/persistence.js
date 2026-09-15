@@ -61,4 +61,16 @@ for(const failAt of [1,2]) {
  A.Save.bind(preview,A.Save.memoryBackend());A.Save.saveGame(preview);A.Save.saveMeta(preview);
  assert.equal(storage.getItem('adv:commit'),before);
 }
-console.log('Persistence: cold IDs, atomic failures, recovery, migration, import/export, RNG, preview isolation passed.');
+// Title Continue is for any living save. Voice is assigned later, not a load gate.
+{
+ const storage=h.memBackend();A=h.load();A.Save.setBackend(storage);
+ const game=A.Game.newGame({seed:4823,name:'Unvoiced Keep',sex:'f',startingSkills:['mend']});
+ assert.equal(A.Game.player(game).personalityId,null);
+ assert.equal(A.Save.hasValidContinue(),true);
+ assert.equal(A.Save.hasVoicedContinue(),false);
+ A=h.load();A.Save.setBackend(storage);
+ const loaded=A.Game.load();
+ assert.equal(A.Game.player(loaded).name,'Unvoiced Keep');
+ assert.equal(A.Game.player(loaded).alive,true);
+}
+console.log('Persistence: cold IDs, atomic failures, recovery, migration, import/export, RNG, preview isolation, unvoiced Continue passed.');

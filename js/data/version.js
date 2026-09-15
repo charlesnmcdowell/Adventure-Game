@@ -18,6 +18,18 @@ ADV.DATA.PATCHES = [
       'The Bandit Camp has its own battle hymn, and the quest score returns after a reload.',
     ],
   },
+  {
+    id: '1.2.1',
+    label: '1.2.1',
+    date: '15 Sep 2026',
+    gold: 10000,
+    notes: [
+      'Continue is back for a life already in progress. On the phone, Keep my current game resumes it.',
+      'Easy is the old Normal. Normal and Hard ask more of you.',
+      'The Gate ends in Morrak\'s realm — restore Hiwot, or claim the throne.',
+      'Inn courtship is optional conversation, and Gate voices recover if playback was blocked.',
+    ],
+  },
 ];
 
 ADV.DATA.VERSION = ADV.DATA.PATCHES[ADV.DATA.PATCHES.length - 1];

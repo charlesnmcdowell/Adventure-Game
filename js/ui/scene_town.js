@@ -35,14 +35,6 @@ class TownScene extends Phaser.Scene {
     this.musicBtn = ADV.Music.button(this, W - 26, T().H - 30);
     if (ADV.Display) this.fsBtn = ADV.Display.button(this, W - 26, T().H - 52);
 
-    // Unvoiced lives belong to the previous expansion. Title no longer offers
-    // Continue for them; if one still arrives here, send it back so New Game
-    // is the way forward. Creation still assigns a voice for a fresh life.
-    if (!this.player().personalityId) {
-      this.scene.start('Title');
-      return;
-    }
-
     this._arrivalPending = true;
     this.buildCharacterPanel();
     this.buildMenu();
@@ -51,14 +43,27 @@ class TownScene extends Phaser.Scene {
     // A won contract earns the walk back before the town starts talking at you.
     // The cutscene restores the chrome itself, and the guided tutorial keeps
     // the floor rather than being interrupted by it.
-    const tutorRunning = ADV.Tutor && ADV.Tutor.active(this.game_);
-    if (this.game_.rideHomeDue && ADV.Cutscenes && !tutorRunning) {
-      this.game_.rideHomeDue = false;
-      this.time.delayedCall(120, () => ADV.Cutscenes.rideHome(this, () => this.nextNotice()));
-    } else {
-      this.game_.rideHomeDue = false;
-      this.time.delayedCall(150, () => this.nextNotice());
+    const startHub = () => {
+      const tutorRunning = ADV.Tutor && ADV.Tutor.active(this.game_);
+      if (this.game_.rideHomeDue && ADV.Cutscenes && !tutorRunning) {
+        this.game_.rideHomeDue = false;
+        this.time.delayedCall(120, () => ADV.Cutscenes.rideHome(this, () => this.nextNotice()));
+      } else {
+        this.game_.rideHomeDue = false;
+        this.time.delayedCall(150, () => this.nextNotice());
+      }
+    };
+    // Older lives never picked a voice. Keep the save playable and offer the
+    // same one-time picker creation uses, instead of bouncing back to Title.
+    if (!this.player().personalityId && ADV.DialogueBox && ADV.DialogueBox.choosePersonality) {
+      ADV.DialogueBox.choosePersonality(this, this.player(), () => {
+        if (ADV.Save && ADV.Save.saveGame) ADV.Save.saveGame(this.game_);
+        this.buildCharacterPanel();
+        startHub();
+      }, startHub);
+      return;
     }
+    startHub();
   }
 
   g() { return this.game_; }

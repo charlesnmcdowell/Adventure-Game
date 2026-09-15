@@ -108,10 +108,16 @@ function mount(scene) {
     const render = () => { count.textContent = 'BEFORE YOU BEGIN · ' + (index + 1) + ' / ' + ADV.DATA.PREGAME_CARDS.length; text.textContent = ADV.DATA.PREGAME_CARDS[index]; next.textContent = index === ADV.DATA.PREGAME_CARDS.length - 1 ? 'Create my character' : 'Next'; ADV.Music.speakTutorial('card_' + (index + 1)); };
     actions.append(next, button('Skip introduction', finish)); main.append(card, actions); render();
   }
+  function resume() {
+    closeSheet();
+    let game; try { game = ADV.Game.load(); } catch (_) {}
+    if (game) { scene.registry.set('game', game); scene.scene.start('Town'); }
+    else { const panel = sheet('Could not load this save'); panel.append(el('p', 'Your saved data has been kept. Close this message and try again.')); }
+  }
   function begin() {
     if (!ADV.Save.hasSave()) { cards(); return; }
     const panel = sheet('Start a new game?'); panel.append(el('p', 'This deletes the current world, journal, skill levels, and lives saved in this browser.'));
-    panel.append(button('Keep my current game', closeSheet, 'primary'), button('Reset and start new game', () => { ADV.Save.reset(); cards(); }, 'danger'));
+    panel.append(button('Keep my current game', resume, 'primary'), button('Reset and start new game', () => { ADV.Save.reset(); cards(); }, 'danger'));
   }
   banner();
   const header = el('header'); header.append(el('h1', 'ADVENTURER'), el('p', 'a life, several times over', 'tagline'));
@@ -119,13 +125,9 @@ function mount(scene) {
   if (ver) header.append(el('p', 'Version ' + ver, 'version'));
   main.append(header);
   const actions = el('nav', '', 'launch-actions'); actions.setAttribute('aria-label', 'Start playing');
-  const hasSave = ADV.Save.hasVoicedContinue();
-  if (hasSave) actions.append(button('Continue', () => {
-    let game; try { game = ADV.Game.load(); } catch (_) {}
-    if (game) { scene.registry.set('game', game); scene.scene.start('Town'); }
-    else { const panel = sheet('Could not load this save'); panel.append(el('p', 'Your saved data has been kept. Close this message and try again.')); }
-  }, 'primary'));
-  actions.append(button(hasSave ? 'New game' : 'Play', begin, hasSave ? '' : 'primary'), button('More', more), el('p', 'Your adventure saves in this browser', 'save-note'));
+  const canContinue = ADV.Save.hasValidContinue();
+  if (canContinue) actions.append(button('Continue', resume, 'primary'));
+  actions.append(button(canContinue ? 'New game' : 'Play', begin, canContinue ? '' : 'primary'), button('More', more), el('p', 'Your adventure saves in this browser', 'save-note'));
   main.append(actions);
   return { destroy: cleanup };
 }

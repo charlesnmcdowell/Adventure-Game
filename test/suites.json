@@ -382,6 +382,10 @@
     {
       "file": "test/browser_mobile_host.js",
       "args": []
+    },
+    {
+      "file": "test/browser_title_continue.js",
+      "args": []
     }
   ],
   "mobile": [
@@ -391,6 +395,10 @@
     },
     {
       "file": "test/browser_mobile_host.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_title_continue.js",
       "args": []
     }
   ],
@@ -429,6 +437,10 @@
     },
     {
       "file": "test/browser_mobile_host.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_title_continue.js",
       "args": []
     }
   ]

@@ -18,7 +18,7 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Adventurer</title>
-<!-- live-7 20260914T0503 -->
+<!-- live-8 20260915T1244 -->
 <style>
   html, body {
     margin: 0; padding: 0; background: #0b0a08;
@@ -109,7 +109,7 @@
 
 <!-- data (generated + authored) -->
 <script src="js/data/constants.js?v=20260914-pop80b"></script>
-<script src="js/data/version.js?v=20260914-ver120"></script>
+<script src="js/data/version.js?v=20260915-ver121"></script>
 <script src="js/data/skills.js?v=20260914-balance3"></script>
 <script src="js/data/campaign_skills.js?v=20260914-balance3"></script>
 <script src="js/data/campaign_data.js?v=20260911-art3"></script>
@@ -169,13 +169,13 @@
 <script src="js/core/death.js?v=20260914-audit1"></script>
 <script src="js/core/world.js?v=20260914-audit1"></script>
 <script src="js/core/save_store.js?v=20260914-audit1"></script>
-<script src="js/core/save.js?v=20260914-audit1"></script>
+<script src="js/core/save.js?v=20260915-ver121"></script>
 <script src="js/core/prefs.js?v=20260914-audit1"></script>
 <script src="js/core/campaign_router.js?v=20260914-audit1"></script>
 <script src="js/core/campaign.js?v=20260914-audit1"></script>
 <script src="js/core/campaign2.js?v=20260914-audit1"></script>
 <script src="js/core/quest_lifecycle.js?v=20260914-audit1"></script>
-<script src="js/core/game.js?v=20260915-gate-finale-r2"></script>
+<script src="js/core/game.js?v=20260915-ver121"></script>
 <script src="js/core/campaign3.js?v=20260915-gate-finale-r2"></script>
 <script src="js/core/gate_finale.js?v=20260915-gate-finale-r2"></script>
 <script src="js/core/campaign3_perks.js?v=20260913-perks1"></script>
@@ -209,10 +209,10 @@
 <script src="js/ui/support.js?v=20260913-support2"></script>
 <script src="js/ui/mobile_viewport.js?v=20260914-mobile1"></script>
 <script src="js/ui/save_ui.js?v=20260914-audit1"></script>
-<script src="js/ui/mobile_title.js?v=20260914-audit1"></script>
-<script src="js/ui/scene_boot.js?v=20260914-audit1"></script>
+<script src="js/ui/mobile_title.js?v=20260915-ver121"></script>
+<script src="js/ui/scene_boot.js?v=20260915-ver121"></script>
 <script src="js/ui/scene_creation.js?v=20260912-diff1"></script>
-<script src="js/ui/scene_town.js?v=20260914-ver120"></script>
+<script src="js/ui/scene_town.js?v=20260915-ver121"></script>
 <script src="js/ui/town_panels.js?v=20260914-audit1"></script>
 <script src="js/ui/town_panels2.js?v=20260914-ver120"></script>
 <script src="js/ui/difficulty_ui.js?v=20260915-diff1"></script>
@@ -295,7 +295,7 @@ window.__refit = window.__mobileViewport.schedule;
     } catch (e) {}
     const u = new URL(location.href);
     u.searchParams.set('boot', String(Date.now()));
-    u.searchParams.set('cb', 'live7');
+    u.searchParams.set('cb', 'live8');
     location.replace(u.pathname + u.search + u.hash);
   }
   function show() {
@@ -307,7 +307,8 @@ window.__refit = window.__mobileViewport.schedule;
   }
   async function pull() {
     const urls = [
-      'update.json?t=' + Date.now() + '&cb=live7',
+      'update.json?t=' + Date.now() + '&cb=live8',
+      'update-live-8.json?t=' + Date.now(),
       'update-live-7.json?t=' + Date.now()
     ];
     for (let i = 0; i < urls.length; i++) {

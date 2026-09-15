@@ -54,8 +54,8 @@ class TitleScene extends Phaser.Scene {
     T().text(this, W / 2, 278, 'Stats never change. Skills are everything. Death is not the end of what you know.', { size: 14, ox: 0.5, color: T().css.inkFaint });
 
     const leftover = ADV.Save.hasSave();
-    const canContinue = ADV.Save.hasVoicedContinue ? ADV.Save.hasVoicedContinue()
-      : (ADV.Save.hasValidContinue ? ADV.Save.hasValidContinue() : leftover);
+    const canContinue = ADV.Save.hasValidContinue ? ADV.Save.hasValidContinue()
+      : leftover;
     const startFresh = leftover || canContinue;
     let y = 340;
     if (canContinue) {

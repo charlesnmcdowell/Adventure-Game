@@ -339,14 +339,14 @@ function eq(a, b, name) { ok(a === b, name, a + ' != ' + b); }
   console.log('\n-- Patch notes and thank-you gold --');
   ADV.Save.setBackend({ _m: {}, getItem(k) { return this._m[k] || null; }, setItem(k, v) { this._m[k] = v; }, removeItem(k) { delete this._m[k]; } });
   const fresh = ADV.Game.newGame({ seed: 8, name: 'Nils', sex: 'm', portraitSeed: 2, portraitSlot: 1, startingSkills: ['cleave'] });
-  ok(ADV.DATA.VERSION && ADV.DATA.VERSION.id === '1.2.0', 'published version is 1.2.0');
+  ok(ADV.DATA.VERSION && ADV.DATA.VERSION.id === '1.2.1', 'published version is 1.2.1');
   ok(fresh.meta.patchId === ADV.DATA.VERSION.id, 'a new life starts already current');
   ok(!ADV.Game.applyPatch(fresh), 'a new life is not paid again');
   const game = ADV.Game.newGame({ seed: 9, name: 'Cole', sex: 'm', portraitSeed: 3, portraitSlot: 1, startingSkills: ['cleave'] });
-  game.meta.patchId = null;
+  game.meta.patchId = '1.2.0';
   const before = ADV.Game.player(game).inventory.gold;
   ok(ADV.Game.applyPatch(game), 'an older save receives the patch');
-  eq(ADV.Game.player(game).inventory.gold, before + 5000, 'five thousand gold for staying current');
+  eq(ADV.Game.player(game).inventory.gold, before + 10000, 'ten thousand gold for staying current');
   ok(game.meta.patchNotice, 'patch notes are queued');
   ok(!ADV.Game.applyPatch(game), 'the same patch does not pay twice');
 })();

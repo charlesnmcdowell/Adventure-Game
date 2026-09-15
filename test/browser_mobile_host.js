@@ -28,10 +28,10 @@ try{for(const installed of [false,true]){
  await frame.evaluate(()=>{const A=ADV,g=A.Game.newGame({seed:477,name:'Mobile Continue',sex:'f',personalityId:'F01',startingSkills:['cleave','mend','bulwark']});g.tutorial={step:'done'};g.meta.promptsSeen=Object.fromEntries(Object.keys(A.DATA.PROMPTS).map(k=>[k,true]));A.Save.saveGame(g);});
  await p.reload();await f.getByRole('button',{name:'Continue',exact:true}).waitFor({timeout:120000});
  assert.equal(await f.locator('.browser-hint').count(),0,'one-time hint stays gone after reload');
- await f.getByRole('button',{name:'New game',exact:true}).click();await f.getByRole('button',{name:'Keep my current game'}).click();
  await p.setViewportSize({width:844,height:390});await p.waitForTimeout(450);
  const current=p.frames().find(f=>f.url().includes('Adventure-Game'));await current.evaluate(()=>ADV.TownScene.prototype.nextNotice=()=>{});
- await f.getByRole('button',{name:'Continue',exact:true}).click();await current.waitForFunction(()=>__game.scene.isActive('Town'));
+ await f.getByRole('button',{name:'New game',exact:true}).click();await f.getByRole('button',{name:'Keep my current game'}).click();
+ await current.waitForFunction(()=>__game.scene.isActive('Town'));
  assert.equal(await current.evaluate(()=>ADV.Game.player(__game.registry.get('game')).name),'Mobile Continue');
  assert.equal(await f.locator('#mobile-home').count(),0);assert.equal(await f.locator('#rotate').isVisible(),false);
  assert.deepEqual(errors,[]);results.push({engine,installed,iframe:true,safeArea:true,savePreserved:true,continue:true,errors});await ctx.close();
