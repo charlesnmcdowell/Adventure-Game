@@ -34,7 +34,7 @@ The earlier Q6/Q7 plain-speech edits and four Lanternhold plot-clarity changes a
 - Conservative estimate: **5,298 credits**. Individual recording receipts total **2,911 credits**. A subsequent account check confirms that total and **118,089 credits remaining**.
 - No duplicate paid requests: completed clips were reused by hash after an account-read rate limit. Only read-only metadata calls retry automatically.
 - All 57 files decode successfully and pass duration and signal checks. Source text, voice ID, audio hash and cache hash are verified before installation. Replaced originals are backed up under `archive/dialogue/2026-09-14-gate-courtship`.
-- Five previously unvoiced Mzee Kamau lines still lack an assigned voice ID in both casting sources and the account library. The user has now requested recording them. The account reports 150 saved voices against a limit of 30, so the dedicated-voice preflight stopped before any paid request. An existing voice ID or additional voice capacity is required. These are the remaining known voice-coverage gaps; all romance recordings are installed.
+- Mzee Kamau's five lines intentionally remain unvoiced at the user's request. Their text stays in the campaign. No voice was created and no credits were spent on Mzee; recording is deferred until the user requests it again. All romance recordings are installed.
 - Recording scope and receipts: `tools/gate_courtship/patch.json`, `recording.json`, `validation.json`.
 
 ## Verification
@@ -46,4 +46,4 @@ The earlier Q6/Q7 plain-speech edits and four Lanternhold plot-clarity changes a
 - Isolated Chromium browser tests pass at **1280×760** and **844×390** with mobile/touch emulation: opening the inn picker, approaching Itsuki, night inn art/weather, actual dialogue/audio requests, choosing friendship, and saving that response. No page errors or failed asset requests. These are emulated browsers, not a physical iPhone test.
 - Browser screenshots and evidence: `test/reports/gate-courtship/`.
 
-Full regression: **68 of 69 suites passed**. The sole failure is voice coverage for the five Mzee lines above (4,738 other clips are present). The complete result is recorded in `test/reports/headless/results.json`. Publishing remains a separate action; no website files have been deployed by this work.
+Full regression: **68 of 69 suites passed**. The sole failure is voice coverage for the five Mzee lines above, which the user has approved leaving unvoiced for now (4,738 other clips are present). The complete result is recorded in `test/reports/headless/results.json`. Publishing remains a separate action; no website files have been deployed by this work.
