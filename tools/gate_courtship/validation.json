@@ -1,0 +1,462 @@
+{
+  "checks": [
+    {
+      "path": "audio/vo/campaign/wren_ward/q7_mine_umbra_none_1.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "06f71835d79f935be93ccef64142ac876b0070ae5612339b142c970a094f26d3",
+      "duration": 2.48,
+      "peak": 0.55867999792099,
+      "rms": 0.11294155007645328
+    },
+    {
+      "path": "audio/vo/campaign/wren_ward/q7_mine_umbra_none_2.mp3",
+      "voice": "0F4ybvRD5Lm0AIt5almW",
+      "audioHash": "f1a926950aab5c0d1f8c1c874f955beab86d3248aa10d42f808f8f978f0234c6",
+      "duration": 4.96,
+      "peak": 0.7701377868652344,
+      "rms": 0.08483447854687845
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_first_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "d8340a2c0eafa128028cb51b21079948be47d12a93908264df65149dd72b77a0",
+      "duration": 4.08,
+      "peak": 0.9082172513008118,
+      "rms": 0.17946803232059944
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_first_2.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "c3f622247f539f51cf3a65b93a6ded63224dbea7b8d74e73bf753754beeae95d",
+      "duration": 5.68,
+      "peak": 0.8989397287368774,
+      "rms": 0.15715040575068095
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_first_reply_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "8e3c5e6302a60cb0408f39770e5afd1bfe2ab8528ba3b37569024e8add6721a9",
+      "duration": 4.88,
+      "peak": 0.8687459230422974,
+      "rms": 0.08825890081768809
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_second_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "602952e389e18f19d4aa538fb81dc7a242d9afc1604c89d4e7e63d65a497709d",
+      "duration": 6.56,
+      "peak": 0.8987939357757568,
+      "rms": 0.14858471937441153
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_second_2.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "abc33f17be7040207446df7e9d6440d435d1cd963682d9af9496e549f3ff5fbe",
+      "duration": 8.4,
+      "peak": 0.9164838194847107,
+      "rms": 0.1497271288172045
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_second_reply_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "1b4077d25c18555dbcbc868d730fc61308bf3019ad88869a594ed99dc64be89c",
+      "duration": 8.96,
+      "peak": 0.9375307559967041,
+      "rms": 0.14350877222072408
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_interest_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "e1206c71727840a3907ccd7e0347fed32ef1e583b9c5fd0ee9eb82703341d4a2",
+      "duration": 5.68,
+      "peak": 0.842287003993988,
+      "rms": 0.11839068253827018
+    },
+    {
+      "path": "audio/vo/campaign/cassian/bond_later_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "facf10685b8899a220f154befec9563c1ac7fdc7fbdbab2f1409afc06bb90720",
+      "duration": 4.88,
+      "peak": 0.9465516209602356,
+      "rms": 0.14837386605402217
+    },
+    {
+      "path": "audio/vo/campaign/cassian/q9_romance_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "ddc376c18954e04cf462029a327da236d7715010a49b40dcdf58bba0d803046c",
+      "duration": 4.96,
+      "peak": 0.9215412139892578,
+      "rms": 0.1517733199924765
+    },
+    {
+      "path": "audio/vo/campaign/cassian/q9_romance_2.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "a910563d341774de4b50786f4ab2dae82f1b98becfb2b0fc0c1b358245fede89",
+      "duration": 5.04,
+      "peak": 0.9373347759246826,
+      "rms": 0.13092284742114954
+    },
+    {
+      "path": "audio/vo/campaign/cassian/q9_romance_yes_1.mp3",
+      "voice": "xHLnsxqUy4cc16VOmSD4",
+      "audioHash": "fa52ed9387e8009054944c5ba51f786606d90d7eedeee3df1efa6f09da45d02c",
+      "duration": 6.32,
+      "peak": 0.9544786214828491,
+      "rms": 0.15219422841255772
+    },
+    {
+      "path": "audio/vo/campaign/selene/q9_family_1.mp3",
+      "voice": "a3tSl2M9CVI359Oy7H6v",
+      "audioHash": "1a56b16e921fff5f7ba0b9b9274c3bbf0a44d500f68db7cd9a5d8fc9f19a2371",
+      "duration": 8.96,
+      "peak": 0.9514508247375488,
+      "rms": 0.10863700925877558
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_first_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "182d79b3bd5f31120b0b02b6736abd3e1e9863813921ca278f214c34d68a19a4",
+      "duration": 4.88,
+      "peak": 0.8881229758262634,
+      "rms": 0.1783889554815407
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_first_2.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "f8e0a908313cbfa62b6ebf798c0d875941a0dd688f22bcef5eb2f166be3302c8",
+      "duration": 6.8,
+      "peak": 0.843747079372406,
+      "rms": 0.12357067405301794
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_first_reply_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "0965857146806f7950d6217cb80993dacf71a404080ee50a08ab91f046cfe428",
+      "duration": 3.76,
+      "peak": 0.8908255100250244,
+      "rms": 0.10742127490219029
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_second_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "eea9405bc5341a4d2a99e67e8766ac9a2f44e41eb06cde6648e30ba0a1e8e0f7",
+      "duration": 7.12,
+      "peak": 0.8128406405448914,
+      "rms": 0.1314025283426458
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_second_2.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "cd7e5a1295294e308ac504516c789325c539ff96a5b8336ea2f0ed4cd9f9c93f",
+      "duration": 4.8,
+      "peak": 0.9584307670593262,
+      "rms": 0.14171051170515434
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_second_reply_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "71193b1ec7d7f4e8817d6015d4476aed9e7b741e12830020e548bcce67e6caac",
+      "duration": 4.4,
+      "peak": 0.9032898545265198,
+      "rms": 0.13730810555524264
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_interest_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "38a3fb8e740664a3e2a4c7798c1a2943f123db9d6b6ff93807c81f9d7277dc6c",
+      "duration": 7.2,
+      "peak": 0.8918071985244751,
+      "rms": 0.13864691081840244
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/bond_later_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "bf97b3daf023307f113f6805e52cca8049550328d430aff6d0e190fcf9dc24e2",
+      "duration": 2.72,
+      "peak": 0.8909382224082947,
+      "rms": 0.14403541888968965
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/q9_romance_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "23f35f42980ff6933db88cf4fda155d86f6005ac8d3ada6e759f919ab0324f8d",
+      "duration": 3.52,
+      "peak": 0.6717191338539124,
+      "rms": 0.1092234793728714
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/q9_romance_2.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "38cd1e1acf074f94de7854f2a12e47944ecfe6b8fc4c97a2925df90ebbc10c90",
+      "duration": 5.92,
+      "peak": 0.8078336715698242,
+      "rms": 0.104500713961377
+    },
+    {
+      "path": "audio/vo/campaign/ithrel/q9_romance_yes_1.mp3",
+      "voice": "EqIniNyrvzFcbGecFyI5",
+      "audioHash": "483556eb08bacfef1373bd2d708806af58b2e2160835084f8048697b7f28577f",
+      "duration": 3.84,
+      "peak": 0.8789182901382446,
+      "rms": 0.10761360935227797
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_first_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "cea6af115d27fcce7af91e873545e9b83f37a31d102b17915c152d77d2071a09",
+      "duration": 9.04,
+      "peak": 0.9299008846282959,
+      "rms": 0.1391379969778969
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_first_2.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "63ccd2b91fcc59c5f2c4dada9e3d00e6ff62a20f1c020a577241adcb23a155e4",
+      "duration": 4.32,
+      "peak": 0.6035828590393066,
+      "rms": 0.1021658136976554
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_first_reply_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "4187983540d0bc7f21c1c4423c050e669b482c83766c579b973943a40aefe7ea",
+      "duration": 5.52,
+      "peak": 0.808986485004425,
+      "rms": 0.11951953640244958
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_second_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "b76f9c39a49456d6917bc3ca1ac7eb8660777a11c4ea2aaa31235f782c40d796",
+      "duration": 6.72,
+      "peak": 0.7923407554626465,
+      "rms": 0.113789494250739
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_second_2.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "74a0b9e3d29bf7a5101dd7712fda3d87daf005b96f05175ccd7f0b916bf5d6d8",
+      "duration": 10.08,
+      "peak": 0.8630573749542236,
+      "rms": 0.1321468654434141
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_second_reply_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "b1749b9321d416ba99cc40460be5aed53061bab4068c23f7578657087c9813ec",
+      "duration": 9.28,
+      "peak": 0.8302044868469238,
+      "rms": 0.13302157756253455
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_interest_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "287b1d9cc1a39dda83201055fd8c563047edd43542f94ef3d7499ad6bdc38269",
+      "duration": 7.2,
+      "peak": 0.824937105178833,
+      "rms": 0.12923395155303763
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/bond_later_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "8e5c61b8fb130f3b9ab8db7d83069516a134ca5cb12e638ffb41a8e30fac2c30",
+      "duration": 4.72,
+      "peak": 0.8268511295318604,
+      "rms": 0.17896515453055348
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/q9_romance_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "a5197f43d6408c864f96b5a2d4a85a0000b3dc089fdeef5f7764c80348501690",
+      "duration": 5.52,
+      "peak": 0.7512794733047485,
+      "rms": 0.12164716113697188
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/q9_romance_2.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "9fcd6f35459013f9eb4074279ffb845672f82b132aecd81314827c544170d84e",
+      "duration": 4.48,
+      "peak": 0.8843107223510742,
+      "rms": 0.13615477204194318
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/q9_romance_yes_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "ac7617338efbab885ddb778e9a6ef6a6345aa724cbdb6cb0502f1de532dd2796",
+      "duration": 5.68,
+      "peak": 0.6931377649307251,
+      "rms": 0.11300729920003104
+    },
+    {
+      "path": "audio/vo/campaign/ilvara/q9_romance_no_1.mp3",
+      "voice": "7nj1jqrTE7EDXPyxWBhY",
+      "audioHash": "271ae704c62e030a106d971d8a117a0371aab70bb0fb5416a43368810ed914b5",
+      "duration": 3.28,
+      "peak": 0.8208770751953125,
+      "rms": 0.11086547743885466
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_first_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "ac1e0606ffb7c76a747e1de34a250d4a0718dbbafe45e6be02a1a00c471a1d15",
+      "duration": 5.12,
+      "peak": 0.5068516135215759,
+      "rms": 0.07559172446544296
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_first_2.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "83b779fde3187f0be9d556ca6c9109ffa4b2800b39fd0b9136a53ec71b4ec64c",
+      "duration": 4.88,
+      "peak": 0.735439658164978,
+      "rms": 0.0885251620622878
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_first_reply_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "43482e38d50ae234ca028f7ee5bc9964a1d9eede444ed1b2a1b50f3e9cec6b2f",
+      "duration": 4.72,
+      "peak": 0.8731992840766907,
+      "rms": 0.11636520551617473
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_second_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "c99872ceaf34564ef5cf68d3a0d557107df71d3bf4f1b279f4672321fee7102f",
+      "duration": 6.64,
+      "peak": 0.8835268616676331,
+      "rms": 0.13420554933567405
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_second_2.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "14ab5e249cafb5862d0cf01ad7f86092d0650c187b2842075b0abe953f2834ca",
+      "duration": 5.04,
+      "peak": 0.911250114440918,
+      "rms": 0.12683277734048948
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_second_reply_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "06d80372c03bfa4cdb87a48820f3d1e28bebf39566d901ddcc3ac7bebc00d39f",
+      "duration": 6.16,
+      "peak": 0.9054428339004517,
+      "rms": 0.14936229900747938
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_interest_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "1567dbf746afdbb8b504b41e37abcd2f255d5ccf9c19af4f11edd52ec0e8df81",
+      "duration": 4.56,
+      "peak": 0.9098413586616516,
+      "rms": 0.15838363415072043
+    },
+    {
+      "path": "audio/vo/campaign/faelen/bond_later_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "4a04c22ffc73cae2a8b328546b6a72ebb6a828bf3003a1d915b72d1334b6bd5b",
+      "duration": 3.76,
+      "peak": 0.8847049474716187,
+      "rms": 0.1357764566350403
+    },
+    {
+      "path": "audio/vo/campaign/faelen/q9_romance_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "a10a4c940527f221ec19f8c490b3beae99de9d3a957206fb050ca5a3f4dd7245",
+      "duration": 4.32,
+      "peak": 0.8570566773414612,
+      "rms": 0.13391868106393437
+    },
+    {
+      "path": "audio/vo/campaign/faelen/q9_romance_yes_1.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "7e0e442b63fab06b5d6f8fb8f837861656be93682b9ac625481145b5b20dc1ff",
+      "duration": 3.36,
+      "peak": 0.7275441884994507,
+      "rms": 0.14983523420315853
+    },
+    {
+      "path": "audio/vo/campaign/faelen/q9_romance_yes_2.mp3",
+      "voice": "O5EDsXljBLA6l3KfYEde",
+      "audioHash": "03d07d7905e210e69a4c5a3c47c28ac12f068972ecb2e60756fd5710a55990ef",
+      "duration": 2.48,
+      "peak": 0.8386104106903076,
+      "rms": 0.11585177120951372
+    },
+    {
+      "path": "audio/vo/campaign/nettle/q7_mine_umbra_1.mp3",
+      "voice": "U1NXjHF5ene7Eze10d5J",
+      "audioHash": "bd7a24a20ddf14800e5486b26f6a203f5dce1062a1470b0876be0dd20f189441",
+      "duration": 2,
+      "peak": 0.6450080871582031,
+      "rms": 0.11700660481275768
+    },
+    {
+      "path": "audio/vo/campaign/nettle/q7_mine_umbra_2.mp3",
+      "voice": "U1NXjHF5ene7Eze10d5J",
+      "audioHash": "44223fc7e5d14993545b1f39ee8fafaf84235d4981de03a0e7775abd07500b8f",
+      "duration": 7.28,
+      "peak": 0.7391735911369324,
+      "rms": 0.0995368069055631
+    },
+    {
+      "path": "audio/vo/campaign/nettle/q7_mine_umbra_3.mp3",
+      "voice": "U1NXjHF5ene7Eze10d5J",
+      "audioHash": "0e7c7161c5424cf389855233509957b9d12b5bd7b99bdb1274a36d622ae751e1",
+      "duration": 2.48,
+      "peak": 0.7965185046195984,
+      "rms": 0.13332926711858045
+    },
+    {
+      "path": "audio/vo/campaign/halvard/q9_plan_1.mp3",
+      "voice": "1N3Ubm5NzIILaxKqZSWn",
+      "audioHash": "cfed9ec0fca916abb45464fed8e8683c2bcb77b40505a48103a8280b5db6358c",
+      "duration": 8.72,
+      "peak": 0.8948020339012146,
+      "rms": 0.1383522279632096
+    },
+    {
+      "path": "audio/vo/campaign/halvard/q9_book_1.mp3",
+      "voice": "1N3Ubm5NzIILaxKqZSWn",
+      "audioHash": "583ca55e2645a0eefb9baa144ab262e790c83658bd035bb2be2470bb83894610",
+      "duration": 10.56,
+      "peak": 0.909130871295929,
+      "rms": 0.12654654071556995
+    },
+    {
+      "path": "audio/vo/campaign/halvard/q9_book_2.mp3",
+      "voice": "1N3Ubm5NzIILaxKqZSWn",
+      "audioHash": "4ca96614c4eff28e967de0ef981fadab2206ca6f83c02f29c9353364d618a413",
+      "duration": 11.2,
+      "peak": 0.7886613011360168,
+      "rms": 0.08414802959245052
+    },
+    {
+      "path": "audio/vo/campaign/sarn/q9_tower_2.mp3",
+      "voice": "pL61gpUJHGbG1ctjcpcm",
+      "audioHash": "01208e83594f921225b759ad17d5d10fb4dd66574d4628748458ab164c303ead",
+      "duration": 15.04,
+      "peak": 0.961342453956604,
+      "rms": 0.1284988966471738
+    },
+    {
+      "path": "audio/vo/campaign/amara/q13_trust_1.mp3",
+      "voice": "nlQtoxiWTYC3witBlK1H",
+      "audioHash": "1890870ad5abf1bb8fd3d954e5be2d82ca984f1696f06935ebeb3e64b661d510",
+      "duration": 3.36,
+      "peak": 0.6255578398704529,
+      "rms": 0.09287906847787272
+    },
+    {
+      "path": "audio/vo/campaign/amara/q11_loved_tesfaye_1.mp3",
+      "voice": "nlQtoxiWTYC3witBlK1H",
+      "audioHash": "32c8ba65c5e6c0a47a1b9040613ee7c1c8258ec1f76eb5bc60834fe146241a44",
+      "duration": 9.84,
+      "peak": 0.8918548226356506,
+      "rms": 0.1288293627228728
+    }
+  ],
+  "billed": 2911,
+  "installedAt": "2026-09-15T03:08:25.980Z"
+}

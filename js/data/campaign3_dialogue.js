@@ -567,8 +567,8 @@ L('selene', 'q6_grove_selene', `[steady] None of us. The iron's what we took off
 // boss the player killed without ever hearing him speak; now the thing she reports about
 // him — that he would rather they bled than talked — is something the player watches him
 // say, and her "he can take it up with the trees" has something to answer.
-L('thornwise', 'q6_grove_mzee', `[old, unhurried] Wanjiru. You are talking again.|[flat] I have buried nine of ours since that mine opened. I do not ask the men who come out of that hole what they meant to do. I put them in the ground and plant something on top.|[cold] Say your piece to them if you must. I have heard enough words this year.`);
-L('thornwise', 'q6_grove_mzee_peace', `[flat, from the trees] Wanjiru. If they are lying, you are the one who let them in.|[grudging] Go. The wood will still be here when you are done with them.`);
+L('thornwise', 'q6_grove_mzee', `[old, unhurried] Wanjiru. They have been told to leave.|[flat] I have buried nine of ours since that mine opened. If these people work for the Consortium, they will get no mercy from me.|[cold] Hear them out if you must. They stay where they are.`);
+L('thornwise', 'q6_grove_mzee_peace', `[flat, from the trees] Wanjiru. If they are lying, you are the one who let them in.|[grudging] Go with them, then. Make sure they shut that mine. I expect you back when it is done.`);
 L('nettle', 'q6_grove_selene_reply', `[narrowing] A Warden says so. Wardens said so about the last mine, and the last mine is still there.|[low] Mzee Kamau would sooner have you bleed than speak. I would sooner hear you first. So. Speak.`);
 L('nettle', 'q6_grove_ask', `[low] No answer. Then hear this: the Mzee would sooner have you bleed than speak. I would sooner hear you first. Speak, or turn around.`);
 CH('q6_nettle', [
@@ -682,12 +682,10 @@ CH('q7_dream', [
 L('aldric', 'q7_dream_others', `[quiet] I do not know how many are still alive. Most were raised by mortal families, as you were. Some may not know what they are. The man in black has been searching for them for years.`);
 L('aldric', 'q7_dream_reject', `[proud] Twice now. It grows harder each time and you keep saying no. That is what courage is. No one warns you that it is dull.`);
 L('aldric', 'q7_dream_embrace', `[grieving] The strongest of them is waiting for you at the end of this road, and he thinks exactly that.|[fading] Please, my child. Be careful what you become on the way to him.`);
-// The grove's two flags used to be recorded and never referred to again. The mine is the
-// thing the Umbra are angry about, so it is where the choice comes back: Wanjiru standing at
-// the source of the water she has been smelling for two years, or Hiwot doing the arithmetic
-// on a fight nobody needed.
-L('nettle', 'q7_mine_umbra', `[quiet] So. The hole in the hill.|[hard] Two years I have smelled this water and never once stood where it starts. It is smaller than I made it in my head.|[flat] Good. Small things can be closed.`);
-L(W, 'q7_mine_umbra_none', `[low] The wood people wanted this place shut as badly as we do.|[dry] We fought them for the right to walk past it. I keep turning that over and it keeps coming out stupid.`);
+// At the mine, acknowledge the grove outcome: Wanjiru wants to stop the pollution,
+// or Hiwot regrets fighting the druids when they shared the party's goal.
+L('nettle', 'q7_mine_umbra', `[quiet] So this is the mine.|[hard] For two years, I have watched the river get worse. Dead fish, sick animals. All because of this place.|[firm] I want this mine shut before we leave.`);
+L(W, 'q7_mine_umbra_none', `[low] The druids wanted this mine shut down too.|[dry] We could have had their help. Instead, we picked a fight with them. That was clever of us.`);
 Q(7, {
   departure: [B('dorran', 'q7_gate', co('dorran', { choice: 'q7_dorran' }))],
   openers: {
@@ -795,10 +793,10 @@ Q(8, {
 // =====================================================================
 // Q9 — The Consortium Tower
 // =====================================================================
-L('halvard', 'q9_plan', `[precise] The Consortium is hiring swords. You walk in the front door as swords. The ledgers are on the top floor with three men who never leave it.|[dry] If you can do it without burning the tower down, the city would appreciate it. If you cannot, the city will understand.`);
+L('halvard', 'q9_plan', `[precise] The Consortium is hiring swords. Go in as hired guards and search the top-floor offices. We need the orders bearing Adigun's seal.|[dry] If you can do it without burning the tower down, the city would appreciate it. If you cannot, the city will understand.`);
 // Sanni's account is a deliberate lie: he attributes his own war plan to Adigun.
 // The player can investigate that claim and refuse to kill at the Q10 summit.
-L('sarn', 'q9_tower', `[quiet, city-formal] Tesfaye's ward. I am Sanni. I knew him through the keep's book trade. He wrote about you and Hiwot. I was sorry to hear what happened on the Griffon Road.|[low] Adigun Adeyinka is my father. He runs this office. Those orders from the mine carry his seal, and he has gone to Lanternhold to secure the keepers' support. The papers upstairs will prove it.|[urgent] He is preparing a war with Calder. Kill him before he buys the Council's vote and you could save thousands of lives. Go to the summit at Lanternhold. Read the evidence first, and hear what he has to say. I will meet you there.`);
+L('sarn', 'q9_tower', `[quiet, city-formal] Tesfaye's ward. I am Sanni. I knew him through the keep's book trade. He wrote about you and Hiwot. I was sorry to hear what happened on the Griffon Road.|[low] Adigun Adeyinka is my father. Those orders from the mine carry his seal. He and his partners have gone to Lanternhold for a hearing over the iron shortage. He means to persuade the keepers that Calder is to blame.|[urgent] He is preparing a war with Calder. Kill him before he buys the Council's vote and you could save thousands of lives. Go to the summit at Lanternhold. Read the evidence first, and hear what he has to say. I will meet you there.`);
 L(W, 'q9_lobby', `[whispering] A clerk. Two guards. A very long list of names on his desk, and we are not on it.`);
 L('selene', 'q9_lobby', `[murmuring] A clerk with a list and two guards who are paid to believe him.`);
 L('faelen', 'q9_lobby', `[murmuring] A clerk. A list. Two guards. Forgive me — I love a lobby.`);
@@ -843,27 +841,69 @@ L('lysandra', 'q9_lysandra_arrest', `[amused] Chains. How lawful. Fine. I will t
 L('lysandra', 'q9_lysandra_kill', `[whispering] He will feel this. That is the only thing I am sorry for.`);
 L('selene', 'q9_top', `[reading] Adigun Adeyinka, Bankole, Rotimi. Gone to Lanternhold — to LANTERNHOLD — for a summit with the keepers.|[cold] The three men behind all of this are sitting in the library you grew up in.`);
 L(W, 'q9_top', `[stunned] Lanternhold. They went HOME. The three men who paid to kill Tesfaye are sitting in his library. — The drawer. Delphine, the locked drawer. We are going to be in that room.`);
-L('halvard', 'q9_book', `[grave] Then you go to Lanternhold. The keep takes a book as its toll; here is one worth the toll. Do not lose it.|[quiet] Find them. Bring me proof I can read to the Council. And {target} — whatever they are hiding about you, I would rather you heard it from a friend than from them.`);
-// Romance closer (dynamic options: every romanceable companion with aff >= 3)
-L('selene', 'q9_romance', `[quiet] I buried my husband three weeks ago, and I'm ashamed of what I'm fixing to say, so I'll say it fast.|[steady] I ain't asking for anything. I'm telling you that when this is over, if you asked, I'd say yes. That's all. That's a great deal, for me, and it's more than I've got a right to.`);
-L('selene', 'q9_romance_yes', `[a soft, unsteady laugh] Then that's settled, and I'm going to sleep before I say anything foolish.|[warm] Goodnight, sugar. Actually goodnight.`);
-L('selene', 'q9_romance_no', `[gentle] Then it's said and it's done, and nothing between us changes. Sleep well.`);
-L('cassian', 'q9_romance', `[stumbling] I have written this out four times and burned it three. I — {target}. With respect. I have not stopped looking at you since the wolves, and I am not the sort who looks.|[earnest] If the Order asks, I will say it was duty. It was not.`);
-L('cassian', 'q9_romance_yes', `[overwhelmed] Truly? I — yes. Yes. God keep you. I will be very good at this — I will try very hard to be good at this, I promise.`);
+L('halvard', 'q9_book', `[grave] The keepers hold shipping records both kingdoms trust. They are hearing the dispute over the iron shortage. Take Adigun's orders to Lanternhold and show them who caused it.|[quiet] I will have my officers keep looking for Kolade here. His father may know where he is. Question Adigun, and bring him back alive if you can. This book will pay your way into the keep.`);
+// Delphine is a family friend. This reassurance is separate from romantic choices.
+
+// Optional inn conversations. The player must finish both on separate occasions.
+// Friendship is the default; the explicit interest choice is a separate action.
+D.CAMPAIGN3_COURTSHIP = {
+  cassian: { conversations: [
+    { key: 'bond_first', text: 'You held your ground. Being afraid does not change that.', reply: 'bond_first_reply' },
+    { key: 'bond_second', text: 'I would like to hear about your home. Tell me more.', reply: 'bond_second_reply' },
+  ], interest: 'bond_interest', later: 'bond_later' },
+  ithrel: { conversations: [
+    { key: 'bond_first', text: 'You can stay with us while you decide what comes next.', reply: 'bond_first_reply' },
+    { key: 'bond_second', text: 'I would like to see the woods with you sometime.', reply: 'bond_second_reply' },
+  ], interest: 'bond_interest', later: 'bond_later' },
+  ilvara: { conversations: [
+    { key: 'bond_first', text: 'You owe me no service. Stay because you want to.', reply: 'bond_first_reply' },
+    { key: 'bond_second', text: 'Tell me about the shrine. What was your life there like?', reply: 'bond_second_reply' },
+  ], interest: 'bond_interest', later: 'bond_later' },
+  faelen: { conversations: [
+    { key: 'bond_first', text: 'You do not have to entertain me. I am glad you are here.', reply: 'bond_first_reply' },
+    { key: 'bond_second', text: 'I would enjoy hearing you play. Leave the hat at home.', reply: 'bond_second_reply' },
+  ], interest: 'bond_interest', later: 'bond_later' },
+};
+L('cassian', 'bond_first', `[hesitant] The training yard was easy. You knew the other man would stop.|[honest] In a real fight, I still want to run. I worry that one day I will.`);
+L('cassian', 'bond_first_reply', `[relieved] Thank you. I needed to hear that from someone who had actually seen me fight.`);
+L('cassian', 'bond_second', `[easier] I wrote home. Mostly about the people I have met. My mother would worry if I described the fighting.|[fond] She runs a bakery. I used to get up before dawn to carry flour. I complained every morning. Now I miss it.`);
+L('cassian', 'bond_second_reply', `[warm] There is a stool by the oven where I used to sleep between deliveries. Mother still keeps it there. She says my room is too far from the work.`);
+L('cassian', 'bond_interest', `[shy] I would like that too. May we take a little time? I want to know you better.`);
+L('cassian', 'bond_later', `[gentle] Of course. Tell me when you are ready. We can still enjoy each other's company.`);
+L('ithrel', 'bond_first', `[low] I have spent so long following tracks that I have given little thought to what comes after.|[tired] I cannot go back to the life I had with my wife. I do not yet know what else I want.`);
+L('ithrel', 'bond_first_reply', `[quiet] I would like to stay. It helps to have people expecting me back.`);
+L('ithrel', 'bond_second', `[thoughtful] I used to guide travellers through the woods. Some had never slept outside. They would wake me over every rustle.|[faintly amused] One paid me extra to keep the owls away. I gave him something to plug his ears.`);
+L('ithrel', 'bond_second_reply', `[warm] I would enjoy that. There are places worth visiting without a bounty to collect.`);
+L('ithrel', 'bond_interest', `[careful] I care for you. I need time before I can promise more. If you are willing to wait, I would like to try.`);
+L('ithrel', 'bond_later', `[calm] Take the time you need. You know where to find me.`);
+L('ilvara', 'bond_first', `[direct] I appreciate what you did for me. Understand something, though. You did not buy my loyalty by keeping me alive.|[firm] I choose where I go and whom I serve.`);
+L('ilvara', 'bond_first_reply', `[approving] Good. I prefer travelling with someone who understands that.`);
+L('ilvara', 'bond_second', `[unguarded] I miss the quiet of the shrine. Before the petitions began, I had an hour to myself.|[dry] Up here, someone is always shouting, selling something, or telling me what a lovely morning it is. Usually in the rain.`);
+L('ilvara', 'bond_second_reply', `[measured] The work was demanding. I liked that. I knew what was expected of me, and I was good at it. I miss having a place of my own.`);
+L('ilvara', 'bond_interest', `[interested] You have my attention. Let us spend more time together before deciding anything.`);
+L('ilvara', 'bond_later', `[level] Then leave it for now. You can bring it up when you know what you want.`);
+L('faelen', 'bond_first', `[quieter] I know I make a performance of everything. It is easier than admitting I was scared.|[honest] When you found me, I thought I was going to die there. I have been sleeping badly since.`);
+L('faelen', 'bond_first_reply', `[soft] Thank you. I might be rather poor company tonight, but I would like you to stay.`);
+L('faelen', 'bond_second', `[cheerful] I used to play for supper at roadside inns. I know six songs well and about forty badly.|[smiling] I still have the lute. I sold the feathered hat. A man has to improve himself somehow.`);
+L('faelen', 'bond_second_reply', `[amused] Cruel, but fair. I will play you the good six. You can request the others after enough wine.`);
+L('faelen', 'bond_interest', `[pleased] I was hoping you might say that. Let us have a little time together and see how we get on.`);
+L('faelen', 'bond_later', `[easy] All right. Let me know if you want to try again. No awkwardness between us.`);
+L('amara', 'q13_trust', `[quiet] You kept your word. Thank you for letting me help.`);
+
+L('selene', 'q9_family', `[warm] You're family, honey. You don't have to face this alone. Get some rest. We leave for Lanternhold in the morning.`);
+// Offers occur only in a player-initiated private conversation after courtship.
+L('cassian', 'q9_romance', `[nervous] I enjoy the time we spend together. More than I know how to say properly.|[earnest] When we have a quiet evening, may I take you to supper? Just the two of us.`);
+L('cassian', 'q9_romance_yes', `[pleased] Supper, then. I know a decent place. I will try to get through the evening without saluting you.`);
 L('cassian', 'q9_romance_no', `[bravely] Then I am glad I said it, and I will not say it again. Thank you for hearing it.`);
-L('ithrel', 'q9_romance', `[low] I buried the last person I loved beside a road. I said I would not do this again.|[quiet] I would, though. With you. I wanted you to know it before the city, in case the city is the end of me.`);
-L('ithrel', 'q9_romance_yes', `[exhaling] Then I will try to live through the city. That is new. Thank you for giving me a reason.`);
+L('ithrel', 'q9_romance', `[low] I still miss my wife. I always will.|[quiet] But I have come to care for you too. If you feel the same, I would like us to be together.`);
+L('ithrel', 'q9_romance_yes', `[quiet] Then we will take our time. I am glad you told me.`);
 L('ithrel', 'q9_romance_no', `[calm] I understand. It was enough to say it. Sleep.`);
-L('ilvara', 'q9_romance', `[dry] Do not look so alarmed. I am not asking you to love me; your people are terrible at it.|[soft] I am telling you that I have decided to stay, and that when you sit in that chair I mean to be standing beside it. By the deep, make of that what you will.`);
-L('ilvara', 'q9_romance_yes', `[satisfied] Good. You will not regret it, and if you do, I will mend that.`);
-L('ilvara', 'q9_romance_no', `[shrugging] As you like. The offer keeps. I am patient in a way your kind is not.`);
-L('faelen', 'q9_romance', `[smiling] So. I flirt with everything. Trees. Wyverns. That doorman. You have noticed.|[suddenly serious] Forgive me. I have not meant a word of it since the web. I mean this one. Tell me to stop, or tell me not to.`);
-L('faelen', 'q9_romance_yes', `[delighted] Do not stop. Understood. Written down. Framed.|[soft] Thank you. I will be insufferable about this for years.`);
+L('ilvara', 'q9_romance', `[dry] I enjoy your company when you stop trying to give me orders.|[direct] I would like some time alone with you. Interested?`);
+L('ilvara', 'q9_romance_yes', `[pleased] Good. Come and sit with me. Your duties can wait for an evening.`);
+L('ilvara', 'q9_romance_no', `[cool] Very well. I will not ask again.`);
+L('faelen', 'q9_romance', `[smiling] I like you. I'd like to spend an evening with you, without the rest of this lot.`);
+L('faelen', 'q9_romance_yes', `[delighted] Excellent. A decent meal, some wine, and no work.|[warm] I have been looking forward to this.`);
 L('faelen', 'q9_romance_no', `[light] Stop it is. Friends, then, and I am very good at that as well.`);
-L('amara', 'q9_romance', `[quiet] I loved a man who wanted to be a god. I am not proud of it, and I am not sorry for it.|[steady] I do not know what I want from you. I know that when you kept your word at the gate, something in me turned toward you the way a plant turns to a window. Say something, or do not.`);
-L('amara', 'q9_romance_yes', `[exhaling] Then we will find out what it is together. After the altar. If there is an after.`);
-L('amara', 'q9_romance_no', `[calm] That is fair. I have asked enough of you for one life. The altar, then.`);
-L(W, 'q9_romance_none', `[teasing] Nobody is in love with you. Good. It would have been unbearable.|[fond] Sleep. Lanternhold in the morning.`);
 Q(9, {
   departure: [B('halvard', 'q9_plan'), B('sarn', 'q9_tower', { caption: 'Inside the Consortium headquarters, a man in a fine merchant\'s coat draws you aside before the clerk can ask your business. He introduces himself as Sanni.' })],
   openers: {
@@ -877,7 +917,10 @@ Q(9, {
     ],
   },
   closing: [B('selene', 'q9_top', { anyOf: ['selene', W] })],
-  arrival: [B('halvard', 'q9_book'), B('selene', 'q9_romance', { dynamic: 'romance' })],
+  arrival: [
+    B('halvard', 'q9_book'),
+    B('selene', 'q9_family', { when: { recruited: 'selene', alive: 'selene', not: 'floodedEarly', affMin: ['selene', 0] }, artPhase: 'night' }),
+  ],
 });
 L('lysandra', 'q9_floor_wait', `[patient, smiling] I can wait. I am very good at waiting; it is most of what I do up here.`);
 L('lysandra', 'q9_floor_business', `[brisk, pleasant] Now. He is going to be a Grand Duke by month's end, and he is going to have you killed for it. I would rather the reverse. Shall we talk, my dear?`);
@@ -991,7 +1034,7 @@ Q(10, {
   openers: {
     0: [B('hadrian', 'q10_gate', { choice: 'q10_gate_where' }), B('ambrose', 'q10_gate'), B(W, 'q10_home', co(W))],
     1: [
-      B('maddox', 'q10_summit', { caption: 'The great reading room. Three men in city coats look up from a table of maps.' }),
+      B('maddox', 'q10_summit', { caption: 'Before the hearing, you find the three Consortium partners in the great reading room. Maps and shipping records cover their table.' }),
       B('selene', 'q10_summit_selene', co('selene')), B('maddox', 'q10_summit_selene_reply', co('selene')), B('selene', 'q10_summit_selene_after', co('selene')),
       B('vask', 'q10_summit', { choice: 'q10_summit' }),
     ],
@@ -1048,7 +1091,7 @@ CH('q11_amara_loved', [
   { id: 'no', text: 'No. And I do not intend to start.', reply: B('amara', 'q11_loved_no') },
 ]);
 L('amara', 'q11_loved_yes', `[a slow nod] Then you know the shape of it. Good. I will not have to explain the rest, only ask it.`);
-L('amara', 'q11_loved_tesfaye', `[quiet] He lied to keep you. Kolade has never lied to anyone in his life; it is not the same thing, and I think you know it. But yes. It counts. It means you can hear me.`);
+L('amara', 'q11_loved_tesfaye', `[quiet] Yes. Kolade has lied to me too. I know he has hurt people. I still care for him, but I cannot let him go on killing.`);
 L('amara', 'q11_loved_no', `[level] Then you will think what I ask is weakness. Hear it anyway; you may need it later, when you are older and less certain.`);
 L('ithrel', 'q11_docks_ithrel', `[very quiet] The north road. A year ago. Were you there when the wagons burned?`);
 L('amara', 'q11_docks_ithrel_reply', `[without flinching] No. I was not. But I did not stop him sending Gorruk north, and I could have. Put that on my account with the rest, ranger. I will not argue the sum.`);
@@ -1176,7 +1219,7 @@ Q(13, {
     4: [B('lucan', 'q13_steps', { caption: 'The temple steps. A Gauntlet officer in a new cloak stands at the top with the men he sold.' }), B('selene', 'q13_steps_selene', co('selene')), B('lucan', 'q13_steps_selene_reply', co('selene'))],
   },
   closing: [],
-  arrival: [B('amara', 'q9_romance', { dynamic: 'romance', when: { company: 'amara' }, quiet: true })],
+  arrival: [B('amara', 'q13_trust', { when: { company: 'amara', flag: 'promisedAmara' }, artPhase: 'night' })],
 });
 
 // =====================================================================
@@ -1301,17 +1344,43 @@ D.CAMPAIGN3_EPILOGUE = {
     amara: { present: `Amara visits the cell every week. She brings bread. He eats it.`, gone: `Amara left the city on the morning tide. She did not say where. She did not look at you.`, dead: `Amara is buried at the gate of the Undercity, where she stood.` },
   },
   romance: {
-    selene: { line: `Delphine is at the Warden house. So are you, most nights. Neither of you has said Beau's name in front of the other yet. You will.`, favoured: `She says Tesfaye would have liked how it ended. Then she says he would have cheated a little. Then she laughs, for the first time since the mine.` },
-    cassian: { line: `Santiago asked you to attend his knighting. You did. The Order pretended not to notice you.`, favoured: `He calls it the right ending. He calls everything the right ending. This time you agree with him.` },
-    ithrel: { line: `Itsuki sleeps through the night now. He says it is the tree. You suspect it is not the tree.`, favoured: `He said "mine" once more, at the altar, and then never again. He did not need to.` },
-    ilvara: { line: `Layla sleeps in the chapel and, when it suits her, elsewhere. She is very clear that it suits her.`, favoured: `She was standing beside the chair when you sat in it. She has not stopped smiling. It is not a warm smile. It is yours.` },
-    faelen: { line: `Kaito still flirts with everything. He says it is professional courtesy. He comes home to one door.`, favoured: `The Undervault knows his face now, and yours, and treats you both as family. Tunde says that is the debt, paid.` },
-    amara: { line: `Amara brings bread to the cell every week. You walk her there and wait outside. She has never once asked you to come in.`, favoured: `She said you kept your word. She said it as if it were the strangest thing anyone had ever done for her.` },
+    cassian: { line: `Santiago asked you to attend his knighting. You went together, then slipped away for supper before the speeches had finished.`, favoured: `He asked to help rebuild the damaged streets. You spent several mornings working beside him.` },
+    ithrel: { line: `You and Itsuki make time to walk outside the city. Some days he speaks about his wife. On others, you plan where to travel next.`, favoured: `After the hunt was over, he asked you to visit the woods where he once worked as a guide.` },
+    ilvara: { line: `Layla invites you to her chapel after the day's work. You share meals, argue over the wine, and make plans together.`, favoured: `She insists on keeping her own duties. The two of you arrange time together around them.` },
+    faelen: { line: `Kaito takes you to the inns where he once played for his supper. He remembers the songs better than he claims.`, favoured: `His work with the Undervault keeps him busy, but he always makes time for an evening with you.` },
+    amara: { line: `You and Amara agree to take your relationship slowly. There is much still to discuss, including her feelings for Kolade.`, favoured: `She thanks you for hearing her out. Neither of you pretends that the road ahead will be easy.` },
   },
   heritage: {
     reject: `The dreams stopped. The chair is a chair.`,
     neutral: `You still dream of ash, some nights. Less often. You have stopped counting.`,
     embrace: `You dream of the chair every night now. Some nights it is empty. Some nights it is not, and the one sitting in it has your face.`,
   },
+};
+// Exact old paragraphs allow surgical updates to cached endings in existing saves.
+D.CAMPAIGN3_OLD_ROMANCE_ENDINGS = {
+  "selene": {
+    "line": "Delphine is at the Warden house. So are you, most nights. Neither of you has said Beau's name in front of the other yet. You will.",
+    "favoured": "She says Tesfaye would have liked how it ended. Then she says he would have cheated a little. Then she laughs, for the first time since the mine."
+  },
+  "cassian": {
+    "line": "Santiago asked you to attend his knighting. You did. The Order pretended not to notice you.",
+    "favoured": "He calls it the right ending. He calls everything the right ending. This time you agree with him."
+  },
+  "ithrel": {
+    "line": "Itsuki sleeps through the night now. He says it is the tree. You suspect it is not the tree.",
+    "favoured": "He said \"mine\" once more, at the altar, and then never again. He did not need to."
+  },
+  "ilvara": {
+    "line": "Layla sleeps in the chapel and, when it suits her, elsewhere. She is very clear that it suits her.",
+    "favoured": "She was standing beside the chair when you sat in it. She has not stopped smiling. It is not a warm smile. It is yours."
+  },
+  "faelen": {
+    "line": "Kaito still flirts with everything. He says it is professional courtesy. He comes home to one door.",
+    "favoured": "The Undervault knows his face now, and yours, and treats you both as family. Tunde says that is the debt, paid."
+  },
+  "amara": {
+    "line": "Amara brings bread to the cell every week. You walk her there and wait outside. She has never once asked you to come in.",
+    "favoured": "She said you kept your word. She said it as if it were the strangest thing anyone had ever done for her."
+  }
 };
 })();

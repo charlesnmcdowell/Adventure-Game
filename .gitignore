@@ -21,6 +21,11 @@ node_modules/
 !/tools/voice_casting.json
 !/tools/voice_manifest.json
 !/tools/voice_generation_state.json
+!/tools/audit_gate_romances.js
+!/tools/export_c3_voice_script.js
+!/tools/gate_courtship/
+!/tools/gate_courtship/**
+/tools/gate_courtship/audio/
 !/tools/mobile_site/
 /tools/mobile_site/*
 !/tools/mobile_site/index.html
@@ -30,6 +35,7 @@ node_modules/
 !/docs/maintenance/REFACTOR_2026-09-14.md
 !/docs/maintenance/code-audit-2026-09-14/AUDIT.md
 !/docs/maintenance/ARCHITECTURE.md
+!/docs/dialogue/*.md
 /archive/backups/
 /archive/legacy/
 *.log

@@ -53,6 +53,18 @@ function speak(who, key, idx) {
 
 // ---------------------------------------------------------------- beat playback (§2)
 UI3.playBeat = function (scene, game, beat, done) {
+  // Resolve eligibility before loading any dialogue from a dynamic wrapper.
+  if (beat.dynamic) return UI3.dynamicChoice(scene, game, beat, done);
+  // Old saves can still contain queued offers or replies from the retired route.
+  if (beat.who === 'selene' && /^q9_romance(?:_|$)/.test(beat.key || '')) {
+    if (done) done();
+    return;
+  }
+  // Retire unsolicited queued confessions, including old Amara/Hiwot wrappers.
+  if (/^q9_romance(?:_|$)/.test(beat.key || '') && !beat.privateCourtship) {
+    if (done) done();
+    return;
+  }
   if (beat.artChapter !== undefined && ADV.GateArt) return ADV.GateArt.chapter(scene, game, beat, done);
   if (!beat.combat && !beat.__gateReady && ADV.GateArt) return ADV.GateArt.withScene(scene, game, beat, done, next => UI3.playBeat(scene, game, Object.assign({}, beat, { __gateReady: true }), next));
   const who = beat.who;
@@ -70,7 +82,6 @@ UI3.playBeat = function (scene, game, beat, done) {
     const seats = C3().applyBeat(game, beat) || { joined: [], overflow: [] };
     const cont = () => {
       if (beat.choice) UI3.choice(scene, game, beat, done);
-      else if (beat.dynamic) UI3.dynamicChoice(scene, game, beat, done);
       else if (done) done();
     };
     UI3.announceJoins(scene, seats.joined);
@@ -121,28 +132,56 @@ UI3.choice = function (scene, game, beat, done) {
   });
 };
 UI3.dynamicChoice = function (scene, game, beat, done) {
-  const opts = C3().dynamicOptions(game, beat.dynamic);
-  if (!opts.length) {
-    // nobody is close enough: Hiwot (or nobody) marks the night and we move on
-    if (beat.quiet) { if (done) done(); return; }
-    if (C3().inCompany(game, 'wren_ward') || C3().isRecruited(game, 'wren_ward')) UI3.playBeat(scene, game, { c3: true, who: 'wren_ward', key: 'q9_romance_none', fid: C3().FID }, done);
-    else if (done) done();
-    return;
-  }
-  // each candidate speaks their piece in turn, then the player answers once
-  const list = opts.slice();
-  const speakAll = (cb) => { const o = list.shift(); if (!o) { cb(); return; } UI3.playBeat(scene, game, Object.assign({ c3: true, fid: C3().FID }, o.prompt), () => speakAll(cb)); };
-  speakAll(() => {
-    const all = opts.concat([{ id: 'none', text: 'Not now. Not with the city ahead of us.' }]);
-    UI3.pickModal(scene, game, Object.assign({}, beat, { promptText: 'Someone is waiting for an answer.' }), all, (opt) => {
-      if (opt.romance) {
-        C3().applyOption(game, 'romance', opt);
-        UI3.playerLine(scene, game, opt.text.replace(/^\([^)]*\)\s*/, ''), opt.speaker, () => UI3.playBeat(scene, game, Object.assign({ c3: true, fid: C3().FID }, opt.reply), done));
-      } else {
-        const declines = opts.map(o => ({ c3: true, fid: C3().FID, who: o.speaker, key: 'q9_romance_no' }));
-        UI3.playerLine(scene, game, opt.text, opts[0].speaker, () => ADV.CampaignUI.playBeats(scene, game, declines, done));
-      }
-    });
+  // Compatibility with arrival queues in older saves. Courtship now starts only
+  // from the inn, never by playing a procession of unsolicited confessions.
+  if (done) done();
+};
+UI3.innConversations = function (scene, game, done) {
+  const opts = C3().roster(game).filter(id => C3().canTalkPrivately(game, id)).map(id => ({ id, text: C3().charName(id) }));
+  opts.push({ id: 'close', text: 'Back to the hall' });
+  UI3.pickModal(scene, game, { promptText: opts.length > 1 ? 'Spend some time with a companion. Who would you like to talk to?' : 'No private conversations are available yet.' }, opts, opt => {
+    if (opt.id === 'close') { if (done) done(); return; }
+    UI3.privateConversation(scene, game, opt.id, () => UI3.innConversations(scene, game, done));
+  });
+};
+UI3.privateConversation = function (scene, game, who, done) {
+  const c = C3(), route = D().CAMPAIGN3_COURTSHIP[who];
+  if (!c.canTalkPrivately(game, who)) { if (done) done(); return; }
+  const bond = c.courtshipState(game, who), conversation = c.personalConversation(game, who);
+  const frame = { c3: true, fid: c.FID, who, privateCourtship: true, artLocation: 'nine_lanterns', artPhase: 'night' };
+  const play = (key, next) => UI3.playBeat(scene, game, { ...frame, key }, next);
+  const finish = () => { if (done) done(); };
+  const opts = [];
+  if (conversation) opts.push({ id: 'talk', text: 'Sit and talk for a while. [Friendship]' });
+  if (c.canExpressInterest(game, who)) opts.push({ id: 'interest', text: bond.status === 'deferred' ? 'I am ready to try courtship. [Romantic interest]' : bond.status === 'declined' ? 'My feelings have changed. May I court you? [Romantic interest]' : 'I would like to be more than friends. [Romantic interest]' });
+  if (c.canOfferRomance(game, who)) opts.push({ id: 'offer', text: 'Could we talk about us? [Courtship]' });
+  opts.push({ id: 'close', text: 'Leave the conversation' });
+  const status = bond.status === 'established' ? 'You are seeing each other.' : bond.status === 'declined' ? 'You agreed to remain friends. Only you can reopen the subject.' : bond.status === 'deferred' ? 'You asked for time. There will be no further invitation unless you bring it up.' : bond.status === 'interested' ? (c.canOfferRomance(game, who) ? 'You have spent time together. You can ask how they feel about you.' : 'You have expressed interest. Give the relationship time between conversations.') : 'You can get to know each other without pursuing a romance.';
+  const wait = !conversation && bond.talks.length < 2 || bond.status === 'interested' && !c.canOfferRomance(game, who);
+  UI3.pickModal(scene, game, { ...frame, promptText: status + (wait ? (c.completed(game) ? ' Return after another adventure.' : ' Return after completing another campaign quest.') : '') }, opts, opt => {
+    if (opt.id === 'close') return finish();
+    if (opt.id === 'talk') {
+      play(conversation.key, () => UI3.pickModal(scene, game, { ...frame, key: conversation.key }, [
+        { id: 'continue', text: conversation.text }, { id: 'close', text: 'I should go. We can talk another time.' },
+      ], answer => {
+        if (answer.id === 'close') return finish();
+        if (!c.finishConversation(game, who, conversation.key)) return finish();
+        UI3.playerLine(scene, game, answer.text, who, () => play(conversation.reply, () => UI3.privateConversation(scene, game, who, done)));
+      }));
+    } else if (opt.id === 'interest') {
+      if (!c.expressInterest(game, who)) return finish();
+      UI3.playerLine(scene, game, opt.text.replace(/ \[[^\]]+\]$/, ''), who, () => play(route.interest, finish));
+    } else if (opt.id === 'offer' && c.canOfferRomance(game, who)) {
+      play('q9_romance', () => UI3.pickModal(scene, game, { ...frame, key: 'q9_romance' }, [
+        { id: 'yes', text: 'Yes. I would like that. [Begin a relationship]' },
+        { id: 'later', text: 'I need more time. I will bring it up when I am ready.' },
+        { id: 'friends', text: 'I want us to remain friends.' },
+      ], answer => {
+        if (!c.answerCourtship(game, who, answer.id)) return finish();
+        UI3.playerLine(scene, game, answer.text.replace(/ \[[^\]]+\]$/, ''), who,
+          () => play(answer.id === 'later' ? route.later : 'q9_romance_' + (answer.id === 'yes' ? 'yes' : 'no'), finish));
+      }));
+    } else finish();
   });
 };
 UI3.playerLine = function (scene, game, text, toWho, done) {
@@ -321,7 +360,7 @@ Panels.story = function (scene, r) {
   for (const id of v.roster) {
     const ch = D().CAMPAIGN_CHARS[id];
     const on = v.company.includes(id);
-    const description = (on ? 'riding · ' : 'at the inn · ') + (s.romance === id ? 'yours · ' : '') + (ch.desc || '').split('.')[0];
+    const description = (on ? 'riding · ' : 'at the inn · ') + (s.romance === id ? 'partner · ' : '') + (ch.desc || '').split('.')[0];
     const subtitle = description.length > 38 ? description.slice(0, 35).replace(/\s+\S*$/, '') + '…' : description;
     companyScroll.addBtn(T().button(scene, cx, cy, cw, 34, (on ? '● ' : '○ ') + ch.name, () => {
       if (on || !C3().companyFull(game)) { C3().toggleCompany(game, id); scene.openPanel('story'); return; }
@@ -344,6 +383,8 @@ Panels.story = function (scene, r) {
   const listTop = r.y + 96, listH = r.h - 96 - 60;
   const scroll = ADV.UI.scrollArea(scene, { x: lx - 4, y: listTop, w: lw + 8, h: listH }, { keep: o => scene.keep(o) });
   let y = listTop + 4;
+  scroll.addBtn(T().button(scene, lx, y, lw, 46, 'Talk at the inn', () => UI3.innConversations(scene, game, () => scene.openPanel('story')), { size: 14, sub: 'Optional private conversations · friendship or courtship', subColor: T().css.inkDim }));
+  y += 58;
   let chapter = null;
   for (const q of v.quests) {
     if (q.chapter !== chapter) {

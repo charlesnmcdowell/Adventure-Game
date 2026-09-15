@@ -23,10 +23,15 @@ C3.QUEST_COUNT = 14;
 C3.LEVEL_BY_TIER = { 1: 6, 2: 12, 3: 18, boss: 24 };
 
 // ---------------------------------------------------------------- state (§1)
+// Remove only the retired romance paragraphs from completed saves; keep the ending.
+const retiredDelphineRomance = new Set([
+  "Delphine is at the Warden house. So are you, most nights. Neither of you has said Beau's name in front of the other yet. You will.",
+  'She says Tesfaye would have liked how it ended. Then she says he would have cheated a little. Then she laughs, for the first time since the mine.',
+]);
 C3.fresh = function () {
   return {
     stage: 0, started: false,
-    flags: {}, heritage: 0, aff: {}, romance: null, allegiance: null,
+    flags: {}, heritage: 0, aff: {}, romance: null, courtship: {}, allegiance: null,
     company: [], recruited: [], gone: [], dead: [],
     ending: null, epilogue: null, endCardDue: false,
     beats: [], choices: {}, asked: {}, choiceEffects: {}, gearIssued: false,
@@ -43,6 +48,25 @@ C3.state = function (game) {
   if (!s.choiceEffects) s.choiceEffects = Object.fromEntries(Object.entries(s.choices || {}).map(([id,optionId]) => [id,{optionId,legacy:true}]));
   // forward-compatible defaults
   for (const [k, v] of Object.entries(C3.fresh())) if (s[k] === undefined) s[k] = v;
+  if (s.romance === 'selene') s.romance = null;
+  if (s.choices.romance === 'romance_selene') delete s.choices.romance;
+  if (s.choiceEffects.romance?.optionId === 'romance_selene') delete s.choiceEffects.romance;
+  // Preserve relationships actually accepted in old saves; approval alone does
+  // not invent conversations or interest. Amara's old accepted route is retained.
+  if (s.romance && D().CAMPAIGN_CHARS[s.romance]?.romance && !s.courtship[s.romance]) {
+    s.courtship[s.romance] = { status: 'established', talks: [], legacy: true };
+  }
+  if (Array.isArray(s.epilogue) && s.epilogue.some(p => retiredDelphineRomance.has(p))) {
+    s.epilogue = s.epilogue.filter(p => !retiredDelphineRomance.has(p));
+  }
+  if (s.romanceTextVersion !== 1 && Array.isArray(s.epilogue)) {
+    for (const [who, old] of Object.entries(D().CAMPAIGN3_OLD_ROMANCE_ENDINGS || {})) {
+      const updated = D().CAMPAIGN3_EPILOGUE.romance[who];
+      if (!updated) continue;
+      for (const part of ['line', 'favoured']) s.epilogue = s.epilogue.map(p => p === old[part] ? updated[part] : p);
+    }
+    s.romanceTextVersion = 1;
+  }
   return s;
 };
 C3.save = function (game) { if (ADV.Save && ADV.Save.saveMeta) ADV.Save.saveMeta(game); };
@@ -472,6 +496,12 @@ C3.prepareBeats = function (game, beats) {
   const out = [];
   for (const raw of beats || []) {
     if (!C3.test(game, raw.when)) continue;
+    // A dynamic choice has no speaker until its eligible options are resolved.
+    // This also accepts the old saved wrapper that named Delphine as its speaker.
+    if (raw.dynamic) {
+      out.push(Object.assign({}, raw, { fid: C3.FID, c3: true }));
+      continue;
+    }
     const s = C3.state(game);
     let who = raw.who;
     if (raw.anyOf) {
@@ -537,7 +567,72 @@ C3.options = function (game, choiceId) {
     return !(o.gold<0) || (ADV.Game.player(game)?.inventory.gold||0)>=-o.gold;
   });
 };
-// The romance closer builds its options from the state (§4 Q9).
+// Private conversations are separate from quest approval. During the campaign,
+// only a newly completed chapter creates another occasion (not a failed retry).
+// After the ending, ordinary world quests provide time for unfinished courtship.
+C3.courtshipState = function (game, who) {
+  return C3.state(game).courtship[who] || { status: 'friendship', talks: [] };
+};
+C3.courtshipOccasion = function (game) {
+  return { stage: C3.state(game).stage, clock: game.world?.questClock || 0 };
+};
+C3.laterOccasion = function (game, previous) {
+  if (!previous) return true;
+  const now = C3.courtshipOccasion(game);
+  return now.stage > previous.stage || (C3.completed(game) && now.clock > previous.clock);
+};
+C3.canTalkPrivately = function (game, who) {
+  return !game.quest && C3.isRecruited(game, who) && C3.aff(game, who) >= 0 &&
+    !!D().CAMPAIGN3_COURTSHIP[who];
+};
+C3.personalConversation = function (game, who) {
+  if (!C3.canTalkPrivately(game, who)) return null;
+  const bond = C3.courtshipState(game, who), route = D().CAMPAIGN3_COURTSHIP[who];
+  if (!C3.laterOccasion(game, bond.talks.at(-1))) return null;
+  return route.conversations[bond.talks.length] || null;
+};
+C3.finishConversation = function (game, who, key) {
+  const conversation = C3.personalConversation(game, who);
+  if (!conversation || conversation.key !== key) return false;
+  const s = C3.state(game), bond = C3.courtshipState(game, who);
+  bond.talks.push({ key, ...C3.courtshipOccasion(game) });
+  s.courtship[who] = bond;
+  s.aff[who] = C3.aff(game, who) + 1;
+  C3.save(game);
+  return true;
+};
+C3.canExpressInterest = function (game, who) {
+  const s = C3.state(game), bond = C3.courtshipState(game, who);
+  // Campaign routes retain their existing availability for either player sex.
+  // They do not alter world marriages or the world's separate preference rules.
+  return C3.canTalkPrivately(game, who) && !s.romance && bond.talks.length >= 2 &&
+    C3.aff(game, who) >= 3 && ['friendship', 'declined', 'deferred'].includes(bond.status) &&
+    C3.laterOccasion(game, bond.lastOffer);
+};
+C3.expressInterest = function (game, who) {
+  if (!C3.canExpressInterest(game, who)) return false;
+  const s = C3.state(game), bond = C3.courtshipState(game, who);
+  bond.status = 'interested'; bond.interest = C3.courtshipOccasion(game);
+  s.courtship[who] = bond; C3.save(game); return true;
+};
+C3.canOfferRomance = function (game, who) {
+  const bond = C3.courtshipState(game, who);
+  return C3.canTalkPrivately(game, who) && !C3.state(game).romance && C3.aff(game, who) >= 3 &&
+    bond.status === 'interested' && bond.talks.length >= 2 &&
+    C3.laterOccasion(game, bond.talks.at(-1)) && C3.laterOccasion(game, bond.interest);
+};
+C3.answerCourtship = function (game, who, answer) {
+  if (!C3.canOfferRomance(game, who) || !['yes', 'later', 'friends'].includes(answer)) return false;
+  const s = C3.state(game), bond = C3.courtshipState(game, who);
+  bond.status = { yes: 'established', later: 'deferred', friends: 'declined' }[answer];
+  bond.lastOffer = C3.courtshipOccasion(game);
+  if (answer === 'yes') s.romance = who;
+  s.courtship[who] = bond;
+  if (s.ending) s.epilogue = C3.epilogue(game);
+  C3.save(game); return true;
+};
+// Compatibility for callers inspecting eligible offers. Arrival wrappers no
+// longer trigger any of these; the player approaches one companion at the inn.
 C3.dynamicOptions = function (game, kind) {
   if (kind !== 'romance') return [];
   const s = C3.state(game);
@@ -545,7 +640,7 @@ C3.dynamicOptions = function (game, kind) {
   const out = [];
   for (const id of C3.roster(game)) {
     const def = D().CAMPAIGN_CHARS[id];
-    if (!def || !def.romance || C3.aff(game, id) < 3) continue;
+    if (!def || !def.romance || !C3.canOfferRomance(game, id)) continue;
     if (def.romanceWhen && !C3.test(game, def.romanceWhen)) continue;
     if (!C3.lines(C3.FID, id, 'q9_romance').length) continue;
     out.push({ id: 'romance_' + id, text: `(${def.name}) Yes.`, romance: id, speaker: id, prompt: { who: id, key: 'q9_romance' }, reply: { who: id, key: 'q9_romance_yes' } });
@@ -554,6 +649,10 @@ C3.dynamicOptions = function (game, kind) {
 };
 C3.applyOption = function (game, choiceId, opt) {
   const s = C3.state(game);
+  if (opt.romance) {
+    const accepted = C3.answerCourtship(game, opt.romance, 'yes');
+    return { joined: [], overflow: [], ...(accepted ? {} : { error: 'Courtship has not been established with this companion.' }) };
+  }
   const effectId=opt.ask?choiceId+':ask:'+opt.id:choiceId;
   const previous=s.choiceEffects[effectId];
   const attemptEffects=()=>{
@@ -589,7 +688,6 @@ C3.applyOption = function (game, choiceId, opt) {
   if (opt.heritage) s.heritage = Math.max(-3, Math.min(3, s.heritage + opt.heritage));
   if (opt.allegiance) s.allegiance = opt.allegiance;
   if (opt.allegianceLean) C3.setFlag(game, 'lean_' + opt.allegianceLean);
-  if (opt.romance) s.romance = opt.romance;
   if (opt.gold) { const p = ADV.Game.player(game); if (p) p.inventory.gold = Math.max(0, (p.inventory.gold || 0) + opt.gold); }
   const seats = C3.applyRecruits(game, opt.recruit);
   for (const id of opt.dismiss || []) C3.dismiss(game, id);
@@ -688,7 +786,7 @@ C3.epilogue = function (game) {
   if (s.romance && E.romance[s.romance]) {
     const r = E.romance[s.romance];
     const def = D().CAMPAIGN_CHARS[s.romance];
-    if (!s.dead.includes(s.romance)) {
+    if (C3.isRecruited(game, s.romance)) {
       paras.push(r.line);
       const fav = def && def.favours;
       const matches = fav === s.ending || (fav === 'kill' && ['hero', 'monster'].includes(s.ending) && s.resolution === 'kill') || (fav === 'thieves' && s.allegiance === 'thieves');

@@ -1,0 +1,400 @@
+{
+  "scope": "Varenholm Gate romance eligibility and playback; isolated state scenarios, not full playthroughs",
+  "routes": [
+    {
+      "id": "cassian",
+      "name": "Santiago",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q2_cassian",
+          "join"
+        ],
+        [
+          "q8_halloran",
+          "yes"
+        ],
+        [
+          "q8_halvard",
+          "city"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "ithrel",
+      "name": "Itsuki",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q3_ithrel",
+          "yes"
+        ],
+        [
+          "q5_ithrel_shot",
+          "shoot"
+        ]
+      ],
+      "affinity": 4,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "ilvara",
+      "name": "Layla",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q5_ilvara",
+          "defend"
+        ],
+        [
+          "q9_lysandra",
+          "deal"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "faelen",
+      "name": "Kaito",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q6_faelen",
+          "cut"
+        ],
+        [
+          "q8_door",
+          "faelen"
+        ],
+        [
+          "q8_halvard",
+          "pay"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "playerSex": "f",
+      "stage": 13,
+      "choices": [
+        [
+          "q11_amara",
+          "promise"
+        ],
+        [
+          "q13_amara_gate",
+          "join"
+        ]
+      ],
+      "affinity": 5,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "cassian",
+      "name": "Santiago",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q2_cassian",
+          "join"
+        ],
+        [
+          "q8_halloran",
+          "yes"
+        ],
+        [
+          "q8_halvard",
+          "city"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "ithrel",
+      "name": "Itsuki",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q3_ithrel",
+          "yes"
+        ],
+        [
+          "q5_ithrel_shot",
+          "shoot"
+        ]
+      ],
+      "affinity": 4,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "ilvara",
+      "name": "Layla",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q5_ilvara",
+          "defend"
+        ],
+        [
+          "q9_lysandra",
+          "deal"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "faelen",
+      "name": "Kaito",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q6_faelen",
+          "cut"
+        ],
+        [
+          "q8_door",
+          "faelen"
+        ],
+        [
+          "q8_halvard",
+          "pay"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "playerSex": "m",
+      "stage": 13,
+      "choices": [
+        [
+          "q11_amara",
+          "promise"
+        ],
+        [
+          "q13_amara_gate",
+          "join"
+        ]
+      ],
+      "affinity": 5,
+      "offeredWithoutCourtship": true,
+      "asked": {},
+      "offeredWhileBenched": true
+    }
+  ],
+  "afterDecline": {
+    "romance": null,
+    "choiceRecorded": null,
+    "itsukiStillEligible": true
+  },
+  "playback": {
+    "menus": [
+      {
+        "optionIds": [
+          "romance_ithrel",
+          "none"
+        ],
+        "declineLabel": "Not now. Not with the city ahead of us."
+      },
+      {
+        "optionIds": [
+          "romance_ithrel",
+          "romance_amara",
+          "none"
+        ],
+        "declineLabel": "Not now. Not with the city ahead of us."
+      }
+    ],
+    "itsukiConfessions": 2,
+    "confessionSpeakersBeforeSecondMenu": [
+      "romance_ithrel",
+      "romance_amara"
+    ]
+  },
+  "writing": [
+    {
+      "id": "cassian",
+      "name": "Santiago",
+      "description": "A squire of the Order of the Dawning Flame, from its chapter house in the sun-lands, on his first errand. Earnest, rigid, secretly terrified of failing.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[stumbling] I have written this out four times and burned it three. I — {target}. With respect. I have not stopped looking at you since the wolves, and I am not the sort who looks."
+          },
+          {
+            "t": "[earnest] If the Order asks, I will say it was duty. It was not."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[overwhelmed] Truly? I — yes. Yes. God keep you. I will be very good at this — I will try very hard to be good at this, I promise."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[bravely] Then I am glad I said it, and I will not say it again. Thank you for hearing it."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Santiago asked you to attend his knighting. You did. The Order pretended not to notice you.",
+        "favoured": "He calls it the right ending. He calls everything the right ending. This time you agree with him."
+      }
+    },
+    {
+      "id": "ithrel",
+      "name": "Itsuki",
+      "description": "An elf ranger of the eastern woods who has hunted the bandit lord Gorruk for a year. Grief made him quiet; the quiet made him precise.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[low] I buried the last person I loved beside a road. I said I would not do this again."
+          },
+          {
+            "t": "[quiet] I would, though. With you. I wanted you to know it before the city, in case the city is the end of me."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[exhaling] Then I will try to live through the city. That is new. Thank you for giving me a reason."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[calm] I understand. It was enough to say it. Sleep."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Itsuki sleeps through the night now. He says it is the tree. You suspect it is not the tree.",
+        "favoured": "He said \"mine\" once more, at the altar, and then never again. He did not need to."
+      }
+    },
+    {
+      "id": "ilvara",
+      "name": "Layla",
+      "description": "A dark-elf priestess of the deep cities, fleeing her own people and a bounty. Contemptuous, curious, thinks mercy is a luxury the strong buy.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[dry] Do not look so alarmed. I am not asking you to love me; your people are terrible at it."
+          },
+          {
+            "t": "[soft] I am telling you that I have decided to stay, and that when you sit in that chair I mean to be standing beside it. By the deep, make of that what you will."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[satisfied] Good. You will not regret it, and if you do, I will mend that."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[shrugging] As you like. The offer keeps. I am patient in a way your kind is not."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Layla sleeps in the chapel and, when it suits her, elsewhere. She is very clear that it suits her.",
+        "favoured": "She was standing beside the chair when you sat in it. She has not stopped smiling. It is not a warm smile. It is yours."
+      }
+    },
+    {
+      "id": "faelen",
+      "name": "Kaito",
+      "description": "An elf bounty-hunter of the eastern woods who flirts with anything and finishes every job. Cheerful, mercenary, surprisingly loyal.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[smiling] So. I flirt with everything. Trees. Wyverns. That doorman. You have noticed."
+          },
+          {
+            "t": "[suddenly serious] Forgive me. I have not meant a word of it since the web. I mean this one. Tell me to stop, or tell me not to."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[delighted] Do not stop. Understood. Written down. Framed."
+          },
+          {
+            "t": "[soft] Thank you. I will be insufferable about this for years."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[light] Stop it is. Friends, then, and I am very good at that as well."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Kaito still flirts with everything. He says it is professional courtesy. He comes home to one door.",
+        "favoured": "The Undervault knows his face now, and yours, and treats you both as family. Tunde says that is the debt, paid."
+      }
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "description": "Kolade's lover and sword-hand. A monk of the Gate's fire temples who wants him stopped, not slaughtered. Grave, exact, tired.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[quiet] I loved a man who wanted to be a god. I am not proud of it, and I am not sorry for it."
+          },
+          {
+            "t": "[steady] I do not know what I want from you. I know that when you kept your word at the gate, something in me turned toward you the way a plant turns to a window. Say something, or do not."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[exhaling] Then we will find out what it is together. After the altar. If there is an after."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[calm] That is fair. I have asked enough of you for one life. The altar, then."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Amara brings bread to the cell every week. You walk her there and wait outside. She has never once asked you to come in.",
+        "favoured": "She said you kept your word. She said it as if it were the strangest thing anyone had ever done for her."
+      }
+    }
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "scope": "Varenholm Gate romance eligibility and playback; isolated state scenarios, not full playthroughs",
+  "routes": [
+    {
+      "id": "cassian",
+      "name": "Santiago",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q2_cassian",
+          "join"
+        ],
+        [
+          "q8_halloran",
+          "yes"
+        ],
+        [
+          "q8_halvard",
+          "city"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "ithrel",
+      "name": "Itsuki",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q3_ithrel",
+          "yes"
+        ],
+        [
+          "q5_ithrel_shot",
+          "shoot"
+        ]
+      ],
+      "affinity": 4,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "ilvara",
+      "name": "Layla",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q5_ilvara",
+          "defend"
+        ],
+        [
+          "q9_lysandra",
+          "deal"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "faelen",
+      "name": "Kaito",
+      "playerSex": "f",
+      "stage": 9,
+      "choices": [
+        [
+          "q6_faelen",
+          "cut"
+        ],
+        [
+          "q8_door",
+          "faelen"
+        ],
+        [
+          "q8_halvard",
+          "pay"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "playerSex": "f",
+      "stage": 13,
+      "choices": [
+        [
+          "q11_amara",
+          "promise"
+        ],
+        [
+          "q13_amara_gate",
+          "join"
+        ]
+      ],
+      "affinity": 5,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "cassian",
+      "name": "Santiago",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q2_cassian",
+          "join"
+        ],
+        [
+          "q8_halloran",
+          "yes"
+        ],
+        [
+          "q8_halvard",
+          "city"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "ithrel",
+      "name": "Itsuki",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q3_ithrel",
+          "yes"
+        ],
+        [
+          "q5_ithrel_shot",
+          "shoot"
+        ]
+      ],
+      "affinity": 4,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "ilvara",
+      "name": "Layla",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q5_ilvara",
+          "defend"
+        ],
+        [
+          "q9_lysandra",
+          "deal"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "faelen",
+      "name": "Kaito",
+      "playerSex": "m",
+      "stage": 9,
+      "choices": [
+        [
+          "q6_faelen",
+          "cut"
+        ],
+        [
+          "q8_door",
+          "faelen"
+        ],
+        [
+          "q8_halvard",
+          "pay"
+        ]
+      ],
+      "affinity": 3,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "playerSex": "m",
+      "stage": 13,
+      "choices": [
+        [
+          "q11_amara",
+          "promise"
+        ],
+        [
+          "q13_amara_gate",
+          "join"
+        ]
+      ],
+      "affinity": 5,
+      "offeredWithoutCourtship": false,
+      "asked": {},
+      "offeredWhileBenched": false
+    }
+  ],
+  "afterLegacyArrival": {
+    "romance": null,
+    "choiceRecorded": null,
+    "itsukiStillEligible": false
+  },
+  "playback": {
+    "menus": [],
+    "itsukiConfessions": 0,
+    "confessionSpeakersBeforeSecondMenu": []
+  },
+  "writing": [
+    {
+      "id": "cassian",
+      "name": "Santiago",
+      "description": "A squire of the Order of the Dawning Flame, from its chapter house in the sun-lands, on his first errand. Earnest, rigid, secretly terrified of failing.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[nervous] I enjoy the time we spend together. More than I know how to say properly."
+          },
+          {
+            "t": "[earnest] When we have a quiet evening, may I take you to supper? Just the two of us."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[pleased] Supper, then. I know a decent place. I will try to get through the evening without saluting you."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[bravely] Then I am glad I said it, and I will not say it again. Thank you for hearing it."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Santiago asked you to attend his knighting. You went together, then slipped away for supper before the speeches had finished.",
+        "favoured": "He asked to help rebuild the damaged streets. You spent several mornings working beside him."
+      }
+    },
+    {
+      "id": "ithrel",
+      "name": "Itsuki",
+      "description": "An elf ranger of the eastern woods who has hunted the bandit lord Gorruk for a year. Grief made him quiet; the quiet made him precise.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[low] I still miss my wife. I always will."
+          },
+          {
+            "t": "[quiet] But I have come to care for you too. If you feel the same, I would like us to be together."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[quiet] Then we will take our time. I am glad you told me."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[calm] I understand. It was enough to say it. Sleep."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "You and Itsuki make time to walk outside the city. Some days he speaks about his wife. On others, you plan where to travel next.",
+        "favoured": "After the hunt was over, he asked you to visit the woods where he once worked as a guide."
+      }
+    },
+    {
+      "id": "ilvara",
+      "name": "Layla",
+      "description": "A dark-elf priestess of the deep cities, fleeing her own people and a bounty. Contemptuous, curious, thinks mercy is a luxury the strong buy.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[dry] I enjoy your company when you stop trying to give me orders."
+          },
+          {
+            "t": "[direct] I would like some time alone with you. Interested?"
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[pleased] Good. Come and sit with me. Your duties can wait for an evening."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[cool] Very well. I will not ask again."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Layla invites you to her chapel after the day's work. You share meals, argue over the wine, and make plans together.",
+        "favoured": "She insists on keeping her own duties. The two of you arrange time together around them."
+      }
+    },
+    {
+      "id": "faelen",
+      "name": "Kaito",
+      "description": "An elf bounty-hunter of the eastern woods who flirts with anything and finishes every job. Cheerful, mercenary, surprisingly loyal.",
+      "dialogue": {
+        "q9_romance": [
+          {
+            "t": "[smiling] I like you. I'd like to spend an evening with you, without the rest of this lot."
+          }
+        ],
+        "q9_romance_yes": [
+          {
+            "t": "[delighted] Excellent. A decent meal, some wine, and no work."
+          },
+          {
+            "t": "[warm] I have been looking forward to this."
+          }
+        ],
+        "q9_romance_no": [
+          {
+            "t": "[light] Stop it is. Friends, then, and I am very good at that as well."
+          }
+        ]
+      },
+      "epilogue": {
+        "line": "Kaito takes you to the inns where he once played for his supper. He remembers the songs better than he claims.",
+        "favoured": "His work with the Undervault keeps him busy, but he always makes time for an evening with you."
+      }
+    },
+    {
+      "id": "amara",
+      "name": "Amara",
+      "description": "Kolade's lover and sword-hand. A monk of the Gate's fire temples who wants him stopped, not slaughtered. Grave, exact, tired.",
+      "dialogue": {},
+      "epilogue": {
+        "line": "You and Amara agree to take your relationship slowly. There is much still to discuss, including her feelings for Kolade.",
+        "favoured": "She thanks you for hearing her out. Neither of you pretends that the road ahead will be easy."
+      }
+    }
+  ]
+}

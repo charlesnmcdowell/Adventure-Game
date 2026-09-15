@@ -14,6 +14,14 @@ const usedChoices = new Set();
 const usedBeats = new Set();
 // Triggered by a successful anti-healing action in combat, not a cutscene list.
 usedBeats.add('fennick:q4_healing');
+for (const [who, route] of Object.entries(D.CAMPAIGN3_COURTSHIP)) {
+  ok(route.conversations.length >= 2, `${who}: two personal conversations`);
+  for (const key of [...route.conversations.flatMap(c => [c.key, c.reply]), route.interest, route.later, 'q9_romance', 'q9_romance_yes', 'q9_romance_no']) {
+    ok(has(who, key), `${who}: private conversation ${key} exists`);
+    usedBeats.add(who + ':' + key);
+  }
+  for (const c of route.conversations) ok(c.text.length <= 96, `${who}: personal reply fits the choice modal`);
+}
 const speakersOf = {};   // choice id -> speakers whose beat carries it (for $speaker replies)
 const companions = Object.values(D.CAMPAIGN_CHARS).filter(c => c.companion).map(c => c.id);
 
@@ -31,6 +39,12 @@ function checkWhen(when, where) {
   if (when.any) when.any.forEach((w, i) => checkWhen(w, where + '.any' + i));
 }
 function checkBeat(b, where) {
+  if (b.dynamic) {
+    ok(b.dynamic === 'romance', `${where}: dynamic choice type is supported`);
+    ok(!b.who && !b.key, `${where}: dynamic choices do not preselect a speaker or recording`);
+    checkWhen(b.when, where);
+    return;
+  }
   const who = b.who;
   ok(!!D.CAMPAIGN_CHARS[who], `${where}: speaker ${who} exists`);
   const speakers = b.anyOf ? b.anyOf : [who];
@@ -111,7 +125,7 @@ for (const [who, keys] of Object.entries(DLG)) {
   }
 }
 for (const id of companions) ok(has(id, 'banter') && DLG[id].banter.length >= 3, `${id} has three banter lines`);
-for (const id of companions) { const c = D.CAMPAIGN_CHARS[id]; if (c.romance) ok(has(id, 'q9_romance') && has(id, 'q9_romance_yes') && has(id, 'q9_romance_no'), `${id}: romance offer, yes and no`); ok(!!D.CAMPAIGN3_EPILOGUE.companion[id], `${id}: has an epilogue entry`); }
+for (const id of companions) { const c = D.CAMPAIGN_CHARS[id]; if (c.romance && !c.romanceDeferred) ok(has(id, 'q9_romance') && has(id, 'q9_romance_yes') && has(id, 'q9_romance_no'), `${id}: romance offer, yes and no`); ok(!!D.CAMPAIGN3_EPILOGUE.companion[id], `${id}: has an epilogue entry`); }
 for (const id of Object.keys(D.CAMPAIGN3_EPILOGUE.romance)) ok(D.CAMPAIGN_CHARS[id] && D.CAMPAIGN_CHARS[id].romance, `epilogue romance ${id} is a romanceable companion`);
 for (const e of Object.keys(D.CAMPAIGN3_ENDINGS)) ok(!!D.CAMPAIGN3_EPILOGUE.ending[e], `ending ${e} has an epilogue paragraph`);
 for (const c of Object.values(D.CAMPAIGN_CHARS)) if (c.campaign3) ok(!!c.desc, `${c.id} has a description for the voice script`);

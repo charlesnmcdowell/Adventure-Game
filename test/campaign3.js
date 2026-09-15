@@ -108,6 +108,12 @@ function runQuest(game, n, policy) {
   ADV.Game.completeQuest(game);
   // town arrival: drain the queue the way CampaignUI.arrival does
   for (const b of ADV.Campaign.takeBeats(game)) playBeat(game, b, policy, log);
+  // Deliberately visit the inn; ordinary quest approval must never start romance.
+  const who = policy.romance, conversation = C3.personalConversation(game, who);
+  if (conversation) C3.finishConversation(game, who, conversation.key);
+  if (C3.canExpressInterest(game, who)) C3.expressInterest(game, who);
+  log.romanceOffers = C3.dynamicOptions(game, 'romance').map(o => o.romance);
+  if (C3.canOfferRomance(game, who)) C3.answerCourtship(game, who, 'yes');
   return log;
 }
 function fresh(seed) {
@@ -159,7 +165,7 @@ console.log('\n-- hero path --');
   ok(C3.isRecruited(g, 'durnik') && C3.flag(g, 'waitedForDorran') && C3.isAlive(g, 'dorran'), 'waited at the valve: Dorran lives, Durnik freed');
   ok(logs[6].fights >= 5, 'Q7: waiting for Dorran meant fighting the valve room');
   eq(s.allegiance, 'gauntlet', 'allegiance: the Gauntlet');
-  ok(logs[8].romanceOffers && logs[8].romanceOffers.includes('cassian'), 'Santiago offered romance after Q9', JSON.stringify(logs[8].romanceOffers));
+  ok(logs.some(l => l.romanceOffers?.includes('cassian')), 'Santiago offers romance after deliberate courtship');
   ok(!(logs[8].romanceOffers || []).includes('selene'), 'Delphine does not court while Beau lives');
   eq(s.romance, 'cassian', 'romanced Santiago');
   ok(C3.flag(g, 'wrenKept') && C3.isRecruited(g, 'wren_ward'), 'Wren kept in the catacombs');
@@ -168,7 +174,7 @@ console.log('\n-- hero path --');
   ok(s.heritage <= -2, 'heritage rejected', s.heritage);
   eq(s.ending, 'hero', 'ending: hero');
   ok(s.epilogue && s.epilogue.length >= 8, 'epilogue assembled', s.epilogue && s.epilogue.length);
-  ok(s.epilogue.some(t => /his knighting/.test(t)) && s.epilogue.some(t => /the right ending/.test(t)), 'epilogue carries the romance and the favoured-ending line');
+  ok(s.epilogue.some(t => /his knighting/.test(t)) && s.epilogue.some(t => /rebuild the damaged streets/.test(t)), 'epilogue carries the romance and the favoured-ending line');
   ok(ADV.Game.player(g).ownedSets.includes('wardens_gear'), 'Warden\'s Gear issued');
   ok(logs.some(l => l.banter.length), 'companions bantered in combat');
   const shot = logs[4].allies || [];
@@ -218,7 +224,7 @@ console.log('\n-- monster path --');
   ok(C3.flag(g, 'wrenHurt') && logs[12].beats.includes('wren_ward:q13_return'), 'Wren hurt in the catacombs, returned for the Undercity');
   ok(s.heritage >= 2, 'heritage embraced', s.heritage);
   eq(s.ending, 'usurper', 'ending: usurper');
-  ok(s.epilogue.some(t => /not a warm smile/.test(t)), 'Ilvara\'s favoured-ending line');
+  ok(s.epilogue.some(t => /keeping her own duties/.test(t)), 'Ilvara\'s favoured-ending line');
   ok(s.epilogue.some(t => /Beau is buried/.test(t)), 'Beau\'s grave in the epilogue');
   ok(!(logs[8].romanceOffers || []).includes('selene'), 'Delphine will not court the one who drowned Beau', JSON.stringify(logs[8].romanceOffers));
   ok(logs[11].beats.includes('lysandra:q12_council_dead'), 'both dukes died when the ward ran at Kolade');
@@ -258,7 +264,7 @@ console.log('\n-- mercy path --');
   ok(logs[13].beats.includes('amara:q14_plea'), 'Amara pleads at the altar');
   eq(s.ending, 'mercy', 'ending: mercy');
   ok(s.epilogue.some(t => /brings bread/.test(t)), 'Amara visits the cell');
-  ok(s.epilogue.some(t => /debt, paid/.test(t)), 'Faelen favours the thieves\' road');
+  ok(s.epilogue.some(t => /His work with the Undervault/.test(t)), 'Faelen favours the thieves\' road');
   // restart wipes only the story
   const lives = g.meta.lives;
   C3.restart(g);

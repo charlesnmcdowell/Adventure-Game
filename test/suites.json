@@ -101,6 +101,14 @@
       "args": []
     },
     {
+      "file": "test/campaign3_family.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign3_courtship.js",
+      "args": []
+    },
+    {
       "file": "test/tower_captain.js",
       "args": []
     },

@@ -64,8 +64,8 @@ chr({ id: 'dorran', name: 'Beau', region: 'thornbury', role: 'companion', compan
   desc: 'A Warden fighter from the Shore Road with a stammer he hates and a shield he never puts down. Delphine\'s husband.',
   perks: ['bulwark'], actives: ['cleave', 'shield_wall', 'sunder', 'taunt'],
   portrait: { skin: 'brown', hair: 'fringe', wardrobe: 'armor', color: '#4e5a3a' } });
-chr({ id: 'selene', name: 'Delphine', region: 'thornbury', role: 'companion', companion: true, sex: 'f', campaignExit: true, romance: true, favours: 'hero', romanceWhen: { dead: 'dorran' },
-  desc: 'Beau\'s wife and an old friend of your late stepfather, Tesfaye. A Warden druid of the Shore Road: blunt, protective, allergic to self-pity. Speaks for the balance of things.',
+chr({ id: 'selene', name: 'Delphine', region: 'thornbury', role: 'companion', companion: true, sex: 'f', campaignExit: true, favours: 'hero',
+  desc: 'Beau\'s wife and an old friend of your late stepfather, Tesfaye. She regards you as family. A Warden druid of the Shore Road: blunt, protective, allergic to self-pity. Speaks for the balance of things.',
   perks: ['wild_form'], actives: ['thorn_skin', 'mend', 'beast_shape', 'grove_raise'],
   portrait: { skin: 'brown', hair: 'braids', wardrobe: 'hide', color: '#3a5a3a' } });
 chr({ id: 'vess', name: 'Desmond', region: 'hand', role: 'companion', companion: true, sex: 'm', campaignExit: true,
@@ -112,7 +112,8 @@ chr({ id: 'durnik', name: 'Dai Morgan', region: 'dunmere', role: 'companion', co
   desc: 'A dwarf priest whose clan dug the Mirkhollow mine before the Consortium stole it. Slow to anger, impossible to move.',
   perks: ['bulwark'], actives: ['shield_wall', 'mend', 'taunt', 'regenerate'],
   portrait: { skin: 'fair', hair: 'bald', wardrobe: 'armor', color: '#6a5a3a' } });
-chr({ id: 'amara', name: 'Amara', region: 'gate', role: 'companion', companion: true, sex: 'f', campaignExit: true, romance: true, favours: 'mercy',
+// romance is retained for accepted legacy saves; no new route until a later story resolves Kolade.
+chr({ id: 'amara', name: 'Amara', region: 'gate', role: 'companion', companion: true, sex: 'f', campaignExit: true, romance: true, romanceDeferred: true, favours: 'mercy',
   desc: 'Kolade\'s lover and sword-hand. A monk of the Gate\'s fire temples who wants him stopped, not slaughtered. Grave, exact, tired.',
   perks: ['momentum'], actives: ['dual_swords', 'counter_attack', 'defiant_stand', 'cleave'],
   portrait: { skin: 'dark', hair: 'bun', wardrobe: 'armor', color: '#7a3a2a' } });
@@ -466,7 +467,7 @@ D.CAMPAIGN3_QUESTS = [
       { mini: 'tower_captain', with: ['consortium_mage', 'consortium_mage', 'consortium_guard'], label: 'The top floor' },
     ] },
   { n: 10, name: 'Return to Lanternhold', tier: 3, chapter: 'Chapter 6', travel: 'crypt',
-    brief: 'Sanni has accused his father of planning a war. The Consortium leaders are meeting at Lanternhold. Take the evidence, hear Adigun out, and decide whether to kill him or bring him before Adebayo.',
+    brief: 'The keepers are hearing the dispute over poisoned iron. Take the Consortium\'s orders to Lanternhold, confront Adigun and his partners, and find out where Kolade has gone.',
     enc: [
       { types: ['consortium_guard', 'consortium_guard', 'hired_knife'], label: 'The reading rooms' },
       { boss: 'maddox', with: ['vask', 'rennick', 'consortium_guard'], label: 'The summit', named: ['vask', 'rennick'] },
