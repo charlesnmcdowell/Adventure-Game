@@ -26,6 +26,7 @@ node_modules/
 !/tools/gate_courtship/
 !/tools/gate_courtship/**
 /tools/gate_courtship/audio/
+/tools/gate_courtship/headless-results.json
 !/tools/mobile_site/
 /tools/mobile_site/*
 !/tools/mobile_site/index.html
