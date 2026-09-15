@@ -507,40 +507,8 @@ ADV.Campaign2 = C2;
                    'finalOpener', 'afterBossBeats', 'skillPurchasable', 'reset',
                    'affects', 'levelRate', 'titleLifts', 'lines']) O[k] = ADV.Campaign[k];
 
-  ADV.Campaign.spawnEncounter = (game, quest, encIdx) =>
-    quest.campaign2 ? C2.spawnEncounter(game, quest, encIdx) : O.spawnEncounter(game, quest, encIdx);
-
-  ADV.Campaign.alliesFor = (game, q) =>
-    (q && q.campaign2) ? C2.alliesFor(game, q) : O.alliesFor(game, q);
-
-  ADV.Campaign.departureBeats = (game, q) =>
-    q.campaign2 ? C2.departureBeats(game, q) : O.departureBeats(game, q);
-
-  ADV.Campaign.banter = (game, st, roundN) => {
-    const q = game.quest && game.quest.quest;
-    return (q && q.campaign2) ? C2.banter(game, st, roundN) : O.banter(game, st, roundN);
-  };
-
-  // Beats from both systems drain through one queue so the town plays them in order.
-  ADV.Campaign.takeBeats = (game) => O.takeBeats(game).concat(C2.takeBeats(game));
-
-  ADV.Campaign.onContractComplete = function (game, quest, failed) {
-    O.onContractComplete(game, quest, failed);
-    C2.onContractComplete(game, quest, failed);
-  };
-
-  ADV.Campaign.onCampaignQuestDone = (game, q) =>
-    q.campaign2 ? C2.onQuestDone(game, q) : O.onCampaignQuestDone(game, q);
-
-  ADV.Campaign.rivalDeathSequence = (game, fid) =>
-    fid ? C2.rivalDeathSequence(game, fid) : O.rivalDeathSequence(game);
-  ADV.Campaign.finalOpener = (game, fid) =>
-    fid ? C2.finalOpener(game, fid) : O.finalOpener(game);
-  ADV.Campaign.afterBossBeats = (game, fid) =>
-    fid ? C2.afterBossBeats(game, fid) : O.afterBossBeats(game);
-
-  ADV.Campaign.lines = (fid, who, key) =>
-    C2.isC2(fid) ? C2.lines(fid, who, key) : O.lines(fid, who, key);
+  ADV.CampaignRoutes.register('factions', {...C2,
+    onCampaignQuestDone:C2.onQuestDone, acceptsFaction:fid=>C2.isC2(fid)});
 
   // Skills: campaign2 skills answer to campaign2's rules, the rest to campaign1's.
   ADV.Campaign.skillPurchasable = function (ch, skillId, meta) {

@@ -563,11 +563,17 @@ L('faelen', 'q6_faelen_cut', `[relieved] You are my favourite person. I say that
 L('faelen', 'q6_faelen_leave', `[calling after you] Fair enough! If you change your mind, I will be — well. Here.`);
 L('nettle', 'q6_grove', `[fierce] Far enough. This wood is not a road, and you are not welcome on it. The Umbra hold this grove, and the Umbra say turn around. Eh?|[sniffing] You carry iron from the Gate. The wood smells it on you. Which of you is theirs?`);
 L('selene', 'q6_grove_selene', `[steady] None of us. The iron's what we took off the men who are poisoning your river. We're here to shut their mine.`);
+// The Mzee is at the stones the whole time. He used to be a name Wanjiru invoked and a
+// boss the player killed without ever hearing him speak; now the thing she reports about
+// him — that he would rather they bled than talked — is something the player watches him
+// say, and her "he can take it up with the trees" has something to answer.
+L('thornwise', 'q6_grove_mzee', `[old, unhurried] Wanjiru. You are talking again.|[flat] I have buried nine of ours since that mine opened. I do not ask the men who come out of that hole what they meant to do. I put them in the ground and plant something on top.|[cold] Say your piece to them if you must. I have heard enough words this year.`);
+L('thornwise', 'q6_grove_mzee_peace', `[flat, from the trees] Wanjiru. If they are lying, you are the one who let them in.|[grudging] Go. The wood will still be here when you are done with them.`);
 L('nettle', 'q6_grove_selene_reply', `[narrowing] A Warden says so. Wardens said so about the last mine, and the last mine is still there.|[low] Mzee Kamau would sooner have you bleed than speak. I would sooner hear you first. So. Speak.`);
 L('nettle', 'q6_grove_ask', `[low] No answer. Then hear this: the Mzee would sooner have you bleed than speak. I would sooner hear you first. Speak, or turn around.`);
 CH('q6_nettle', [
-  { id: 'ask', text: 'What has been done to this wood?', ask: true, reply: B('nettle', 'q6_nettle_ask') },
-  { id: 'talk', text: 'We are here for the men who poison your river with their mine. Your enemy is ours.', when: { any: [{ company: 'selene' }, { heritageMax: 0 }] }, bypass: true, recruit: ['nettle'], set: { druidsPeace: true }, aff: { nettle: 2, selene: 1 }, reply: B('nettle', 'q6_nettle_talk') },
+  { id: 'ask', text: 'What has been done to this wood?', ask: true, set: { heardTheWood: true }, reply: B('nettle', 'q6_nettle_ask') },
+  { id: 'talk', text: 'We are here for the men who poison your river with their mine. Your enemy is ours.', when: { any: [{ company: 'selene' }, { heritageMax: 0 }, { flag: 'heardTheWood' }] }, bypass: true, recruit: ['nettle'], set: { druidsPeace: true }, aff: { nettle: 2, selene: 1 }, reply: B('nettle', 'q6_nettle_talk') },
   { id: 'fight', text: 'Move, or be moved.', heritage: 1, set: { druidsFought: true }, reply: B('nettle', 'q6_nettle_fight') },
 ]);
 L('nettle', 'q6_nettle_ask', `[bitter] Dead fish for a mile downstream. Stags with sores on their flanks. And men — men in chains, walking into a hole in the hill every dawn, and fewer walking out. The wood knows what is being done to it. It does not know how to stop it. I do.`);
@@ -593,10 +599,14 @@ Q(6, {
     0: [B('faelen', 'q6_web', { choice: 'q6_faelen', caption: 'The nest: white web thick as sailcloth between the trunks, and a man hanging in it upside down, apparently at his ease.' })],
     1: [
       B('nettle', 'q6_grove', { caption: 'A ring of standing stones in a clearing. A woman in bark and hide steps out of nothing and puts a staff across the path.' }),
+      B('thornwise', 'q6_grove_mzee', { caption: 'An old man is sitting against the nearest stone. He does not get up.' }),
       B('selene', 'q6_grove_selene', co('selene')), B('nettle', 'q6_grove_selene_reply', co('selene', { choice: 'q6_nettle' })),
       B('nettle', 'q6_grove_ask', without('selene', { choice: 'q6_nettle' })),
     ],
-    2: [B('faelen', 'q6_wyverns', co('faelen')), B(W, 'q6_wyverns', { when: { company: W, noCompany: 'faelen' } })],
+    2: [
+      // Openers are prepared when the encounter opens, so this sees the flag the grove set.
+      B('thornwise', 'q6_grove_mzee_peace', { when: { flag: 'druidsPeace' } }),
+      B('faelen', 'q6_wyverns', co('faelen')), B(W, 'q6_wyverns', { when: { company: W, noCompany: 'faelen' } })],
     3: [B('selene', 'q6_gate', co('selene'))],
   },
   closing: [],
@@ -672,9 +682,16 @@ CH('q7_dream', [
 L('aldric', 'q7_dream_others', `[quiet] I do not know how many are still alive. Most were raised by mortal families, as you were. Some may not know what they are. The man in black has been searching for them for years.`);
 L('aldric', 'q7_dream_reject', `[proud] Twice now. It grows harder each time and you keep saying no. That is what courage is. No one warns you that it is dull.`);
 L('aldric', 'q7_dream_embrace', `[grieving] The strongest of them is waiting for you at the end of this road, and he thinks exactly that.|[fading] Please, my child. Be careful what you become on the way to him.`);
+// The grove's two flags used to be recorded and never referred to again. The mine is the
+// thing the Umbra are angry about, so it is where the choice comes back: Wanjiru standing at
+// the source of the water she has been smelling for two years, or Hiwot doing the arithmetic
+// on a fight nobody needed.
+L('nettle', 'q7_mine_umbra', `[quiet] So. The hole in the hill.|[hard] Two years I have smelled this water and never once stood where it starts. It is smaller than I made it in my head.|[flat] Good. Small things can be closed.`);
+L(W, 'q7_mine_umbra_none', `[low] The wood people wanted this place shut as badly as we do.|[dry] We fought them for the right to walk past it. I keep turning that over and it keeps coming out stupid.`);
 Q(7, {
   departure: [B('dorran', 'q7_gate', co('dorran', { choice: 'q7_dorran' }))],
   openers: {
+    0: [B('nettle', 'q7_mine_umbra', co('nettle')), B(W, 'q7_mine_umbra_none', { when: { flag: 'druidsFought', company: W } })],
     1: [B(W, 'q7_cages', co(W))],
     2: [
       B('durnik', 'q7_cage', { caption: 'A cage of iron bars at the end of the second level. The dwarf inside has been waiting in the dark long enough to be polite about it.' }),
@@ -1279,7 +1296,7 @@ D.CAMPAIGN3_EPILOGUE = {
     aurelius: { present: `Devendra returned to Vashk with a hundred gold and an insufferable story. The Crimson Wizards have promoted him. They will regret it.`, gone: '', dead: '' },
     ilvara: { present: `Layla stayed. She has a chapel now, of a kind, and the bounty on her was quietly torn up by someone who owed you a favour.`, gone: `Layla was taken in chains toward the coast. The wagon did not arrive. Nobody has looked very hard.`, dead: '' },
     faelen: { present: `Kaito collected the wyvern bounty and, he claims, the kiss. He has opened a very small, very profitable business finding things people lost on purpose.`, gone: `Kaito is still in the web, in a sense. He was last seen in Thornbury telling the story with himself as the hero.`, dead: '' },
-    nettle: { present: `Wanjiru went back to the Mirkhollow. The druids have not forgiven her. The trees, she says, have.`, gone: '', dead: '' },
+    nettle: { present: `Wanjiru went back to the Mirkhollow. The druids have not forgiven her. The trees, she says, have.`, gone: `Wanjiru left when the road reached the Gate. She said she had been away from the wood long enough, and that she would know if the river ever ran clean again.`, dead: '' },
     durnik: { present: `Dai Morgan went back to the Mirkhollow mine with a charter and forty of his clan. It is called the Nineteen now, and ledger four is buried under the first shaft.`, gone: `Dai Morgan is presumed to have died in the cages. The mine is closed.`, dead: '' },
     amara: { present: `Amara visits the cell every week. She brings bread. He eats it.`, gone: `Amara left the city on the morning tide. She did not say where. She did not look at you.`, dead: `Amara is buried at the gate of the Undercity, where she stood.` },
   },

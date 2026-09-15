@@ -46,7 +46,7 @@ ADV.Prefs = Prefs;
 // Browser chrome hides via the Fullscreen API; the canvas then refits so the
 // game fills whatever display the player is on (phone, tablet, or monitor).
 const Display = {};
-const watchers = [];
+const watchers = new Set();
 
 function doc() { return typeof document !== 'undefined' ? document : null; }
 function win() { return typeof window !== 'undefined' ? window : null; }
@@ -72,12 +72,17 @@ function notify() {
   const w = win();
   if (w && w.__refit) w.__refit();
   const s = Display.label();
-  for (let i = watchers.length - 1; i >= 0; i--) {
-    try { watchers[i](s); } catch (e) { watchers.splice(i, 1); }
-  }
+  for (const fn of watchers) { try { fn(s); } catch (e) { watchers.delete(fn); } }
 }
 
-Display.watch = function (fn) { if (typeof fn === 'function') watchers.push(fn); };
+Display.watch = function (fn, owner) {
+  if(typeof fn!=='function')return ()=>{};
+  watchers.add(fn);
+  const dispose=()=>{watchers.delete(fn);owner?.off?.('destroy',dispose);};
+  owner?.once?.('destroy',dispose);
+  return dispose;
+};
+Display.subscriptionCount = function () { return watchers.size; };
 
 Display.enter = function () {
   const d = doc();
@@ -123,7 +128,7 @@ Display.button = function (scene, x, y) {
   const t = ADV.T.text(scene, x, y, Display.label(), { size: 13, ox: 1, color: ADV.T.css.gold, bold: true })
     .setInteractive({ useHandCursor: true });
   t.on('pointerdown', () => { Display.toggle(); });
-  Display.watch((s) => { try { if (t.active) t.setText(s); } catch (e) {} });
+  Display.watch((s) => { if (t.active) t.setText(s); }, t);
   return t;
 };
 

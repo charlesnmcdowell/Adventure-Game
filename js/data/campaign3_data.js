@@ -431,7 +431,11 @@ D.CAMPAIGN3_QUESTS = [
     brief: 'The letters point into the Mirkhollow: spiders, druids who consider you trespass, wyverns, and a mine that is not on any map.',
     enc: [
       { mini: 'silksa', with: ['web_spider', 'web_spider'], label: 'The nest' },
-      { boss: 'thornwise', with: ['umbra_druid', 'umbra_druid'], label: 'The druid grove' },
+      // Wanjiru calls the Mzee and then used to vanish from her own fight. She stands in it now.
+      // `escapes` because these are not bandits: at 0 HP the Umbra withdraw into the wood rather
+      // than die on the path, the win still scores, and a player who picked the fight is not made
+      // to leave an archdruid and a would-be companion dead over right of way.
+      { boss: 'thornwise', with: ['umbra_druid', 'umbra_druid', 'nettle'], escapes: true, label: 'The druid grove' },
       { mini: 'wyvern_matriarch', with: ['wyvern'], label: 'The wyvern cliffs' },
       { mini: 'kestrel', with: ['consortium_guard', 'consortium_mage'], label: 'The mine gate' },
     ] },

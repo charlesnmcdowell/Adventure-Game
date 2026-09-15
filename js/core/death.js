@@ -291,7 +291,7 @@ Death.makeSuccessor = function (world, rng, player, route) {
         inheritSkills: null, // player heir gets the PLAYER's persistence, below
       }), player.name);
       ch.isPlayer = true;
-      world.characters.push(ch);
+      ADV.World.addCharacter(world, ch);
       // pending estate from the vault claim
       if (h.child.pendingEstate) {
         const v = ADV.Vault.ensureOwn(world, ch);

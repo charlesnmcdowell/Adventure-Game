@@ -1,0 +1,74 @@
+'use strict';
+const {chromium}=require('playwright'),fs=require('fs'),path=require('path'),assert=require('assert/strict');
+(async()=>{
+ const shots=path.resolve('tools/story_screenshots'); fs.mkdirSync(shots,{recursive:true});
+ const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true,args:['--autoplay-policy=no-user-gesture-required']});
+ const page=await browser.newPage({viewport:{width:1280,height:760}}), errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8734/index.html');
+ await page.waitForFunction(()=>window.__game&&window.ADV&&ADV.DialogueBox&&ADV.Conversation);
+ await page.evaluate(()=>{
+  ADV.Save.reset();
+  const game=ADV.Game.newGame({seed:714,name:'Rook',sex:'m',personalityId:'M01',startingSkills:['mend']});
+  game.tutorial={step:'done'};
+  window.__game.registry.set('game',game);
+  window.__game.scene.start('Town');
+  for(const s of window.__game.scene.scenes)if(s.scene.key!=='Town'&&s.scene.isActive())s.scene.stop();
+ });
+ await page.waitForTimeout(700);
+ await page.screenshot({path:path.join(shots,'voiced_town.png')});
+ const box=await page.locator('canvas').boundingBox();
+ const click=async(x,y)=>{await page.mouse.click(box.x+x*box.width/1280,box.y+y*box.height/760);await page.waitForTimeout(150);};
+ assert.equal(await page.evaluate(()=>ADV.Game.player(window.__game.registry.get('game')).personalityId),'M01');
+ await page.evaluate(()=>{
+  const sc=window.__game.scene.getScene('Town'),g=sc.game_;
+  if(ADV.UI.closeCard)ADV.UI.closeCard('notice');
+  const npc=g.world.characters.find(c=>c.alive&&!c.isPlayer&&c.personalityId==='M04')||g.world.characters.find(c=>c.alive&&!c.isPlayer&&c.personalityId);
+  npc.personalityId='M04';
+  window.__storyNpc=npc;
+  window.__storyDone=0;
+  window.__exchange=ADV.DialogueBox.playExchange(sc,g,ADV.Conversation.exchange(g,npc,{band:'hatred'}),()=>window.__storyDone++);
+ });
+ await page.waitForTimeout(350);
+ await page.screenshot({path:path.join(shots,'hostile_exchange.png')});
+ await click(640,615); await click(640,615);
+ await page.waitForTimeout(250);
+ await page.screenshot({path:path.join(shots,'player_response.png')});
+ assert.match(await page.evaluate(()=>ADV.Music.voiceEl&&ADV.Music.voiceEl.src),/M01\/dismissal_response_[1-3].mp3\?v=/);
+ await page.evaluate(()=>window.__exchange.close());
+ assert.equal(await page.evaluate(()=>window.__storyDone),1);
+ await page.evaluate(()=>{
+  const sc=window.__game.scene.getScene('Town');
+  ADV.CampaignUI.playBeat(sc,sc.game_,{who:'beau',key:'after1',fid:'tally'},()=>{});
+ });
+ await page.waitForTimeout(300);
+ await page.screenshot({path:path.join(shots,'tally_conversation.png')});
+ assert.match(await page.evaluate(()=>ADV.Music.voiceEl&&ADV.Music.voiceEl.src),/hallow\/introduce_1/);
+ const creation=await browser.newPage({viewport:{width:1280,height:760}});
+ creation.on('pageerror',e=>errors.push(e.message));
+ await creation.goto('http://127.0.0.1:8734/index.html');
+ await creation.waitForFunction(()=>window.__game&&window.ADV&&ADV.DialogueBox);
+ await creation.evaluate(()=>{
+  ADV.Save.reset(); ADV.Save.saveMeta({meta:{lives:1,journal:{},skillLevels:{},promptsSeen:{},codexUnlocked:[]}});
+  window.__game.scene.stop('Title');window.__game.scene.start('Creation');
+ });
+ await creation.waitForTimeout(250);
+ await creation.evaluate(()=>{const sc=window.__game.scene.getScene('Creation');sc.sel.name='Mara';sc.sel.sex='f';sc.sel.skills=['mend','cleave','bulwark'];sc.begin();sc.begin();});
+ await creation.waitForTimeout(150);
+ assert.equal(await creation.evaluate(()=>window.__game.scene.getScene('Creation').children.list.filter(o=>o.text==='How do you speak?').length),1,'Double click creates one chooser');
+ await creation.mouse.click(190,204);await creation.mouse.click(640,700);
+ await creation.waitForTimeout(600);
+ assert.equal(await creation.evaluate(()=>ADV.Game.player(window.__game.registry.get('game')).personalityId),'F01');
+ await creation.screenshot({path:path.join(shots,'new_character.png')});
+ await creation.evaluate(()=>{
+  const sc=window.__game.scene.getScene('Town'),g=sc.game_,p=ADV.Game.player(g);
+  window.__funeralDone=0;
+  ADV.Cutscenes.funeral(sc,{leaderName:'Captain Vale',memberIds:[p.id],words:[{id:p.id,band:'hatred',score:-75}]},()=>window.__funeralDone++);
+ });
+ await creation.waitForTimeout(3000);
+ assert.match(await creation.evaluate(()=>ADV.Music.voiceEl&&ADV.Music.voiceEl.src),/F01\/funeral_hatred_1/);
+ await creation.screenshot({path:path.join(shots,'hostile_funeral.png')});
+ console.log(JSON.stringify({errors,screenshots:shots}));
+ await browser.close();
+ assert.equal(errors.length,0);
+})().catch(e=>{console.error(e);process.exit(1);});

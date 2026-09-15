@@ -1,53 +1,43 @@
-// Save state (§19): five keys, adv:meta survives permadeath, all writes
-// wrapped in try/catch — a failed write must never block play.
+// Save facade: coherent snapshots in SaveStore's two-slot commit journal.
+// Meta survives permadeath; failed writes report a recoverable UI error.
 (function () {
 'use strict';
 
 const Save = {};
-const KEYS = ['adv:world', 'adv:characters', 'adv:edges', 'adv:vaults', 'adv:meta', 'adv:backup'];
 Save.VERSION = 2;
 
-// storage backend: localStorage in the browser, injectable for tests
-let store = null;
+// Services are injectable per game, so previews never replace production APIs.
+let store = null, journal = null;
+const sessions = new WeakMap(), watchers = new Set();
+Save.lastResult = { ok: true };
+Save.lastGame = null;
 function backend() {
   if (store) return store;
-  try { if (typeof localStorage !== 'undefined') return localStorage; } catch (e) {}
-  // in-memory fallback
-  store = { _m: {}, getItem(k) { return this._m[k] != null ? this._m[k] : null; },
-    setItem(k, v) { this._m[k] = String(v); }, removeItem(k) { delete this._m[k]; } };
+  if (typeof window !== 'undefined') {
+    try { return window.localStorage; } catch (_) {
+      return { getItem(){throw new Error('Storage unavailable');}, setItem(){throw new Error('Storage unavailable');}, removeItem(){throw new Error('Storage unavailable');} };
+    }
+  }
+  store = { _m:{},getItem(k){return this._m[k]||null;},setItem(k,v){this._m[k]=String(v);},removeItem(k){delete this._m[k];} };
   return store;
 }
-Save.setBackend = function (b) { store = b; };
-
-function put(key, obj) {
-  try { backend().setItem(key, JSON.stringify(obj)); return true; }
-  catch (e) { return false; }
+function service() { return journal || (journal=ADV.SaveStore.create(backend(),Save.VERSION)); }
+Save.setBackend = function(b) {store=b;journal=null;Save.lastGame=null;};
+Save.bind = function(game,storage) {sessions.set(game,ADV.SaveStore.create(storage,Save.VERSION));};
+Save.memoryBackend = function() {return {_m:{},getItem(k){return this._m[k]||null;},setItem(k,v){this._m[k]=String(v);},removeItem(k){delete this._m[k];}};};
+Save.watch = function(fn) {watchers.add(fn);return ()=>watchers.delete(fn);};
+function report(result,game) {
+  if(game && sessions.has(game))return result;
+  Save.lastResult=result;if(game)Save.lastGame=game;
+  for(const fn of watchers)try{fn(result);}catch(_){}
+  return result;
 }
-function get(key) {
-  try { const v = backend().getItem(key); return v ? JSON.parse(v) : null; }
-  catch (e) { return null; }
-}
-
-// The approved art expansion starts a new playthrough. Version the whole save,
-// including the backup and meta that survive death, so a legacy life cannot return.
-Save.ensureCompatible = function () {
-  const w=get('adv:world'),m=get('adv:meta'),b=get('adv:backup');
-  const currentWorld=w&&w.artVersion===Save.VERSION;
-  const currentMeta=m&&m.artVersion===Save.VERSION;
-  const currentBackup=b&&b.v===Save.VERSION&&b.world?.artVersion===Save.VERSION&&b.meta?.artVersion===Save.VERSION;
-  if(!w&&currentBackup){Save.restoreBackup();return true;}
-  if(currentWorld||(!w&&currentMeta)) {
-    if(b&&!currentBackup)try{backend().removeItem('adv:backup');}catch(e){}
-    return true;
-  }
-  if(KEYS.some(k=>{try{return backend().getItem(k)!=null;}catch(e){return false;}}))Save.reset();
-  return false;
-};
+Save.ensureCompatible = function() {return service().compatible();};
 
 // Write once per quest resolution and on town transactions (§19).
-Save.saveGame = function (game) {
+Save.capture = function (game) {
   const w = game.world;
-  put('adv:world', {
+  const world = {
     artVersion: Save.VERSION,
     seed: w.seed, questClock: w.questClock, populationVersion: w.populationVersion || 0,
     eventFeed: w.eventFeed, activeHeroes: w.activeHeroes,
@@ -64,60 +54,40 @@ Save.saveGame = function (game) {
     friendlyAskWait: w.friendlyAskWait || 0,
     board: game.board, life: game.life, campaign: game.campaign || null, campaign2: game.campaign2 || null, tutorial: game.tutorial || null,
     campaignProgress: w.campaignProgress || [],
-  });
-  put('adv:characters', w.characters);
-  put('adv:edges', w.edges || []);
-  put('adv:vaults', w.vaults || []);
-  Save.saveMeta(game);
-  Save.writeBackup();
+    rng: game.rng?.snapshot ? game.rng.snapshot() : null,
+  };
+  return { world, characters:w.characters, edges:w.edges||[], vaults:w.vaults||[], meta:Object.assign({},game.meta,{artVersion:Save.VERSION}) };
 };
-
-Save.writeBackup = function () {
-  const world = get('adv:world');
-  const characters = get('adv:characters');
-  if (!world || world.artVersion !== Save.VERSION || !characters) return false;
-  return put('adv:backup', {
-    v: Save.VERSION,
-    world, characters,
-    edges: get('adv:edges') || [],
-    vaults: get('adv:vaults') || [],
-    meta: get('adv:meta') || null,
-  });
+Save.saveGame = function(game) {
+  try {return report((sessions.get(game)||service()).write(Save.capture(game)),game);}
+  catch(e){return report({ok:false,error:'invalid-save',detail:e.message},game);}
 };
-
-Save.restoreBackup = function () {
-  const bak = get('adv:backup');
-  if (!bak || bak.v !== Save.VERSION || bak.world?.artVersion !== Save.VERSION || bak.meta?.artVersion !== Save.VERSION || !bak.characters) return false;
-  put('adv:world', bak.world);
-  put('adv:characters', bak.characters);
-  put('adv:edges', bak.edges || []);
-  put('adv:vaults', bak.vaults || []);
-  if (bak.meta) put('adv:meta', bak.meta);
-  return true;
+// A complete committed snapshot already contains its own previous revision.
+Save.writeBackup = function() {return !!service().read();};
+Save.restoreBackup = function() {return report(service().restore()).ok;};
+Save.saveMeta = function(game) {
+  if(game.world)return Save.saveGame(game);
+  const target=sessions.get(game)||service();
+  const payload=target.read()||{world:null};
+  payload.meta=Object.assign({},game.meta,{artVersion:Save.VERSION});
+  return report(target.write(payload),game);
 };
-
-Save.saveMeta = function (game) {
-  game.meta.artVersion = Save.VERSION;
-  put('adv:meta', game.meta);
-};
-
-Save.loadMeta = function () {
+Save.loadMeta = function() {
   Save.ensureCompatible();
-  return get('adv:meta') || { journal: {}, skillLevels: {}, promptsSeen: {}, codexUnlocked: [], hiroUnlocked: false, lives: 0 };
+  return service().read()?.meta || {journal:{},skillLevels:{},promptsSeen:{},codexUnlocked:[],hiroUnlocked:false,lives:0};
+};
+Save.exportGame = function(game) {const p=game?Save.capture(game):service().read();return p?JSON.stringify(p,null,2):service().rawExport();};
+Save.exportRaw = function() {return service().rawExport();};
+Save.importGame = function(text) {
+  try {const p=JSON.parse(text);if(!service().valid(p))return {ok:false,error:'invalid-save'};return report(service().write(p));}
+  catch(_){return {ok:false,error:'invalid-save'};}
 };
 
 Save.loadGame = function () {
   Save.ensureCompatible();
-  let ws = get('adv:world');
-  let characters = get('adv:characters');
-  if (!ws || !characters) {
-    if (!Save.restoreBackup()) return null;
-    ws = get('adv:world');
-    characters = get('adv:characters');
-    if (!ws || !characters) return null;
-  }
-  const edges = get('adv:edges') || [];
-  const vaults = get('adv:vaults') || [];
+  const payload=service().read();
+  if(!payload || !payload.world){if(!payload&&service().diagnostics().hasJournal)report({ok:false,error:'corrupt-save'});return null;}
+  const ws=payload.world,characters=payload.characters,edges=payload.edges,vaults=payload.vaults;
   const world = {
     seed: ws.seed, questClock: ws.questClock, populationVersion: ws.populationVersion || 0,
     characters, edges, vaults,
@@ -137,7 +107,9 @@ Save.loadGame = function () {
     travelSpoke: ws.travelSpoke || [],
     friendlyAskWait: ws.friendlyAskWait || 0,
   };
-  const loaded = { world, board: ws.board || null, life: ws.life || 1, meta: Save.loadMeta(), campaign: ws.campaign || null, campaign2: ws.campaign2 || null, tutorial: ws.tutorial || null };
+  const loaded = { world, board: ws.board || null, life: ws.life || 1, meta: payload.meta, rng: ws.rng || null, campaign: ws.campaign || null, campaign2: ws.campaign2 || null, tutorial: ws.tutorial || null };
+  if (ADV.Character.syncIds) ADV.Character.syncIds(world,true);
+  if (ADV.Vault.syncIds) ADV.Vault.syncIds(world);
   if (ADV.Survival) {
     for (const c of characters) {
       if (c && c.isPlayer) ADV.Survival.state(c);
@@ -146,10 +118,11 @@ Save.loadGame = function () {
   if (ADV.Party && ADV.Party.repairWorld) ADV.Party.repairWorld(world);
   else if (ADV.Party && ADV.Party.syncIds) ADV.Party.syncIds(world);
   if (ADV.World && ADV.World.pruneStrangerContacts) ADV.World.pruneStrangerContacts(world);
+  Save.identityWarnings=ADV.World.duplicateIds?ADV.World.duplicateIds(world):[];
   return loaded;
 };
 
-Save.hasSave = function () { Save.ensureCompatible(); return !!get('adv:world'); };
+Save.hasSave = function () { Save.ensureCompatible(); return !!service().read()?.world; };
 
 Save.peekPlayer = function () {
   try {
@@ -177,9 +150,7 @@ Save.hasVoicedContinue = function () {
   return !!(player && player.alive && player.personalityId);
 };
 
-Save.reset = function () {
-  for (const k of KEYS) { try { backend().removeItem(k); } catch (e) {} }
-};
+Save.reset = function () { return report(service().reset()); };
 
 ADV.Save = Save;
 })();

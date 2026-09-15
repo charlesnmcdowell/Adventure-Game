@@ -4,16 +4,6 @@
 'use strict';
 globalThis.ADV = globalThis.ADV || {};
 
-function mulberry32(seed) {
-  let a = seed >>> 0;
-  return function () {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 function hashStr(s) {
   let h = 2166136261 >>> 0;
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -21,7 +11,21 @@ function hashStr(s) {
 }
 
 class RNG {
-  constructor(seed) { this.seed = seed >>> 0; this.next = mulberry32(this.seed); }
+  constructor(seed) { this.seed = seed >>> 0; this.state = this.seed; }
+  next() {
+    this.state = (this.state + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(this.state ^ (this.state >>> 15), 1 | this.state);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+  snapshot() { return { algorithm: 'mulberry32', seed: this.seed, state: this.state }; }
+  static restore(saved, fallbackSeed) {
+    const rng = new RNG(fallbackSeed);
+    if (saved && saved.algorithm === 'mulberry32' && Number.isInteger(saved.seed) && Number.isInteger(saved.state)) {
+      rng.seed = saved.seed >>> 0; rng.state = saved.state >>> 0;
+    }
+    return rng;
+  }
   float() { return this.next(); }
   int(min, max) { return min + Math.floor(this.next() * (max - min + 1)); } // inclusive
   chance(p) { return this.next() < p; }

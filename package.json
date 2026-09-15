@@ -1,0 +1,27 @@
+{
+  "devDependencies": {
+    "eslint": "^8.57.1"
+  },
+  "name": "adventurer",
+  "private": true,
+  "scripts": {
+    "test:heal": "node test/heal.js && node test/browser_heal.js && node test/browser_home.js",
+    "sheets:heal": "node test/heal_sheet.js",
+    "test": "node tools/test_runner.js headless",
+    "test:balance": "node test/tank_healer_balance.js",
+    "test:browser": "node tools/test_runner.js browser",
+    "lint": "eslint js/ test/ tools/*.js",
+    "test:mobile": "node tools/test_runner.js mobile",
+    "sheets": "node test/expr_sheet.js",
+    "test:skill-art": "node test/skill_art.js && node tools/skill_art/browser_check.js && node tools/skill_art/flow_check.js",
+    "test:mobile-launch": "node tools/test_runner.js mobile",
+    "check": "python tools/safe_publish.py --check-only",
+    "test:smoke": "node tools/test_runner.js smoke"
+  },
+  "dependencies": {
+    "playwright": "^1.49.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

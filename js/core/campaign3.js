@@ -29,7 +29,7 @@ C3.fresh = function () {
     flags: {}, heritage: 0, aff: {}, romance: null, allegiance: null,
     company: [], recruited: [], gone: [], dead: [],
     ending: null, epilogue: null, endCardDue: false,
-    beats: [], choices: {}, asked: {}, gearIssued: false,
+    beats: [], choices: {}, asked: {}, choiceEffects: {}, gearIssued: false,
     banterHeard: [], lastBanter: null, lastBanterSpeaker: null,
     partyNoticeSeen: false,
   };
@@ -38,6 +38,9 @@ C3.state = function (game) {
   if (!game.meta) game.meta = {};
   if (!game.meta.c3) game.meta.c3 = C3.fresh();
   const s = game.meta.c3;
+  // Old saves already received these effects. Reserve them without replaying
+  // rewards; otherwise the first load after this patch would pay them again.
+  if (!s.choiceEffects) s.choiceEffects = Object.fromEntries(Object.entries(s.choices || {}).map(([id,optionId]) => [id,{optionId,legacy:true}]));
   // forward-compatible defaults
   for (const [k, v] of Object.entries(C3.fresh())) if (s[k] === undefined) s[k] = v;
   return s;
@@ -525,7 +528,14 @@ C3.options = function (game, choiceId) {
   if (!ch) return [];
   const s = C3.state(game);
   const asked = (s.asked && s.asked[choiceId]) || [];
-  return ch.options.filter(o => C3.test(game, o.when) && !(o.ask && asked.includes(o.id)));
+  const committed=s.choiceEffects[choiceId];
+  return ch.options.filter(o => {
+    if(o.ask)return C3.test(game,o.when) && !asked.includes(o.id);
+    // The summit explicitly permits a different approach after a failed fight.
+    if(committed && choiceId!=='q10_summit')return o.id===committed.optionId;
+    if(!C3.test(game,o.when))return false;
+    return !(o.gold<0) || (ADV.Game.player(game)?.inventory.gold||0)>=-o.gold;
+  });
 };
 // The romance closer builds its options from the state (§4 Q9).
 C3.dynamicOptions = function (game, kind) {
@@ -544,6 +554,28 @@ C3.dynamicOptions = function (game, kind) {
 };
 C3.applyOption = function (game, choiceId, opt) {
   const s = C3.state(game);
+  const effectId=opt.ask?choiceId+':ask:'+opt.id:choiceId;
+  const previous=s.choiceEffects[effectId];
+  const attemptEffects=()=>{
+    if(game.quest) {
+      game.quest.appliedChoices=game.quest.appliedChoices||[];
+      if(game.quest.appliedChoices.includes(effectId))return;
+      game.quest.appliedChoices.push(effectId);
+    }
+    if (opt.noEscape && game.quest && game.quest.enemies) for (const e of game.quest.enemies) if (e.campaign) e.campaignExit = false;
+    if (opt.bypass) C3.bypassEncounter(game);
+  };
+  if(previous && (previous.optionId===opt.id || choiceId!=='q10_summit')) {
+    if(previous.optionId===opt.id)attemptEffects();
+    return {joined:[],overflow:[],replayed:true};
+  }
+  const p=ADV.Game.player(game);
+  if(opt.gold<0 && (!p || p.inventory.gold < -opt.gold))return {joined:[],overflow:[],error:'not enough gold'};
+  if(previous && !previous.legacy) {
+    for(const [who,n] of Object.entries(previous.aff||{}))s.aff[who]=(s.aff[who]||0)-n;
+    s.heritage=Math.max(-3,Math.min(3,s.heritage-(previous.heritageDelta||0)));
+  }
+  const heritageBefore=s.heritage;
   if (opt.ask) { s.asked = s.asked || {}; s.asked[choiceId] = (s.asked[choiceId] || []).concat(opt.id); }
   else s.choices[choiceId] = opt.id;
   if (opt.set) for (const [k, v] of Object.entries(opt.set)) C3.setFlag(game, k, v);
@@ -563,11 +595,10 @@ C3.applyOption = function (game, choiceId, opt) {
   for (const id of opt.dismiss || []) C3.dismiss(game, id);
   for (const id of opt.gone || []) C3.gone(game, id);
   for (const id of opt.kill || []) C3.kill(game, id);
-  if (opt.noEscape && game.quest && game.quest.enemies) for (const e of game.quest.enemies) if (e.campaign) e.campaignExit = false;
-  if (opt.bypass) C3.bypassEncounter(game);
+  s.choiceEffects[effectId]={optionId:opt.id,aff:opt.aff||{},heritageDelta:s.heritage-heritageBefore};
+  attemptEffects();
   if (opt.ending) C3.resolveEnding(game, opt.ending);
   C3.save(game);
-  if (ADV.Save && game.world) ADV.Save.saveGame(game);
   return seats;
 };
 
@@ -680,66 +711,28 @@ C3.debugJump = function (game, n) {
 
 ADV.Campaign3 = C3;
 
-// =====================================================================
-// Installation: dispatch on quest.campaign3, fall through otherwise.
-// =====================================================================
-(function install() {
-  const O = {};
-  for (const k of ['spawnEncounter', 'alliesFor', 'departureBeats', 'banter', 'takeBeats',
-                   'onCampaignQuestDone', 'rivalDeathSequence', 'finalOpener', 'afterBossBeats', 'lines']) O[k] = ADV.Campaign[k];
-  const isC3 = (q) => !!(q && q.campaign3);
-  const cur = (game) => game.quest && game.quest.quest;
-
-  ADV.Campaign.spawnEncounter = (game, quest, encIdx) => isC3(quest) ? C3.spawnEncounter(game, quest, encIdx) : O.spawnEncounter(game, quest, encIdx);
-  ADV.Campaign.alliesFor = (game, q) => isC3(q) ? C3.alliesFor(game, q) : O.alliesFor(game, q);
-  ADV.Campaign.departureBeats = (game, q) => isC3(q) ? C3.departureBeats(game, q) : O.departureBeats(game, q);
-  ADV.Campaign.banter = (game, st, roundN) => isC3(cur(game)) ? C3.banter(game, st, roundN) : O.banter(game, st, roundN);
-  ADV.Campaign.takeBeats = (game) => O.takeBeats(game).concat(C3.takeBeats(game));
-  ADV.Campaign.onCampaignQuestDone = (game, q) => isC3(q) ? C3.onQuestDone(game, q) : O.onCampaignQuestDone(game, q);
-  // game.js calls these with no fid for anything that is not campaign2; ours are empty —
-  // C3 sets its own closing / opener beats through the Game wrappers below.
-  ADV.Campaign.rivalDeathSequence = (game, fid) => isC3(cur(game)) ? [] : O.rivalDeathSequence(game, fid);
-  ADV.Campaign.finalOpener = (game, fid) => isC3(cur(game)) ? [] : O.finalOpener(game, fid);
-  ADV.Campaign.afterBossBeats = (game, fid) => isC3(cur(game)) ? [] : O.afterBossBeats(game, fid);
-  ADV.Campaign.lines = (fid, who, key) => fid === C3.FID ? C3.lines(fid, who, key) : O.lines(fid, who, key);
-
-  // Opener beats on ANY encounter, and closing beats from the script.
-  const G = ADV.Game;
-  const oCurrent = G.currentEncounter, oFinish = G.finishCombat, oVerb = G.tryVerb;
-  G.currentEncounter = function (game) {
-    const q = game.quest;
-    const fresh = q && isC3(q.quest) && !q.enemies && !q.readyToComplete && !q.over && q.encIdx < q.quest.encounters.length;
-    const enc = oCurrent(game);
-    if (enc && q && isC3(q.quest)) { C3.limitRecovery(q.enemies); C3.tuneMineChief(q.quest, q.encIdx, q.enemies); C3.markEarlyFoes(game, q.quest, q.enemies); }
-    // enemies already sitting in an older save keep no stock voice either
-    if (q && isC3(q.quest) && q.enemies) for (const ch of q.enemies) { if (ch && (ch.campaignEnemy || ch.isMonster)) delete ch.personalityId; if (ch) ch.noCombatVoice = true; }
-    if (enc && fresh && q.__c3openerFor !== q.encIdx) {
-      q.__c3openerFor = q.encIdx;
-      q.openerBeats = C3.openerBeats(game, q.quest, q.encIdx);
-      enc.openerBeats = q.openerBeats;
-    }
-    return enc;
-  };
-  G.finishCombat = function (game) {
-    const r = oFinish(game);
-    if (r && r.won) C3.queueClosing(game);
-    if (r && !r.won && (r.playerDead || game.quest?.playerDead || game.quest?.leaderDied) && C3.retreatFromDefeat(game)) {
-      r.playerDead = false;
-    }
-    return r;
-  };
-  G.tryVerb = function (game, verb) {
-    const summit = game.quest?.quest?.campaign3 && game.quest.quest.n === 10 && game.quest.encIdx === 1;
-    const r = oVerb(game, verb);
-    if (r && r.success && r.mode === 'bypass') {
-      if (summit) {
-        C3.spareSummit(game);
-        C3.save(game);
-        ADV.Save.saveGame(game);
-      }
-      C3.queueClosing(game);
-    }
-    return r;
-  };
-})();
+// Campaign-local hooks receive the already-resolved core result.
+C3.encounterReady=function(game,enc,context){
+  const q=game.quest;
+  if(enc){C3.limitRecovery(q.enemies);C3.tuneMineChief(q.quest,q.encIdx,q.enemies);C3.markEarlyFoes(game,q.quest,q.enemies);}
+  if(q.enemies)for(const ch of q.enemies){if(ch&&(ch.campaignEnemy||ch.isMonster))delete ch.personalityId;if(ch)ch.noCombatVoice=true;}
+  if(enc&&context.fresh&&q.__c3openerFor!==q.encIdx){q.__c3openerFor=q.encIdx;q.openerBeats=C3.openerBeats(game,q.quest,q.encIdx);enc.openerBeats=q.openerBeats;}
+  return enc;
+};
+C3.combatFinished=function(game,r){
+  if(r?.won)C3.queueClosing(game);
+  if(r&&!r.won&&(r.playerDead||game.quest?.playerDead||game.quest?.leaderDied)&&C3.retreatFromDefeat(game))r.playerDead=false;
+  return r;
+};
+C3.verbFinished=function(game,r,context){
+  if(r?.success&&r.mode==='bypass'){
+    if(game.quest.quest.n===10&&context.encIdx===1){C3.spareSummit(game);C3.save(game);}
+    C3.queueClosing(game);
+  }
+  return r;
+};
+ADV.CampaignRoutes.register('gate',{...C3,onCampaignQuestDone:C3.onQuestDone,
+  departureBeats:(...args)=>C3.departureBeats(...args),
+  acceptsFaction:fid=>fid===C3.FID,rivalDeathSequence:()=>[],finalOpener:()=>[],afterBossBeats:()=>[]});
+ADV.CampaignRoutes.install(ADV.Campaign);
 })();

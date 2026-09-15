@@ -8,6 +8,22 @@ const Rel = () => ADV.Rel;
 const Ch = () => ADV.Character;
 
 const World = {};
+const indexes = new WeakMap();
+World.reindex = function(world) {
+  const byId=new Map(),duplicates=[];
+  world.characters.forEach((character,index)=>{
+    if(byId.has(character.id))duplicates.push(character.id);
+    else byId.set(character.id,{character,index});
+  });
+  const value={array:world.characters,length:world.characters.length,byId,duplicates};indexes.set(world,value);return value;
+};
+World.addCharacter = function(world,character) {
+  const existing=World.byId(world,character.id);
+  if(existing===character)return character;
+  if(existing)throw new Error('Duplicate character identity: '+character.id);
+  world.characters.push(character);indexes.delete(world);return character;
+};
+World.duplicateIds = function(world) {return World.reindex(world).duplicates.slice();};
 
 World.create = function (seed) {
   const rng = new ADV.RNG(seed);
@@ -28,8 +44,8 @@ World.create = function (seed) {
     { inclination: 'rogue' }, { inclination: 'ranger' }, { inclination: 'druid' }, { inclination: 'tank' }];
   const womenPlan = [{ inclination: 'healer' }, { inclination: 'tank' }, { inclination: 'mage' }, { inclination: 'rogue', forbidden: 'conscript' },
     { inclination: 'ranger' }, { inclination: 'druid' }, { inclination: 'fighter' }, { inclination: 'healer' }];
-  for (let i = 0; i < C().POP_START.men; i++) world.characters.push(Ch().seedNPC(rng, world, Object.assign({ sex: 'm' }, menPlan[i] || {})));
-  for (let i = 0; i < C().POP_START.women; i++) world.characters.push(Ch().seedNPC(rng, world, Object.assign({ sex: 'f' }, womenPlan[i] || {})));
+  for (let i = 0; i < C().POP_START.men; i++) World.addCharacter(world, Ch().seedNPC(rng, world, Object.assign({ sex: 'm' }, menPlan[i] || {})));
+  for (let i = 0; i < C().POP_START.women; i++) World.addCharacter(world, Ch().seedNPC(rng, world, Object.assign({ sex: 'f' }, womenPlan[i] || {})));
   // Two employer parties covering different archetypes (§11)
   seedEmployerParties(world, rng);
   return world;
@@ -58,7 +74,14 @@ function seedEmployerParties(world, rng) {
 
 // Canonical character lookup — the one place the roster is scanned by id.
 World.byId = function (world, id) {
-  return id == null ? null : (world.characters.find(c => c.id === id) || null);
+  if(id==null)return null;
+  let idx=indexes.get(world);
+  if(!idx||idx.array!==world.characters||idx.length!==world.characters.length)idx=World.reindex(world);
+  let entry=idx.byId.get(id);
+  // Public fixtures and legacy integrations may replace/reorder an array in
+  // place. Verify the cached position; missing IDs take the canonical path.
+  if(!entry||entry.character.id!==id||world.characters[entry.index]!==entry.character){idx=World.reindex(world);entry=idx.byId.get(id);}
+  return entry?.character||null;
 };
 // Bound event-feed writer, so systems stop hand-rolling (t, ids) => ... lambdas.
 World.feeder = function (world) {
@@ -98,7 +121,7 @@ World.upgradePopulation = function (world, rng) {
   const missing = Math.max(0, C().POP_START.men + C().POP_START.women - people.length);
   for (let i = 0; i < missing; i++) {
     const npc = Ch().seedNPC(rng, world, { sex: World.newcomerSex(people) });
-    world.characters.push(npc); people.push(npc);
+    World.addCharacter(world, npc); people.push(npc);
   }
   world.populationVersion = C().POPULATION_VERSION;
   if (missing) World.feed(world, `${missing} new adventurers have arrived in town. Find them in the roster.`, []);
@@ -276,7 +299,7 @@ World.tick = function (world, rng, opts) {
     if (o.age >= C().CHILD_ADULT) {
       world.orphans.splice(world.orphans.indexOf(o), 1);
       const npc = Ch().matureChild(rng, world, o);
-      world.characters.push(npc);
+      World.addCharacter(world, npc);
       if (o.hostileToId) {
         Rel().move(world, npc.id, o.hostileToId, -100, 'murder', { set: true, decays: false });
         const target = ADV.World.byId(world, o.hostileToId);
@@ -307,7 +330,7 @@ World.tick = function (world, rng, opts) {
   const residents = World.population(world);
   if (residents.length < C().POP_FLOOR) {
     const n = Ch().seedNPC(rng, world, { sex: World.newcomerSex(residents) });
-    world.characters.push(n);
+    World.addCharacter(world, n);
     feed(`A stranger, ${n.name}, arrived in town from beyond the valley.`, [n.id]);
   }
 

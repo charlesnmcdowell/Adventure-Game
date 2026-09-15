@@ -8,6 +8,19 @@ let NEXT_ID = 1;
 const Character = {};
 Character.resetIds = function (n) { NEXT_ID = n || 1; };
 Character.peekNextId = function () { return NEXT_ID; };
+// Hydration must reserve existing identities before any factory runs. Also scan
+// dependents and cached story records; their references can outlive a resident.
+Character.syncIds = function (world, deep = false) {
+  const seen = new Set();
+  function visit(value) {
+    if (!value || typeof value !== 'object' || seen.has(value)) return;
+    seen.add(value);
+    const match = typeof value.id === 'string' && /^c(\d+)$/.exec(value.id);
+    if (match) NEXT_ID = Math.max(NEXT_ID, Number(match[1]) + 1);
+    if(deep)for (const child of Object.values(value)) if (child && typeof child === 'object') visit(child);
+  }
+  if(deep)visit(world);else for(const ch of world?.characters||[])visit(ch);
+};
 
 // Steel, ice, and lightning bite constructs and the risen; poison, bleed, and
 // burn do nothing. Necromancy cannot raise them.
@@ -183,6 +196,7 @@ function rollVector(rng, personalityName) {
 
 // ---- NPC seeding (§17a) -----------------------------------------------------
 Character.seedNPC = function (rng, world, opts) {
+  Character.syncIds(world);
   opts = opts || {};
   const sex = opts.sex || rng.pick(['m', 'f']);
   const used = new Set();

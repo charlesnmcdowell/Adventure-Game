@@ -8,13 +8,8 @@ class TitleScene extends Phaser.Scene {
   constructor() { super('Title'); }
 
   preload() {
-    if (ADV.AnimeWorld) {
-      const label = this.add.text(640,380,'Preparing your next adventure…',{fontFamily:'Georgia',fontSize:'24px',color:'#e9d5a2'}).setOrigin(.5);
-      if (ADV.MobileTitle?.enabled()) label.setWordWrapWidth(280).setAlign('center');
-      this.load.on('progress',p=>label.setText('Preparing your next adventure… '+Math.round(p*100)+'%'));
-      this.load.once('complete',()=>label.destroy());
-      ADV.AnimeWorld.load(this);
-    }
+    // The cinematic title is independent of the wardrobe and story cast.
+    // Portrait atlases are acquired when a screen actually requests a portrait.
   }
 
   create() {
@@ -82,7 +77,7 @@ class TitleScene extends Phaser.Scene {
       const fs = T().button(this, W / 2 - 130, y, 260, 46, ADV.Display.active() ? 'Exit fullscreen' : 'Fullscreen', () => {
         ADV.Display.toggle();
       }, { display: true, bold: true, color: T().css.gold, edge: T().c.gold });
-      ADV.Display.watch((s) => { try { if (fs.txt && fs.txt.active) fs.txt.setText(s); } catch (e) {} });
+      ADV.Display.watch((s) => { if (fs.txt && fs.txt.active) fs.txt.setText(s); }, fs.txt);
       y += 60;
     }
 

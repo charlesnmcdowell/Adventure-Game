@@ -635,4 +635,5 @@ Campaign.debugJump = function (game, fid, n) {
 Campaign.reset = function (game) { game.campaign = Campaign.fresh(); };
 
 ADV.Campaign = Campaign;
+ADV.CampaignRoutes.register('original', {...Campaign});
 })();

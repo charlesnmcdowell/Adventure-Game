@@ -1,0 +1,9 @@
+{
+  "required": ["index.html", "manifest.webmanifest", "js", "lib", "audio", "assets"],
+  "extensions": {
+    "js": [".js"], "lib": [".js"],
+    "audio": [".mp3", ".ogg", ".wav"],
+    "assets": [".webp", ".png", ".jpg", ".jpeg", ".svg", ".css", ".json", ".woff", ".woff2"]
+  },
+  "excludedDirectories": ["source", "sources", "archive", "backup", "backups", "node_modules", "__pycache__"]
+}

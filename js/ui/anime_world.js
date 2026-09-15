@@ -13,6 +13,67 @@ PLATE.add('wardens_gear');
 const EYES=['#64887f','#8b663b','#547aa0','#7b6953','#53575c','#8a719d'];
 const LIPS=['#986d63','#aa7476','#825452','#795651','#b84e64','#813f68','#99412e','#574553'];
 const cache=new Map(),partCache=new Map(),sources=new Map();
+const pendingPortraits=new Map(),pins=new Map();let collecting=null;
+function trimSources(){
+ for(const id of sources.keys())if(sources.size>12&&!pins.get(id))sources.delete(id);
+}
+function acquire(sheet){
+ pins.set(sheet,(pins.get(sheet)||0)+1);
+ const d=M.parts[sheet];
+ const ready=sources.has(sheet)?Promise.resolve(sources.get(sheet)):d?A.ArtAssets.load(ROOT+d.file).then(img=>{sources.delete(sheet);sources.set(sheet,img);return img;}):Promise.reject(new Error('Unknown portrait atlas: '+sheet));
+ return{ready,release(){pins.set(sheet,Math.max(0,(pins.get(sheet)||1)-1));trimSources();}};
+}
+function placeholder(scene,k,w=440,h=560){
+ if(!scene.textures.exists(k)){
+  const t=scene.textures.createCanvas(k,w,h),c=t.getContext();
+  c.fillStyle='rgba(35,48,60,.3)';c.fillRect(0,0,w,h);c.fillStyle='#cbbb97';c.font='18px Georgia';c.textAlign='center';c.fillText('Loading art…',w/2,h/2);t.refresh();
+  if(w===440&&h===560)Art.META.set(k,{id:k+':loading',pending:true,rig:{beast:true,rigid:true,eyes:[],face:[0,0,1,1],chest:[0,1],compliance:0},w,h,crop:[0,0,1122,1402]});
+ }
+ return k;
+}
+function queuePortrait(scene,ch,form,k,needed){
+ collecting=null;
+ const existing=pendingPortraits.get(k);
+ if(existing){existing.needed=needed;return k;}
+ placeholder(scene,k);
+ const state={needed,leases:[]};pendingPortraits.set(k,state);
+ state.ready=(async()=>{
+  try{
+   while(state.needed.size){
+    const batch=[...state.needed].map(acquire);state.leases.push(...batch);state.needed=new Set();
+    await Promise.all(batch.map(l=>l.ready));
+    if(!scene.textures?.exists(k))break;
+    makeKey(scene,ch,form,true);
+   }
+   A.ArtAssets.recovered(k);
+  }catch(e){state.error=e.message;A.AnimeWorld.lastLoadError=e.message;A.ArtAssets.failed(k,()=>{if(scene.textures?.exists(k))makeKey(scene,ch,form,true);});}
+  finally{pendingPortraits.delete(k);state.leases.forEach(l=>l.release());}
+ })();
+ return k;
+}
+function raster(scene,k,sheet,frame,w,h,retry=false){
+ if(scene.textures.exists(k)&&!retry)return k;
+ placeholder(scene,k,w,h);const lease=acquire(sheet);
+ lease.ready.then(()=>{
+  if(!scene.textures?.exists(k))return;
+  const c=cell(scene,sheet,frame),t=scene.textures.get(k);if(c){t.getContext().clearRect(0,0,w,h);t.getContext().drawImage(c,0,0,w,h);t.refresh();}
+  A.ArtAssets.recovered(k);
+ }).catch(e=>{A.AnimeWorld.lastLoadError=e.message;A.ArtAssets.failed(k,()=>raster(scene,k,sheet,frame,w,h,true));}).finally(()=>lease.release());
+ return k;
+}
+function formKey(scene,ch,form,retry=false){
+ const k=PREFIX+'form_'+form;
+ if(scene.textures.exists(k)&&!retry)return k;
+ placeholder(scene,k);
+ A.ArtAssets.load('assets/anime/v1/'+Art.ASSETS[form]).then(img=>{
+  if(!scene.textures?.exists(k))return;
+  if(!scene.textures.exists(Art.rawKey(form)))scene.textures.addImage(Art.rawKey(form),img);
+  const real=Art.key(scene,ch,form),t=scene.textures.get(k);
+  if(real){t.getContext().clearRect(0,0,440,560);t.getContext().drawImage(scene.textures.get(real).getSourceImage(),0,0,440,560);t.refresh();Art.META.set(k,{...Art.META.get(real),id:k});P._meta[k]={rig:'beast',monster:!!ch.isMonster};}
+  A.ArtAssets.recovered(k);
+ }).catch(e=>{A.AnimeWorld.lastLoadError=e.message;A.ArtAssets.failed(k,()=>formKey(scene,ch,form,true));});
+ return k;
+}
 const HEADS=A.AnimeIdentities.heads,NAMED=A.AnimeIdentities.named;
 function namedFor(ch){const base=NAMED[ch.campaignId||ch.portraitId];return A.GateArt?.named(ch,base)||base;}
 function hash(s){return A.hashStr(String(s))>>>0;}
@@ -43,7 +104,7 @@ function load(scene){
 }
 function cell(scene,sheet,frame){
  const key=sheet+':'+frame;if(partCache.has(key)){const c=partCache.get(key);partCache.delete(key);partCache.set(key,c);return c;}
- const d=M.parts[sheet],src=sources.get(sheet)||(scene.textures.exists(PREFIX+sheet)&&scene.textures.get(PREFIX+sheet).getSourceImage());if(!d||!src)return null;
+ const d=M.parts[sheet],src=sources.get(sheet)||(scene.textures.exists(PREFIX+sheet)&&scene.textures.get(PREFIX+sheet).getSourceImage());if(!d||!src){collecting?.add(sheet);return null;}
  const canvas=document.createElement('canvas');canvas.width=canvas.height=d.cell;
  canvas.getContext('2d').drawImage(src,frame%2*d.cell,Math.floor(frame/2)*d.cell,d.cell,d.cell,0,0,d.cell,d.cell);
  partCache.set(key,canvas);while(partCache.size>20)partCache.delete(partCache.keys().next().value);return canvas;
@@ -236,7 +297,7 @@ function trim(scene){
  if(cache.size<=80)return;const used=usedTextures(scene);
  for(const k of cache.keys())if(cache.size>64&&!used.has(k)){cache.delete(k);Art.META.delete(k);delete P._meta[k];if(scene.textures.exists(k))scene.textures.remove(k);}
 }
-function makeKey(scene,ch,form){
+function makeKey(scene,ch,form,rebuild=false){
  if(ch?.animeIdentity&&(scene.game_?.__artPreview||scene.sys.settings.key==='AnimePreview'||scene.sys.settings.key==='AnimeCombat'))return null;
  if(!ch)return null;
  // Dependents are not adventuring adults and must not use an adult torso rig.
@@ -250,16 +311,17 @@ function makeKey(scene,ch,form){
  if(creature==='plated_sentinel')creature='sentinel';
  const gateEnemy=!form&&!id.named&&A.GateArt?.enemy(ch);
  if(gateEnemy)creature='gate_'+(ch.campaignMiniId||ch.enemyTypeId);
- if(['werewolf','werebear','panther','sentinel'].includes(creature))return Art.key(scene,ch,creature);
+ if(['werewolf','werebear','panther','sentinel'].includes(creature))return formKey(scene,ch,creature);
  const entry=gateEnemy||M.creatures[creature];
  if(creature&&!entry)throw new Error('Missing illustrated creature: '+creature);
  const childFrame=(id.sex==='f'?0:2)+id.seed%2;
  const signature=child?['child',childFrame]:entry?[creature,ch.enemyTypeId||'',ch.skin||'',ch.skinTint||'',ch.boss?1:0,ch.isUndead?1:0]:[id.sex,id.head,id.iris,id.eyeType,id.mouthType,id.lipColor,id.build,id.mark,set,ch.equippedSet?'equipped':'default',ch.skinTint||'',ch.isUndead?1:0,form||'',NAMED[id.named]?.companion||''];
  const k=PREFIX+'portrait_'+signature.join('_');
- if(scene.textures.exists(k)){cache.delete(k);cache.set(k,true);return k;}
+ if(scene.textures.exists(k)&&!rebuild){if(!pendingPortraits.has(k)){cache.delete(k);cache.set(k,true);}return k;}
+ collecting=new Set();
  let result;
  if(entry||child){
-  const sprite=child?cell(scene,'children',childFrame):cell(scene,entry.sheet,entry.frame);if(!sprite)return null;
+  const sprite=child?cell(scene,'children',childFrame):cell(scene,entry.sheet,entry.frame);if(!sprite)return queuePortrait(scene,ch,form,k,collecting);
   const master=document.createElement('canvas');master.width=1122;master.height=1402;const ctx=master.getContext('2d');
   fit(ctx,sprite,0,80,1122,1290);
   // Authored alternate skins retain the underlying species, with visible scars/rune markings.
@@ -270,11 +332,13 @@ function makeKey(scene,ch,form){
   }
   result={master,rig:{face:[0,0,1,1],eyes:[],beast:true,chest:[450,1300],compliance:0,rigid:['golem','beetle','crab','scorpion'].includes(creature)}};
  }else result=composeHuman(scene,ch,id,set);
+ const needed=collecting;collecting=null;
+ if(needed.size)return queuePortrait(scene,ch,form,k,needed);
  if(!result)return null;
  trim(scene);
  let facePatch=null;
  if(!creature&&!child){const r=result.rig;Object.assign(r,{eyeType:id.eyeType,mouthType:id.mouthType,lipColor:id.lipColor});facePatch=document.createElement('canvas');facePatch.width=r.face[2];facePatch.height=r.face[3];facePatch.getContext('2d').drawImage(result.master,...r.face,0,0,r.face[2],r.face[3]);Art.paintFace(result.master.getContext('2d'),r,'neutral',false,0,0);}
- const tex=scene.textures.createCanvas(k,440,560);tex.getContext().drawImage(result.master,0,0,440,560);tex.refresh();
+ const tex=scene.textures.exists(k)?scene.textures.get(k):scene.textures.createCanvas(k,440,560);tex.getContext().clearRect(0,0,440,560);tex.getContext().drawImage(result.master,0,0,440,560);tex.refresh();
  const meta={id:k,rig:result.rig,facePatch,crop:[0,0,1122,1402],w:440,h:560,view:'bust',identity:id,set,creature:creature||null};
  Art.META.set(k,meta);P._meta[k]={rig:creature?'beast':'human',masked:!!result.rig.masked,browsCovered:!!result.rig.browsCovered,monster:!!ch.isMonster,sex:id.sex};cache.set(k,true);return k;
 }
@@ -287,8 +351,8 @@ Art.release=function(textures){
  for(const k of textures.getTextureKeys())if(k.startsWith('anime_')&&!['werewolf','werebear','panther','sentinel'].some(id=>k===Art.rawKey(id)||k==='anime_body_v1_'+id+'_original_bust'))textures.remove(k);
  for(const k of Art.META.keys())if(k.startsWith('anime_')&&!textures.exists(k)){Art.META.delete(k);delete P._meta[k];}
 };
-function prop(scene,name){const frames={grave:0,coffin:1,lantern:2,pip:3},frame=frames[name],k=PREFIX+'prop_'+name;if(frame===undefined)return null;if(!scene.textures.exists(k)){const c=cell(scene,'props_story',frame);if(!c)return null;const t=scene.textures.createCanvas(k,500,500);t.getContext().drawImage(c,0,0);t.refresh();}return k;}
+function prop(scene,name){const frames={grave:0,coffin:1,lantern:2,pip:3},frame=frames[name],k=PREFIX+'prop_'+name;return frame===undefined?null:raster(scene,k,'props_story',frame,500,500);}
 A.AnimeWorld={version:2,load,key:makeKey,identity,outfit,SETS,FACTION,cache,trim,cell,prop,ROOT,PREFIX,manifest:M,previewRelease:release,EYES,LIPS,
- headNames:A.AnimeIdentities.headNames,sources,partCache,
+ headNames:A.AnimeIdentities.headNames,sources,partCache,raster,pendingPortraits,
  colorNames:{'#64887f':'Jade','#8b663b':'Amber','#547aa0':'Blue','#7b6953':'Hazel','#53575c':'Slate','#8a719d':'Violet','#986d63':'Warm nude','#aa7476':'Rose','#825452':'Brown rose','#795651':'Mocha','#b84e64':'Berry','#813f68':'Plum','#99412e':'Terracotta','#574553':'Mauve'}};
 })();

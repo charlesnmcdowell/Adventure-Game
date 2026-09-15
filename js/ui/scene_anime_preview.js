@@ -22,13 +22,9 @@ function demoGame(selected) {
     world.characters=[player,...allies];world.playerId=player.id;
     const foes=[0,1].map(()=>{const c=A.Character.makeEnemy(rng,'plated_sentinel',{level:4});c.animeIdentity='sentinel';return c;});
     const game={world,rng,player,meta:{journal:{},skillLevels:{},codexUnlocked:[],promptsSeen:Object.fromEntries(Object.keys(A.DATA.PROMPTS).map(id=>[id,true]))},life:1,quest:null,tutorial:{step:'done'},__artPreview:true};
+    A.Save.bind(game,A.Save.memoryBackend());
     game.rescueCombat={st:A.Combat.create([player,...allies],foes,{})};return game;
   } finally { A.Character.resetIds(nextId); }
-}
-// Combat's skill toggles normally autosave. The art sandbox cannot write a life.
-for(const method of ['saveGame','saveMeta']){
-  const original=A.Save[method];
-  A.Save[method]=function(game,...args){if(game&&game.__artPreview)return false;return original.call(this,game,...args);};
 }
 class AnimePreview extends Phaser.Scene {
   constructor(){super('AnimePreview');}

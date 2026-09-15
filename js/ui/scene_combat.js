@@ -1028,7 +1028,7 @@ class CombatScene extends Phaser.Scene {
     const b = T().button(this, box.left, box.y0, box.w, box.h, ADV.Display.label(), () => {
       ADV.Display.toggle();
     }, { size: 12, bold: true, color: T().css.gold, edge: T().c.gold, fill: full ? 0x2a3a22 : 0x2b261f });
-    ADV.Display.watch((s) => { try { if (b.txt && b.txt.active) b.txt.setText(s); } catch (e) {} });
+    ADV.Display.watch((s) => { if (b.txt && b.txt.active) b.txt.setText(s); }, b.txt);
     this._fsBtn = b;
   }
 

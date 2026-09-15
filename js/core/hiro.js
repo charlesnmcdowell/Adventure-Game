@@ -41,7 +41,7 @@ Hiro.maybeArrive = function (world, rng, feed) {
   h.hiroNpc = true; h.inventory.gold = Hiro.RULES.gold; h.reputation = 10; h.rank = 3;
   for (const e of h.perks.concat(h.actives)) { e.level = 25; e.uses = 250; }
   h.personality = { aggression: 45, greed: 30, caution: 55, loyalty: 70, pride: 60 };
-  world.characters.push(h);
+  ADV.World.addCharacter(world, h);
   world.hiroId = h.id;
   ADV.World.met(world, h.id);
   Hiro.foundParty(world, rng, h);

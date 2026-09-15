@@ -40,7 +40,7 @@ Game.newGame = function (opts) {
       if (rec.autoOff) e.autoOff = true;
     }
   }
-  world.characters.push(player);
+  ADV.World.addCharacter(world, player);
   world.playerId = player.id;
 
   const game = {
@@ -66,7 +66,7 @@ Game.load = function () {
   const world = data.world;
   const player = ADV.World.byId(world, world.playerId);
   if (!player || !player.alive) return null;
-  const rng = new ADV.RNG((world.seed ^ world.questClock * 2654435761) >>> 0);
+  const rng = ADV.RNG.restore(data.rng, (world.seed ^ world.questClock * 2654435761) >>> 0);
   const game = { world, rng, meta: data.meta, player, board: data.board, life: data.life, quest: null, lastOutcome: null,
     campaign: data.campaign || (ADV.Campaign ? ADV.Campaign.fresh() : null),
     campaign2: data.campaign2 || (ADV.Campaign2 ? ADV.Campaign2.fresh() : null), tutorial: data.tutorial || { step: 'done' } };
@@ -477,23 +477,9 @@ Game.maybeStartRivalFinale = function (game) {
 // Begin a quest run. depositGold: how much carried gold to vault first.
 Game.startQuest = function (game, quest, opts) {
   opts = opts || {};
-  const p = Game.player(game);
-  if (ADV.SkillSys && ADV.SkillSys.isOverCapacity(p)) {
-    return { ok: false, error: 'Set down extra skills first — your armor no longer covers them.' };
-  }
-  // Validate all costs and gates before any gold is moved.
-  const travel = ADV.Travel ? ADV.Travel.quote(game, quest, opts.provisions !== false) : null;
-  const tuitionDue = Game.youngDependents(p) * C().GOLD.tuitionPerChildPerQuest * (travel ? travel.days : 1);
-  const deposit = Math.min(Math.max(0, opts.vaultGold || 0), p.inventory.gold);
-  const available = p.inventory.gold - deposit;
-  if (available < tuitionDue + (travel && travel.payer === p ? travel.total : 0)) return { ok:false, error:'Keep enough carried gold for childcare and travel, or choose a nearby contract.' };
-  if (travel && travel.payer !== p && (!travel.payer || travel.payer.inventory.gold < travel.total)) return {ok:false,error:'The company leader cannot afford this passage. Choose nearby work.'};
-  const partyBefore = ADV.Party.of(game.world,p);
-  if (quest.track === 'party' && Game.partyRoster(game).length < 2) return {ok:false,error:'party contracts need a party'};
-  if (quest.track === 'solo' && partyBefore) return {ok:false,error:'a party does not take solo work'};
-  const repBefore = ADV.Quests.repGate(quest,p);
-  if (!repBefore.ok) return repBefore;
-  if (!Game.contractCoversPayroll(game,quest)) return {ok:false,error:'that contract would not cover payroll'};
+  const plan=ADV.QuestLifecycle.planDeparture(game,quest,opts);
+  if(!plan.ok)return plan;
+  const {p,travel,tuitionDue}=plan;
   if (opts.vaultGold && opts.vaultGold > 0) {
     const amt = Math.min(opts.vaultGold, p.inventory.gold);
     p.inventory.gold -= amt;
@@ -513,11 +499,6 @@ Game.startQuest = function (game, quest, opts) {
     thralls: [],
   };
   const roster = Game.partyRoster(game);
-  if (quest.track === 'party' && roster.length < 2) { game.quest = null; return { ok: false, error: 'party contracts need a party' }; }
-  if (quest.track === 'solo' && ADV.Party.of(game.world, p)) { game.quest = null; return { ok: false, error: 'a party does not take solo work' }; }
-  const gate = ADV.Quests.repGate(quest, p);
-  if (!gate.ok) { game.quest = null; return { ok: false, error: gate.error }; }
-  if (!Game.contractCoversPayroll(game, quest)) { game.quest = null; return { ok: false, error: 'that contract would not cover payroll' }; }
   for (const ch of roster) { ch.questHp = 0; ch.survivalBattles = 0; ch.combatHp = ADV.Character.maxHp(ch); ch.wasDowned = false; ch.hasFled = false; }
   if (travel) {
     travel.payer.inventory.gold -= travel.total;
@@ -556,6 +537,7 @@ Game.currentEncounter = function (game) {
     };
   }
   if (q.readyToComplete || q.encIdx >= q.quest.encounters.length) return null;
+  const fresh=!q.enemies;
   if (!q.enemies) {
     q.enemies = q.quest.campaign ? ADV.Campaign.spawnEncounter(game, q.quest, q.encIdx)
       : ADV.Quests.spawnEncounter(game.rng, q.quest, q.encIdx, game.world, game);
@@ -582,19 +564,20 @@ Game.currentEncounter = function (game) {
   }
   const revealed = !!(q.revealNext || Game.player(game).perks.some(x => x.skillId === 'case_the_room'));
   q.revealNext = false;
-  return { encIdx: q.encIdx, total: q.quest.encounters.length, enemies: q.enemies, verbs: q.verbs, boss: q.quest.encounters[q.encIdx].boss, revealed, openerBeats: q.openerBeats || [] };
+  return ADV.CampaignRoutes.hook(game,'encounterReady',{ encIdx: q.encIdx, total: q.quest.encounters.length, enemies: q.enemies, verbs: q.verbs, boss: q.quest.encounters[q.encIdx].boss, revealed, openerBeats: q.openerBeats || [] },{fresh});
 };
 
 // Try a non-fight verb. Returns {success, mode:'bypass'|'ambush', stolen}.
 Game.tryVerb = function (game, verbInfo) {
   const q = game.quest;
+  const encIdx=q.encIdx;
   const res = ADV.Quests.attemptBypass(game.world, game.rng, Game.player(game), Game.partyRoster(game).slice(1), verbInfo, q.enemies);
   if (res.success && res.mode === 'bypass') {
     q.encIdx++; q.enemies = null; q.verbs = null;
     if (q.encIdx >= q.quest.encounters.length) q.readyToComplete = true;
   }
   // ambush: caller starts combat with ambushBy = player id
-  return res;
+  return ADV.CampaignRoutes.hook(game,'verbFinished',res,{encIdx});
 };
 
 Game.necroCaster = function (game) {
@@ -632,7 +615,7 @@ Game.adoptBattlefieldNpc = function (game, ch) {
     if (free.length) ch.name = game.rng.pick(free);
     ch.isMonster = false;
   }
-  game.world.characters.push(ch);
+  ADV.World.addCharacter(game.world, ch);
   return ch;
 };
 
@@ -931,7 +914,7 @@ Game.finishCombat = function (game) {
       q.playerDead = true; q.over = true;
     } else { q.failed = true; q.over = true; }
   }
-  return { won, playerDead: q.playerDead };
+  return ADV.CampaignRoutes.hook(game,'combatFinished',{won,playerDead:q.playerDead});
 };
 
 // Post-victory choice for one defeated named NPC (§3a).
@@ -975,6 +958,7 @@ Game.queueQuestFailureAdvice = function (game, q) {
 // only the sequencing that runs on EVERY resolution.
 Game.completeQuest = function (game) {
   const q = game.quest;
+  if(!q)return game.lastOutcome; // a repeated completion callback cannot pay twice
   const p = Game.player(game);
   const world = game.world;
   const out = { gold: 0, wage: 0, leaderTake: null, events: [] };
@@ -1157,7 +1141,7 @@ function agePlayerChildren(game) {
     if (d.age >= C().CHILD_ADULT) {
       p.dependents.splice(p.dependents.indexOf(d), 1);
       const npc = ADV.Character.matureChild(game.rng, world, d);
-      world.characters.push(npc);
+      ADV.World.addCharacter(world, npc);
       ADV.World.met(world, npc.id);
       ADV.World.feed(world, `Your child ${npc.name} has come of age.`, [npc.id]);
     }

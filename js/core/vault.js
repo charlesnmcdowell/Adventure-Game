@@ -8,8 +8,15 @@ const C = () => ADV.DATA.CONST;
 const Vault = {};
 let NEXT = 1;
 Vault.resetIds = function (n) { NEXT = n || 1; };
+Vault.syncIds = function (world) {
+  for (const v of (world && world.vaults) || []) {
+    const match = /^v(\d+)$/.exec(v.id || '');
+    if (match) NEXT = Math.max(NEXT, Number(match[1]) + 1);
+  }
+};
 
 Vault.create = function (world, holderId) {
+  Vault.syncIds(world);
   const v = { id: 'v' + (NEXT++), holderId, gold: 0, items: [],
     sharedWithId: null, sharedWithIds: [], insuranceActive: false,
     pendingWithdrawals: [], sharedQuestStreak: 0, questsSinceShared: 0,

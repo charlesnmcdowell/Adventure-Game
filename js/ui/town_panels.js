@@ -723,6 +723,7 @@ Panels.codex = function (scene, r) {
 // ============================================================== SETTINGS
 Panels.settings = function (scene, r) {
   header(scene, r, 'Settings', 'These stay in this browser. A new life keeps them.');
+  if(ADV.SaveUI)ADV.UI.keepBtn(scene,T().button(scene,r.x+r.w-190,r.y+16,170,42,'Save backup',()=>ADV.SaveUI.show(scene.g()),{size:14}));
   const scale = (ADV.Prefs && ADV.Prefs.textScale()) || 1;
   const pause = !!(ADV.Prefs && ADV.Prefs.pauseEnemy());
   const full = !!(ADV.Display && ADV.Display.active());

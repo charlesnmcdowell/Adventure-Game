@@ -76,7 +76,7 @@ class QuestScene extends Phaser.Scene {
       ? 'Another company wants the same contract'
       : `Encounter ${enc.encIdx + 1} of ${enc.total} · ${q.quest.factionAlignment}${q.quest.theme ? ' · ' + q.quest.theme : ''}`, { size: 14, ox: 0.5, color: enc.rival ? T().css.gold : T().css.inkDim });
     const p = ADV.Game.player(game);
-    T().text(this, W / 2, 120, `Your health: ${p.combatHp}/${ADV.Character.maxHp(p)} — you only heal back in town.`, { size: 13, ox: 0.5, color: p.combatHp < ADV.Character.maxHp(p) * 0.4 ? T().css.blood : T().css.inkDim });
+    T().text(this, W / 2, 120, `Your health: ${p.combatHp}/${ADV.Character.maxHp(p)} — victories restore ${Math.round(ADV.Difficulty.recoverPct()*100)}% of max health.`, { size: 13, ox: 0.5, color: p.combatHp < ADV.Character.maxHp(p) * 0.4 ? T().css.blood : T().css.inkDim });
     if (p.combatHp < ADV.Character.maxHp(p)) {
       const line = ADV.Game.prompt(game, 'firstCarriedDamage');
       if (line) ADV.Notices.toast(this, line);

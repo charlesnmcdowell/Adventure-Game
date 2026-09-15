@@ -84,6 +84,7 @@ function mount(scene) {
     const motion = button('Scenery motion: ' + (ADV.Prefs.get().titleMotion === false ? 'off' : 'on'), () => {
       const on = ADV.Prefs.get().titleMotion === false; ADV.Prefs.set({ titleMotion: on }); motion.textContent = 'Scenery motion: ' + (on ? 'on' : 'off');
     }); panel.append(sound, motion);
+    if(ADV.SaveUI)panel.append(button('Save backup',()=>ADV.SaveUI.show()));
     const type = el('label', 'Game text size'), select = el('select');
     for (const [value, text] of [[1, 'Standard'], [1.2, 'Larger'], [1.35, 'Largest']]) { const option = el('option', text); option.value = value; select.append(option); }
     select.value = ADV.Prefs.textScale(); select.addEventListener('change', () => ADV.Prefs.setTextScale(Number(select.value))); type.append(select); panel.append(type);

@@ -1,0 +1,407 @@
+{
+  "headless": [
+    {
+      "file": "test/quest_lifecycle.js",
+      "args": []
+    },
+    {
+      "file": "test/world_index.js",
+      "args": []
+    },
+    {
+      "file": "test/combat_characterization.js",
+      "args": []
+    },
+    {
+      "file": "test/subscriptions.js",
+      "args": []
+    },
+    {
+      "file": "test/persistence.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign_retry.js",
+      "args": []
+    },
+    {
+      "file": "test/release_files.js",
+      "args": []
+    },
+    {
+      "file": "test/mobile_assets.js",
+      "args": []
+    },
+    {
+      "file": "test/mobile_viewport.js",
+      "args": []
+    },
+    {
+      "file": "test/run_tests.js",
+      "args": []
+    },
+    {
+      "file": "test/skills2.js",
+      "args": []
+    },
+    {
+      "file": "test/legacy.js",
+      "args": []
+    },
+    {
+      "file": "test/family.js",
+      "args": []
+    },
+    {
+      "file": "test/vault_household.js",
+      "args": []
+    },
+    {
+      "file": "test/courtesy2.js",
+      "args": []
+    },
+    {
+      "file": "test/patch.js",
+      "args": []
+    },
+    {
+      "file": "test/family_track.js",
+      "args": []
+    },
+    {
+      "file": "test/beast_shape.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign_rules.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign_coverage.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign_flow.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign2.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign_lines.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign3.js",
+      "args": []
+    },
+    {
+      "file": "test/campaign3_lines.js",
+      "args": []
+    },
+    {
+      "file": "test/tower_captain.js",
+      "args": []
+    },
+    {
+      "file": "test/gate_mercy.js",
+      "args": []
+    },
+    {
+      "file": "test/music_score.js",
+      "args": []
+    },
+    {
+      "file": "test/difficulty.js",
+      "args": []
+    },
+    {
+      "file": "test/difficulty_change.js",
+      "args": []
+    },
+    {
+      "file": "test/healing_sides.js",
+      "args": []
+    },
+    {
+      "file": "test/balance_pass.js",
+      "args": []
+    },
+    {
+      "file": "test/difficulty_sim.js",
+      "args": [
+        "--quick",
+        "--seeds=2"
+      ]
+    },
+    {
+      "file": "test/conversation.js",
+      "args": []
+    },
+    {
+      "file": "test/personality_distinct.js",
+      "args": []
+    },
+    {
+      "file": "test/dialogue_bonus.js",
+      "args": []
+    },
+    {
+      "file": "test/travel.js",
+      "args": []
+    },
+    {
+      "file": "test/npc_world.js",
+      "args": []
+    },
+    {
+      "file": "test/requests3.js",
+      "args": []
+    },
+    {
+      "file": "test/hiro.js",
+      "args": []
+    },
+    {
+      "file": "test/integration.js",
+      "args": []
+    },
+    {
+      "file": "test/expressions.js",
+      "args": []
+    },
+    {
+      "file": "test/fx.js",
+      "args": []
+    },
+    {
+      "file": "test/party_food_flares.js",
+      "args": []
+    },
+    {
+      "file": "test/quest_align.js",
+      "args": []
+    },
+    {
+      "file": "test/perks_gear_boss.js",
+      "args": []
+    },
+    {
+      "file": "test/combat_presentation.js",
+      "args": []
+    },
+    {
+      "file": "test/tooltip.js",
+      "args": []
+    },
+    {
+      "file": "test/melee_perks_monsters.js",
+      "args": []
+    },
+    {
+      "file": "test/requests4.js",
+      "args": []
+    },
+    {
+      "file": "test/revive_skills.js",
+      "args": []
+    },
+    {
+      "file": "test/vo_coverage.js",
+      "args": []
+    },
+    {
+      "file": "test/vo_usage.js",
+      "args": []
+    },
+    {
+      "file": "test/heal.js",
+      "args": []
+    },
+    {
+      "file": "test/dot.js",
+      "args": []
+    },
+    {
+      "file": "test/fighter_kit.js",
+      "args": []
+    },
+    {
+      "file": "test/enemy_healers.js",
+      "args": []
+    },
+    {
+      "file": "test/boss_floor.js",
+      "args": []
+    },
+    {
+      "file": "test/skill_audit.js",
+      "args": []
+    },
+    {
+      "file": "test/party_roles.js",
+      "args": []
+    },
+    {
+      "file": "test/poison_looks.js",
+      "args": []
+    },
+    {
+      "file": "test/targeting.js",
+      "args": []
+    },
+    {
+      "file": "test/vanish_skip.js",
+      "args": []
+    },
+    {
+      "file": "test/solo_quests.js",
+      "args": []
+    },
+    {
+      "file": "test/threat.js",
+      "args": []
+    },
+    {
+      "file": "test/sniper.js",
+      "args": []
+    },
+    {
+      "file": "test/tank_healer_balance.js",
+      "args": [
+        "--quick"
+      ]
+    }
+  ],
+  "browser": [
+    {
+      "file": "test/browser_gate_route.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_art_retry.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_save.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_art_loading.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_test.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_twofights.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_creation.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_panels.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_party.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_campaign.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_requests3.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_tutorial.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_hiro.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_expressions.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_heal.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_home.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_threat.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_story.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_mobile_launch.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_mobile_host.js",
+      "args": []
+    }
+  ],
+  "mobile": [
+    {
+      "file": "test/browser_mobile_launch.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_mobile_host.js",
+      "args": []
+    }
+  ],
+  "smoke": [
+    {
+      "file": "test/browser_gate_route.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_creation.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_save.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_art_loading.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_art_retry.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_twofights.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_party.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_mobile_launch.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_mobile_host.js",
+      "args": []
+    }
+  ]
+}

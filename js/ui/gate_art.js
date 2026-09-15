@@ -59,7 +59,7 @@ G.warden=ch=>{
  const kind=['healer','druid','mage','necromancer'].includes(role)?'healer':['rogue','ranger','assassin'].includes(role)?'rogue':'fighter';
  return frame('warden',kind+'_'+sex)||frame('warden_extra',kind+'_'+sex)||frame('extras','wardens_'+kind+'_'+sex);
 };
-G.icon=function(scene,kind,id){const f=frame(kind,id);if(!f)return null;const k='gate_icon_'+kind+'_'+id;if(!scene.textures.exists(k)){const c=A.AnimeWorld.cell(scene,f.sheet,f.frame);if(!c)return null;const t=scene.textures.createCanvas(k,160,160);t.getContext().drawImage(c,0,0,160,160);t.refresh();}return k;};
+G.icon=function(scene,kind,id){const f=frame(kind,id);return f?A.AnimeWorld.raster(scene,'gate_icon_'+kind+'_'+id,f.sheet,f.frame,160,160):null;};
 const encounterRoutes=G.encounterRoutes={
  1:['lanternhold','lanternhold','griffon'],2:['shore','shore','open_hand'],3:['dunmere','ford','gnoll_fort'],
  4:['dunmere_mine','dunmere_mine','dunmere_mine','black_altar'],5:['thornbury','holloway','bandit_camp','bandit_camp'],
