@@ -50,7 +50,7 @@ function killEl(el) {
 // to `duck` of its level (request: the score was drowning the campaign lines).
 function voiceActive() {
   const v = Music.voiceEl;
-  return !!(v && v.__wantPlay && !v.ended);
+  return !!(v && v.__wantPlay && !v.ended && !v.__playError);
 }
 function musicGain() {
   return Music.volume * (voiceActive() ? Music.duck : 1);
@@ -76,17 +76,34 @@ function playEl(el) {
   if (!el) return;
   const gen = bumpGen(el);
   el.__wantPlay = true;
+  el.__playError = null;
+  el.__playBlocked = false;
   el.volume = Music.muted ? 0 : (el === Music.voiceEl ? 1 : musicGain());
   if (el === Music.voiceEl) rampMusic(120);
   if (Music.muted || Music.hidden) return;
-  const p = el.play();
+  const failed = err => {
+    // A cancelled/older request belongs to the line we have already left.
+    if (el.__playGen !== gen || !el.__wantPlay || err?.name === 'AbortError') return;
+    el.__playBlocked = err?.name === 'NotAllowedError';
+    el.__playError = err?.name || 'PlaybackError';
+    if (el === Music.voiceEl) {
+      console.warn('Voice playback failed:', el.src, el.__playError);
+      rampMusic(200);
+    }
+  };
+  let p;
+  try { p = el.play(); } catch (err) { failed(err); return; }
   if (p && p.then) {
     p.then(() => {
-      Music.unlocked = true;
-      if (!el.__wantPlay || el.__playGen !== gen || Music.hidden || Music.muted) {
+      if (!el.__wantPlay || Music.hidden || Music.muted) {
         try { el.pause(); } catch (e) {}
+      } else if (el.__playGen === gen) {
+        Music.unlocked = true;
+        el.__playError = null;
+        el.__playBlocked = false;
       }
-    }).catch(() => {});
+      // An older play promise must not pause a newer resume on this element.
+    }).catch(failed);
   }
 }
 
@@ -98,7 +115,12 @@ function watch(el) {
     if (el === Music.voiceEl) { el.__wantPlay = false; rampMusic(400); }   // voice done: music comes back up
   });
   el.addEventListener('error', () => {
-    if (el === Music.voiceEl) { el.__wantPlay = false; rampMusic(200); }
+    if (el === Music.voiceEl) {
+      el.__wantPlay = false;
+      el.__playError = 'MediaError:' + (el.error?.code || 'unknown');
+      console.warn('Voice loading failed:', el.src, el.__playError);
+      rampMusic(200);
+    }
   });
   return el;
 }
@@ -141,13 +163,15 @@ const Music = {
   init() {
     try { Music.muted = localStorage.getItem('adv:muted') === '1'; } catch (e) {}
     const unlock = () => {
+      const first = !Music.unlocked;
       Music.unlocked = true;
-      document.removeEventListener('pointerdown', unlock);
-      document.removeEventListener('keydown', unlock);
       if (Music.hidden && Music.pageVisible()) Music.hidden = false;
       if (Music.hidden || Music.muted) return;
-      Music.resumeCurrent();
+      if (first) Music.resumeCurrent();
+      else if (Music.el?.__playBlocked) playEl(Music.el);
     };
+    // Keep this listener: webviews can revoke playback after returning from
+    // the background. Dialogue has a separate replay control for its voice.
     document.addEventListener('pointerdown', unlock);
     document.addEventListener('keydown', unlock);
     if (typeof window === 'undefined') return;
@@ -178,7 +202,7 @@ const Music = {
   },
 
   halt(hard) {
-    if (!hard && Music.voiceEl && !Music.voiceEl.paused && !Music.voiceEl.ended) Music._voiceHeld = true;
+    if (!hard && Music.voiceEl && Music.voiceEl.__wantPlay && !Music.voiceEl.ended) Music._voiceHeld = true;
     else Music._voiceHeld = false;
     Music.hidden = true;
     haltAll(!!hard);
@@ -194,7 +218,7 @@ const Music = {
       pauseOthers(Music.el);
       playEl(Music.el);
     }
-    if (Music._voiceHeld && Music.voiceEl && Music.voiceEl.src) {
+    if (Music.voiceEl?.src && (Music._voiceHeld || (Music.voiceEl.__wantPlay && Music.voiceEl.paused && !Music.voiceEl.ended))) {
       Music._voiceHeld = false;
       playEl(Music.voiceEl);
     }
@@ -396,7 +420,10 @@ const Music = {
   toggleMute() {
     Music.muted = !Music.muted;
     try { localStorage.setItem('adv:muted', Music.muted ? '1' : '0'); } catch (e) {}
-    if (Music.muted) { haltAll(false); if (ADV.CombatPresentation) ADV.CombatPresentation.stop(); }
+    if (Music.muted) {
+      Music._voiceHeld = !!(Music.voiceEl?.__wantPlay && !Music.voiceEl.ended);
+      haltAll(false); if (ADV.CombatPresentation) ADV.CombatPresentation.stop();
+    }
     else Music.resumeCurrent();
     return Music.muted;
   },
@@ -411,6 +438,17 @@ const Music = {
   voiceUrl(path) {
     const hash = ADV.DATA.VOICE_HASHES && ADV.DATA.VOICE_HASHES[path];
     return path + (hash ? '?v=' + hash : '');
+  },
+  // Called directly from the dialogue button so a browser that rejected the
+  // automatic request gets a fresh user gesture. Never revive an older line.
+  replayVoice(expected) {
+    const el = Music.voiceEl;
+    if (!el || el !== expected || !el.src || Music.muted || !Music.pageVisible()) return false;
+    Music.hidden = false;
+    Music._voiceHeld = false;
+    try { if (el.error) el.load(); el.currentTime = 0; } catch (e) {}
+    playEl(el);
+    return true;
   },
   speakFile(personalityId, band, idx, tag) {
     if (!personalityId) return;

@@ -37,6 +37,7 @@ node_modules/
 !/docs/maintenance/code-audit-2026-09-14/AUDIT.md
 !/docs/maintenance/ARCHITECTURE.md
 !/docs/dialogue/*.md
+!/docs/updates/DIFFICULTY_MODES.md
 /archive/backups/
 /archive/legacy/
 *.log

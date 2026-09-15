@@ -45,7 +45,7 @@ console.log('\n-- survival growth is a quest\'s worth of health --');
   Cb.exportHp(st);
   eq(p.stats.hp, 200, 'the base stat never grows');
   eq(p.questHp, 20, 'the battle adds 20 to the quest pool');
-  eq(ADV.Character.maxHp(p), 440, 'max HP carries it (with the easy buffer)');
+  eq(ADV.Character.maxHp(p), 330, 'max HP carries it (with the easy buffer)');
   eq(ADV.SkillSys.knownVal(p, 'survivalHp'), 20, 'the perk still says +20');
 }
 
@@ -247,18 +247,29 @@ console.log('\n-- a basic-tier skill cannot delete anyone (normal and above) --'
   ok(!over.length, 'normal: no basic-tier skill takes more than a third of a foe', over.slice(0, 6).join('; '));
   ok(!killed.length, 'normal: no basic-tier skill kills in one use', killed.slice(0, 6).join('; '));
 
-  // Easy is the game as it has always played: deliberately uncapped.
+  // Easy now carries the same opener cap as the previous Normal.
   ADV.Difficulty.set(g, 'easy');
-  eq(ADV.Difficulty.basicHitCap(), 0, 'easy: no cap — the game as it has always played');
-  const e1 = hit('fire_bolt', enemyTypes[0], 1);
-  ok(!e1 || e1.dmg > Math.floor(e1.maxHp / 3) + 1, 'easy: a basic skill still hits for everything it is worth');
+  eq(ADV.Difficulty.basicHitCap(), 1 / 3, 'easy: a basic skill is an opener, not an execution');
   ADV.Difficulty.set(g, 'hard');
-  ok(ADV.Difficulty.basicHitCap() > 0, 'hard: capped too — hard is never more permissive than normal');
+  ok(ADV.Difficulty.basicHitCap() > 0 && ADV.Difficulty.basicHitCap() < ADV.Difficulty.LEVELS.normal.basicHitCap, 'hard: a tighter cap than normal');
   if (ADV.Difficulty.valid(prevId)) ADV.Difficulty.set(g, prevId);
+  // Prove the cap is live: with it lifted, the same blow is worth more than a third.
+  const savedCap = ADV.Difficulty.LEVELS.easy.basicHitCap;
+  ADV.Difficulty.LEVELS.easy.basicHitCap = 0;
+  ADV.Difficulty.set(g, 'easy');
+  const uncapped = hit('fire_bolt', enemyTypes[0], 1);
+  ADV.Difficulty.LEVELS.easy.basicHitCap = savedCap;
+  ADV.Difficulty.set(g, 'easy');
+  const nowCapped = hit('fire_bolt', enemyTypes[0], 1);
+  ok(uncapped && nowCapped && uncapped.dmg > nowCapped.dmg,
+    'lifting the cap lets a basic skill hit for what it is worth',
+    uncapped && nowCapped ? uncapped.dmg + ' vs ' + nowCapped.dmg : 'n/a');
   // Prove the guard above is doing real work: with the global pointing at an unbound graph
-  // the engine cannot see the setting, which is exactly the trap this section sidesteps.
+  // the engine cannot see the setting. Easy now has a cap, so zero it on that graph too.
   ADV.Difficulty.set(g, 'normal');
   const capped = hit('fire_bolt', enemyTypes[0], 1);
+  if (outerGlobal.Difficulty && outerGlobal.Difficulty.LEVELS && outerGlobal.Difficulty.LEVELS.easy)
+    outerGlobal.Difficulty.LEVELS.easy.basicHitCap = 0;
   globalThis.ADV = outerGlobal;
   const loose = hit('fire_bolt', enemyTypes[0], 1);
   globalThis.ADV = ADV;

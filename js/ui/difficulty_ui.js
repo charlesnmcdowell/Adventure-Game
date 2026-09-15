@@ -62,7 +62,7 @@ Panels.difficulty = function (scene, r) {
     scene.buildCharacterPanel && scene.buildCharacterPanel();
     scene.openPanel('difficulty');
   });
-  scene.keep(T().text(scene, r.x + 24, y + 10, 'Easy is the game exactly as it played before this setting existed. The harder roads change how many enemies show up and how seasoned they are, their stats a little, your own health buffer and rest between fights, contract pay and the auto-combat safety stop. Stories, companions and rewards in kind are the same on every road.', { size: 12, color: T().css.inkFaint, wrap: r.w - 48 }));
+  scene.keep(T().text(scene, r.x + 24, y + 10, 'Easy is the previous Normal: one extra enemy and better kits, with a smaller health buffer. The harder roads add more bodies, raise veterans earlier, thin rest and pay, and turn auto combat off. Stories, companions and rewards in kind are the same on every road.', { size: 12, color: T().css.inkFaint, wrap: r.w - 48 }));
 };
 
 // ---- the new-life modal ------------------------------------------------------------

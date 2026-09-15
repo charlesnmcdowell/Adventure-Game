@@ -106,6 +106,18 @@ const DialogueBox = {
     scene.tweens.add({ targets: hint, y: hint.y + 4, duration: 420, yoyo: true, repeat: -1 });
     group.push(hint);
 
+    // Keep replay separate from "next": a blocked or late-loading recording
+    // can be heard with a direct tap without losing its text or choice.
+    const voice = ADV.Music?.voiceEl;
+    if (opts.voiceReplay && voice) {
+      const scale = DialogueBox.displayScale(scene);
+      const bw = Math.max(180, 130 / scale), bheight = Math.max(44, 44 / scale);
+      const replay = T().button(scene, W - 40 - bw, y - bheight - 8, bw, bheight, 'Replay voice', () => {
+        ADV.Music.replayVoice(voice);
+      }, { size: DialogueBox.fontSize(scene, 15), color: T().css.gold });
+      for (const part of [replay.g, replay.txt, replay.zone]) { part.setDepth(905); group.push(part); }
+    }
+
     if (ADV.Tooltip) ADV.Tooltip.hide();
     if (ADV.Tutor) ADV.Tutor.clear(scene);
     if (ADV.Notices && ADV.Notices.block) ADV.Notices.block(scene);

@@ -121,6 +121,14 @@
       "args": []
     },
     {
+      "file": "test/music_voice_recovery.js",
+      "args": []
+    },
+    {
+      "file": "test/gate_voice_assets.js",
+      "args": []
+    },
+    {
       "file": "test/difficulty.js",
       "args": []
     },
@@ -283,6 +291,10 @@
     }
   ],
   "browser": [
+    {
+      "file": "test/browser_gate_voice.js",
+      "args": []
+    },
     {
       "file": "test/browser_gate_route.js",
       "args": []

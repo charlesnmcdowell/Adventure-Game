@@ -50,6 +50,9 @@ const UI3 = ADV.Campaign3UI = {};
 function speak(who, key, idx) {
   if (ADV.Music && ADV.Music.speakCampaign) ADV.Music.speakCampaign(who, key, idx);
 }
+function hasRecording(who, key, idx) {
+  return !!D().VOICE_HASHES?.['audio/vo/campaign/' + who + '/' + key + '_' + idx + '.mp3'];
+}
 
 // ---------------------------------------------------------------- beat playback (§2)
 UI3.playBeat = function (scene, game, beat, done) {
@@ -94,16 +97,17 @@ UI3.playBeat = function (scene, game, beat, done) {
     ADV.DialogueBox.showText(scene, game, spk, ADV.CampaignUI.fill(game, line.t, who, context), () => {
       if (ADV.VFX && ADV.VFX.flashOverlay) ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8);
       scene.time.delayedCall(600, finish);
-    }, { raw: line.t, recipient, caption: beat.caption || D().STORY_DEATH_CAPTIONS.gate });
+    }, { raw: line.t, recipient, caption: beat.caption || D().STORY_DEATH_CAPTIONS.gate, voiceReplay: hasRecording(who, beat.key, 1) });
     return;
   }
   let i = 0;
   const next = () => {
     if (i >= lines.length) { finish(); return; }
     const line = lines[i++];
-    speak(who, beat.key, line.vo || (beat.voOffset || 0) + i);
+    const voiceIndex = line.vo || (beat.voOffset || 0) + i;
+    speak(who, beat.key, voiceIndex);
     ADV.DialogueBox.showText(scene, game, spk, ADV.CampaignUI.fill(game, line.t, who, context), next,
-      { raw: line.t, recipient, caption: i === 1 ? beat.caption : undefined });
+      { raw: line.t, recipient, caption: i === 1 ? beat.caption : undefined, voiceReplay: hasRecording(who, beat.key, voiceIndex) });
   };
   next();
 };

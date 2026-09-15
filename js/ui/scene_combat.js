@@ -901,7 +901,7 @@ class CombatScene extends Phaser.Scene {
     const u = st && st.units.find(x => x.ch && x.ch.isPlayer);
     if (!u || u.downed || u.fled || u.chp <= 0) return false;
     const pct = u.chp / Math.max(1, u.maxHp);
-    // the safety stop is a difficulty lever: 50% easy, 30% normal, never on hard
+    // the safety stop is a difficulty lever: 30% easy, never from normal up
     const stopAt = ADV.Difficulty ? ADV.Difficulty.autoStopPct() : .5;
     if (!stopAt || pct >= stopAt) { this._healthStopNotified = false; return false; }
     const wasAuto = !this._autoHalted && ADV.Combat.autoList(u.ch).length > 0;

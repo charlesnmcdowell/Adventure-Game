@@ -1,5 +1,5 @@
-// Difficulty settings (request): easy is the game as it shipped; normal and hard
-// add more and better enemies, thin the player's buffer and rest, and trim pay.
+// Difficulty settings: easy is the previous normal; normal is the previous hard;
+// hard steps further — more bodies, earlier veterans, less rest.
 'use strict';
 const { load, memBackend, checkScriptOrder } = require('./harness');
 const ADV = load();
@@ -22,14 +22,15 @@ ok(checkScriptOrder().ok, 'index.html and the harness load the same core files i
 eq(Df.ORDER.join(), 'easy,normal,hard', 'three levels');
 for (const id of Df.ORDER) ok(Df.LEVELS[id].name && Df.LEVELS[id].blurb && Df.LEVELS[id].tagline, id + ' has a name, tagline and blurb');
 const E = Df.LEVELS.easy, N = Df.LEVELS.normal, H = Df.LEVELS.hard;
-eq(E.playerHp, 2, 'easy keeps the doubled player health');
-eq(E.extraFoes + E.foeLevel, 0, 'easy adds no enemies and no levels');
-ok(E.foeHp === 1 && E.foeAtk === 1 && E.foeDef === 1 && E.recoverPct === 0.5 && E.payBonus === 100 && E.autoStopPct === 0.5, 'easy is the game as it was');
+eq(E.playerHp, 1.5, 'easy keeps the half-again health buffer');
+eq(E.extraFoes, 1, 'easy fields one extra enemy (what normal used to)');
+eq(E.foeLevel, 2, 'easy veterans are two levels up');
+ok(E.foeSkillFloor === 10 && E.basicHitCap > 0 && E.recoverPct === 0.35 && E.payBonus === 50 && E.autoStopPct === 0.3, 'easy matches the previous normal');
 ok(N.extraFoes >= 1 && H.extraFoes > N.extraFoes, 'normal and hard add enemies, hard more');
 ok(N.foeLevel >= 1 && H.foeLevel > N.foeLevel, 'normal and hard field veterans, hard more so');
-ok(E.playerHp > N.playerHp && N.playerHp > H.playerHp && H.playerHp === 1, 'the health buffer shrinks to nothing');
+ok(E.playerHp > N.playerHp && N.playerHp >= H.playerHp && H.playerHp === 1, 'the health buffer shrinks to nothing');
 ok(E.recoverPct > N.recoverPct && N.recoverPct > H.recoverPct, 'less rest between fights');
-ok(E.payBonus > N.payBonus && N.payBonus > H.payBonus, 'the pay bonus shrinks');
+ok(E.payBonus > N.payBonus && N.payMult >= H.payMult && H.payMult < 1, 'pay shrinks on the harder roads');
 ok(E.autoStopPct > N.autoStopPct && H.autoStopPct === 0, 'the safety stop lowers, then goes');
 ok(!/shame|lesser|baby|coward/i.test(E.blurb + E.tagline), 'easy is described as a road, not a penalty');
 
@@ -56,8 +57,8 @@ console.log('\n-- player health buffer --');
   const g = fresh(5);
   const p = ADV.Game.player(g);
   const base = p.stats.hp;
-  Df.set(g, 'easy'); eq(ADV.Character.maxHp(p), Math.round(base * 2), 'easy: doubled');
-  Df.set(g, 'normal'); eq(ADV.Character.maxHp(p), Math.round(base * 1.5), 'normal: half again');
+  Df.set(g, 'easy'); eq(ADV.Character.maxHp(p), Math.round(base * 1.5), 'easy: half again');
+  Df.set(g, 'normal'); eq(ADV.Character.maxHp(p), base, 'normal: natural');
   Df.set(g, 'hard'); eq(ADV.Character.maxHp(p), base, 'hard: natural');
   // switching re-fits current health to the same fraction
   Df.set(g, 'easy'); p.combatHp = Math.round(ADV.Character.maxHp(p) * 0.5);
@@ -75,16 +76,17 @@ console.log('\n-- enemies: more, better, a little stronger --');
   Df.set(g, 'hard');
   const e2 = ADV.Character.makeEnemy(ADV.rngFromString('m'), 'bandit', { level: 4, world: g.world });
   ok(Df.isFoe(e1) && Df.isFoe(e2), 'stock enemies are foes');
-  const lift = l => Math.max(l + H.foeLevel, H.foeSkillFloor || 0);
-  eq(e2.enemyLevel, e1.enemyLevel + H.foeLevel, 'hard: a veteran, levels up by the offset');
-  ok(e2.actives.every((a, i) => a.level === lift(e1.actives[i].level)), 'hard: every skill climbs by the offset, or to the floor');
+  const baseLvl = e2.__kit0 ? e2.__kit0.enemyLevel : e1.__kit0.enemyLevel;
+  const lift = l => Math.max(l + H.foeLevel, (baseLvl >= (H.foeSkillFloorFrom || 0) ? (H.foeSkillFloor || 0) : 0));
+  eq(e2.enemyLevel, baseLvl + H.foeLevel, 'hard: a veteran, levels up by the offset');
+  ok(e2.actives.every((a, i) => a.level === lift(e2.__kit0.actives[i].level)), 'hard: every skill climbs by the offset, or to the floor');
   ok(e2.actives.every(a => a.level >= ADV.DATA.CONST.TIER_THRESHOLDS.intermediate), 'hard: every kit is at least intermediate');
   // The kit floor raises how well an enemy fights, never what it is. It once lifted
   // enemyLevel too, which turned a first-contract wolf into a level-10 one.
-  ok(e2.enemyLevel < (H.foeSkillFloor || 0) || e1.enemyLevel + H.foeLevel >= (H.foeSkillFloor || 0),
-    'hard: the kit floor never inflates the creature\'s own level', 'lvl ' + e1.enemyLevel + ' -> ' + e2.enemyLevel);
-  ok(e1.perks.length === 0 && e2.perks.length > 0, 'hard: a tier-1 mook brings its perks');
-  ok(ADV.Character.effStat(e2, 'atk') >= Math.round(e1.stats.atk * H.foeAtk) - 1 && ADV.Character.maxHp(e2) >= Math.round(e1.stats.hp * H.foeHp) - 1, 'hard: the stat edge applies');
+  ok(e2.enemyLevel === baseLvl + H.foeLevel,
+    'hard: the kit floor never inflates the creature\'s own level', 'lvl ' + baseLvl + ' -> ' + e2.enemyLevel);
+  ok(e2.perks.length > (e2.__kit0.perks || []).length || e2.perks.length > 0, 'hard: a tier-1 mook brings its perks');
+  ok(ADV.Character.effStat(e2, 'atk') >= Math.round(e2.stats.atk * H.foeAtk) - 1 && ADV.Character.maxHp(e2) >= Math.round(e2.stats.hp * H.foeHp) - 1, 'hard: the stat edge applies');
   Df.set(g, 'easy');
   eq(ADV.Character.effStat(e2, 'atk'), e2.stats.atk, 'back on easy the same unit reads its plain stats');
   // allies that began as monsters are never scaled
@@ -107,9 +109,9 @@ console.log('\n-- enemies: more, better, a little stronger --');
   const q = g.board.find(x => x.track === 'party' && !x.isBoss);
   const count = (id) => { Df.set(g, id); ADV.Game.startQuest(g, q, {}); const enc = ADV.Game.currentEncounter(g); const n = enc.enemies.length; const kinds = new Set(enc.enemies.map(e => e.enemyTypeId)); const extras = enc.enemies.filter(e => e.reinforcement); g.quest = null; return { n, kinds, extras }; };
   const a = count('easy'), b = count('normal'), c = count('hard');
-  eq(a.extras.length, 0, 'easy: no reinforcements');
-  eq(b.n, a.n + 1, 'normal: one more enemy in a party fight');
-  eq(c.n, a.n + 2, 'hard: two more');
+  eq(a.extras.length, E.extraFoes, 'easy: the extra enemies the previous normal fielded');
+  eq(b.n, a.n + (N.extraFoes - E.extraFoes), 'normal: more enemies than easy');
+  eq(c.n, a.n + (H.extraFoes - E.extraFoes), 'hard: more still');
   ok(c.extras.every(e => a.kinds.has(e.enemyTypeId)), 'the extras are the encounter\'s own kinds');
   // __toughened was a one-shot flag; toughening is now re-derived from __kit0 every time the
   // setting changes, so the mark that a creature has been through it is the recorded original.
@@ -134,7 +136,7 @@ console.log('\n-- enemies: more, better, a little stronger --');
   ADV.Game.startQuest(g, C3.buildQuest(g, 4), {});
   const enc = ADV.Game.currentEncounter(g);
   const extras = enc.enemies.filter(e => e.reinforcement);
-  ok(extras.length === Math.min(2, ADV.Game.partyRoster(g).length - 1) && extras.length > 0, 'a campaign fight with company gets its adds (' + extras.length + ')');
+  ok(extras.length === Math.min(H.extraFoes, ADV.Game.partyRoster(g).length - 1) && extras.length > 0, 'a campaign fight with company gets its adds (' + extras.length + ')');
   ok(extras.every(e => e.noCombatVoice && !e.personalityId), 'campaign adds are as silent as the rest');
   g.quest = null;
   ADV.Game.startQuest(g, C3.buildQuest(g, 14), {});
@@ -150,15 +152,19 @@ console.log('\n-- rest, pay, safety stop --');
   const g = fresh(10);
   const p = ADV.Game.player(g);
   const check = (id, pct) => { Df.set(g, id); p.combatHp = 10; ADV.Combat.applyPostVictoryRecovery([p]); const max = ADV.Character.maxHp(p); eq(p.combatHp, Math.min(max, 10 + Math.round(max * pct)), id + ': ' + Math.round(pct * 100) + '% back after a win'); };
-  check('easy', 0.5); check('normal', 0.35); check('hard', 0.2);
-  Df.set(g, 'easy'); eq(Df.pay(300), 400, 'easy: +100 a contract');
-  Df.set(g, 'normal'); eq(Df.pay(300), 350, 'normal: +50');
-  Df.set(g, 'hard'); eq(Df.pay(300), Math.round(300 * 0.85), 'hard: no bonus and 85%');
+  check('easy', 0.35); check('normal', 0.2); check('hard', 0.1);
+  Df.set(g, 'easy'); eq(Df.pay(300), 350, 'easy: +50 a contract');
+  Df.set(g, 'normal'); eq(Df.pay(300), Math.round(300 * 0.85), 'normal: no bonus and 85%');
+  Df.set(g, 'hard'); eq(Df.pay(300), Math.round(300 * 0.7), 'hard: no bonus and 70%');
   const built = ADV.BalanceSupport.quest({ track: 'solo', payout: 200 });
   eq(built.payout, Df.pay(200), 'quest builders pay by the setting');
   eq(Df.autoStopPct(), 0, 'hard: auto never stops itself');
   ok(!Df.fleeWarn(), 'hard: no flee warning');
-  Df.set(g, 'easy'); eq(Df.autoStopPct(), 0.5, 'easy: stops below half');
+  Df.set(g, 'easy'); eq(Df.autoStopPct(), 0.3, 'easy: stops below 30%');
+  Df.set(g, 'easy');
+  eq(ADV.Campaign3.earlyFoeDmg(g, { campaign3: true, n: 1 }), 0.7, 'easy: the first two Gate quests still hit softer');
+  Df.set(g, 'normal');
+  eq(ADV.Campaign3.earlyFoeDmg(g, { campaign3: true, n: 1 }), 1, 'normal: the Gate opens at full strength');
 }
 
 console.log(`\n==== ${pass} passed, ${fail} failed ====`);

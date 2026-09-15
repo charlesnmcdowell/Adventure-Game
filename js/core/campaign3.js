@@ -348,13 +348,13 @@ C3.spawnEncounter = function (game, quest, encIdx) {
 C3.limitRecovery = function (enemies) {
   for (const ch of enemies || []) if (ch) ch.c3RecoveryMax = D().CAMPAIGN3_RECOVERY_MAX;
 };
-// Easy and Normal open the road softer: the first two quests hit at 70% of the
-// campaign's usual output. Hard is the full blow from the first knife.
+// Easy opens the road softer: the first two quests hit at 70% of the
+// campaign's usual output. Normal and Hard are the full blow from the first knife.
 C3.earlyFoeDmg = function (game, quest) {
   const q = quest || game?.quest?.quest;
   if (!q?.campaign3 || (q.n || 0) > 2) return 1;
   const id = ADV.Difficulty && ADV.Difficulty.id ? ADV.Difficulty.id() : 'easy';
-  if (id === 'hard') return 1;
+  if (id !== 'easy') return 1;
   const n = D().CAMPAIGN3_EARLY_FOE_DMG;
   return n != null ? n : 0.7;
 };
