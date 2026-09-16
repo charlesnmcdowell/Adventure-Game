@@ -122,7 +122,7 @@ Game.grantCourtesyGold2 = function (game) {
   return true;
 };
 
-Game.HOME_RELOAD_WAVE = 'live8';
+Game.HOME_RELOAD_WAVE = 'live9';
 Game.clearCourtesyNotices = function (game) {
   if (!game || !game.meta) return false;
   const m = game.meta;

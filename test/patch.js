@@ -8,12 +8,12 @@ const order = checkScriptOrder();
 ok(order.ok, 'harness still matches index.html script order', order.missing && order.missing.join(','));
 
 ADV.Save.setBackend({ _m: {}, getItem(k) { return this._m[k] || null; }, setItem(k, v) { this._m[k] = v; }, removeItem(k) { delete this._m[k]; } });
-ok(ADV.Game.versionLabel() === '1.2.1', 'login version is 1.2.1');
+ok(ADV.Game.versionLabel() === '1.2.2', 'login version is 1.2.2');
 const fresh = ADV.Game.newGame({ seed: 8, name: 'Nils', sex: 'm', portraitSeed: 2, portraitSlot: 1, startingSkills: ['cleave'] });
-ok(fresh.meta.patchId === '1.2.1', 'a new life starts already current');
+ok(fresh.meta.patchId === '1.2.2', 'a new life starts already current');
 ok(!ADV.Game.applyPatch(fresh), 'a new life is not paid again');
 const game = ADV.Game.newGame({ seed: 9, name: 'Cole', sex: 'm', portraitSeed: 3, portraitSlot: 1, startingSkills: ['cleave'] });
-game.meta.patchId = '1.2.0';
+game.meta.patchId = '1.2.1';
 const before = ADV.Game.player(game).inventory.gold;
 ok(ADV.Game.applyPatch(game), 'an older save receives the patch');
 ok(ADV.Game.player(game).inventory.gold === before + 10000, 'ten thousand gold for staying current');

@@ -292,6 +292,10 @@
       "args": [
         "--quick"
       ]
+    },
+    {
+      "file": "test/gate_endcard_voice.js",
+      "args": []
     }
   ],
   "browser": [
@@ -386,6 +390,16 @@
     {
       "file": "test/browser_title_continue.js",
       "args": []
+    },
+    {
+      "file": "test/browser_gate_endcard.js",
+      "args": []
+    },
+    {
+      "file": "test/browser_gate_endcard.js",
+      "args": [
+        "--webkit"
+      ]
     }
   ],
   "mobile": [

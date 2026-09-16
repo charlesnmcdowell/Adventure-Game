@@ -55,8 +55,9 @@ const DialogueBox = {
     panel.strokeRoundedRect(20, y, W - 40, bh, 8);
     group.push(dim, panel);
     if (opts.caption) {
-      group.push(scene.add.rectangle(W / 2, 150, W - 100, 110, 0x14110d, 0.96).setDepth(901));
-      group.push(DialogueBox.crisp(T().text(scene, W / 2, 150, opts.caption, { size: DialogueBox.fontSize(scene,17), ox: 0.5, oy: 0.5, wrap: W - 170, align: 'center', color: T().css.ink })).setDepth(902));
+      const captionY = opts.captionY ?? 150;
+      group.push(scene.add.rectangle(W / 2, captionY, W - 100, 110, 0x14110d, 0.96).setDepth(901));
+      group.push(DialogueBox.crisp(T().text(scene, W / 2, captionY, opts.caption, { size: DialogueBox.fontSize(scene,17), ox: 0.5, oy: 0.5, wrap: W - 170, align: 'center', color: T().css.ink })).setDepth(902));
     }
     // portrait
     const key = ADV.Portraits.key(scene, speaker);

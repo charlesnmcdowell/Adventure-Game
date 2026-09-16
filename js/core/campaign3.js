@@ -1,4 +1,4 @@
-// Varenholm's Gate story campaign core (VARENHOLMS_GATE_CAMPAIGN.md §0-§2, §6).
+// Varenholm's Iron War story campaign core (VARENHOLMS_GATE_CAMPAIGN.md §0-§2, §6).
 //
 // Differs from the two faction campaigns in three ways:
 //   1. Progress lives in game.meta.c3 — the cross-life journal — so a later
@@ -200,7 +200,7 @@ C3.departureNotice = function (game, q) {
   if (!q?.campaign3 || C3.state(game).partyNoticeSeen) return null;
   const player = ADV.Game.player(game);
   if (!ADV.Party.of(game.world, player) && ADV.Party.battleRoster(game.world, player).length < 2) return null;
-  return 'Your regular party and followers wait at home during Varenholm’s Gate. '
+  return 'Your regular party and followers wait at home during Varenholm’s Iron War. '
     + (q.n === 1 ? 'You begin this quest alone and recruit companions through the story. ' : 'Only companions recruited in this campaign travel with you. ')
     + 'Your regular party stays intact, and you won’t owe them wages for this quest.';
 };

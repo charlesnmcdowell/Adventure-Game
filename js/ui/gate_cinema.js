@@ -58,6 +58,8 @@ G.sceneForBeat=function(game,beat,context){
  if(beat.artPrison||(context?.prison&&/^q10_(?:letter|end)/.test(k)))return{kind:'environments',id:'catacombs',phase:'night',prison:true};
  let id=null;
  if(k==='q1_death')id='death';
+ else if(k==='q14_final_taken')id='hiwot_sacrifice';
+ else if(k==='q14_final_soul')id='hiwot_bound';
  else if(n===2&&/notice|bounty/.test(k))id='bounty';
  else if(k.startsWith('q4_dream'))id='dream_1';
  else if(k.startsWith('q7_dream'))id='dream_2';

@@ -3,7 +3,7 @@
 (function () {
 'use strict';
 const A = ADV, G = A.GateArt;
-G.openingMovie = { version: 1, src: null, title: 'The Consortium Rooftop' };
+G.openingMovie = { version: 1, src: null, title: 'Campaign opening' };
 G.playOpening = function (scene, game, done, movie = G.openingMovie) {
  if (!movie.src) { done?.(); return; }
  const oldFocus = document.activeElement, oldCut = scene.__cutscene;

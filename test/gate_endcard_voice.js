@@ -1,0 +1,34 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const A=require('./harness').load(),C=A.Campaign3,D=A.DATA;
+const recorded=new Map(D.GATE_EPILOGUE_VO.entries.map(row=>[row.text,row.key]));
+const g=A.Game.newGame({seed:1514,name:'Ward',sex:'f'}),s=C.state(g);
+const cast=Object.keys(D.CAMPAIGN3_EPILOGUE.companion);
+let cards=0;
+for(const ending of Object.keys(D.CAMPAIGN3_ENDINGS))for(const allegiance of ['none','gauntlet','consortium','thieves'])for(const status of ['present','gone','dead'])for(const romance of [null,...Object.keys(D.CAMPAIGN3_EPILOGUE.romance)])for(const heritage of [-3,0,3]){
+ Object.assign(s,{ending,allegiance,recruited:[...cast],dead:status==='dead'?[...cast]:[],gone:status==='gone'?[...cast]:[],romance,heritage});
+ const text=C.epilogue(g);
+ for(const para of text)assert.ok(recorded.has(para),'Missing narrated outcome: '+para);
+ const e=D.CAMPAIGN3_ENDINGS[ending];assert.ok(recorded.has(e.title+'. '+e.line));cards++;
+}
+for(const para of Object.values(D.CAMPAIGN3_EPILOGUE.dukes))assert.ok(recorded.has(para));
+const calls=[];
+A.CampaignUI={};
+A.Music={voiceEl:null,speakCampaign(who,key,index){const el=new EventTarget();el.key=key;this.voiceEl=el;calls.push({who,key,index});},stopVoice(){if(this.voiceEl)this.voiceEl.stopped=true;this.voiceEl=null;},replayVoice(el){return el===this.voiceEl;}};
+vm.runInThisContext(fs.readFileSync('js/ui/campaign3_ui.js','utf8'));
+const E=D.CAMPAIGN3_ENDINGS.restored,paras=[D.CAMPAIGN3_EPILOGUE.ending.restored,D.CAMPAIGN3_EPILOGUE.allegiance.none];
+const n=A.Campaign3UI.endCardNarration(E.title+'. '+E.line,paras);
+n.start();assert.equal(calls[0].who,'aldric');assert.equal(n.queue.length,3);
+let first=n.current;first.dispatchEvent(new Event('ended'));assert.equal(n.index,1);assert.ok(first.stopped);
+first.dispatchEvent(new Event('ended'));assert.equal(n.index,1,'stale ended cannot advance twice');
+n.stop();assert.equal(A.Music.voiceEl,null);assert.ok(!n.active);
+n.start();assert.equal(n.index,0);assert.ok(n.resume());
+n.current.dispatchEvent(new Event('error'));assert.equal(n.index,1);assert.equal(n.errors,1,'failed clip advances to next paragraph');
+n.current.dispatchEvent(new Event('ended'));n.current.dispatchEvent(new Event('ended'));
+assert.ok(n.finished&&!n.active);assert.equal(A.Music.voiceEl,null);
+n.start();const detached=n.current,external=new EventTarget();A.Music.voiceEl=external;
+detached.dispatchEvent(new Event('ended'));assert.equal(n.index,0,'never advance over another speaker');
+n.destroy();assert.equal(A.Music.voiceEl,external,'cleanup owns only its voice');
+const count=calls.length;n.start();detached.dispatchEvent(new Event('ended'));assert.equal(calls.length,count);
+const stale=A.Campaign3UI.endCardNarration('unknown cached heading',['changed old text']);stale.start();assert.equal(calls.length,count,'unknown prose never plays mismatched audio');
+console.log(`End-card voice: ${cards} outcome combinations covered; sequential playback, error recovery, replay, stale text and cleanup passed.`);

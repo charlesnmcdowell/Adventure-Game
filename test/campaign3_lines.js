@@ -14,6 +14,12 @@ const usedChoices = new Set();
 const usedBeats = new Set();
 // Triggered by a successful anti-healing action in combat, not a cutscene list.
 usedBeats.add('fennick:q4_healing');
+// End-card narration is selected by displayed outcome text, outside cutscene beats.
+for (const row of D.GATE_EPILOGUE_VO.entries) {
+  const who = D.GATE_EPILOGUE_VO.speaker;
+  ok(has(who, row.key) && DLG[who][row.key][0].t === row.text, `end-card ${row.key}: matching narration exists`);
+  usedBeats.add(who + ':' + row.key);
+}
 for (const [who, route] of Object.entries(D.CAMPAIGN3_COURTSHIP)) {
   ok(route.conversations.length >= 2, `${who}: two personal conversations`);
   for (const key of [...route.conversations.flatMap(c => [c.key, c.reply]), route.interest, route.later, 'q9_romance', 'q9_romance_yes', 'q9_romance_no']) {

@@ -1,9 +1,11 @@
 {
-  "required": ["index.html", "manifest.webmanifest", "js", "lib", "audio", "assets"],
+  "required": ["index.html", "manifest.webmanifest", "js", "lib", "audio", "assets", "THIRD_PARTY_NOTICES.txt"],
   "extensions": {
-    "js": [".js"], "lib": [".js"],
+    "js": [".js"],
+    "lib": [".js"],
     "audio": [".mp3", ".ogg", ".wav"],
     "assets": [".webp", ".png", ".jpg", ".jpeg", ".svg", ".css", ".json", ".woff", ".woff2"]
   },
-  "excludedDirectories": ["source", "sources", "archive", "backup", "backups", "node_modules", "__pycache__"]
+  "excludedDirectories": ["source", "sources", "archive", "backup", "backups", "node_modules", "__pycache__"],
+  "excludedFileNames": ["generation.json", "first-batches.generation.json", "jobs.json"]
 }

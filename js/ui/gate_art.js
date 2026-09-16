@@ -1,9 +1,11 @@
-// Varenholm's Gate art registration. Story rules and voice lines remain in Campaign3.
+// Varenholm's Iron War art registration. Story rules and voice lines remain in Campaign3.
 (function(){
 'use strict';
 const A=ADV,M=A.GateManifest,N=A.AnimeIdentities.named,F=M.frames;
 const G=A.GateArt={version:1,manifest:M};
 M.environments.morrak_realm={file:'assets/anime/gate/v1/runtime/environment_morrak_realm.webp',width:1774,height:887,indoor:true};
+M.stills.hiwot_sacrifice={file:'assets/anime/gate/v1/runtime/still_hiwot_sacrifice.webp',width:1536,height:1024};
+M.stills.hiwot_bound={file:'assets/anime/gate/v1/runtime/still_hiwot_bound.webp',width:1536,height:1024};
 const frame=(kind,id)=>F[kind+':'+id];
 Object.assign(A.AnimeManifest.parts,M.parts);
 // Nose / anatomical chin landmarks in the original 627px head cells.
@@ -32,12 +34,12 @@ for(const [key,hf]of Object.entries(F)){
  if(['sarn','korvath_helmet'].includes(id)){head.noEyes=true;head.browsCovered=true;}
  if(id==='aurelius')head.mouthDown=72;
  if(id==='fennick')head.clipPolygon=[[0,0],[627,0],[627,380],[445,380],[432,426],[390,473],[332,492],[269,458],[223,411],[210,380],[0,380]];
- if(id==='bramm'){head.eyeUp=74;head.mouthDown=70;head.clipRight=462;}
+ if(id==='bramm'){head.eyeUp=74;head.mouthDown=70;}
  if(id==='durnik')head.mouthDown=65;
  if(['grukhar','gorruk'].includes(id)){head.mouthDown=88;head.spread=75;}
  N[id]={...base,key:id,head,bodySheet:body?.sheet,bodyFrame:body?.frame,
   bodyWidth:['gorruk','korvath','korvath_helmet','bramm'].includes(id)?1120:id==='durnik'?1100:id==='fennick'?940:1020,
-  authoredSkin:true,clothColor:null,companion:id==='bramm'?'pip':null,ragged:false,
+  authoredSkin:true,clothColor:null,companion:id==='bramm'?'findik_tiger':null,ragged:false,
   beardFront:['bramm','durnik','torvald','thornwise','ostwin'].includes(id),
   iris:['korvath','sarn'].includes(id)?'#b08345':id==='idris'?'#b2bec5':base.iris,
   cloudy:id==='idris',eyeWidth:['grukhar','gorruk'].includes(id)?42:base.eyeWidth,

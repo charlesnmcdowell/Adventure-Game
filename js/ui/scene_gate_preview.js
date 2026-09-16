@@ -43,7 +43,7 @@ class GatePreview extends Phaser.Scene{
   }else if(this.category===7){const kind=M.frames['emblem:'+id]?'emblem':'extras',key=G.icon(this,kind,id);if(key)this.keep(this.add.image(690,380,key).setDisplaySize(290,290).setDepth(3));}
   this.keep(this.add.rectangle(640,44,1280,88,0x0b1422,.94).setDepth(1000));
   this.keep(this.add.rectangle(640,711,1280,98,0x0b1422,.94).setDepth(1000));
-  this.label(25,18,"VARENholm’s GATE · ART VIEWER".toUpperCase(),{size:24,bold:true});
+  this.label(25,18,(A.DATA.FACTIONS.gate.name+' · ART VIEWER').toUpperCase(),{size:24,bold:true});
   this.label(25,52,'Production art · save isolated · story scenes contain spoilers',{size:13,color:'#b7cbd3'});
   this.button(1110,25,145,'Back to title',()=>this.scene.start('Title'));
   this.button(25,680,210,this.groups[this.category],()=>{this.category=(this.category+1)%this.groups.length;this.item=0;this.show();});

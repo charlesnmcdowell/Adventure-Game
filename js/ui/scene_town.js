@@ -279,7 +279,7 @@ class TownScene extends Phaser.Scene {
             ? ADV.Campaign2.faction(ADV.Campaign2.joined(this.game_)[0]).short
             : 'Allegiances']]
         : []),
-      ...(ADV.Campaign3 && ADV.Campaign3.menuVisible(this.game_) ? [['story', "Varenholm's Gate"]] : []),
+      ...(ADV.Campaign3 && ADV.Campaign3.menuVisible(this.game_) ? [['story', ADV.DATA.FACTIONS.gate.name]] : []),
       ['store', 'Grocer'],
       ['blacksmith', 'Blacksmith'],
       ['home', 'Home'],

@@ -1,4 +1,4 @@
-// Varenholm's Gate story campaign — content data (VARENHOLMS_GATE_CAMPAIGN.md §3-§4).
+// Varenholm's Iron War — AI-generated story campaign pack, edited for Adventurer.
 // Extends the shared campaign tables so ADV.Campaign's generic spawner / actor
 // helpers work on this cast unchanged. Dialogue and choices live in
 // campaign3_dialogue.js; the engine in js/core/campaign3.js.
@@ -13,12 +13,12 @@ const D = ADV.DATA;
 // recruiter/rival/boss/antagonist slots satisfy the shared coverage tests.
 Object.assign(D.FACTIONS, {
   gate: {
-    id: 'gate', name: "Varenholm's Gate", short: 'the Gate', alignment: 'neutral', campaign3: true,
+    id: 'gate', name: 'Varenholm’s Iron War', short: 'the Gate', alignment: 'neutral', campaign3: true,
     hall: 'The Open Hand Inn', archetypes: ['fighter', 'rogue'],
     recruiter: 'aldric', rival: 'wren_ward', boss: 'korvath', antagonist: 'korvath',
     titles: ["Tesfaye's Ward", 'The Hunted', 'Child of the Gate'],
     gearSet: 'wardens_gear', gate: { contracts: 0, alignment: null },
-    blurb: 'A road that starts at a library and ends under a city. Someone on it has been paying to have you killed since before you could hold a sword.',
+    blurb: 'A murdered father, a stolen iron trade, and a company caught between the people who profit from war and the man who means to start one.',
   },
 });
 D.CAMPAIGN3_FACTION_ID = 'gate';
@@ -85,7 +85,7 @@ chr({ id: 'ithrel', name: 'Itsuki', region: 'elves', role: 'companion', companio
   perks: ['marksman'], actives: ['aimed_shot', 'snare', 'beast_shape', 'cleave'],
   portrait: { skin: 'tan', hair: 'long', wardrobe: 'hide', color: '#2f3a2f' } });
 chr({ id: 'bramm', name: 'Bahadır', region: 'kalden', role: 'companion', companion: true, sex: 'm', campaignExit: true,
-  desc: 'A huge, loud ranger of Kalden with a hamster named Fındık on his shoulder and a witch to protect. Loyal to the bone.',
+  desc: 'A huge, loud ranger of Kalden who travels with a tiger named Fındık. Fiercely loyal to Yasemin and his company.',
   perks: ['momentum'], actives: ['aimed_shot', 'cleave', 'defiant_stand', 'snare'],
   portrait: { skin: 'tan', hair: 'buzz', wardrobe: 'hide', color: '#6a3a5a' } });
 chr({ id: 'ysolde', name: 'Yasemin', region: 'kalden', role: 'companion', companion: true, sex: 'f', campaignExit: true,
@@ -272,7 +272,7 @@ D.CAMPAIGN3_REGIONS = {
     voice: 'Understated and exact. Apology before request, gratitude after. Few words; the pause carries the feeling. "-san" for strangers of standing; never contractions when serious.' },
   deep: { name: 'The deep cities of the dark elves', flavour: 'Arabic', names: 'Arabic (Layla)',
     voice: 'Elevated, poetic, unhurried contempt. "By the deep", "ya" before a name, "God willing" said without belief. Images from stone, night and water.' },
-  kalden: { name: 'Kalden, the witch-country beyond the steppe', flavour: 'Turkish', names: 'Turkish (Bahadır, Yasemin, the hamster Fındık)',
+  kalden: { name: 'Kalden, the witch-country beyond the steppe', flavour: 'Turkish', names: 'Turkish (Bahadır, Yasemin, the tiger Fındık)',
     voice: 'Warm and emphatic. "Abla" / "abi" for elder sister and brother, "canım" for the beloved, "vallahi" as an oath, "inşallah" for hope. Hospitality as a rule of war.' },
   vashk: { name: 'Vashk and its Crimson Wizards', flavour: 'Indian', names: 'Sanskrit-derived (Devendra)',
     voice: 'Ornate, formal, self-satisfied. "Kindly", "most assuredly", "it is quite evident". Compliments that are insults; never raises his voice.' },

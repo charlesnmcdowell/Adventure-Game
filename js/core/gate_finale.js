@@ -228,7 +228,7 @@ C.epilogue = function (game) {
  if (!['restored', 'ascended'].includes(s.ending)) return paragraphs;
  const e = A.DATA.CAMPAIGN3_EPILOGUE, obsolete = new Set([...Object.values(e.companion[W] || {}), ...Object.values(e.heritage)]);
  const out = paragraphs.filter(text => !obsolete.has(text)).map(text => text === e.companion.amara.present
-  ? 'Amara mourns Kolade. She had hoped to bring him back alive. She asks for time before speaking about what happened in the temple.' : text);
+  ? e.finale.amaraMourning : text);
  const def = A.DATA.CAMPAIGN_CHARS[s.romance], romance = e.romance[s.romance];
  if (romance && C.isRecruited(game, s.romance) && ((s.ending === 'restored' && def.favours === 'hero') || (s.ending === 'ascended' && def.favours === 'usurper') || def.favours === 'kill')) {
   if (!out.includes(romance.favoured)) out.push(romance.favoured);

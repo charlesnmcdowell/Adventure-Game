@@ -18,7 +18,7 @@
       ]
     },
     "gate_heads_2": {
-      "file": "../../gate/v1/runtime/heads_2.webp",
+      "file": "../../gate/v1/runtime/heads_2_ironwar.webp",
       "cell": 500,
       "size": [
         1000,
@@ -26,7 +26,7 @@
       ]
     },
     "gate_bodies_2": {
-      "file": "../../gate/v1/runtime/bodies_2.webp",
+      "file": "../../gate/v1/runtime/bodies_2_ironwar.webp",
       "cell": 500,
       "size": [
         1000,
@@ -290,7 +290,7 @@
       ]
     },
     "gate_extras_1": {
-      "file": "../../gate/v1/runtime/extras_1.webp",
+      "file": "../../gate/v1/runtime/extras_1_ironwar.webp",
       "cell": 500,
       "size": [
         1000,

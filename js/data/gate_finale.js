@@ -125,6 +125,7 @@ D.CAMPAIGN3_SCRIPT[14] = {
  closing: [B(W, 'q14_final_choice', { force: true, artLocation: 'morrak_realm', choice: 'q14_final_resolution', caption: 'Kolade falls. His binding breaks, and Hiwot’s soul is free. The throne remains empty.' })],
  arrival: [],
 };
+D.CAMPAIGN3_EPILOGUE.finale = { amaraMourning: 'Amara mourns Kolade. She had hoped to bring him back alive. She asks for time before speaking about what happened in the temple.' };
 D.CAMPAIGN3_ENDINGS.restored = { title: 'Home Together', line: 'You gave up the throne to bring Hiwot home.' };
 D.CAMPAIGN3_ENDINGS.ascended = { title: 'Morrak’s Successor', line: 'You claimed the throne. Hiwot did not return.' };
 D.CAMPAIGN3_EPILOGUE.ending.restored = 'You release the stolen souls and surrender the divine power in your own blood. Hiwot wakes beside you on the temple floor. The passage closes. You leave as mortals, with no claim to Morrak’s throne. Your learned skills, campaign gifts and ordinary adventures remain yours.';

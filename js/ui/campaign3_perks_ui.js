@@ -25,7 +25,7 @@ UI.panel = function (scene,r,top) {
   const game=scene.g();
   const scroll=ADV.UI.scrollArea(scene,{x:r.x+12,y:top,w:r.w-24,h:r.y+r.h-top-8});
   let y=top+8;
-  scroll.add(T().text(scene,r.x+24,y,'Varenholm’s Gate — Campaign Perks',{size:18,display:true,color:T().css.gold})); y+=34;
+  scroll.add(T().text(scene,r.x+24,y,'Varenholm’s Iron War — Campaign Perks',{size:18,display:true,color:T().css.gold})); y+=34;
   for (const sk of ADV.DATA.CAMPAIGN3_PERKS) y=row(scene,scroll,r.x+24,y,r.w-70,game,sk);
   scroll.extend(y);
 };

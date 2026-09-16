@@ -281,7 +281,7 @@ SkillSys.learn = function (ch, skillId, opts) {
   opts = opts || {};
   const sk = SK()[skillId];
   if (!sk) return { ok: false, error: 'unknown skill' };
-  if (sk.campaignReward) return { ok: false, error: 'Earn this perk in Varenholm’s Gate.' };
+  if (sk.campaignReward) return { ok: false, error: 'Earn this perk in Varenholm’s Iron War.' };
   if (sk.unique && !opts.allowUnique) return { ok: false, error: 'unique tier — cannot be learned' };
   if (SkillSys.knows(ch, skillId)) return { ok: false, error: 'already known' };
   const kind = sk.kind === 'perk' ? 'perk' : 'active';

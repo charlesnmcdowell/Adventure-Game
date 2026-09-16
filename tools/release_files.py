@@ -29,6 +29,8 @@ def collect(root, profile='game'):
                 if not p.is_file():
                     continue
                 relative = p.relative_to(root)
+                if p.name in rules.get('excludedFileNames', []):
+                    continue
                 if any(d in rules['excludedDirectories'] for d in relative.parts):
                     continue
                 if p.suffix.lower() in rules['extensions'][top]:

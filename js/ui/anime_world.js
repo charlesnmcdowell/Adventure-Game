@@ -274,7 +274,10 @@ function composeHuman(scene,ch,id,set){
  // Carry that neck over the back rim too; the head raster alone may end here.
  drawNeck(true);
  drawHead(true);
- if(named?.companion==='pip'){const f=A.GateManifest?.frames['extras:findik'],pip=f?cell(scene,f.sheet,f.frame):cell(scene,'props_story',3);if(pip)ctx.drawImage(pip,806,525,147,147);}
+ if(named?.companion==='findik_tiger'){
+  const f=A.GateManifest?.frames['extras:findik'],tiger=f?cell(scene,f.sheet,f.frame):null;
+  if(tiger)ctx.drawImage(tiger,500,570,1050,1050);
+ }
  const point=(x,y)=>[hx+x*S,hy+y*S];
  const eyes=[point(h.nx-h.spread,h.ny-h.eyeUp),point(h.nx+h.spread,h.ny-h.eyeUp)],mouth=point(h.nx,h.ny+h.mouthDown);
  const featureScale=S*(registration?.scale||1);

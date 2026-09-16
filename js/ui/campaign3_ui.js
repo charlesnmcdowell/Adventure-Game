@@ -1,4 +1,4 @@
-// Varenholm's Gate story campaign UI (VARENHOLMS_GATE_CAMPAIGN.md §0, §2, §5):
+// Varenholm's Iron War story campaign UI (VARENHOLMS_GATE_CAMPAIGN.md §0, §2, §5):
 // the Story hall, the pick-a-line choice modal for the silent protagonist, the
 // company picker, the epilogue card.
 //
@@ -97,7 +97,7 @@ UI3.playBeat = function (scene, game, beat, done) {
     ADV.DialogueBox.showText(scene, game, spk, ADV.CampaignUI.fill(game, line.t, who, context), () => {
       if (ADV.VFX && ADV.VFX.flashOverlay) ADV.VFX.flashOverlay(scene, 0xa8352c, 0.8);
       scene.time.delayedCall(600, finish);
-    }, { raw: line.t, recipient, caption: beat.caption || D().STORY_DEATH_CAPTIONS.gate, voiceReplay: hasRecording(who, beat.key, 1) });
+    }, { raw: line.t, recipient, caption: beat.caption || D().STORY_DEATH_CAPTIONS.gate, captionY: beat.key === 'q14_final_taken' ? 230 : undefined, voiceReplay: hasRecording(who, beat.key, 1) });
     return;
   }
   let i = 0;
@@ -315,11 +315,57 @@ UI3.pickSeat = function (scene, game, who, opts, done) {
   };
 })();
 
+// One owned voice channel, ordered by the paragraphs on this particular card.
+// The recording's frozen text must match; old/cached prose never borrows a wrong clip.
+UI3.endCardNarration = function (heading, paragraphs, onLine = () => {}) {
+  const data = D().GATE_EPILOGUE_VO, music = ADV.Music;
+  const byText = new Map((data?.entries || []).map(row => [row.text, row.key]));
+  const queue = [heading, ...paragraphs].map((text, i) => ({ text, key: byText.get(text), paragraph: i - 1 })).filter(row => row.key);
+  const state = { queue, index: -1, active: false, finished: false, errors: 0, current: null };
+  let alive = true, ended, failed;
+  function detach() {
+    state.current?.removeEventListener('ended', ended);
+    state.current?.removeEventListener('error', failed);
+  }
+  function release() {
+    detach();
+    if (state.current && music?.voiceEl === state.current) music.stopVoice();
+    state.current = null;
+  }
+  function next() {
+    release();
+    if (!alive || !state.active) return;
+    const row = queue[++state.index];
+    if (!row) { state.active = false; state.finished = true; onLine(null); return; }
+    music.speakCampaign(data.speaker, row.key, 1);
+    const el = state.current = music.voiceEl;
+    ended = () => { if (alive && state.active && music.voiceEl === el) next(); };
+    failed = () => { if (alive && state.active && music.voiceEl === el) { state.errors++; next(); } };
+    el.addEventListener('ended', ended, { once: true });
+    el.addEventListener('error', failed, { once: true });
+    onLine(row);
+  }
+  state.start = () => {
+    if (!alive || !music || !queue.length) return;
+    release(); state.index = -1; state.errors = 0; state.finished = false; state.active = true; next();
+  };
+  state.resume = () => alive && state.active && music?.replayVoice(state.current);
+  state.stop = () => { state.active = false; state.finished = false; release(); onLine(null); };
+  state.destroy = () => { if (!alive) return; alive = false; state.stop(); };
+  return state;
+};
+
 UI3.endCard = function (scene, game, done) {
+  scene.gateEndCard?.close(false);
+  const oldCut = scene.__cutscene;
+  scene.__cutscene = true; ADV.Notices?.block(scene);
   const s = C3().state(game);
   const E = D().CAMPAIGN3_ENDINGS[s.ending] || { title: 'The End', line: '' };
   const paras = s.epilogue || C3().epilogue(game);
   const W = T().W, H = T().H;
+  const fontSize = size => ADV.DialogueBox.fontSize(scene, size, 12);
+  const buttonHeight = Math.max(44, 44 / ADV.DialogueBox.displayScale(scene));
+  const buttonY = H - Math.max(80, buttonHeight + 24);
   const M = D().CAMPAIGN3_MUSIC;
   if (M && M.ending && ADV.Music && ADV.Music.cue) ADV.Music.cue(M.ending);
   const objs = [];
@@ -328,21 +374,55 @@ UI3.endCard = function (scene, game, done) {
   if (painting) k(painting);
   k(scene.add.rectangle(W / 2, H / 2, W, H, 0x0c0a08, painting ? 0.70 : 0.97).setDepth(960).setInteractive());
   k(T().text(scene, W / 2, 60, E.title, { size: 34, display: true, ox: 0.5, color: T().css.gold }).setDepth(961));
-  k(T().text(scene, W / 2, 104, E.line, { size: 15, ox: 0.5, italic: true, color: T().css.inkDim }).setDepth(961));
-  const scroll = ADV.UI.scrollArea(scene, { x: 160, y: 136, w: W - 320, h: H - 136 - 110 }, { keep: k, depth: 961 });
+  k(T().text(scene, W / 2, 104, E.line, { size: fontSize(15), ox: 0.5, italic: true, color: T().css.inkDim }).setDepth(961));
+  const scroll = ADV.UI.scrollArea(scene, { x: 160, y: 136, w: W - 320, h: buttonY - 136 - 66 }, { keep: k, depth: 961 });
+  const textRows = [];
   let y = 140;
   for (const para of paras) {
-    const t = T().text(scene, 180, y, para, { size: 14, wrap: W - 380, color: T().css.ink });
-    t.setDepth(961); scroll.add(t);
+    const t = T().text(scene, 180, y, para, { size: fontSize(14), wrap: W - 380, color: T().css.ink });
+    t.setDepth(961); scroll.add(t); textRows.push(t);
     y += (t.height || 40) + 16;
   }
   scroll.finish && scroll.finish();
-  const b = T().button(scene, W / 2 - 110, H - 80, 220, 42, 'Back to the hall', () => {
+  let closed = false;
+  const narration = UI3.endCardNarration(E.title + '. ' + E.line, paras, row => {
+    textRows.forEach((t, i) => { if (t.active) t.setColor(i === row?.paragraph ? T().css.gold : T().css.ink); });
+  });
+  const status = k(T().text(scene, W / 2, buttonY - 44, '', { size: fontSize(12), ox: .5, color: T().css.inkDim }).setDepth(962));
+  const button = (x, w, text, fn) => {
+    const b = T().button(scene, x, buttonY, w, buttonHeight, text, fn, { size: fontSize(14), bold: true, color: T().css.ink });
+    b.g.setDepth(962); b.txt.setDepth(963); b.zone.setDepth(964); objs.push(b.g, b.txt, b.zone); return b;
+  };
+  const read = button(W / 2 - 400, 280, 'Stop narration', () => {
+    if (narration.active && narration.current?.__playBlocked) narration.resume();
+    else if (narration.active) narration.stop();
+    else narration.start();
+  });
+  const sound = button(W / 2 - 100, 180, '', () => ADV.Music?.toggleMute());
+  const update = () => {
+    const blocked = narration.current?.__playBlocked;
+    const label = narration.active ? (blocked ? 'Play narration' : 'Stop narration') : 'Read with Tesfaye';
+    if (read.txt.text !== label) read.txt.setText(label);
+    const muteLabel = ADV.Music?.muted ? 'Sound: off' : 'Sound: on';
+    if (sound.txt.text !== muteLabel) sound.txt.setText(muteLabel);
+    const message = ADV.Music?.muted ? 'Sound is muted. Turn it on to hear Tesfaye.' : blocked ? 'Tap Play narration to allow voice playback.'
+      : narration.active ? 'Tesfaye · ' + (narration.index + 1) + ' / ' + narration.queue.length
+      : narration.finished ? (narration.errors ? 'Some audio was unavailable. The full ending is written above.' : 'Tesfaye · narration complete') : 'Tesfaye · narration stopped';
+    if (status.text !== message) status.setText(message);
+  };
+  const close = (complete = true) => {
+    if (closed) return; closed = true;
+    narration.destroy(); scene.events.off('update', update); scene.events.off('shutdown', shutdown);
     objs.forEach(o => { try { o.destroy(); } catch (e) {} });
+    scene.gateEndCard = null; scene.__cutscene = oldCut; ADV.Notices?.unblock(scene);
     if (ADV.Music && ADV.Music.cued) { ADV.Music.homeOverride = C3().hubMusic(game); ADV.Music.cue(null); }
-    if (done) done();
-  }, { size: 14, bold: true, color: T().css.ink });
-  b.g.setDepth(962); b.txt.setDepth(963); b.zone.setDepth(964); objs.push(b.g, b.txt, b.zone);
+    if (complete && done) done();
+  };
+  const shutdown = () => close(false);
+  button(W / 2 + 100, 300, 'Back to the hall', () => close());
+  scene.gateEndCard = { narration, close };
+  scene.events.once('shutdown', shutdown); scene.events.on('update', update);
+  narration.start(); update();
 };
 
 // ---------------------------------------------------------------- the Story hall (§0)
@@ -351,7 +431,7 @@ Panels.story = function (scene, r) {
   const v = C3().hallView(game);
   const s = C3().state(game);
   ADV.GateArt?.hallBanner(scene, r);
-  ADV.UI.header(scene, r, "Varenholm's Gate", v.ending ? 'The road is finished. The company is still yours.' : 'Fourteen quests, one road, and every word you say is yours to pick.', { reserveRight: 300 });
+  ADV.UI.header(scene, r, ADV.DATA.FACTIONS.gate.name, v.ending ? 'The road is finished. The company is still yours.' : 'Fourteen quests, one road, and every word you say is yours to pick.', { reserveRight: 300 });
 
   // right column: company picker + meters
   const cx = r.x + r.w - 290, cw = 270;
