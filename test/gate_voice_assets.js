@@ -7,7 +7,7 @@ const dir=path.join(__dirname,'../test/reports/gate-voice');fs.mkdirSync(dir,{re
 // Written, approved for the page, not yet cut. Lines wait here only while the player is
 // still reading them; delete a key the moment its clip exists and the assertions below
 // guard it like every other line. The count is reported so a forgotten entry is visible.
-const PENDING=new Set(['korvath:q14_boss_challenge','korvath:q14_boss_survived','korvath:q14_boss_killed']);
+const PENDING=new Set();
 (async()=>{
  const rows=[],pending=[];
  for(const [who,keys] of Object.entries(A.DATA.CAMPAIGN3_DIALOGUE.gate)) for(const [key,lines] of Object.entries(keys)) {

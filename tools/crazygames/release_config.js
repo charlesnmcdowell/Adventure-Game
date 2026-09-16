@@ -8,7 +8,7 @@ Object.defineProperty(ADV, 'Release', {
     voiceBase: 'https://charlesnmcdowell.github.io/Adventure-Game/audio/vo/',
     // These newly recorded clips are not on the public host yet (16 Sep).
     // Keep this small speaker pack local so the candidate never requests a 404.
-    localVoicePrefixes: Object.freeze(['audio/vo/campaign/thornwise/']),
+    localVoicePrefixes: Object.freeze(['audio/vo/campaign/thornwise/', 'audio/vo/campaign/korvath/q14_boss_']),
   }), enumerable: true,
 });
 })();

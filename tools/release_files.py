@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 CG_VOICE_BASE = 'https://charlesnmcdowell.github.io/Adventure-Game/audio/vo/'
-CG_LOCAL_VOICE_PREFIXES = ('audio/vo/campaign/thornwise/',)
+CG_LOCAL_VOICE_PREFIXES = ('audio/vo/campaign/thornwise/', 'audio/vo/campaign/korvath/q14_boss_')
 
 def digest(path):
     h = hashlib.sha256()
