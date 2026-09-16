@@ -127,8 +127,15 @@ function chooseAction(st, u) {
     if (!t) continue;
     let w = 3 + (d.power || 0) * 0.5 + (p.aggression || 50) / 50;
     if (d.executeBelow && (t.chp / t.maxHp) < d.executeBelow) w += 20;
-    candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: t.uid, weight: w, offensiveMode });
+    candidates.push({ kind: 'skill', skillId: e.skillId, targetUid: t.uid, weight: w, offensiveMode,
+      signature: d.signature ? (d.cooldown || 1) : 0 });
   }
+  // A signature move is the shape of the fight, not one option in a bag: the round it comes
+  // back is the round it happens. The rarest goes first, so a five-round challenge is never
+  // crowded out by a three-round sweep that is also ready. Its own cooldown is what stops
+  // this becoming the only thing the boss ever does.
+  const signature = candidates.filter(c => c.signature).sort((a, b) => b.signature - a.signature)[0];
+  if (signature) return signature;
   // Basic attack always legal against the front (§15a)
   const meleePool = Combat.threatTargets(st, u, Combat.validTargets(st, u, 'basic_attack', false));
   if (meleePool.length) {

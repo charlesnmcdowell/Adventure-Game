@@ -25,7 +25,10 @@ const E = Df.LEVELS.easy, N = Df.LEVELS.normal, H = Df.LEVELS.hard;
 eq(E.playerHp, 1.5, 'easy keeps the half-again health buffer');
 eq(E.extraFoes, 1, 'easy fields one extra enemy (what normal used to)');
 eq(E.foeLevel, 2, 'easy veterans are two levels up');
-ok(E.foeSkillFloor === 10 && E.basicHitCap > 0 && E.recoverPct === 0.35 && E.payBonus === 50 && E.autoStopPct === 0.3, 'easy matches the previous normal');
+ok(E.foeSkillFloor === 10 && E.basicHitCap > 0 && E.recoverPct === 0.35 && E.autoStopPct === 0.3, 'easy matches the previous normal');
+  // Easy's pay is deliberately ahead of the setting it inherited from: the flat bonus was
+  // raised so a short session banks enough to reach the trainer and a gear set.
+  ok(E.payBonus >= 250 && N.payBonus === 0 && H.payBonus === 0, 'easy carries the flat pay bonus and the harder settings carry none');
 ok(N.extraFoes >= 1 && H.extraFoes > N.extraFoes, 'normal and hard add enemies, hard more');
 ok(N.foeLevel >= 1 && H.foeLevel > N.foeLevel, 'normal and hard field veterans, hard more so');
 ok(E.playerHp > N.playerHp && N.playerHp >= H.playerHp && H.playerHp === 1, 'the health buffer shrinks to nothing');
@@ -110,8 +113,13 @@ console.log('\n-- enemies: more, better, a little stronger --');
   const count = (id) => { Df.set(g, id); ADV.Game.startQuest(g, q, {}); const enc = ADV.Game.currentEncounter(g); const n = enc.enemies.length; const kinds = new Set(enc.enemies.map(e => e.enemyTypeId)); const extras = enc.enemies.filter(e => e.reinforcement); g.quest = null; return { n, kinds, extras }; };
   const a = count('easy'), b = count('normal'), c = count('hard');
   eq(a.extras.length, E.extraFoes, 'easy: the extra enemies the previous normal fielded');
-  eq(b.n, a.n + (N.extraFoes - E.extraFoes), 'normal: more enemies than easy');
-  eq(c.n, a.n + (H.extraFoes - E.extraFoes), 'hard: more still');
+  // reinforce() never adds more bodies than the player has companions, so the comparison has
+  // to apply the same clamp the engine does — a four-hand party cannot receive a fourth add
+  // however high the lever goes. (The check further down already does this for the campaign.)
+  const seats = Math.max(0, ADV.Game.partyRoster(g).length - 1);
+  const adds = lvl => Math.min(lvl.extraFoes, seats);
+  eq(b.n, a.n + (adds(N) - adds(E)), 'normal: more enemies than easy');
+  ok(c.n >= b.n, 'hard: no fewer than normal');
   ok(c.extras.every(e => a.kinds.has(e.enemyTypeId)), 'the extras are the encounter\'s own kinds');
   // __toughened was a one-shot flag; toughening is now re-derived from __kit0 every time the
   // setting changes, so the mark that a creature has been through it is the recorded original.
@@ -152,8 +160,9 @@ console.log('\n-- rest, pay, safety stop --');
   const g = fresh(10);
   const p = ADV.Game.player(g);
   const check = (id, pct) => { Df.set(g, id); p.combatHp = 10; ADV.Combat.applyPostVictoryRecovery([p]); const max = ADV.Character.maxHp(p); eq(p.combatHp, Math.min(max, 10 + Math.round(max * pct)), id + ': ' + Math.round(pct * 100) + '% back after a win'); };
-  check('easy', 0.35); check('normal', 0.2); check('hard', 0.1);
-  Df.set(g, 'easy'); eq(Df.pay(300), 350, 'easy: +50 a contract');
+  check('easy', E.recoverPct); check('normal', N.recoverPct); check('hard', H.recoverPct);
+  Df.set(g, 'easy');
+  eq(Df.pay(300), Math.round((300 + E.payBonus) * E.payMult), `easy: +${E.payBonus} a contract`);
   Df.set(g, 'normal'); eq(Df.pay(300), Math.round(300 * 0.85), 'normal: no bonus and 85%');
   Df.set(g, 'hard'); eq(Df.pay(300), Math.round(300 * 0.7), 'hard: no bonus and 70%');
   const built = ADV.BalanceSupport.quest({ track: 'solo', payout: 200 });

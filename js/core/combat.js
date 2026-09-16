@@ -740,7 +740,10 @@ Combat.skillAutocasts = function (u, action) {
   let target = d.target;
   if (action.off && d.offensive) target = d.offensive.target || 'enemy';
   if (d.selfRevive || d.freeBuff) return true;
-  if (target === 'self' || target === 'party' || target === 'allEnemies' || target === 'postVictory') return true;
+  // enemyFront picks its own row and targetHighestHp picks its own victim, so neither needs
+  // the caller to name one — same as the other skills that choose for themselves.
+  if (target === 'self' || target === 'party' || target === 'allEnemies' || target === 'postVictory'
+    || target === 'enemyFront' || d.targetHighestHp) return true;
   const heal = d.heal && !action.off;
   if (u.marksBy.length && !heal && target !== 'ally' && target !== 'allyLane') {
     const pool = action.pool || [];
@@ -1136,7 +1139,8 @@ function meleeExtraCap(m) {
   if (d.cleaveRows || d.hitScale) return 0;
   if (d.elemental) return 0;
   if (!d.power || d.power <= 0) return 0;
-  if (d.target === 'allEnemies' || d.target === 'enemyLane' || d.spreadLanes) return 0;
+  if (d.target === 'allEnemies' || d.target === 'enemyLane' || d.target === 'enemyFront' || d.spreadLanes) return 0;
+  if (d.pctMaxHp || d.targetHighestHp) return 0;
   if (!(d.melee || d.reach === 'front')) return 0;
   return m.tier === 'advanced' ? 3 : m.tier === 'intermediate' ? 2 : 1;
 }
@@ -1209,7 +1213,7 @@ function hostileSkill(d, off) {
   if (d.heal && !off) return false;
   const t = d.target;
   if (t === 'self' || t === 'ally' || t === 'allyLane' || t === 'party' || t === 'postVictory') return false;
-  return t === 'enemy' || t === 'enemyLane' || t === 'allEnemies' || !t;
+  return t === 'enemy' || t === 'enemyLane' || t === 'enemyFront' || t === 'allEnemies' || !t;
 }
 function resolveSkillTarget(st, u, skillId, action, d, off) {
   const named = action.targetUid != null ? st.units.find(x => x.uid === action.targetUid) : null;
@@ -1219,6 +1223,17 @@ function resolveSkillTarget(st, u, skillId, action, d, off) {
     return u;
   }
   const foes = livingUnits(st, foeSideOf(u)).filter(x => !x.downed && (ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, x) : !x.untargetable));
+  // Skills that choose their own victim do it here, ahead of everything else, so the name in
+  // the "uses" line is the one who actually gets hit. A taunt can't pull a sweep off the front
+  // rank, and it can't talk the boss out of challenging the biggest body on the field.
+  if (d.targetHighestHp) {
+    return foes.slice().sort((a, b) => (b.maxHp || 0) - (a.maxHp || 0))[0] || null;
+  }
+  if (d.target === 'enemyFront') {
+    const rows = ['front', 'mid', 'back'];
+    const row = rows.find(r => foes.some(x => x.lane === r));
+    return row ? foes.find(x => x.lane === row) : null;
+  }
   if (u.marksBy.length) {
     const forced = foes.filter(x => u.marksBy.includes(x.uid));
     if (forced.length) {
@@ -1567,6 +1582,15 @@ Combat.act = function (st, u, action) {
   } else if (d.spreadLanes) {
     const li = LANE_IDX[tgt.lane];
     targets = livingUnits(st, foeSideOf(u)).filter(x => Math.abs(LANE_IDX[x.lane] - li) <= 1);
+  } else if (d.target === 'enemyFront') {
+    // The front ROW, not the row of whoever happened to be targeted. A boss sweep aimed at
+    // the line in front of it should never become a single-target poke because the AI's
+    // threat pick landed on someone at the back; if the front rank is empty it falls to the
+    // frontmost row that still has anyone standing, so the skill is never a wasted turn.
+    const foes = livingUnits(st, foeSideOf(u));
+    const rows = ['front', 'mid', 'back'];
+    const row = rows.find(r => foes.some(x => x.lane === r));
+    targets = row ? foes.filter(x => x.lane === row) : [];
   } else if (d.target === 'enemyLane') targets = laneUnits(st, foeSideOf(u), tgt.lane);
   else if (d.target === 'allEnemies') targets = livingUnits(st, foeSideOf(u));
   else if (d.multiTarget) {
@@ -1643,6 +1667,10 @@ Combat.act = function (st, u, action) {
     if (locked.length) targets = locked;
   }
   noteMomentumAttack(u);
+  // A skill may speak for its user: `say.on` before the blow lands, then `say.survived` or
+  // `say.killed` depending on what is left of whoever it was aimed at. The keys are campaign
+  // dialogue, played through the same banter channel the scene already knows how to show.
+  sayBeat(st, u, d.say, 'on');
   const hitScale = (d.hitScale && targets.length) ? (1 + (targets.length - 1) * 0.5) : 1;
   const felled = new Set();
   for (let hi = 0; hi < hits + flareHits; hi++) {
@@ -1689,9 +1717,15 @@ Combat.act = function (st, u, action) {
     const powerOverride = d.chainDecay ? (d.power || 2.0) * Math.pow(d.chainDecay, targets.indexOf(t))
       : spread;
     const flarePower = (hi >= hits && flareHitMult) ? (d.power || 0) * flareHitMult : undefined;
-    let dmg = computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
-      : (powerOverride != null ? { power: powerOverride } : undefined));
-    if (hitScale > 1) dmg *= hitScale;
+    // pctMaxHp: the blow is a share of what the target can take, not a product of the
+    // attacker's numbers. A boss sweep written this way threatens a full party the same way
+    // whatever their gear, and it cannot be outscaled by a defence stat. It still travels
+    // through dealDamage, so guards, wards and Bulwark all answer it as they would any hit.
+    let dmg = d.pctMaxHp
+      ? Math.max(C().MIN_DAMAGE, Math.round((t.maxHp || 0) * d.pctMaxHp))
+      : computeDamage(st, u, t, m, flarePower != null ? { power: flarePower }
+        : (powerOverride != null ? { power: powerOverride } : undefined));
+    if (hitScale > 1 && !d.pctMaxHp) dmg *= hitScale;
     if (d.critSecondAdjacent && hi === 1 && t !== tgt) dmg *= 2;
     const dealt = dealDamage(st, u, t, dmg, tag, { element: d.element, melee: isMelee,
       cannotMiss: !!d.cannotMiss || !!(Sys().knownVal(u.ch, 'accuracy') && u.momentumArmed), ignoreGuards: !!d.ignoreGuards, noReflect: !!d.noReflect,
@@ -1768,7 +1802,19 @@ Combat.act = function (st, u, action) {
     if (hi === 0 && dealt > 0) applyFlareOnHit(st, u, t, m);
     }
   }
+  sayBeat(st, u, d.say, (tgt.downed || felled.has(tgt.uid)) ? 'killed' : 'survived');
   return finishAction(st, u, skillId);
+}
+
+// Campaign speech attached to a skill. Silent for anyone without a campaign identity, so a
+// kit copied onto an ordinary enemy never tries to deliver a named character's lines.
+function sayBeat(st, u, say, slot) {
+  const key = say && say[slot];
+  if (!key || !u.ch || !u.ch.campaignId) return;
+  ev(st, { t: 'campaignBanter', beat: {
+    c3: true, combat: true, to: say.to || 'company',
+    fid: say.fid || 'gate', who: say.who || u.ch.campaignId, key,
+  } });
 }
 
 function applyFlareOnHit(st, u, t, m) {
@@ -1920,6 +1966,31 @@ Combat.registerWitnesses = function (st) {
   return out;
 };
 
+// A perk is passive, so nothing in an action could ever charge it: SkillSys.recordUse is
+// called from the three active-skill paths only, and perk entries sat at 0 uses forever.
+// Measured before this: 200 fights, Arcane Focus still level 1. That put every perk's
+// intermediate and advanced manifestation — Rampart, Arcane Mastery, Fire Lord, Winter
+// Court, Storm Sovereign — out of reach of play entirely, leaving the trainer and gear sets
+// as the only routes to half the progression in the game.
+//
+// One use per perk per battle fought, which is parity rather than generosity: an active in
+// an ordinary three-skill kit earns about one use a fight too, because the three of them
+// share the same turns. A perk competes for nothing, so it must not earn more than that.
+// Only the party side: an enemy's kit is re-derived from __kit0 by Difficulty.toughen every
+// time the setting is read, so charging foes would be wasted work.
+Combat.recordPerkUse = function (st) {
+  if (!st || st.__perksCharged) return;
+  st.__perksCharged = true;
+  for (const u of st.units) {
+    if (u.side !== 'a' || !u.ch || u.downed || u.fled) continue;
+    if (ADV.Difficulty && ADV.Difficulty.isFoe(u.ch)) continue;
+    for (const e of (u.ch.perks || []).slice()) {
+      const lv = Sys().recordUse(u.ch, e.skillId);
+      if (lv) ev(st, { t: 'levelUp', uid: u.uid, skillId: e.skillId, level: lv.level, tier: lv.tier });
+    }
+  }
+};
+
 // ---------------------------------------------------------------- end check
 function checkEnd(st) {
   if (st.over) return;
@@ -1931,6 +2002,7 @@ function checkEnd(st) {
     st.winner = a > 0 ? 'a' : (b > 0 ? 'b' : null);
     confirmLeaderOutcome(st);
     Combat.applySurvivalGrowth(st);
+    Combat.recordPerkUse(st);
     ev(st, { t: 'end', winner: st.winner, reason: st.leaderFell ? 'leaderFell' : (st.leaderFled ? 'leaderFled' : undefined) });
   }
 }

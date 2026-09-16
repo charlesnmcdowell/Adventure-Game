@@ -8,6 +8,25 @@ const CH = (id, options) => { D.CAMPAIGN3_CHOICES[id] = { options }; };
 const old = D.CAMPAIGN3_SCRIPT[14];
 D.GATE_LEGACY_FINALE = old;
 
+// ---------------------------------------------------------------- Kolade's set-pieces
+// Kolade's plate and reach are the whole point of him, so his sweeps are written as a share
+// of what each body can take rather than as a power number. A company in the best armour in
+// the game feels the same arc as a company in mail; the answer is to move, to guard, or to
+// kill him before the count comes round again — not to out-stat him. All three are boss-only:
+// `unique` keeps them out of every learnable pool, trainer offer and gear set.
+const boss = o => { D.SKILLS[o.id] = Object.assign({ kind: 'active', unique: true, noSlot: true, noTierGrowth: true, reach: 'any', power: 0, melee: true, signature: true }, o); };
+boss({ id: 'reaving_arc', name: 'Reaving Arc', target: 'enemyFront', pctMaxHp: 0.20, cooldown: 3,
+ desc: 'A single sweep across the front rank. Everyone standing in it loses a fifth of their maximum health. Once every three rounds.' });
+boss({ id: 'unbound_arc', name: 'Unbound Arc', target: 'enemyFront', pctMaxHp: 0.40, cooldown: 3,
+ desc: 'The same sweep, carrying a god\'s stolen strength. Everyone in the front rank loses two fifths of their maximum health. Once every three rounds.' });
+boss({ id: 'the_strongest_among_you', name: 'The Strongest Among You', target: 'enemy', targetHighestHp: true,
+ pctMaxHp: 0.75, cooldown: 5, ignoreGuards: true,
+ say: { who: K, on: 'q14_boss_challenge', survived: 'q14_boss_survived', killed: 'q14_boss_killed' },
+ desc: 'Kolade picks out the largest body on the field — by the health it was built to carry, not the health it has left — and takes three quarters of it in one cut. Once every five rounds.' });
+L(K, 'q14_boss_challenge', '[cold] I will challenge the strongest among you.');
+L(K, 'q14_boss_survived', '[hard] You will not stop me, you will join our sister and the rest.');
+L(K, 'q14_boss_killed', '[quiet] One more murder, one more sacrifice on my road to God Hood.');
+
 // Hostility is an approach, not a death certificate. Resolution is recorded by GateFinale.
 const amaraFight = D.CAMPAIGN3_CHOICES.q13_amara_gate.options.find(o => o.id === 'fight');
 delete amaraFight.kill; delete amaraFight.set;
@@ -125,9 +144,9 @@ D.CAMPAIGN3_SCRIPT[14] = {
  closing: [B(W, 'q14_final_choice', { force: true, artLocation: 'morrak_realm', choice: 'q14_final_resolution', caption: 'Kolade falls. His binding breaks, and Hiwot’s soul is free. The throne remains empty.' })],
  arrival: [],
 };
-D.CAMPAIGN3_EPILOGUE.finale = { amaraMourning: 'Amara mourns Kolade. She had hoped to bring him back alive. She asks for time before speaking about what happened in the temple.' };
+D.CAMPAIGN3_EPILOGUE.finale = {"amaraMourning":"Amara mourns Kolade. She had hoped to bring him back alive. She asks for time before speaking about what happened in the temple.","cityAftermath":"In Varenholm, the Consortium's ledgers were made public. The Council rejected war with Calder. Caravans began using the roads again, and iron returned to the markets. The families who had lost people to the mines and the hired killers were still waiting for justice.","amaraWaiting":"Amara stayed in Varenholm for a time, hoping for news of Kolade. She would not say what she would do if he returned."};
 D.CAMPAIGN3_ENDINGS.restored = { title: 'Home Together', line: 'You gave up the throne to bring Hiwot home.' };
 D.CAMPAIGN3_ENDINGS.ascended = { title: 'Morrak’s Successor', line: 'You claimed the throne. Hiwot did not return.' };
-D.CAMPAIGN3_EPILOGUE.ending.restored = 'You release the stolen souls and surrender the divine power in your own blood. Hiwot wakes beside you on the temple floor. The passage closes. You leave as mortals, with no claim to Morrak’s throne. Your learned skills, campaign gifts and ordinary adventures remain yours.';
-D.CAMPAIGN3_EPILOGUE.ending.ascended = 'You bind the power of Morrak’s realm to yourself and claim the vacant throne. Hiwot’s soul passes beyond your reach. You can walk the mortal world again, but your sister will never return to it. What you do with the succession is now your responsibility.';
+D.CAMPAIGN3_EPILOGUE.ending.restored = "Kolade died in Morrak's realm. You released the souls he had bound and gave up the divine power in your blood to bring Hiwot back. She woke beside you on the temple floor, alive and mortal. The passage closed behind you. You had lost your claim to the throne, but you could take your sister home.";
+D.CAMPAIGN3_EPILOGUE.ending.ascended = "Kolade died in Morrak's realm, and you claimed the power he had tried to take. Hiwot could not return with you. Her soul passed beyond your reach as you became Morrak's successor. You could still walk the mortal world, but you would return to it without your sister.";
 })();

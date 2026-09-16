@@ -2,6 +2,7 @@
 (function () {
 'use strict';
 globalThis.ADV = globalThis.ADV || {};
+ADV.Censorship?.installText(globalThis.Phaser);
 
 const T = {
   W: 1280, H: 760,

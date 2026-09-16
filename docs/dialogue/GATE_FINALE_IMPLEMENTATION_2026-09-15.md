@@ -23,17 +23,9 @@ The user approved the sacrifice/realm-battle route, the resurrection-versus-asce
 - Clips were checked against casting and exact current text, decoded, checked for audible signal/duration, installed, and added to the cache manifest. Only the replaced Dawit clip needed archival backup. Old Q14 clips remain available for already-queued legacy endings.
 - Mzee Kamau's five deliberately unvoiced lines remain untouched.
 
-## Opening movie: prepared, rendering blocked
-
-The Runway plugin is installed and authenticated to the personal `charles` workspace. Its Free plan exposes no video models. The plan/credits card has been shown. No Runway generation has been submitted and no plan has been purchased.
-
-The native video player is wired ahead of Q1's chapter card and dialogue, but its source remains `null` until a completed movie is inspected and installed. It does not request a nonexistent file in the shipped game. It contains a tap-to-play gesture, inline playback, safe-area padding, a continue/escape control, background pause, scene-shutdown cleanup, and suppression/restoration of game audio so only the movie's mix plays. A failed or skipped movie does not mark the movie completed. The finished movie must use the approved continuous full-body animation format, not illustrated stills.
-
-See `GATE_ROOFTOP_MOVIE_SHOT_PLAN_2026-09-15.md` for the production plan. The dramatic movie score is still pending with the render. Existing temple/boss/ending music continues to support the implemented game finale.
-
 ## Verification and publication
 
-The test reports in `test/reports/gate-finale/` and `test/reports/headless/` are the detailed evidence. Three real-combat, fourteen-quest story routes passed all 161 assertions after updating their ending expectations. Dialogue validation passes 5,331 checks. Focused finale checks cover both endings, four Hiwot states, checkpoint/reload/migration, actual deaths versus retreats and bypasses, and submenu wiring. Existing campaign-family, courtship, conspiracy, rescue/roster, party-isolation, music recovery and late-voice asset checks have been run. Chromium and WebKit both passed the real realm scene, animation, voice, four-option menu, battlefield restoration and missing-movie escape at 1280×760 and 844×390. These are browser tests, not physical-device tests.
+The test reports in `test/reports/gate-finale/` and `test/reports/headless/` are the detailed evidence. Three real-combat, fourteen-quest story routes passed all 161 assertions after updating their ending expectations. Dialogue validation passes 5,331 checks. Focused finale checks cover both endings, four Hiwot states, checkpoint/reload/migration, actual deaths versus retreats and bypasses, and submenu wiring. Existing campaign-family, courtship, conspiracy, rescue/roster, party-isolation, music recovery and late-voice asset checks have been run. Chromium and WebKit both passed the real realm scene, animation, voice, four-option menu, battlefield restoration at 1280×760 and 844×390. These are browser tests, not physical-device tests.
 
 Two old test expectations already fail on HEAD, confirmed using a read-only load of the committed runtime. `gate_mercy` expects Normal Q1 to retain Easy's damage reduction despite the separately committed difficulty revision. `campaign3_perks` expects a 15-point flee bonus in a solo fixture where fleeing is already guaranteed. These are recorded separately from story behavior; this patch does not roll back those existing rules.
 

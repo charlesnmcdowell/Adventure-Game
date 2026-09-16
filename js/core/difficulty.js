@@ -1,27 +1,28 @@
 // Difficulty (request). Easy is the previous Normal: one extra enemy, veterans
 // with intermediate kits, a smaller health buffer. It is still the road for people
 // short on time — fights stay winnable — but it is no longer the original shipped
-// game with doubled health and no extras. Normal is the previous Hard. Hard goes
-// further: another body, higher-level veterans, a little more bite, and almost no
-// rest. One setting per player, kept in meta so it survives a death and a new life.
+// game with doubled health and no extras. Normal is the previous Hard. Hard goes past
+// that again: seasoned enemies fight at their ADVANCED manifestation, levels climb
+// another three, the stat edge widens and almost nothing comes back between fights.
+// One setting per player, kept in meta so it survives a death and a new life.
 // The levers, in order of weight:
 //   extraFoes   more enemies per encounter (copies of the encounter's own kinds;
 //               never more adds than the player has companions)
 //   foeLevel    enemy level offset: skills climb, tier-1 mooks bring perks
 //   basicHitCap the most of a foe's maximum health one use of a BASIC-tier skill can take
-//               (1/3 from Easy up, 1/4 on Hard, 0 = uncapped). A basic skill is an opener, not an
+//               (1/3 easy, 1/4 normal, 1/5 hard, 0 = uncapped). A basic skill is an opener, not an
 //               execution: however far the wielder outclasses a mook, they cannot delete it
 //               in one press. The allowance covers the whole action, riders included.
 //   foeSkillFloorFrom the lowest natural enemy level the kit floor reaches. Below it a
 //               creature fights with the kit it was written with: a wolf on a first contract
 //               is a wolf, not a veteran wolf. Better enemies are meant to be enemies that
 //               are already something, not every mook on the road.
-//   foeSkillFloor every enemy skill is at least this level (10 = intermediate kits
-//               from Easy up; Hard's +6 levels carry seasoned kits to advanced) — the "better enemies" lever
+//   foeSkillFloor every enemy skill is at least this level (10 = intermediate kits on easy
+//               and normal; 25 on hard, which is the advanced threshold) — the "better enemies" lever
 //   foeHp/Atk/Def a small stat edge on top
 //   playerHp    the player's health buffer (easy is half again; normal and hard have none)
 //   recoverPct  health back after each won encounter
-//   payBonus/payMult   contract pay (the flat bonus shrinks; hard pays 70%)
+//   payBonus/payMult   contract pay (easy carries a flat +250; hard pays 70%)
 //   autoStopPct auto-combat safety stop (30% easy, off from normal up)
 // test/difficulty_sim.js is the yardstick behind the numbers; change them there first.
 (function () {
@@ -35,21 +36,32 @@ const LEVELS = {
     blurb: 'One more enemy in every fight and better ones — the seasoned ones fighting with better kits, and their perks. Your health buffer is smaller and less of it comes back between fights. Auto combat stops below 30%. A basic-tier skill can take at most a third of an enemy in one blow.',
     extraFoes: 1, foeLevel: 2, foeSkillFloor: 10, foeSkillFloorFrom: 8, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
     basicHitCap: 1 / 3,
-    playerHp: 1.5, recoverPct: 0.35, payBonus: 50, payMult: 1.0, autoStopPct: 0.3, fleeWarn: true,
+    // +200g a contract over the old 50. payMult is 1.0 here, so payBonus lands as an exact
+    // flat raise on every quest the board makes: solo, party, hazard, war, god and campaign
+    // alike all run through Difficulty.pay (see balance_support.js).
+    playerHp: 1.5, recoverPct: 0.35, payBonus: 250, payMult: 1.0, autoStopPct: 0.3, fleeWarn: true,
   },
+  // Normal takes over what Hard used to field, and Hard steps past it. Both settings were
+  // measured winnable to the point of being unremarkable, so the whole ladder moves up.
   normal: {
-    id: 'normal', name: 'Normal', tagline: 'Outnumbered and outclassed.',
-    blurb: 'Two more enemies in every fight, all of them veterans with their perks, and anything with a little experience fighting well above a mook. No health buffer, little rest between fights, leaner pay, and auto combat never stops itself. A basic-tier skill can take at most a third of an enemy in one blow.',
-    extraFoes: 2, foeLevel: 4, foeSkillFloor: 10, foeSkillFloorFrom: 4, foeHp: 1.0, foeAtk: 1.0, foeDef: 1.0,
-    basicHitCap: 1 / 3,
-    playerHp: 1.0, recoverPct: 0.2, payBonus: 0, payMult: 0.85, autoStopPct: 0, fleeWarn: false,
-  },
-  hard: {
-    id: 'hard', name: 'Hard', tagline: 'No quarter.',
-    blurb: 'Three more enemies in every fight, higher-level veterans, a little more bite, almost no rest between fights, and a basic-tier skill can take at most a quarter of an enemy in one blow. Auto combat never stops itself.',
+    id: 'normal', name: 'Normal', tagline: 'No quarter.',
+    blurb: 'Three more enemies in every fight, higher-level veterans with their perks, and a little more bite in every blow. No health buffer, almost no rest between fights, leaner pay, and auto combat never stops itself. A basic-tier skill can take at most a quarter of an enemy in one blow.',
     extraFoes: 3, foeLevel: 6, foeSkillFloor: 10, foeSkillFloorFrom: 4, foeHp: 1.1, foeAtk: 1.1, foeDef: 1.0,
     basicHitCap: 1 / 4,
-    playerHp: 1.0, recoverPct: 0.1, payBonus: 0, payMult: 0.7, autoStopPct: 0, fleeWarn: false,
+    playerHp: 1.0, recoverPct: 0.1, payBonus: 0, payMult: 0.85, autoStopPct: 0, fleeWarn: false,
+  },
+  // The extra-enemy lever is clamped by the company you keep (reinforce() never adds more
+  // bodies than you have companions), so past three it stops buying anything for an ordinary
+  // four-hand party. Hard leans on the levers that are not clamped instead: the kit floor goes
+  // to the ADVANCED threshold, so every enemy that has seen a fight brings its top
+  // manifestation, levels climb another three, the stat edge widens, the basic-tier allowance
+  // tightens to a fifth, and almost nothing comes back between fights.
+  hard: {
+    id: 'hard', name: 'Hard', tagline: 'They have done this before.',
+    blurb: 'Four more enemies where your company can be flanked, every seasoned one fighting at its highest manifestation, levels far above yours, and a real stat edge on top. No health buffer, next to no rest between fights, the leanest pay, and a basic-tier skill can take at most a fifth of an enemy in one blow.',
+    extraFoes: 4, foeLevel: 8, foeSkillFloor: 25, foeSkillFloorFrom: 4, foeHp: 1.15, foeAtk: 1.15, foeDef: 1.0,
+    basicHitCap: 1 / 5,
+    playerHp: 1.0, recoverPct: 0.08, payBonus: 0, payMult: 0.7, autoStopPct: 0, fleeWarn: false,
   },
 };
 

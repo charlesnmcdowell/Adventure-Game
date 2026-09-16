@@ -32,7 +32,10 @@ eq(SK.lightning_king.tiers.basic.turnPlacement, 'distributed', 'Lightning King: 
 ok(SK.lightning_king.tiers.intermediate.consecutive && !SK.lightning_king.noTierGrowth, 'back to back from intermediate');
 ok(SK.backstab.tiers.advanced.status && SK.backstab.tiers.advanced.status.bleed, 'Assassinate keeps Throat Cut\'s bleed');
 ok(SK.sunder.tiers.advanced.status && SK.sunder.tiers.advanced.status.bleed, 'Shatter keeps Rend\'s bleed');
-eq(SK.fire_bolt.tiers.advanced.power, 2.0, 'Fire Ball is not weaker than Fire Blast');
+// Assert the rule the label always named, not the number it happened to have. Fire Ball
+// widens to a lane; it must not buy that by dropping below the power of the tier under it.
+ok(SK.fire_bolt.tiers.advanced.power >= (SK.fire_bolt.tiers.intermediate.power || SK.fire_bolt.power),
+  'Fire Ball is not weaker than Fire Blast');
 eq(SK.ember_lash.power, 2.2, 'Ember Lash bites');
 
 console.log('\n-- survival growth is a quest\'s worth of health --');

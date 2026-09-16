@@ -377,8 +377,13 @@ function newGame(seed, sex, skills) { ADV.Save.setBackend(mem()); return ADV.Gam
   console.log('\n-- 14. hazard contracts & 15. population --');
   const g = newGame(61, 'm');
   const board = g.board;
-  const h2 = board.filter(q => q.hazard && q.payout === 400), h3 = board.filter(q => q.hazard && q.payout === 700);
-  eq(h2.length, 2, 'two 400g hazard contracts'); eq(h3.length, 2, 'two 700g hazard contracts');
+  // Read the pay off the difficulty lever rather than restating its output: the flat bonus
+  // has moved twice now, and a pinned number here just goes stale silently.
+  const h2 = board.filter(q => q.hazard && q.tier === 2), h3 = board.filter(q => q.hazard && q.tier === 3);
+  eq(h2.length, 2, 'two tier-2 hazard contracts'); eq(h3.length, 2, 'two tier-3 hazard contracts');
+  const hazPay = base => ADV.Difficulty.pay(base);
+  ok(h2.every(q => q.payout === hazPay(300)) && h3.every(q => q.payout === hazPay(600)),
+    `Easy hazard pay is ${hazPay(300)}g / ${hazPay(600)}g`);
   ok(h2.concat(h3).every(q => q.hazard && q.encounters.every(e => e.enemyTypeIds.includes(q.hazard))), 'each is built around a debuff crew');
   const types = new Set(h2.concat(h3).flatMap(q => q.encounters.flatMap(e => e.enemyTypeIds)));
   ok(['marsh_stalker', 'ember_cultist', 'frost_hag', 'gravewarden', 'plague_knave'].some(t => types.has(t)), 'debuff enemies appear');
@@ -423,7 +428,7 @@ function newGame(seed, sex, skills) { ADV.Save.setBackend(mem()); return ADV.Gam
   g = 0; while (!st2.over && g++ < 50) { const t = ADV.Combat.currentTurn(st2); if (!t) break; const bv = ADV.Combat.validTargets(st2, t.unit, 'basic_attack'); ADV.Combat.act(st2, t.unit, bv.length ? { kind: 'attack', targetUid: bv[0].uid } : { kind: 'defend' }); ADV.Combat.advance(st2); }
   ADV.Combat.exportHp(st2);
   eq(tank.questHp, 40, 'second battle: +40 for the quest');
-  eq(ADV.Character.maxHp(tank), 480, 'max HP reflects the grown pool plus the player safety buffer');
+  eq(ADV.Character.maxHp(tank), 360, 'Easy applies its 1.5x health buffer to the 240 HP grown pool');
   // and it is gone once the contract resolves
   { const gq = newGame(72, 'f'); const pq = ADV.Game.player(gq); give(pq, 'bulwark'); pq.questHp = 60; const q = gq.board.find(x => x.track === 'solo'); ADV.Game.startQuest(gq, q, {});
     eq(pq.questHp, 0, 'a new contract starts with no carried growth');

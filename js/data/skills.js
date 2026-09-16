@@ -26,7 +26,11 @@ def({ id: 'fire_bolt', name: 'Fire Bolt', kind: 'active', archetype: 'mage',
   tiers: {
     basic:        { name: 'Fire Bolt', status: { burn: { power: 0.8, rounds: 3 } } },
     intermediate: { name: 'Fire Blast', status: { burn: { power: 1.1, rounds: 3 } } },
-    advanced:     { name: 'Fire Ball', target: 'enemyLane', power: 2.0, status: { burn: { power: 1.4, rounds: 3 } } },
+    // Fire Ball bought its lane by dropping power 3.0 -> 2.0, but the lane you aim at holds
+    // ONE enemy until four are on the field (lanes fill back to front), so in almost every
+    // fight the capstone was 102% of Fire Blast — the same spell under a new name. Full power
+    // on the body you aimed at, a share to anyone sharing its lane.
+    advanced:     { name: 'Fire Ball', target: 'enemyLane', power: 3.0, spreadPct: 0.6, status: { burn: { power: 1.4, rounds: 3 } } },
   } });
 def({ id: 'frost_touch', name: 'Frost Touch', kind: 'active', archetype: 'mage',
   elemental: true, element: 'ice', power: 2.4, reach: 'any', target: 'enemy', delayTarget: true,

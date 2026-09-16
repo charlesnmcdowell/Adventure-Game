@@ -5,7 +5,7 @@
 globalThis.ADV = globalThis.ADV || {};
 
 const KEY = 'adv:prefs';
-const DEFAULTS = { textScale: 1, pauseEnemy: false, artMotion: true, secondaryMotion: true, titleMotion: true };
+const DEFAULTS = { textScale: 1, pauseEnemy: false, artMotion: true, secondaryMotion: true, titleMotion: true, censorProfanity: false };
 
 let cache = null;
 function read() {
@@ -14,6 +14,7 @@ function read() {
   catch (e) { cache = Object.assign({}, DEFAULTS); }
   if (!(cache.textScale > 0)) cache.textScale = 1;
   cache.pauseEnemy = !!cache.pauseEnemy;
+  cache.censorProfanity = cache.censorProfanity === true;
   return cache;
 }
 function write(next) {
@@ -25,13 +26,17 @@ function write(next) {
 // Refresh on its next read so an already-open tab does not show the ask again.
 if (typeof window !== 'undefined' && window.addEventListener) {
   window.addEventListener('storage', event => {
-    if (event.key === KEY || event.key === null) cache = null;
+    if (event.key === KEY || event.key === null) { cache = null; ADV.Censorship?.refresh(); }
   });
 }
 
 const Prefs = {};
-Prefs.get = function () { return Object.assign({}, read()); };
-Prefs.set = function (patch) { write(Object.assign(read(), patch || {})); };
+Prefs.get = function () { return Object.assign({}, read(), ADV.Release?.target === 'crazygames' ? { censorProfanity: true } : {}); };
+Prefs.set = function (patch) {
+  const before = Prefs.get().censorProfanity;
+  write(Object.assign({}, read(), patch || {}, ADV.Release?.target === 'crazygames' ? { censorProfanity: true } : {}));
+  if (before !== Prefs.get().censorProfanity) ADV.Censorship?.refresh();
+};
 Prefs.textScale = function () { return read().textScale || 1; };
 Prefs.pauseEnemy = function () { return !!read().pauseEnemy; };
 Prefs.setPauseEnemy = function (on) { Prefs.set({ pauseEnemy: !!on }); };
@@ -60,6 +65,7 @@ Display.active = function () {
   return !!(g && g.scale && g.scale.isFullscreen);
 };
 Display.supported = function () {
+  if (ADV.Release?.target === 'crazygames') return false;
   const d = doc();
   if (!d) return false;
   const nav = win()?.navigator;
@@ -125,6 +131,7 @@ Display.exit = function () {
 Display.toggle = function () { return Display.active() ? Display.exit() : Display.enter(); };
 
 Display.button = function (scene, x, y) {
+  if (ADV.Release?.target === 'crazygames') return null;
   const t = ADV.T.text(scene, x, y, Display.label(), { size: 13, ox: 1, color: ADV.T.css.gold, bold: true })
     .setInteractive({ useHandCursor: true });
   t.on('pointerdown', () => { Display.toggle(); });

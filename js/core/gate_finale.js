@@ -186,7 +186,10 @@ C.spawnEncounter = function (game, quest, index) {
   const boss = enemies.find(ch => ch.campaignId === 'korvath');
   if (boss) {
    boss.name = 'Kolade — the Unbound'; boss.campaignExit = false;
-   boss.actives = ['cleave', 'sunder', 'fire_bolt', 'ashfall'].map(skillId => ({ skillId, level: 30, uses: 300 }));
+   // The arc he was already swinging in the temple, now carrying what he took from the
+   // throne, plus the challenge he only makes once he believes he has already won.
+   boss.actives = ['cleave', 'unbound_arc', 'the_strongest_among_you', 'sunder', 'fire_bolt', 'ashfall']
+    .map(skillId => ({ skillId, level: 30, uses: 300 }));
    boss.perks = boss.perks.filter(p => p.skillId !== 'bulwark');
    boss.stats.hp *= .75; boss.hpFloor *= .75;
    boss.gateAscendant = true;
@@ -229,6 +232,8 @@ C.epilogue = function (game) {
  const e = A.DATA.CAMPAIGN3_EPILOGUE, obsolete = new Set([...Object.values(e.companion[W] || {}), ...Object.values(e.heritage)]);
  const out = paragraphs.filter(text => !obsolete.has(text)).map(text => text === e.companion.amara.present
   ? e.finale.amaraMourning : text);
+ // Resolve the public conspiracy as well as the private choice in Morrak's realm.
+ out.splice(1, 0, e.finale.cityAftermath);
  const def = A.DATA.CAMPAIGN_CHARS[s.romance], romance = e.romance[s.romance];
  if (romance && C.isRecruited(game, s.romance) && ((s.ending === 'restored' && def.favours === 'hero') || (s.ending === 'ascended' && def.favours === 'usurper') || def.favours === 'kill')) {
   if (!out.includes(romance.favoured)) out.push(romance.favoured);

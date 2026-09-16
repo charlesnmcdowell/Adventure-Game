@@ -1022,7 +1022,7 @@ class CombatScene extends Phaser.Scene {
       try { this._fsBtn.destroy(); } catch (e) {}
       this._fsBtn = null;
     }
-    if (!ADV.Display) return;
+    if (!ADV.Display || ADV.Release?.target === 'crazygames') return;
     const box = this.hudChrome();
     const full = !!ADV.Display.active();
     const b = T().button(this, box.left, box.y0, box.w, box.h, ADV.Display.label(), () => {

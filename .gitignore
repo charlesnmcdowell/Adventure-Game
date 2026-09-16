@@ -11,6 +11,11 @@ node_modules/
 !/tools/safe_publish.py
 !/tools/release_files.py
 !/tools/release_manifest.json
+!/tools/crazygames/
+/tools/crazygames/*
+!/tools/crazygames/*.js
+!/tools/crazygames/*.py
+/dist/
 !/tools/release_cleanup/
 /tools/release_cleanup/*
 !/tools/release_cleanup/*.py
@@ -38,6 +43,10 @@ node_modules/
 !/tools/gate_finale_art_audio/*.js
 !/tools/gate_finale_art_audio/*.py
 !/tools/gate_finale_art_audio/*.json
+!/tools/gate_epilogue_review/
+!/tools/gate_epilogue_review/*.js
+!/tools/gate_epilogue_review/*.py
+!/tools/gate_epilogue_review/*.json
 !/tools/mobile_site/
 /tools/mobile_site/*
 !/tools/mobile_site/index.html

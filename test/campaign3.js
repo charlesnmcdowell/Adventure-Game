@@ -225,7 +225,7 @@ console.log('\n-- monster path --');
   ok(s.heritage >= 2, 'heritage embraced', s.heritage);
   eq(s.ending, 'ascended', 'ending: divine throne claimed');
   ok(s.epilogue.some(t => /keeping her own duties/.test(t)), 'Ilvara\'s favoured-ending line');
-  ok(s.epilogue.some(t => /Beau is buried/.test(t)), 'Beau\'s grave in the epilogue');
+  ok(s.epilogue.includes(D.CAMPAIGN3_EPILOGUE.outcome.beauDrowned), 'the epilogue records Beau and the nineteen prisoners drowned by the early flood');
   ok(!(logs[8].romanceOffers || []).includes('selene'), 'Delphine will not court the one who drowned Beau', JSON.stringify(logs[8].romanceOffers));
   ok(logs[11].beats.includes('lysandra:q12_council_dead'), 'both dukes died when the ward ran at Kolade');
 }

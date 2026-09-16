@@ -25,7 +25,7 @@ console.log('-- early Gate foes --');
   ok(easy.length && easy.every(ch => ch.c3FoeDmg === 0.7), 'easy Q1 foes deal 70%');
   ADV.Difficulty.set(g, 'normal');
   const normal = ADV.Campaign.spawnEncounter(g, q1, 1);
-  ok(normal.every(ch => ch.c3FoeDmg === 0.7), 'normal Q1 foes deal 70%');
+  ok(normal.length && normal.every(ch => ch.c3FoeDmg === 1), 'normal Q1 keeps full output after the difficulty step-up');
   ADV.Difficulty.set(g, 'hard');
   const hard = ADV.Campaign.spawnEncounter(g, q1, 2);
   ok(hard.every(ch => ch.c3FoeDmg === 1), 'hard Q1 keeps full output');

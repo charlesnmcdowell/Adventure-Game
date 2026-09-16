@@ -1,6 +1,18 @@
 {
   "headless": [
     {
+      "file": "test/gate_epilogue_review.js",
+      "args": []
+    },
+    {
+      "file": "test/crazygames_profile.js",
+      "args": []
+    },
+    {
+      "file": "test/censorship.js",
+      "args": []
+    },
+    {
       "file": "test/quest_lifecycle.js",
       "args": []
     },
@@ -102,6 +114,10 @@
     },
     {
       "file": "test/gate_finale.js",
+      "args": []
+    },
+    {
+      "file": "test/gate_boss_skills.js",
       "args": []
     },
     {
@@ -299,6 +315,10 @@
     }
   ],
   "browser": [
+    {
+      "file": "test/browser_censorship.js",
+      "args": []
+    },
     {
       "file": "test/browser_gate_voice.js",
       "args": []

@@ -15,7 +15,7 @@ Usage:
   python3 tools/safe_publish.py <path-to-Neverendingnarratives-repo> [--dest play/adventurer] [--browser]
 """
 import argparse, hashlib, json, os, subprocess, sys
-from release_files import collect, verify, checked_bytes
+from release_files import collect, verify, checked_bytes, delivery_summary
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -93,11 +93,16 @@ def publish(site, dest, profile='game', frozen=None):
     if target != base and base not in target.parents:
         say('destination must stay inside the specified repository'); return False
     if not base.is_dir(): say(f'site repo not found: {site}'); return False
+    if profile == 'crazygames' and target == base:
+        raise ValueError('CrazyGames output must be a subdirectory so its companion manifest stays inside the output base')
+    if profile == 'crazygames' and target.exists() and any(target.iterdir()):
+        raise ValueError('Use a fresh CrazyGames output directory so old assets cannot enter the upload bundle')
     verify(ROOT, frozen)
     if collect(ROOT, profile) != frozen:
         raise ValueError('Release file list changed during validation')
     target.mkdir(parents=True, exist_ok=True)
     for relative, row in frozen.items():
+        if row.get('delivery') == 'external': continue
         out = (target / relative).resolve()
         if not out.is_relative_to(target): raise ValueError('Output escapes release directory')
         data = checked_bytes(ROOT, row)
@@ -105,7 +110,13 @@ def publish(site, dest, profile='game', frozen=None):
         with out.open('wb') as f: f.write(data); f.flush(); os.fsync(f.fileno())
         if sha(out) != row['sha256']: raise ValueError(f'Published hash mismatch: {relative}')
     verify(ROOT, frozen)
-    say(f'  published {len(frozen)} frozen, verified files -> {target}')
+    summary = delivery_summary(frozen)
+    if profile == 'crazygames':
+        # Keep source hashes in the companion report, outside the upload folder.
+        report = target.with_name(target.name + '-media-manifest.json')
+        report.write_text(json.dumps({'profile': profile, 'delivery': summary, 'files': frozen}, indent=2), encoding='utf-8')
+    say(f"  wrote {summary['bundleFiles']} frozen, verified files -> {target}")
+    if summary['externalFiles']: say(f"  {summary['externalFiles']} voice clips load from the existing game host; portal acceptance is still required")
     say('  existing files outside this manifest were preserved; commit/push remains a separate action.')
     return True
 
@@ -113,7 +124,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('site', nargs='?', help='path to the Neverendingnarratives site repo')
     ap.add_argument('--dest', default='play/adventurer')
-    ap.add_argument('--profile', choices=['game', 'site-shell'], default='game', help='site-shell preserves the public iframe and its existing save origin; use --dest adventurer')
+    ap.add_argument('--profile', choices=['game', 'site-shell', 'crazygames'], default='game', help='site-shell preserves the iframe; crazygames emits a locked-censorship bundle with externally hosted voices')
     ap.add_argument('--check-only', action='store_true')
     ap.add_argument('--browser', action='store_true', help='also run the Playwright suite')
     ap.add_argument('--mobile', action='store_true', help='run the mobile launch and host checks in Chromium and WebKit (requires local server on 8734)')
@@ -122,7 +133,13 @@ def main():
     if a.skip_tests and a.site and not a.check_only:
         ap.error('--skip-tests cannot be used to publish')
     frozen=collect(ROOT,a.profile)
-    game_frozen=frozen if a.profile=='game' else collect(ROOT,'game')
+    game_frozen=frozen if a.profile in ('game', 'crazygames') else collect(ROOT,'game')
+    if a.profile == 'crazygames':
+        summary = delivery_summary(frozen)
+        say('CrazyGames delivery plan: ' + json.dumps(summary))
+        if summary['bundleFiles'] > 1500 or summary['bundleBytes'] > 250_000_000:
+            say('CrazyGames bundle exceeds the published upload limits'); sys.exit(2)
+        say('Initial-load timing, external-media approval and PEGI 12 content review remain separate portal checks.')
     say('[1/4] syntax + truncation gate');
     if not node_check(): sys.exit(2)
     say('[2/4] script order');

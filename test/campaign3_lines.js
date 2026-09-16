@@ -14,6 +14,14 @@ const usedChoices = new Set();
 const usedBeats = new Set();
 // Triggered by a successful anti-healing action in combat, not a cutscene list.
 usedBeats.add('fennick:q4_healing');
+// Lines a skill speaks for its user mid-fight. The route to them is the skill's `say` block
+// rather than a cutscene beat, so they are reachable without appearing in any script.
+for (const sk of Object.values(D.SKILLS)) {
+  for (const [slot, key] of Object.entries(sk.say || {})) {
+    if (slot === 'who' || slot === 'fid' || slot === 'to') continue;
+    usedBeats.add((sk.say.who || '') + ':' + key);
+  }
+}
 // End-card narration is selected by displayed outcome text, outside cutscene beats.
 for (const row of D.GATE_EPILOGUE_VO.entries) {
   const who = D.GATE_EPILOGUE_VO.speaker;

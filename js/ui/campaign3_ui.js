@@ -339,6 +339,8 @@ UI3.endCardNarration = function (heading, paragraphs, onLine = () => {}) {
     if (!row) { state.active = false; state.finished = true; onLine(null); return; }
     music.speakCampaign(data.speaker, row.key, 1);
     const el = state.current = music.voiceEl;
+    // Censorship or unavailable speech may deliberately return no audio element.
+    if (!el) { state.errors++; next(); return; }
     ended = () => { if (alive && state.active && music.voiceEl === el) next(); };
     failed = () => { if (alive && state.active && music.voiceEl === el) { state.errors++; next(); } };
     el.addEventListener('ended', ended, { once: true });
@@ -361,7 +363,7 @@ UI3.endCard = function (scene, game, done) {
   scene.__cutscene = true; ADV.Notices?.block(scene);
   const s = C3().state(game);
   const E = D().CAMPAIGN3_ENDINGS[s.ending] || { title: 'The End', line: '' };
-  const paras = s.epilogue || C3().epilogue(game);
+  const paras = C3().endCardParagraphs(game);
   const W = T().W, H = T().H;
   const fontSize = size => ADV.DialogueBox.fontSize(scene, size, 12);
   const buttonHeight = Math.max(44, 44 / ADV.DialogueBox.displayScale(scene));

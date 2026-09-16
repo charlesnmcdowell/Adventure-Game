@@ -1,5 +1,8 @@
 // Golden event traces captured before extracting combat subsystems. This protects
 // outcomes and event ordering, independently of their implementation location.
+// Rebased 16 Sep 2026 for the approved difficulty step-up in d24f496. Restoring
+// only that commit's prior difficulty config reproduced all 24 old hashes;
+// see test/reports/censorship/trace-cause.log. No combat rules changed here.
 'use strict';
 const fs=require('fs'),path=require('path'),crypto=require('crypto'),assert=require('assert/strict');
 const A=require('./harness').load(),rows=[];

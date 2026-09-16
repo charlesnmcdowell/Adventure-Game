@@ -724,24 +724,34 @@ Panels.codex = function (scene, r) {
 Panels.settings = function (scene, r) {
   header(scene, r, 'Settings', 'These stay in this browser. A new life keeps them.');
   if(ADV.SaveUI)ADV.UI.keepBtn(scene,T().button(scene,r.x+r.w-190,r.y+16,170,42,'Save backup',()=>ADV.SaveUI.show(scene.g()),{size:14}));
+  const scroll = ADV.UI.scrollArea(scene, { x: r.x + 8, y: r.y + 90, w: r.w - 16, h: r.h - 100 });
   const scale = (ADV.Prefs && ADV.Prefs.textScale()) || 1;
   const pause = !!(ADV.Prefs && ADV.Prefs.pauseEnemy());
   const full = !!(ADV.Display && ADV.Display.active());
   let y = r.y + 96;
-  scene.keep(T().text(scene, r.x + 24, y, 'Full screen', { size: 16, color: T().css.gold })); y += 28;
-  scene.keep(T().text(scene, r.x + 24, y, 'Fills this device — monitor, tablet, or phone. Hides the browser bars so the game owns the display.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 44;
+  scroll.add(T().text(scene, r.x + 24, y, 'Language', { size: 16, color: T().css.gold })); y += 30;
+  scroll.addBtn(T().button(scene, r.x + 24, y, Math.min(400, r.w - 48), 48, ADV.Censorship.label(), () => {
+    ADV.Censorship.toggle(); scene.openPanel('settings');
+  }, { size: 15, disabled: ADV.Censorship.locked(), color: T().css.gold })); y += 58;
+  const languageNote = scroll.add(T().text(scene, r.x + 24, y,
+    'Masks swear words in text and silences voice lines containing them. Other voices and music still play.',
+    { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += languageNote.height + 26;
+  if (ADV.Release?.target !== 'crazygames') {
+  scroll.add(T().text(scene, r.x + 24, y, 'Full screen', { size: 16, color: T().css.gold })); y += 28;
+  scroll.add(T().text(scene, r.x + 24, y, 'Fills this device — monitor, tablet, or phone. Hides the browser bars so the game owns the display.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 44;
   const fsBtn = T().button(scene, r.x + 24, y, 320, 48, full ? 'Exit fullscreen' : 'Enter fullscreen', () => {
     if (ADV.Display) ADV.Display.toggle().then(() => { if (scene.currentPanel === 'settings') scene.openPanel('settings'); });
   }, { size: 16, bold: true, display: true, color: T().css.gold, edge: T().c.gold, fill: full ? 0x2a3a22 : 0x2b261f });
-  ADV.UI.keepBtn(scene, fsBtn);
+  scroll.addBtn(fsBtn);
   y += 72;
-  scene.keep(T().text(scene, r.x + 24, y, 'Text and notifications', { size: 16, color: T().css.gold })); y += 28;
-  scene.keep(T().text(scene, r.x + 24, y, 'Larger type for menus, toasts, and combat labels.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 36;
+  }
+  scroll.add(T().text(scene, r.x + 24, y, 'Text and notifications', { size: 16, color: T().css.gold })); y += 28;
+  scroll.add(T().text(scene, r.x + 24, y, 'Larger type for menus, toasts, and combat labels.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 36;
   const scales = [[1, 'Normal'], [1.2, 'Large'], [1.35, 'Larger']];
   let x = r.x + 24;
   for (const [n, lbl] of scales) {
     const on = Math.abs(scale - n) < 0.05;
-    ADV.UI.keepBtn(scene, T().button(scene, x, y, 120, 40, lbl, () => {
+    scroll.addBtn(T().button(scene, x, y, 120, 40, lbl, () => {
       ADV.Prefs.setTextScale(n);
       scene.buildMenu();
       scene.buildCharacterPanel();
@@ -750,9 +760,9 @@ Panels.settings = function (scene, r) {
     x += 132;
   }
   y += 64;
-  scene.keep(T().text(scene, r.x + 24, y, 'Enemy turns', { size: 16, color: T().css.gold })); y += 28;
-  scene.keep(T().text(scene, r.x + 24, y, 'When on, each enemy waits for you before they act — auto does not rush their turn.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 40;
-  ADV.UI.keepBtn(scene, T().button(scene, r.x + 24, y, 280, 42, pause ? 'Pause enemy turns — on' : 'Pause enemy turns — off', () => {
+  scroll.add(T().text(scene, r.x + 24, y, 'Enemy turns', { size: 16, color: T().css.gold })); y += 28;
+  scroll.add(T().text(scene, r.x + 24, y, 'When on, each enemy waits for you before they act — auto does not rush their turn.', { size: 13, color: T().css.inkDim, wrap: r.w - 48 })); y += 40;
+  scroll.addBtn(T().button(scene, r.x + 24, y, 280, 42, pause ? 'Pause enemy turns — on' : 'Pause enemy turns — off', () => {
     ADV.Prefs.setPauseEnemy(!pause);
     scene.openPanel('settings');
   }, { size: 14, fill: pause ? 0x2a3a22 : undefined, color: pause ? T().css.green : T().css.ink, edge: pause ? T().c.green : undefined }));
@@ -760,9 +770,10 @@ Panels.settings = function (scene, r) {
     y+=58;
     for(const [key,label]of [['breathing','Ambient motion'],['secondary','Cloth & body motion']]){
       const on=ADV.AnimeArt.motion[key];
-      ADV.UI.keepBtn(scene,T().button(scene,r.x+24,y,320,36,label+' — '+(on?'on':'off'),()=>{ADV.AnimeArt.motion[key]=!on;scene.openPanel('settings');},{size:13}));y+=43;
+      scroll.addBtn(T().button(scene,r.x+24,y,320,36,label+' — '+(on?'on':'off'),()=>{ADV.AnimeArt.motion[key]=!on;scene.openPanel('settings');},{size:13}));y+=43;
     }
   }
+  scroll.extend(y + 56);
 };
 
 // ============================================================== FACTIONS

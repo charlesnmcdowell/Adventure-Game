@@ -184,7 +184,7 @@ chr({ id: 'nib', name: 'Nib', region: 'thornbury', role: 'knife', sex: 'm', figh
 // 3c — bosses and named enemies (they fight against you)
 chr({ id: 'korvath', name: 'Kolade Adeyinka', region: 'gate', epithet: 'the Armoured', role: 'antagonist', sex: 'm', level: 30,
   desc: 'Your half-brother, raised in the Gate by a Consortium merchant. A giant in spiked black plate who believes bloodshed is a ladder. Calm, courteous, absolutely certain.',
-  perks: ['momentum', 'bulwark'], actives: ['cleave', 'sunder', 'shield_wall', 'warding_stance', 'finisher', 'taunt'],
+  perks: ['momentum', 'bulwark'], actives: ['cleave', 'reaving_arc', 'sunder', 'shield_wall', 'warding_stance', 'finisher', 'taunt'],
   statMult: 1.35, hitStatus: { kind: 'bleed', power: 0.6, rounds: 3, stacks: true },
   portrait: { skin: 'dark', hair: 'bald', wardrobe: 'armor', color: '#1a1a1e' } });
 chr({ id: 'morwin', name: 'Merle', region: 'thornbury', role: 'boss', sex: 'm', level: 8,
@@ -535,10 +535,25 @@ D.CAMPAIGN_QUESTS.gate = D.CAMPAIGN3_QUESTS.map(q => ({ n: q.n, name: q.name, ti
 
 // Ending headlines (§5). Bodies are assembled in campaign3_dialogue.js (CAMPAIGN3_EPILOGUE).
 D.CAMPAIGN3_ENDINGS = {
-  hero:    { title: 'The Gate Stands',        line: 'You are its shadow no longer.' },
-  monster: { title: 'A Thing the City Cheers', line: 'They should have burned you with him.' },
-  usurper: { title: 'The Altar Has a Keeper', line: 'It was always going to be one of you.' },
-  mercy:   { title: 'Chains, Not Blood',       line: 'Amara was right, and you let her be.' },
-  ascetic: { title: 'An Empty Throne',         line: 'You left it, and it let you.' },
+  "hero": {
+    "title": "The Gate Stands",
+    "line": "You stopped Kolade and prevented the war."
+  },
+  "monster": {
+    "title": "A Dangerous Inheritance",
+    "line": "Kolade is dead. Morrak's power remains within you."
+  },
+  "usurper": {
+    "title": "The Throne Claimed",
+    "line": "You defeated Kolade and took the throne for yourself."
+  },
+  "mercy": {
+    "title": "Kolade in Chains",
+    "line": "You brought him back alive to answer for his crimes."
+  },
+  "ascetic": {
+    "title": "An Unfinished Reckoning",
+    "line": "You refused the throne and left Kolade alive."
+  }
 };
 })();

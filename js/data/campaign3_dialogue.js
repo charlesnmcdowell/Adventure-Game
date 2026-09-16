@@ -1308,53 +1308,134 @@ DLG.gate.nettle.banter[0].foeStatus = 'rooted';
 // Epilogue paragraphs (§5) — assembled by C3.epilogue(game)
 // =====================================================================
 D.CAMPAIGN3_EPILOGUE = {
-  ending: {
-    hero: `Kolade Adeyinka died — or was dragged up the stairs — in the last hour before dawn. The Council read the ledgers aloud in the square. The war with Calder was never declared. Nobody in Varenholm's Gate knows what you are, and the ones who suspect have decided not to say.`,
-    monster: `Kolade Adeyinka died at the altar and the city cheered you for it. They did not see what you saw in his eyes when the chair was empty, and they do not know that some nights you go back down the stairs alone to look at it.`,
-    usurper: `You sat down. It was warm. Amara left the city; Layla did not. The Council thanked you, the war was never declared, and the shape-thieves in the sewers have started calling you by a title you did not choose.`,
-    mercy: `Kolade Adeyinka lives in a cell under the Gauntlet's hall with one window and one visitor a week. The ledgers were read aloud, the war died with the vote, and the chair under the city is still empty. You made sure of that.`,
-    ascetic: `You left him in the chair and climbed. Halfway up you heard him start to laugh, and then stop. The keepers of the altar found the throne empty at dawn, and nobody knows where he went. You went home. You did not look back.`,
+  "ending": {
+    "hero": "Kolade Adeyinka died beneath the city. The Council made the Consortium's ledgers public and rejected war with Calder. The people of Varenholm knew you had stopped the conspiracy. Few knew that the man you defeated was your brother.",
+    "monster": "Kolade Adeyinka died at the altar. The Council exposed the Consortium's conspiracy and halted preparations for war. The city celebrated your victory. It knew nothing of Morrak's children, or of the power that had drawn both you and Kolade to the throne.",
+    "usurper": "You claimed the throne beneath the city after defeating Kolade. The Council halted preparations for war and honored you for exposing the conspiracy. Most of the people who cheered had no idea what you had taken for yourself.",
+    "mercy": "Kolade Adeyinka was imprisoned beneath the Gauntlet's hall. The Consortium's ledgers were made public, and the Council rejected war with Calder. You had stopped him without killing him. He would face trial for the people he had ordered murdered.",
+    "ascetic": "You refused the throne and left Kolade alive beneath the city. By dawn, he had disappeared. You returned home, knowing that he might yet come after you. What became of him remained unknown."
   },
-  allegiance: {
-    gauntlet: `Duke Adebayo recovered. He kept his word: the wanted posters came down in a day, and the company's name went up in the Gauntlet's hall in their place.`,
-    consortium: `Folake took the Consortium, kept her bargain, and has written to you twice about "opportunities." You have not answered. Yet.`,
-    thieves: `Tunde Softfoot has not called in the debt. He says the Undervault is patient. You have started checking the shadows in your own room.`,
-    none: `The Council gave you a medal and a pension and would prefer that you left the city. You have not decided.`,
+  "allegiance": {
+    "gauntlet": "Duke Adebayo recovered and kept his promise to you. The wanted posters came down, and the Gauntlet publicly cleared your company's name. Its hall recorded your part in exposing Kolade.",
+    "consortium": "Folake took control of the Consortium and honored her bargain with you. She began reopening trade routes and hiring new guards. Her letters made it clear that she hoped to employ you again.",
+    "thieves": "Tunde Softfoot had given you a way into the palace when you needed one. Afterwards, he reminded you that the favor had not been a gift. He had yet to name his price.",
+    "none": "The Council publicly cleared your name and thanked you for exposing the conspiracy. You left without entering the service of any of the city's factions."
   },
-  dukes: {
-    both: `Both dukes lived to see the vote. Olumide tells the story with more blood in it every time.`,
-    one: `Duke Folasade was buried with the honours of the city. Olumide has not spoken of the hall since.`,
-    none: `Two Grand Dukes were buried on the same morning. The Council that is left is one chair and a great many empty ones, and the city has learned to lower its voice.`,
+  "dukes": {
+    "both": "Olumide and Folasade survived the attack on the Council. Together, they began restoring order and investigating the officials Kolade had paid.",
+    "one": "Folasade was buried with the city's honors. Olumide survived, but the attack left the Council badly weakened.",
+    "none": "Olumide and Folasade were buried on the same morning. Their deaths left the surviving councillors to choose new leaders and settle a frightened city."
   },
-  companion: {
-    wren_ward: { present: `Hiwot opened a lockshop on the harbour road. She has never once locked the door.`, gone: `Hiwot went back to Lanternhold with a scar under her ribs and a story that Brother Yonas still does not believe.`, dead: '' },
-    dorran: { present: `Beau stopped stammering the day the mine slaves were freed. He has not started again.`, gone: '', dead: `Beau is buried in the Mirkhollow above the drowned mine. Delphine chose the stone. Nineteen names are cut under his.` },
-    selene: { present: `Delphine is rebuilding the Warden house on the Shore Road. She says the letters Tesfaye wrote were mostly about you, and mostly right.`, gone: `Delphine went back to the Wardens. She does not write.`, dead: '' },
-    vess: { present: `Desmond and Winston sent the Umbral Hand a copy of everything and then, oddly, stayed. Winston says the pay is worse and the company is better.`, gone: `Desmond and Winston were found in the Consortium tower with the guards' pay in their pockets. The Umbral Hand has not asked after them.`, dead: '' },
-    fennick: { present: '', gone: '', dead: '' },
-    cassian: { present: `Santiago was knighted by the Order of the Dawning Flame. He wrote the report himself, and left out nothing, and the Order has not stopped talking about it.`, gone: `Santiago went back to the Order. He sends a letter every solstice and never mentions Layla or the Hand.`, dead: '' },
-    ithrel: { present: `Itsuki planted a tree over his wife's grave on the north road and then, to everyone's surprise, stayed. He hunts now. Only game.`, gone: `Itsuki is somewhere north, still hunting an ogre-mage who may or may not still be alive. He does not want to be found.`, dead: '' },
-    bramm: { present: `Bahadır and Yasemin took a house by the river. Fındık claimed the veranda. Visitors learned to wait at the gate.`, gone: '', dead: '' },
-    ysolde: { present: '', gone: '', dead: '' },
-    aurelius: { present: `Devendra returned to Vashk with a hundred gold and an insufferable story. The Crimson Wizards have promoted him. They will regret it.`, gone: '', dead: '' },
-    ilvara: { present: `Layla stayed. She has a chapel now, of a kind, and the bounty on her was quietly torn up by someone who owed you a favour.`, gone: `Layla was taken in chains toward the coast. The wagon did not arrive. Nobody has looked very hard.`, dead: '' },
-    faelen: { present: `Kaito collected the wyvern bounty and, he claims, the kiss. He has opened a very small, very profitable business finding things people lost on purpose.`, gone: `Kaito is still in the web, in a sense. He was last seen in Thornbury telling the story with himself as the hero.`, dead: '' },
-    nettle: { present: `Wanjiru went back to the Mirkhollow. The druids have not forgiven her. The trees, she says, have.`, gone: `Wanjiru left when the road reached the Gate. She said she had been away from the wood long enough, and that she would know if the river ever ran clean again.`, dead: '' },
-    durnik: { present: `Dai Morgan went back to the Mirkhollow mine with a charter and forty of his clan. It is called the Nineteen now, and ledger four is buried under the first shaft.`, gone: `Dai Morgan is presumed to have died in the cages. The mine is closed.`, dead: '' },
-    amara: { present: `Amara visits the cell every week. She brings bread. He eats it.`, gone: `Amara left the city on the morning tide. She did not say where. She did not look at you.`, dead: `Amara is buried at the gate of the Undercity, where she stood.` },
+  "companion": {
+    "wren_ward": {
+      "present": "Hiwot opened a small locksmith's shop on the harbour road. She repaired locks by day and declined to explain where she had learned to open the difficult ones.",
+      "gone": "Hiwot returned to Lanternhold. Brother Yonas listened to her account of the journey, then asked her to write it down for the archives.",
+      "dead": ""
+    },
+    "dorran": {
+      "present": "Beau helped the people driven from their homes by the fighting. When there was heavy work to do, he was usually the first to volunteer. He never had much patience for being called a hero.",
+      "gone": "",
+      "dead": "Beau's companions raised a memorial for him near Mirkhollow. They remembered his loyalty, his patience, and how readily he had put himself in danger for others."
+    },
+    "selene": {
+      "present": "Delphine helped rebuild the Warden house on the Shore Road. She kept Tesfaye's letters there, along with a room you could use whenever you visited.",
+      "gone": "Delphine returned to the Wardens. News of the campaign reached her through their reports.",
+      "dead": ""
+    },
+    "vess": {
+      "present": "Desmond stayed in Varenholm and found work trading information. He was careful about who knew his clients' names.",
+      "gone": "No reliable news of Desmond reached you after Kolade's defeat. The Umbral Hand refused to discuss its agents.",
+      "dead": ""
+    },
+    "fennick": {
+      "present": "Winston took work guarding merchant caravans. He insisted on seeing the route, the cargo and the full payment before agreeing to leave town.",
+      "gone": "No further word of Winston reached you after Kolade's defeat.",
+      "dead": ""
+    },
+    "cassian": {
+      "present": "Santiago was knighted by the Order of the Dawning Flame. His report named the companions who had helped him, including those his superiors would rather have left out.",
+      "gone": "Santiago returned to the Order of the Dawning Flame. He sent occasional letters, keeping his account of the journey brief.",
+      "dead": ""
+    },
+    "ithrel": {
+      "present": "Itsuki visited his wife's grave before settling outside the city. He began taking work as a guide again, and made plans that had nothing to do with revenge.",
+      "gone": "Itsuki travelled north after leaving the company. Little news of him reached Varenholm.",
+      "dead": ""
+    },
+    "bramm": {
+      "present": "Bahadır settled by the river with Fındık. The tiger liked to sleep across the front steps. Visitors soon learned to call from the gate.",
+      "gone": "",
+      "dead": ""
+    },
+    "ysolde": {
+      "present": "Yasemin stayed in Varenholm to continue her studies. She kept in touch with the people who had helped free her.",
+      "gone": "",
+      "dead": ""
+    },
+    "aurelius": {
+      "present": "Devendra returned to Vashk and secured a promotion from the Crimson Wizards. He sent you a copy of his report. Your name appeared in it, though not nearly as often as his.",
+      "gone": "",
+      "dead": ""
+    },
+    "ilvara": {
+      "present": "Layla opened a small chapel in Varenholm. People who would once have crossed the street to avoid her began coming to her for healing. She made them wait their turn like everyone else.",
+      "gone": "Layla left Varenholm after the fighting ended. She gave no destination and made no promise to return.",
+      "dead": ""
+    },
+    "faelen": {
+      "present": "Kaito found steady work as a tracker. Between jobs, he performed in the inns. He asked you not to mention the spiders during his songs about the campaign.",
+      "gone": "Kaito returned to the inns of Thornbury. His songs about the campaign gave him a considerably larger role than you remembered.",
+      "dead": ""
+    },
+    "nettle": {
+      "present": "Wanjiru returned to Mirkhollow to help restore the riverbanks and woodland damaged by the mine. She had little interest in the celebrations in Varenholm; she wanted to see the river run clear again.",
+      "gone": "Wanjiru returned to Mirkhollow after leaving your company. She sent word that the river was beginning to clear.",
+      "dead": ""
+    },
+    "durnik": {
+      "present": "Dai Morgan obtained permission to reclaim his clan's mine. Before work began, he made copies of the prisoners' names and arranged a memorial for those who had died there.",
+      "gone": "Dai Morgan left the company to seek help reclaiming his clan's mine.",
+      "dead": ""
+    },
+    "amara": {
+      "present": "Amara visited Kolade in prison. She still cared for him, but no longer excused what he had done.",
+      "gone": "Amara left Varenholm by sea. She asked for privacy and gave no address where she could be reached.",
+      "dead": "Amara was buried near the entrance to the Undercity, where she had tried to stop you from reaching Kolade."
+    }
   },
-  romance: {
-    cassian: { line: `Santiago asked you to attend his knighting. You went together, then slipped away for supper before the speeches had finished.`, favoured: `He asked to help rebuild the damaged streets. You spent several mornings working beside him.` },
-    ithrel: { line: `You and Itsuki make time to walk outside the city. Some days he speaks about his wife. On others, you plan where to travel next.`, favoured: `After the hunt was over, he asked you to visit the woods where he once worked as a guide.` },
-    ilvara: { line: `Layla invites you to her chapel after the day's work. You share meals, argue over the wine, and make plans together.`, favoured: `She insists on keeping her own duties. The two of you arrange time together around them.` },
-    faelen: { line: `Kaito takes you to the inns where he once played for his supper. He remembers the songs better than he claims.`, favoured: `His work with the Undervault keeps him busy, but he always makes time for an evening with you.` },
-    amara: { line: `You and Amara agree to take your relationship slowly. There is much still to discuss, including her feelings for Kolade.`, favoured: `She thanks you for hearing her out. Neither of you pretends that the road ahead will be easy.` },
+  "romance": {
+    "cassian": {
+      "line": "Santiago asked you to attend his knighting. You went together, then slipped away for supper before the speeches had finished.",
+      "favoured": "He asked to help rebuild the damaged streets. You spent several mornings working beside him."
+    },
+    "ithrel": {
+      "line": "You and Itsuki make time to walk outside the city. Some days he speaks about his wife. On others, you plan where to travel next.",
+      "favoured": "After the hunt was over, he asked you to visit the woods where he once worked as a guide."
+    },
+    "ilvara": {
+      "line": "Layla invites you to her chapel after the day's work. You share meals, argue over the wine, and make plans together.",
+      "favoured": "She insists on keeping her own duties. The two of you arrange time together around them."
+    },
+    "faelen": {
+      "line": "Kaito takes you to the inns where he once played for his supper. He remembers the songs better than he claims.",
+      "favoured": "His work with the Undervault keeps him busy, but he always makes time for an evening with you."
+    },
+    "amara": {
+      "line": "You and Amara agree to take your relationship slowly. There is much still to discuss, including her feelings for Kolade.",
+      "favoured": "She thanks you for hearing her out. Neither of you pretends that the road ahead will be easy."
+    }
   },
-  heritage: {
-    reject: `The dreams stopped. The chair is a chair.`,
-    neutral: `You still dream of ash, some nights. Less often. You have stopped counting.`,
-    embrace: `You dream of the chair every night now. Some nights it is empty. Some nights it is not, and the one sitting in it has your face.`,
+  "heritage": {
+    "reject": "The dreams of Morrak's throne ceased. You had refused his succession and meant to keep that promise.",
+    "neutral": "The dreams of Morrak's realm became less frequent, but they did not stop. You still had to decide what your heritage would mean for the rest of your life.",
+    "embrace": "The dreams continued, and you welcomed them. You still wanted to know how much of Morrak's power you could claim."
   },
+  "outcome": {
+    "beauDrowned": "Beau and nineteen prisoners died when the mine flooded. Their names were carved into a memorial above the sealed entrance.",
+    "daiAbandoned": "Dai Morgan was never rescued from the mine. No one could confirm that he had escaped before it flooded.",
+    "laylaSold": "The patrol took Layla toward the coast in chains. After that, you heard nothing certain about her fate.",
+    "kaitoAbandoned": "You left Kaito trapped in the spiders' web. After the campaign, no word reached you of whether he had escaped."
+  }
 };
 // Exact old paragraphs allow surgical updates to cached endings in existing saves.
 D.CAMPAIGN3_OLD_ROMANCE_ENDINGS = {

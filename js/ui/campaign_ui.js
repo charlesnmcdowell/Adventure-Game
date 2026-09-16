@@ -271,6 +271,7 @@ CampaignUI.villainReveal = function (scene, game, done) {
 
 // Support ask (§10a): once after two contracts (short), once at the end card.
 CampaignUI.supportAsk = function (scene, game, atEnd, done) {
+  if (ADV.Release?.target === 'crazygames') { done?.(); return; }
   const copy = atEnd ? D().CAMPAIGN_COPY.endAsk : D().CAMPAIGN_COPY.supportShort;
   game.meta.supportAskSeen = true; ADV.Save.saveMeta(game);
   ADV.Notices.custom(scene, (keep, Dp, close) => {
@@ -286,7 +287,11 @@ CampaignUI.supportAsk = function (scene, game, atEnd, done) {
 // End card (§10a): the ending is not the end of the game.
 CampaignUI.endCard = function (scene, game, done) {
   const s = ADV.Campaign.state(game);
-  const copy = D().CAMPAIGN_COPY.endAsk;
+  const copy = ADV.Release?.target === 'crazygames' ? {
+    ...D().CAMPAIGN_COPY.endAsk,
+    body: 'Thank you for playing Adventurer. There are more contracts to take and more people to meet.',
+    foot: 'Your campaign progress and unlocked skills are saved in this browser.', more: '',
+  } : D().CAMPAIGN_COPY.endAsk;
   const W = T().W, H = T().H;
   const objs = [];
   const k = o => { objs.push(o); return o; };
@@ -298,8 +303,10 @@ CampaignUI.endCard = function (scene, game, done) {
   k(T().text(scene, W / 2, 454, copy.more, { size: 13, ox: 0.5, wrap: 780, align: 'center', color: T().css.blue }).setDepth(961));
   k(T().text(scene, W / 2, 528, 'The world keeps going. Your title, your gear, and the hall are still there — and so is everyone you fought beside.', { size: 13, ox: 0.5, wrap: 780, align: 'center', italic: true, color: T().css.inkDim }).setDepth(961));
   const mk = (x, label, fn, color) => { const b = T().button(scene, x, H - 100, 220, 42, label, fn, { size: 14, bold: true, color }); b.g.setDepth(962); b.txt.setDepth(963); b.zone.setDepth(964); objs.push(b.g, b.txt, b.zone); };
-  mk(W / 2 - 340, 'neverendingnarratives.com', () => { try { window.open(copy.url, '_blank'); } catch (e) {} }, T().css.gold);
-  mk(W / 2 - 110, 'Support the next one', () => { try { window.open(copy.url, '_blank'); } catch (e) {} }, T().css.gold);
+  if (ADV.Release?.target !== 'crazygames') {
+    mk(W / 2 - 340, 'neverendingnarratives.com', () => { try { window.open(copy.url, '_blank'); } catch (e) {} }, T().css.gold);
+    mk(W / 2 - 110, 'Support the next one', () => { try { window.open(copy.url, '_blank'); } catch (e) {} }, T().css.gold);
+  }
   mk(W / 2 + 120, 'Back to the hall', () => { objs.forEach(o => { try { o.destroy(); } catch (e) {} }); s.endCardSeen = true; game.meta.endCardSeen = true; ADV.Save.saveGame(game); if (done) done(); }, T().css.ink);
 };
 

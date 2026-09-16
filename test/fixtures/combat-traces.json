@@ -3,168 +3,168 @@
     "seed": 1,
     "arch": "tank",
     "winner": "a",
-    "events": 88,
-    "hash": "2b5f61c11c6b8f7ccde9cfab6143a5d5f51c868f45ceafa08c0204889e82c5c2"
+    "events": 67,
+    "hash": "08c600e83e28f254ae475c0c6f2ae786a6edea72a89767046e7f2a41c5e1c6b8"
   },
   {
     "seed": 2,
     "arch": "rogue",
     "winner": "a",
     "events": 83,
-    "hash": "74106d7545dbdac872fad9dc190ecf796ae20ac107fccb5241ed02bd19dd6d71"
+    "hash": "15bbd766a4060c7db8134995a0ef071f527e99acd28f622137f1de58e0da1944"
   },
   {
     "seed": 3,
     "arch": "ranger",
     "winner": "a",
     "events": 8,
-    "hash": "78140a36c619796efd55faf8bf4d1032a4d89859d15e188dc13647c81cc395b7"
+    "hash": "952f6b8e45f0dd857bb6c43bd89e5e809c964c785b9cd44adc8efa0071de1d56"
   },
   {
     "seed": 4,
     "arch": "fighter",
     "winner": "a",
     "events": 66,
-    "hash": "4300120b3dfb5e387c9a86350f6ab3de35c66b554132a5b9d705f5e86d9219f1"
+    "hash": "6874863816df76f231cf4a2b8b43fe9e6f09c25a629e813858327b48cf188d02"
   },
   {
     "seed": 5,
     "arch": "druid",
     "winner": "a",
-    "events": 386,
-    "hash": "0b076800475c92c1d91dad3e49087166fabc64886fc006d0dd984d39898ed231"
+    "events": 623,
+    "hash": "2d0d6255196ae528ca7fa4ac302ad92dfc08b9d9619e37f90f692912eb61f40a"
   },
   {
     "seed": 6,
     "arch": "healer",
     "winner": "a",
     "events": 24,
-    "hash": "d9101c12127c0ec5d82191762edd0599caebe9672ae5be3f90e12dad8a05c5f8"
+    "hash": "54b38ca46d306d66882457e97227ccb3a11dbc593028a942c4fe1a551121d2c5"
   },
   {
     "seed": 7,
     "arch": "mage",
     "winner": "a",
     "events": 35,
-    "hash": "f4fe06c7330c06a80cc405c5d81d3656049b056abfb254a062dcbbcdc475999c"
+    "hash": "b2836e0cc90b3ac14d737167f57cb92929e7d35ad9c36dd3379dac7ae016f74d"
   },
   {
     "seed": 8,
     "arch": "tank",
     "winner": "a",
     "events": 101,
-    "hash": "0bfc1bd4afa75373b23e2b497c56e24d4a6846ebeae6c03432a228cd22043cc2"
+    "hash": "2fb6ce3c7afb10fdc64eb13a8d3dd7da742d2834bf75efd8ff65c57a5542b8e7"
   },
   {
     "seed": 9,
     "arch": "rogue",
     "winner": "a",
     "events": 17,
-    "hash": "b23a66e2976d042466469c619928fa03c7f34f645ba0d9275d74ad83a5334e74"
+    "hash": "69bbbe3272554f3f4e467edd6a0bf5168c2ccfed85cdf7f501c6d457161645bb"
   },
   {
     "seed": 10,
     "arch": "ranger",
     "winner": "a",
     "events": 21,
-    "hash": "74c4966931ce210dd42d5c29d12532569421a94eb57fbb16cadbf29e7af23230"
+    "hash": "54b9d92f1a0da707984231e295cc71ef31a32d91f7b0b745874cf783050a294e"
   },
   {
     "seed": 11,
     "arch": "fighter",
     "winner": "a",
     "events": 311,
-    "hash": "cd40c32bcd3b601d9431f337f6929472ebd69c35c5ad65de3eb59fd04f868f9f"
+    "hash": "e53ad4a5123649fedffef89dbdb1208b4cd5f61868f87f76ded9902cbd5ec421"
   },
   {
     "seed": 12,
     "arch": "druid",
     "winner": "a",
-    "events": 66,
-    "hash": "f36e57537d4a1165aa7247b5a1a817b930cb36ab0051a4ee0304300fb3e6471b"
+    "events": 35,
+    "hash": "3bdbe846e5c6645f3b12f58800a03f605372b40550cd763a15717be8c63daf55"
   },
   {
     "seed": 13,
     "arch": "healer",
     "winner": "a",
     "events": 210,
-    "hash": "f515fbb31190ea8f9fcdc73cb40427c99a0fd222be92c2ce060ebcfff09891a0"
+    "hash": "b6156a5a8e714f280a9afef5283292ae7d007b3aaa3bf66af71763deda6d0d56"
   },
   {
     "seed": 14,
     "arch": "mage",
     "winner": "a",
-    "events": 57,
-    "hash": "c961ca73eb6307996c3ac7b4ea00d9bc7dd0b394a04ff740a640ead7da2fe82c"
+    "events": 81,
+    "hash": "6ebcea0237e95c5b8c82aebaf1442c8ef5d78a032db86a11b0303a66cf8729c4"
   },
   {
     "seed": 15,
     "arch": "tank",
     "winner": "a",
-    "events": 52,
-    "hash": "338024be7f70330532dc65340ce9e9019aa8b0e9f8849a4670bee758bf85b7c0"
+    "events": 48,
+    "hash": "e4729b7ab17fdb086dc74b32040c243e16c92484b2ba767f79ef1a599cad1aa9"
   },
   {
     "seed": 16,
     "arch": "rogue",
     "winner": "a",
     "events": 58,
-    "hash": "6f21694c9e78ac9ac7b37360e872d6dff80aaa88f856833ad00875978ffde04d"
+    "hash": "db063d82eeae9302516b2e36e22a87e6f38388ced7560708be83d9d18bc52f84"
   },
   {
     "seed": 17,
     "arch": "ranger",
     "winner": "a",
     "events": 70,
-    "hash": "12e7e881261a2ad625d02a3e405126b63088f6eb585a2e1be114d67c56fd4ec8"
+    "hash": "d27cc165924c8c7826246673cda2901c0cb860ab61f986c3c700d057e716f33d"
   },
   {
     "seed": 18,
     "arch": "fighter",
     "winner": "a",
     "events": 21,
-    "hash": "95967af0e881daf80a08892c9b0c4ad9a290a8b5d9546baaa9708745f7d72238"
+    "hash": "f677b0e16310903f03a8477e28ca13e01426f2ccc07e33a8d0432fb6e426ad1d"
   },
   {
     "seed": 19,
     "arch": "druid",
     "winner": "a",
-    "events": 366,
-    "hash": "5c3db55eb4eecb607b3bfb271334359682d19eb2e2c1e01b328e40414bef9847"
+    "events": 373,
+    "hash": "b7453f08c76f2a80cd53c355f3f77191aeaa3d4cf095f6052b4f59513de8f07e"
   },
   {
     "seed": 20,
     "arch": "healer",
     "winner": "a",
-    "events": 1054,
-    "hash": "01d447381c3b759b15113c147b54ec0e540055f7b77eed41c7a8b8474d4f1a1b"
+    "events": 157,
+    "hash": "8a633a20226fb9e57f0491a75a9f9f886f5dc2c8790f12b58d8f615f73692476"
   },
   {
     "seed": 21,
     "arch": "mage",
     "winner": "a",
     "events": 19,
-    "hash": "a1e98fde012b6cc4cb020ea6e33288d9ff82f3f8a6070f81feeec669d28bac8a"
+    "hash": "e81c4706fc2294c458e03ad34747a400ed53f9f6c82d53e5ac64c876ae753004"
   },
   {
     "seed": 22,
     "arch": "tank",
     "winner": "a",
     "events": 88,
-    "hash": "e7ebf8ad4eb8b7db57cc6a187ec0664ccac22e500bf93aacc99ff3597c325cac"
+    "hash": "2bea4bd91e68c3b7dce26b7c41cd24ea190e7971dccec59a368689c1234cb8e5"
   },
   {
     "seed": 23,
     "arch": "rogue",
     "winner": "a",
     "events": 71,
-    "hash": "0407654c3c143fab21759b960bcb4345e057f0fa446a508469a313b1ff659622"
+    "hash": "f0597cc07ffc16b53fc5f0ba49ff1e205b9ca544bdf04fe3c45e2921b2b8755d"
   },
   {
     "seed": 24,
     "arch": "ranger",
     "winner": "a",
     "events": 37,
-    "hash": "6d71c74dd5745eaa5a7e4d1a9296baf5accd4def70ea91e26ac5ed59e23350e3"
+    "hash": "c310ad8a04812b8a2e48a1bc848bdf28fb023481e0e74f0915ce3e95b1ebfc39"
   }
 ]

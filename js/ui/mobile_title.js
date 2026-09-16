@@ -27,10 +27,10 @@ function mount(scene) {
   document.body.append(root); document.body.classList.add('mobile-launch'); window.__refit?.();
   scene.password = '';
   const main = el('div'); main.style.display = 'contents'; root.append(main);
-  let shade = null, returnFocus = null;
-  const cleanup = () => { root.remove(); document.body.classList.remove('mobile-launch'); ADV.Music.stopTutorial(); window.__refit?.(); };
+  let shade = null, returnFocus = null, sheetDispose = null;
+  const cleanup = () => { sheetDispose?.(); sheetDispose = null; root.remove(); document.body.classList.remove('mobile-launch'); ADV.Music.stopTutorial(); window.__refit?.(); };
   scene.events.once('shutdown', cleanup);
-  function closeSheet() { if (!shade) return; shade.remove(); shade = null; main.inert = false; returnFocus?.focus(); }
+  function closeSheet() { sheetDispose?.(); sheetDispose = null; if (!shade) return; shade.remove(); shade = null; main.inert = false; returnFocus?.focus(); }
   function sheet(title) {
     closeSheet(); returnFocus = document.activeElement;
     shade = el('div', '', 'sheet-shade'); const panel = el('section', '', 'sheet');
@@ -63,6 +63,7 @@ function mount(scene) {
     }); panel.append(copy, status);
   }
   function banner() {
+    if (ADV.Release?.target === 'crazygames') return;
     if (standalone() || (!inApp() && !safari())) return;
     const key = 'adv:launch-hint:' + (inApp() ? 'in-app' : 'safari');
     try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); } catch (_) {}
@@ -84,6 +85,11 @@ function mount(scene) {
     const motion = button('Scenery motion: ' + (ADV.Prefs.get().titleMotion === false ? 'off' : 'on'), () => {
       const on = ADV.Prefs.get().titleMotion === false; ADV.Prefs.set({ titleMotion: on }); motion.textContent = 'Scenery motion: ' + (on ? 'on' : 'off');
     }); panel.append(sound, motion);
+    const language = button(ADV.Censorship.label(), () => ADV.Censorship.toggle());
+    language.disabled = ADV.Censorship.locked();
+    panel.append(language, el('p', 'Censorship masks swearing in text and silences affected voice lines.', 'save-note'));
+    const updateLanguage = () => { language.textContent = ADV.Censorship.label(); };
+    sheetDispose = ADV.Censorship.watch(updateLanguage);
     if(ADV.SaveUI)panel.append(button('Save backup',()=>ADV.SaveUI.show()));
     const type = el('label', 'Game text size'), select = el('select');
     for (const [value, text] of [[1, 'Standard'], [1.2, 'Larger'], [1.35, 'Largest']]) { const option = el('option', text); option.value = value; select.append(option); }
@@ -94,7 +100,7 @@ function mount(scene) {
     label.append(input); panel.append(label);
     if (ADV.AnimeArt) panel.append(button('Art fitting room', () => scene.scene.start('AnimePreview')));
     if (ADV.Display.supported()) panel.append(button(ADV.Display.label(), () => ADV.Display.toggle()));
-    if (ios() || inApp()) panel.append(button('Install / browser help', () => installHint(sheet('Play like an app'))));
+    if (ADV.Release?.target !== 'crazygames' && (ios() || inApp())) panel.append(button('Install / browser help', () => installHint(sheet('Play like an app'))));
     panel.append(el('p', 'Your save lives in this browser. Starting a new game resets the world and your progress.', 'save-note'));
     const ver = (ADV.Game && ADV.Game.versionLabel && ADV.Game.versionLabel()) || (ADV.DATA.VERSION && ADV.DATA.VERSION.label) || '';
     if (ver) panel.append(el('p', 'Version ' + ver, 'save-note'));
@@ -105,7 +111,7 @@ function mount(scene) {
     const actions = el('div', '', 'launch-actions'); let index = 0;
     const finish = () => { ADV.Music.stopTutorial(); scene.scene.start('Creation', { password: scene.password }); };
     const next = button('Next', () => { index++; if (index >= ADV.DATA.PREGAME_CARDS.length) finish(); else render(); }, 'primary');
-    const render = () => { count.textContent = 'BEFORE YOU BEGIN · ' + (index + 1) + ' / ' + ADV.DATA.PREGAME_CARDS.length; text.textContent = ADV.DATA.PREGAME_CARDS[index]; next.textContent = index === ADV.DATA.PREGAME_CARDS.length - 1 ? 'Create my character' : 'Next'; ADV.Music.speakTutorial('card_' + (index + 1)); };
+    const render = () => { count.textContent = 'BEFORE YOU BEGIN · ' + (index + 1) + ' / ' + ADV.DATA.PREGAME_CARDS.length; text.textContent = ADV.Censorship.text(ADV.DATA.PREGAME_CARDS[index]); next.textContent = index === ADV.DATA.PREGAME_CARDS.length - 1 ? 'Create my character' : 'Next'; ADV.Music.speakTutorial('card_' + (index + 1)); };
     actions.append(next, button('Skip introduction', finish)); main.append(card, actions); render();
   }
   function resume() {

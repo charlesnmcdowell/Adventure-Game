@@ -31,4 +31,8 @@ detached.dispatchEvent(new Event('ended'));assert.equal(n.index,0,'never advance
 n.destroy();assert.equal(A.Music.voiceEl,external,'cleanup owns only its voice');
 const count=calls.length;n.start();detached.dispatchEvent(new Event('ended'));assert.equal(calls.length,count);
 const stale=A.Campaign3UI.endCardNarration('unknown cached heading',['changed old text']);stale.start();assert.equal(calls.length,count,'unknown prose never plays mismatched audio');
+const speak=A.Music.speakCampaign;A.Music.speakCampaign=()=>{A.Music.voiceEl=null;};
+const silent=A.Campaign3UI.endCardNarration(E.title+'. '+E.line,paras);silent.start();
+assert(silent.finished&&!silent.active);assert.equal(silent.errors,3,'suppressed audio never crashes or traps the end card');
+A.Music.speakCampaign=speak;
 console.log(`End-card voice: ${cards} outcome combinations covered; sequential playback, error recovery, replay, stale text and cleanup passed.`);

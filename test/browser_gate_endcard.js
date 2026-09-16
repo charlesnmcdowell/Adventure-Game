@@ -55,11 +55,12 @@ const dir='test/reports/gate-endcard';fs.mkdirSync(dir,{recursive:true});
   }
   assert.ok(await page.evaluate(()=>{const s=__game.scene.getScene('FinaleReview'),g=s.g(),q=g.quest.quest;return !ADV.Campaign3.openerBeats(g,q,3).some(b=>b.key==='q14_final_taken')&&ADV.GateArt.sceneForBeat(g,ADV.Campaign3.script(14).closing[0]).id==='morrak_realm';}),'no second death, no bound image after freeing soul');
   for(const ending of ['restored','ascended']){
-   await gesture(`{const scene=__game.scene.getScene('FinaleReview'),g=scene.g(),s=ADV.Campaign3.state(g);s.ending='${ending}';s.epilogue=ADV.Campaign3.epilogue(g);ADV.Campaign3UI.endCard(scene,g);}`);
+   await gesture(`{const scene=__game.scene.getScene('FinaleReview'),g=scene.g(),s=ADV.Campaign3.state(g);s.ending='${ending}';s.epilogue=ADV.Campaign3.epilogue(g);if('${ending}'==='restored'){s.epilogue=[ADV.DATA.GATE_EPILOGUE_VO.legacyText.find(p=>p.includes('Your learned skills, campaign gifts'))];delete s.epilogueRevision;}ADV.Campaign3UI.endCard(scene,g);}`);
    await page.waitForFunction(()=>__game.scene.getScene('FinaleReview').gateEndCard?.narration.current?.currentTime>.1);
    const info=await page.evaluate(()=>{const n=__game.scene.getScene('FinaleReview').gateEndCard.narration;return{voice:n.current.src,queue:n.queue.map(r=>r.key),time:n.current.currentTime};});
    assert.ok(info.voice.includes(`/aldric/endcard_heading_${ending}_1.mp3?v=`));
    assert.ok(info.queue.includes(`endcard_ending_${ending}`));
+   assert.ok(info.queue.includes('endcard_finale_cityaftermath'),'the city aftermath is narrated after either ending, including a migrated saved card');
    assert.ok(!info.queue.includes(`endcard_ending_${ending==='restored'?'ascended':'restored'}`));
    await page.screenshot({path:`${dir}/${engine.name()}-${viewport.width}-${ending}.png`});
    // Finish only this real clip early; the controller must start the next matching audio.

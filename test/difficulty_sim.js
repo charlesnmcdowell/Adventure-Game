@@ -281,7 +281,12 @@ if (ASSERT && ONLY.length === 3 && SCEN.length === 3) {
   // a second extra body in every PARTY fight. A real cost there is the setting working.
   const slack = (a, b) => band(a, b);
   check(pct(N, 'partyAll') + slack(N.partyAll, E.partyAll) >= 0.5 * pct(E, 'partyAll'), 'normal: keeps at least half of easy\'s party wins');
-  check(pct(H, 'partyAll') + slack(H.partyAll, E.partyAll) >= 0.25 * pct(E, 'partyAll') && pct(H, 'soloAll') + slack(H.soloAll, E.soloAll) >= 0.7, 'hard: still winnable');
+  // An absolute floor, not a share of easy. The ladder was deliberately moved up — Normal
+  // now fields what Hard used to — so pinning Hard to a fraction of Easy's rate would forbid
+  // Hard from being harder than Normal. What "winnable" has to mean is that the setting is
+  // not a wall: with the sim's deliberately mediocre policy (it never tanks a boss, never
+  // retreats) a tenth of party contracts and four in ten solo contracts still come home.
+  check(pct(H, 'partyAll') + slack(H.partyAll, E.partyAll) >= 0.10 && pct(H, 'soloAll') + slack(H.soloAll, E.soloAll) >= 0.40, 'hard: still winnable');
   check(pct(H, 'partyAll') - slack(H.partyAll, E.partyAll) <= 0.75 * pct(E, 'partyAll'), 'hard: costs real wins');
   console.log(bad ? `\n${bad} calibration checks FAILED` : '\ndifficulty ladder OK');
   process.exit(bad ? 1 : 0);

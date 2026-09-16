@@ -41,8 +41,10 @@ console.log('-- board posts 300g and 600g solo bounties --');
   const { g } = gameOf(0);
   const s300 = g.board.filter(q => q.track === 'solo' && (q.soloKind === 'solo300' || (q.soloPremium && q.minRep === 10 && !q.monsterBoss)));
   const s600 = g.board.filter(q => q.track === 'solo' && (q.soloKind === 'solo600' || (q.soloPremium && q.minRep === 15 && q.monsterBoss)));
-  ok(s300.length === 1 && s300[0].payout === 400, 'one 300g-tier solo bounty is posted at 400g');
-  ok(s600.length === 1 && s600[0].payout === 700, 'one 600g-tier solo bounty is posted at 700g');
+  // Read the pay off the difficulty lever rather than restating its output (see requests3).
+  const pay = base => ADV.Difficulty.pay(base);
+  ok(s300.length === 1 && s300[0].payout === pay(300), `Easy posts one 300g-tier solo bounty at ${pay(300)}g`);
+  ok(s600.length === 1 && s600[0].payout === pay(600), `Easy posts one 600g-tier solo bounty at ${pay(600)}g`);
   ok(s300[0].minRep === 10 && s300[0].soloPremium, '300g bounty asks for reputation 10');
   ok(s600[0].minRep === 15 && s600[0].soloPremium && s600[0].monsterBoss, '600g bounty asks for reputation 15 and is a mini-boss hunt');
   ok(!s300[0].monsterBoss && !s300[0].isBoss, '300g bounty is not a mini-boss fight');

@@ -781,7 +781,16 @@ C3.epilogue = function (game) {
     else if (id === 'durnik' && C3.flag(game, 'durnikLeft')) key = 'gone';
     else if (id === 'ilvara' && C3.flag(game, 'ilvaraSold')) key = 'gone';
     else if (id === 'amara' && C3.flag(game, 'amaraPassed')) key = s.ending === 'mercy' ? 'present' : 'gone';
-    if (key && c[key]) paras.push(c[key]);
+    let text = key && c[key];
+    // A departure alone does not establish a capture, abandonment or death.
+    if (id === 'dorran' && key === 'dead' && C3.flag(game, 'floodedEarly')) text = E.outcome.beauDrowned;
+    if (id === 'durnik' && key === 'gone' && C3.flag(game, 'durnikLeft') && !s.recruited.includes(id) && !C3.flag(game, 'durnikFreed')) text = E.outcome.daiAbandoned;
+    if (id === 'ilvara' && key === 'gone' && C3.flag(game, 'ilvaraSold') && !s.recruited.includes(id)) text = E.outcome.laylaSold;
+    if (id === 'faelen' && key === 'gone' && C3.flag(game, 'faelenLeft') && !s.recruited.includes(id)) text = E.outcome.kaitoAbandoned;
+    if (id === 'amara' && key === 'present' && s.ending !== 'mercy') {
+      text = s.ending === 'ascetic' ? E.finale.amaraWaiting : E.finale.amaraMourning;
+    }
+    if (text) paras.push(text);
   }
   if (s.romance && E.romance[s.romance]) {
     const r = E.romance[s.romance];
@@ -795,6 +804,21 @@ C3.epilogue = function (game) {
   }
   paras.push(s.heritage <= -1 ? E.heritage.reject : s.heritage >= 1 ? E.heritage.embrace : E.heritage.neutral);
   return paras.filter(Boolean);
+};
+
+// Refresh authored end-card prose in completed saves without replaying quests,
+// rewards or choices. Preserve unknown/custom paragraphs instead of deleting them.
+C3.endCardParagraphs = function (game) {
+  const s = C3.state(game), voice = D().GATE_EPILOGUE_VO;
+  if (!s.ending || !voice?.revision) return s.epilogue || C3.epilogue(game);
+  if (s.epilogueRevision !== voice.revision || !Array.isArray(s.epilogue)) {
+    const known = new Set([...(voice.legacyText || []), ...voice.entries.map(row => row.text)]);
+    const retained = (s.epilogue || []).filter(text => !known.has(text));
+    s.epilogue = [...C3.epilogue(game), ...retained];
+    s.epilogueRevision = voice.revision;
+    C3.save(game);
+  }
+  return s.epilogue;
 };
 
 // ---------------------------------------------------------------- debug

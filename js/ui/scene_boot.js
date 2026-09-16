@@ -37,6 +37,8 @@ class TitleScene extends Phaser.Scene {
     },{size:12});}
     ADV.Music.play('title');
     ADV.Music.button(this, W - 44, 44);
+    const language = T().button(this, 54, 100, 260, 44, ADV.Censorship.label(), () => ADV.Censorship.toggle(), { size: 13, disabled: ADV.Censorship.locked() });
+    ADV.Censorship.watch(() => language.txt.setText(ADV.Censorship.label()), language.txt);
     if (ADV.Display?.supported()) ADV.Display.button(this, W - 44, 72);
     if (ADV.AnimeArt) T().button(this, 54, H - 112, 224, 40, 'Anime art fitting room', () => {
       if (this.pwField) { this.pwField.destroy(); this.pwField = null; }

@@ -10,6 +10,7 @@ Support.links = Object.freeze({
   donate: 'https://neverendingnarratives.com/#fund',
 });
 Support.open = function (destination) {
+  if (ADV.Release?.target === 'crazygames') return;
   const url = Support.links[destination];
   if (!url) return;
   // A direct click opens outside the website's game iframe without navigating
@@ -17,6 +18,7 @@ Support.open = function (destination) {
   try { window.open(url, '_blank', 'noopener,noreferrer'); } catch (e) {}
 };
 Support.due = function (game) {
+  if (ADV.Release?.target === 'crazygames') return false;
   // Keep the original preference key so anyone who saw the Gate version is
   // also counted. Each campaign must reach quest 2; ordinary contracts do not.
   if (!game || ADV.Prefs.get().gateSupportSeen) return false;

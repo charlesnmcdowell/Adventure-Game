@@ -98,9 +98,11 @@ const DialogueBox = {
     const txt = DialogueBox.crisp(T().text(scene, 160, y + header, '', textStyle)).setDepth(904);
     group.push(txt);
     let i = Math.min(line.length,opts.revealCount||0), doneTyping = i >= line.length;
-    txt.setText(line.slice(0,i));
+    const reveal = () => txt.setText((ADV.Censorship ? ADV.Censorship.text(line) : line).slice(0, i));
+    reveal();
+    ADV.Censorship?.watch(reveal, txt);
     const timer = doneTyping ? null : scene.time.addEvent({ delay: 14, repeat: line.length - i - 1, callback: () => {
-      i++; txt.setText(line.slice(0, i));
+      i++; reveal();
       if (i >= line.length) doneTyping = true;
     } });
     const hint = T().text(scene, W - 44, y + bh - 20, '▼', { size: 13, ox: 0.5, oy: 0.5, color: T().css.inkDim }).setDepth(904);
@@ -140,11 +142,11 @@ const DialogueBox = {
     if (opts.autoAdvance) hint.setVisible(false);
     dim.on('pointerdown', () => {
       if (opts.autoAdvance) return;
-      if (!doneTyping) { timer?.remove(false); txt.setText(line); doneTyping = true; }
+      if (!doneTyping) { timer?.remove(false); i = line.length; reveal(); doneTyping = true; }
       else close();
     });
     return { close:()=>close(), dispose:()=>close(true), progress:()=>doneTyping?Infinity:i,
-      completeText() { timer?.remove(false); txt.setText(line); doneTyping = true; } };
+      completeText() { timer?.remove(false); i = line.length; reveal(); doneTyping = true; } };
   },
 
   choosePersonality(scene, ch, onDone, onCancel) {

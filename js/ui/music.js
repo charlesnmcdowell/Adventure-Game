@@ -74,6 +74,12 @@ function rampMusic(ms) {
 
 function playEl(el) {
   if (!el) return;
+  if (el.__voicePath && ADV.Censorship && !ADV.Censorship.voiceAllowed(el.__voicePath)) {
+    pauseEl(el);
+    el.__censored = true;
+    if (el === Music.voiceEl) rampMusic(200);
+    return;
+  }
   const gen = bumpGen(el);
   el.__wantPlay = true;
   el.__playError = null;
@@ -95,7 +101,7 @@ function playEl(el) {
   try { p = el.play(); } catch (err) { failed(err); return; }
   if (p && p.then) {
     p.then(() => {
-      if (!el.__wantPlay || Music.hidden || Music.muted || Music.movieHeld) {
+      if (!el.__wantPlay || Music.hidden || Music.muted || Music.movieHeld || el.__censored) {
         try { el.pause(); } catch (e) {}
       } else if (el.__playGen === gen) {
         Music.unlocked = true;
@@ -437,18 +443,30 @@ const Music = {
   },
   voiceUrl(path) {
     const hash = ADV.DATA.VOICE_HASHES && ADV.DATA.VOICE_HASHES[path];
-    return path + (hash ? '?v=' + hash : '');
+    const local = ADV.Release?.localVoicePrefixes?.some(prefix => path.startsWith(prefix));
+    const source = !local && ADV.Release?.voiceBase && path.startsWith('audio/vo/')
+      ? ADV.Release.voiceBase + path.slice('audio/vo/'.length) : path;
+    return source + (hash ? '?v=' + hash : '');
   },
   // Called directly from the dialogue button so a browser that rejected the
   // automatic request gets a fresh user gesture. Never revive an older line.
   replayVoice(expected) {
     const el = Music.voiceEl;
-    if (!el || el !== expected || !el.src || Music.muted || !Music.pageVisible()) return false;
+    if (!el || el !== expected || !el.src || Music.muted || !Music.pageVisible() || (ADV.Censorship && !ADV.Censorship.voiceAllowed(el.__voicePath))) return false;
     Music.hidden = false;
     Music._voiceHeld = false;
     try { if (el.error) el.load(); el.currentTime = 0; } catch (e) {}
     playEl(el);
     return true;
+  },
+  enforceCensorship() {
+    if (Music.voiceEl && ADV.Censorship && !ADV.Censorship.voiceAllowed(Music.voiceEl.__voicePath)) Music.stopVoice();
+  },
+  _voiceElement(path) {
+    if (ADV.Censorship && !ADV.Censorship.voiceAllowed(path)) return null;
+    const el = watch(new Audio(Music.voiceUrl(path)));
+    el.__voicePath = path;
+    return el;
   },
   speakFile(personalityId, band, idx, tag) {
     if (!personalityId) return;
@@ -456,11 +474,14 @@ const Music = {
     Music.stopVoice();
     const plain = 'audio/vo/' + personalityId + '/' + band + '_' + idx + '.mp3';
     const src = tag ? 'audio/vo/' + tag + '/' + personalityId + '/' + band + '_' + idx + '.mp3' : plain;
-    const el = watch(new Audio(Music.voiceUrl(src)));
+    const el = Music._voiceElement(src);
+    if (!el) return;
     if (tag) {
       el.addEventListener('error', () => {
         if (Music.voiceEl !== el) return;
-        const fb = watch(new Audio(Music.voiceUrl(plain)));
+        const fb = Music._voiceElement(plain);
+        if (!fb) { Music.stopVoice(); return; }
+        killEl(el);
         Music.voiceEl = fb;
         playEl(fb);
       }, { once: true });
@@ -473,7 +494,8 @@ const Music = {
   speakCampaign(who, key, idx) {
     Music._readyVoice();
     Music.stopVoice();
-    const el = watch(new Audio(Music.voiceUrl('audio/vo/campaign/' + who + '/' + key + '_' + idx + '.mp3')));
+    const el = Music._voiceElement('audio/vo/campaign/' + who + '/' + key + '_' + idx + '.mp3');
+    if (!el) return;
     Music.voiceKind = 'campaign';
     Music.voiceEl = el;
     playEl(el);
@@ -482,7 +504,8 @@ const Music = {
     if (!id) return;
     Music._readyVoice();
     Music.stopVoice();
-    const el = watch(new Audio(Music.voiceUrl('audio/vo/tutorial/' + id + '.mp3')));
+    const el = Music._voiceElement('audio/vo/tutorial/' + id + '.mp3');
+    if (!el) return;
     Music.voiceKind = 'tutorial';
     Music.voiceEl = el;
     playEl(el);
@@ -490,7 +513,8 @@ const Music = {
   speakNarrator(id) {
     if (!id) return;
     Music._readyVoice(); Music.stopVoice();
-    const el = watch(new Audio(Music.voiceUrl('audio/vo/narrator/' + id + '.mp3')));
+    const el = Music._voiceElement('audio/vo/narrator/' + id + '.mp3');
+    if (!el) return;
     Music.voiceKind = 'narrator'; Music.voiceEl = el; playEl(el);
   },
   stopVoice() {

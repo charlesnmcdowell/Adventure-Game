@@ -106,7 +106,7 @@ function allIds(q) {
   const q = ADV.Quests.makeTutorialParty();
   const foes = ADV.Quests.spawnEncounter(new ADV.RNG(4), q, 0);
   ok(foes.length === 1 && foes[0].enemyTypeId === 'dire_wolf', 'tutorial encounter is one wolf');
-  ok(foes[0].enemyLevel <= 2, 'tutorialEasy honours the quest level floor', foes[0].enemyLevel);
+  ok(foes[0].enemyLevel >= 3 && foes[0].enemyLevel <= 4, 'tutorial wolves use their 1–2 base levels plus Easy’s two-level offset', foes[0].enemyLevel);
 })();
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

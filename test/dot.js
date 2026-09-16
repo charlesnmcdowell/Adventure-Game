@@ -22,7 +22,9 @@ function duel(skills, levels, perks, seed, enemyHp) {
   Cb.currentTurn(st);
   return { st, ua, ue, ue2 };
 }
-const endRound = (st) => { st.turnIdx = st.turnQueue.length; Cb.currentTurn(st); };
+// Finish the action through the public API before entering a new round. Merely
+// assigning turnIdx left the previous attack's damage allowance active in tests.
+const endRound = (st) => { st.turnIdx = st.turnQueue.length - 1; Cb.advance(st); Cb.currentTurn(st); };
 const dots = (st, from, uid) => st.events.slice(from).filter(e => e.t === 'damage' && e.tag === 'dot' && e.uid === uid);
 
 console.log('-- §1 the rule: venom_fang at each tier on a 300 HP target --');
