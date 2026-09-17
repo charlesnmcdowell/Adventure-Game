@@ -391,7 +391,9 @@ Panels.storeGear = function (scene, r) {
     const owned = p.equippedSet === id;
     const floor = set.floor || C().GEAR_SET_FLOOR_LEVEL;
     const arch = (set.archetypes || []).join(' / ');
-    const lift = advances ? `advances ${arch || 'matching'} skills one tier` : `floors ${arch || 'matching'} skills at ${floor}`;
+    const lift = advances
+      ? `floors ${arch || 'matching'} skills at ${floor}, then advances them a tier from level ${C().TIER_THRESHOLDS.intermediate}`
+      : `floors ${arch || 'matching'} skills at ${floor} — never past Intermediate`;
     const sub = owned ? 'worn now — matching skills use armor slots'
       : p.equippedSet ? 'sell your current set first — one set at a time'
       : `${lift} · matching skills take no slot${affected.length ? ' · you carry: ' + affected.join(', ') : ''}`;

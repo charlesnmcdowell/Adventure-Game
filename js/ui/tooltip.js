@@ -509,9 +509,9 @@ const GearSetInfo = {
     const L = [];
     L.push(set.name);
     if (set.advanceTier || set.cost >= (C().GOLD.gearSet || 800)) {
-      L.push(`Advances matching skills one tier (Intermediate skills become Advanced). Floors the rest at level ${floor}.`);
+      L.push(`Floors matching skills at level ${floor}, and advances them one tier from their own level ${C().TIER_THRESHOLDS.intermediate} — a skill you have carried that far manifests as its Advanced form.`);
     } else {
-      L.push(`Floors matching skills at level ${floor} (Intermediate if they were lower).`);
+      L.push(`Floors matching skills at level ${floor} (Intermediate if they were lower). It never lifts them past Intermediate — only levelling the skill through use reaches Advanced.`);
     }
     L.push('Matching skills and perks use an unlimited armor slot while you wear this — they do not spend your skill or perk slots.');
     L.push('Archetypes: ' + (set.archetypes || []).join(', '));

@@ -276,6 +276,10 @@
       "args": []
     },
     {
+      "file": "test/gear_tier_matrix.js",
+      "args": []
+    },
+    {
       "file": "test/party_roles.js",
       "args": []
     },
