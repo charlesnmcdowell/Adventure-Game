@@ -177,7 +177,7 @@ function composeHuman(scene,ch,id,set){
  const named=NAMED[id.named],authored=named?named.head:HEADS[id.sex][id.head],h=Object.assign({},authored),head=cell(scene,h.sheet,h.frame);
  const registration=M.parts[h.sheet].registration?.[h.frame];
  if(registration){const p=registration;h.nx=h.nx*p.scale+p.x;h.ny=h.ny*p.scale+p.y;h.chin=h.chin*p.scale+p.y;for(const k of ['eyeUp','mouthDown','spread'])h[k]*=p.scale;}
- const index=SETS.indexOf(set),special=named&&!ch.equippedSet&&named.bodySheet;
+ const index=SETS.indexOf(set),special=named&&(!ch.equippedSet||named.bodySets?.includes(set))&&named.bodySheet;
  const warden=set==='wardens_gear'&&A.GateArt?.warden(ch);
  const body=cell(scene,special||warden?.sheet|| (set==='wardens_gear'?'wardrobe_gate':'wardrobe_'+id.sex+(Math.floor(index/4)+1)),special?named.bodyFrame:warden?warden.frame:set==='wardens_gear'?(id.sex==='f'?0:1):index%4);
  if(!head||!body)return null;

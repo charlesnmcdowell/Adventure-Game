@@ -59,7 +59,7 @@ cast('navy',[
  ['crell','kings_uniform',347,315,509,2,3,'#848e9e','#825452',{eyeUp:86,mouthDown:86}],
  ['fane','kings_uniform',286,385,511,0,4,'#679c9e','#aa7476'],
  ['ash','privateers_kit',347,331,512,3,3,'#a780b1','#825452',{eyeUp:82,mouthDown:72}],
- ['hiro','ronin',294,358,510,2,4,'#9c82d3','#795651'],
+ ['hiro','ronin',314,352,503,2,4,'#8b663b','#795651'],
 ]);
 cast('gods',[
  ['pale_mother','healer',328,356,461,4,4,'#bdc6d5','#9b818a',{cloudy:true}],
@@ -79,6 +79,8 @@ cast('gate9',[["verlan","duelist",308,362,533,1,4,"#8c775b","#aa7476",{"mouthSca
 cast('gate10',[["malvane","battle_mages_gear",327,394,543,2,4,"#798fae","#986d63",{"mouthScale":0.915,"mouthDown":69}],["grell","assassins_gear",310,380,540,3,4,"#a18a61","#795651",{"mouthScale":0.96}],["idris","healer",331,385,518,4,4,"#a2bbc0","#8c7b84",{"mouthScale":1.005}],["ravel","duelist",316,384,544,2,1,"#bf8a63","#99412e",{"mouthScale":1.05,"mouthDown":60}]]);
 cast('gate11',[["kessa","mage",333,409,536,3,4,"#9ca0c2","#813f68",{"mouthScale":0.87,"clothColor":"#514261"}],["jarem","adept",303,388,541,2,3,"#b59a5e","#795651",{"mouthScale":0.915,"eyeUp":100,"mouthDown":59}],["lucan","mercenarys_gear",346,369,518,3,4,"#849476","#825452",{"mouthScale":0.96}],["maddox","duelist",313,392,541,3,4,"#8196a8","#986d63",{"mouthScale":1.005,"mouthDown":64}]]);
 cast('gate12',[["vask","duelist",320,350,530,4,1,"#a48a58","#986d63",{"mouthScale":1.05}],["rennick","plain",310,365,521,1,4,"#8e9a64","#795651",{"mouthScale":0.87}]]);
+// Hiro has a reserved cyberpunk head and Ronin body; other equipment still swaps normally.
+Object.assign(named.hiro,{head:H('hiro_cyber',0,314,352,503,{eyeUp:80,mouthDown:64,spread:64}),bodySheet:'hiro_cyber',bodyFrame:1,bodySets:['ronin'],bodyWidth:1060});
 ADV.AnimeIdentities={heads,named,
  headNames:{f:['Sleek side part','Long waves','Natural curls','Wavy bob','Auburn waves','Silver waves','Swept locs & gold rings','Box-braid bun','Hime cut','Long woven braid','High ponytail','Curly updo','Blond wolf cut','Auburn crown braid'],
  m:['Topknot','Waves & beard','Short curls','Swept hair & stubble','Blond swept hair','Locs & chin stubble','High fade & beard','Wavy fade & goatee','Two-block cut','Thick waves & full beard','Long half-up hair','Flow cut & short beard','Red undercut & mustache']}};
