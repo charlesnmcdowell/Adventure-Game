@@ -57,6 +57,9 @@ Combat.validTargets = function (st, u, skillId, offensiveMode) {
   // can't single it out (front-reach and any-lane skills still can)
   if (d.reach === 'back') pool = pool.filter(x => !x.statuses.some(s => s.kind === 'holdRoad'));
   if (d.instantKillIfMaxHp) pool = pool.filter(x => (x.maxHp || 0) > d.instantKillIfMaxHp);
+  // requireBelowPct: an execution, not an opener. The healthy are not offered as targets at
+  // all, so the skill greys out rather than being spent on someone it cannot kill.
+  if (d.requireBelowPct) pool = pool.filter(x => x.maxHp && (x.chp + (x.tempHp || 0)) / x.maxHp < d.requireBelowPct);
   // Taunt marks force targeting (§3a)
   if (u.marksBy.length) {
     const forced = pool.filter(x => u.marksBy.includes(x.uid));

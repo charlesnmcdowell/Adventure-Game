@@ -366,10 +366,16 @@ Character.makeRegistry = function (rng, regId, playerName, asNpc) {
     personalityId: def.personalityId,
     bloodline: { demigod: def.flags && def.flags.bloodline === 'demigod' },
   });
-  for (const p of def.perks) ch.perks.push({ skillId: p, level: 1, uses: 0 });
-  for (const a of def.actives) ch.actives.push({ skillId: a, level: 1, uses: 0 });
+  // Unique-tier skills do not grow, so there is no journey to start him at the bottom of:
+  // he arrives at the top of the table, which is also what the sheet should show.
+  const maxLevel = C().TIER_THRESHOLDS.advanced;
+  const maxUses = (maxLevel - 1) * C().USES_PER_LEVEL;
+  for (const p of def.perks) ch.perks.push({ skillId: p, level: maxLevel, uses: maxUses });
+  for (const a of def.actives) ch.actives.push({ skillId: a, level: maxLevel, uses: maxUses });
   ch.equipped = (def.startingGear || []).slice();
   ch.equippedSet = def.equippedSet || null;
+  // He cannot learn, buy, forget or re-equip: the kit and the gear are the character.
+  if (def.flags && def.flags.uniqueTier) ch.fixedKit = true;
   ch.freeSkillsUsed = C().FREE_STARTING_SKILLS;
   return ch;
 };

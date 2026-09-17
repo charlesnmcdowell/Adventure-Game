@@ -164,6 +164,7 @@ function dealDamage(st, src, tgt, amount, tag, opts) {
     tgt.counter--;
     ev(st, { t: 'counter', uid: tgt.uid, by: src.uid, dmg: amount });
     bounce(tgt, src, amount);
+    if (tgt.counterRiposte && Combat.riposte) Combat.riposte(st, tgt, src);
     return 0;
   }
   let dmg = amount;

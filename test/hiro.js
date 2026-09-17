@@ -166,9 +166,11 @@ function contract(game) {
   ok(uh.turnsPerRound === 3, 'Lone Wolf takes three turns');
   ok(st.turnQueue.filter(t => t.uid === uh.uid).length === 3, 'those turns sit in the round');
   Cb.currentTurn(st);
+  st.rng.chance = () => false;          // hold the 25% killing cut so the wound it leaves is observable
   Cb.act(st, uh, { kind: 'skill', skillId: 'katana_slash', targetUid: ue.uid });
   const bleed = ue.statuses.find(s => s.kind === 'bleed');
-  ok(bleed && bleed.pct === Cb.DOT_PCT.basic && bleed.ticks === Cb.DOT_TICKS, 'Katana Slash applies the modern bleed (% of max HP over ticks)');
+  // His entries are maxed, so the wound rides the advanced DOT band rather than the basic one.
+  ok(bleed && bleed.pct === Cb.DOT_PCT.advanced && bleed.ticks === Cb.DOT_TICKS, 'Katana Slash applies the modern bleed at his own tier (% of max HP over ticks)');
   ok(bleed.stacks, 'the bleed is marked stacking (refresh on reapply)');
   I.addStatus(st, uh, { kind: 'poison', tier: 'basic', rounds: 3, stacks: true });
   ok(!uh.statuses.some(s => s.kind === 'poison'), 'Demigod is immune to poison');
@@ -188,8 +190,8 @@ function contract(game) {
   Cb.act(st, uh, { kind: 'skill', skillId: 'finisher', targetUid: ue.uid });
   ok(ue.downed, 'Finisher executes under 40%');
   ok(uh.chp === maxBefore, 'the kill heal fills the pool he had when the blow landed');
-  ok(uh.tempHp === Math.round(maxBefore * 0.3) * 10 - missing, 'Demigod turns the rest into uncapped overheal');
-  ok(h.bonusStats.atk === 1 && h.bonusStats.hp === 1 && h.finisherGains === 1 && uh.maxHp === maxBefore + 2, 'Finisher permanently raises all stats by 1');
+  ok(uh.chp + uh.tempHp === maxBefore * 2, 'the kill leaves him at 200% of maximum — the ceiling the skill names, not Demigod\u2019s multiplier again');
+  ok(h.bonusStats.atk === 10 && h.bonusStats.hp === 10 && h.finisherGains === 10, 'Finisher raises every stat by 10 per kill');
 })();
 
 (function () {

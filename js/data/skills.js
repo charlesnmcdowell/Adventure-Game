@@ -231,10 +231,10 @@ def({ id: 'cleave', name: 'Cleave', kind: 'active', archetype: 'fighter',
   } });
 def({ id: 'sunder', name: 'Sunder', kind: 'active', archetype: 'fighter',
   power: 2.0, reach: 'front', target: 'enemy',
-  desc: 'Reduces target armor for the battle. The answer to Armored enemies.',
+  desc: 'Reduces target armor for the battle. The answer to Armored enemies. Rend also opens a wound that bleeds 15% of their maximum health a turn for three turns and will not let them be healed — until someone heals or cleanses it, which closes it at once.',
   tiers: {
     basic:        { name: 'Sunder', defStrip: 12 },
-    intermediate: { name: 'Rend', defStrip: 12, status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
+    intermediate: { name: 'Rend', defStrip: 20, status: { bleed: { pctTotal: 0.45, rounds: 3, stacks: false }, withering: { rounds: 3 } } },
     advanced:     { name: 'Shatter', defStripAll: true, status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
   } });
 def({ id: 'defiant_stand', name: 'Defiant Stand', kind: 'active', archetype: 'fighter',
@@ -440,8 +440,8 @@ def({ id: 'hero', name: 'Hero', kind: 'perk', unique: true, noSlot: true, noTier
   tiers: { basic: { name: 'Hero' }, intermediate: { name: 'Hero' }, advanced: { name: 'Hero' } } });
 
 def({ id: 'demigod', name: 'Demigod', kind: 'perk', unique: true, noSlot: true, noTierGrowth: true,
-  desc: 'Healing received ×10. Overheal converts to temporary HP with no cap. Immune to all negative statuses.',
-  healReceivedMult: 10, overhealUncapped: true, statusImmune: true,
+  desc: 'Healing received ×10. Overheal converts to temporary HP with no cap. Immune to all negative statuses. Two rounds after he falls he stands back up, so long as someone is still fighting.',
+  healReceivedMult: 10, overhealUncapped: true, statusImmune: true, autoReviveRounds: 2,
   tiers: { basic: { name: 'Demigod' }, intermediate: { name: 'Demigod' }, advanced: { name: 'Demigod' } } });
 def({ id: 'master_swordsman', name: 'Master Swordsman', kind: 'perk', unique: true, noTierGrowth: true,
   desc: 'Katana skills do not consume active skill slots.', katanaFreeSlots: true,
@@ -455,8 +455,8 @@ def({ id: 'rich', name: 'Rich', kind: 'perk', unique: true, noTierGrowth: true,
   tiers: { basic: { name: 'Rich' }, intermediate: { name: 'Rich' }, advanced: { name: 'Rich' } } });
 
 def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, katana: true, noTierGrowth: true,
-  power: 2.6, reach: 'front', target: 'enemy',
-  desc: 'A katana cut that opens stacking Bleed: a percentage of the target\'s max health over several turns. Hitting them again refreshes the wound.',
+  power: 2.6, reach: 'any', target: 'allEnemies', autoKillPct: 0.25,
+  desc: 'One motion across the whole line: every enemy is cut once, whatever lane they stand in. Each cut has a 25% chance to kill outright anything below boss rank, and opens a stacking Bleed on whoever survives it.',
   tiers: {
     basic:        { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
     intermediate: { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
@@ -464,27 +464,27 @@ def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, ka
   } });
 def({ id: 'god_aura', name: 'God Aura', kind: 'active', unique: true, noTierGrowth: true,
   power: 0, reach: 'any', target: 'party',
-  desc: 'Team-wide buff: attack, defense, and 15% party evasion (a percentage roll, not dodge charges).',
+  desc: 'Team-wide buff: attack, defense, and 15% party evasion (a percentage roll, not dodge charges). Once every five rounds, and any dispel takes it off.',
   tiers: {
-    basic:        { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3 },
-    intermediate: { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3 },
-    advanced:     { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3 },
+    basic:        { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3, cooldown: 5 },
+    intermediate: { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3, cooldown: 5 },
+    advanced:     { name: 'God Aura', auraAtk: 1.3, auraDef: 1.3, auraEvade: 0.15, rounds: 3, cooldown: 5 },
   } });
 def({ id: 'counter_attack', name: 'Counter Attack', kind: 'active', unique: true, katana: true, noTierGrowth: true,
   power: 0, reach: 'any', target: 'self',
-  desc: 'Negates the next attack against you and reflects its damage.',
+  desc: 'A stance, not a parry: up to four attacks turned aside over two rounds, and every one of them answered with a Katana Slash into the attacker — the killing cut included.',
   tiers: {
-    basic:        { name: 'Counter Attack', counterNext: 1 },
-    intermediate: { name: 'Counter Attack', counterNext: 1 },
-    advanced:     { name: 'Counter Attack', counterNext: 1 },
+    basic:        { name: 'Counter Attack', counterNext: 4, counterRounds: 2, counterRiposte: 'katana_slash' },
+    intermediate: { name: 'Counter Attack', counterNext: 4, counterRounds: 2, counterRiposte: 'katana_slash' },
+    advanced:     { name: 'Counter Attack', counterNext: 4, counterRounds: 2, counterRiposte: 'katana_slash' },
   } });
 def({ id: 'finisher', name: 'Finisher', kind: 'active', unique: true, katana: true, noTierGrowth: true,
-  power: 0, reach: 'front', target: 'enemy',
-  desc: 'Executes non-bosses below 40% health. The kill heals 30% of max HP and permanently raises all stats by 1. Those gains are lost on death.',
+  power: 0, reach: 'any', target: 'enemy', requireBelowPct: 0.40,
+  desc: 'It will not even look at an enemy above 40% health. Anything below it that is not a boss dies. The kill overheals you to 200% of your maximum and adds 10 to every stat — a swelling that lasts the contract and leaves you when you come home.',
   tiers: {
-    basic:        { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 0.3, permStatGain: 1 },
-    intermediate: { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 0.3, permStatGain: 1 },
-    advanced:     { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 0.3, permStatGain: 1 },
+    basic:        { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 2.0, permStatGain: 10, questGain: true },
+    intermediate: { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 2.0, permStatGain: 10, questGain: true },
+    advanced:     { name: 'Finisher', executeBelow: 0.40, healOnKillPct: 2.0, permStatGain: 10, questGain: true },
   } });
 
 ADV.DATA.SKILLS = S;

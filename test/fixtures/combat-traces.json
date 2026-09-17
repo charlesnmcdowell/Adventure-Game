@@ -24,8 +24,8 @@
     "seed": 4,
     "arch": "fighter",
     "winner": "a",
-    "events": 66,
-    "hash": "6874863816df76f231cf4a2b8b43fe9e6f09c25a629e813858327b48cf188d02"
+    "events": 67,
+    "hash": "06b3df9e7bc773ececcd12688a84a6294c47560d2ceec6eb2f852c848dfc062a"
   },
   {
     "seed": 5,
@@ -73,8 +73,8 @@
     "seed": 11,
     "arch": "fighter",
     "winner": "a",
-    "events": 311,
-    "hash": "e53ad4a5123649fedffef89dbdb1208b4cd5f61868f87f76ded9902cbd5ec421"
+    "events": 280,
+    "hash": "433ba8f572d5f3163ebf801aedd8037bc5082dbd4c563a4e557dfd2496be0cb6"
   },
   {
     "seed": 12,
@@ -122,8 +122,8 @@
     "seed": 18,
     "arch": "fighter",
     "winner": "a",
-    "events": 21,
-    "hash": "f677b0e16310903f03a8477e28ca13e01426f2ccc07e33a8d0432fb6e426ad1d"
+    "events": 22,
+    "hash": "62f6e287301d2092610fc80d783c8bb3f831cc439e215a8d32dd5e37d8386c46"
   },
   {
     "seed": 19,

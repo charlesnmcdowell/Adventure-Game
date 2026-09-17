@@ -28,6 +28,12 @@ Hiro.foundParty = function (world, rng, h) {
 };
 
 // Called on the world clock after the player quests.
+// There is only ever one Hiro. While he is the player he never walks into town, and a Hiro
+// the player already buried is not replaced by a stranger with his name: that same character
+// comes back as the NPC once the player has moved on to a reincarnation or an heir.
+Hiro.former = function (world, playerId) {
+ return (world.characters || []).find(c => c && c.registryId === 'hiro' && c.id !== playerId) || null;
+};
 Hiro.maybeArrive = function (world, rng, feed) {
   const p = ADV.World.byId(world, world.playerId);
   if (!p || p.registryId === 'hiro') return null;               // he is being played
@@ -35,6 +41,18 @@ Hiro.maybeArrive = function (world, rng, feed) {
   if (existing) {
     if (!existing.alive) { Hiro.resurrect(world, existing, null, 'quest'); return existing; }
     return null;
+  }
+  // The player's own former life, now that someone else holds the pen. He returns as himself
+  // rather than as a second copy, and he does not wait out the newcomer's two contracts.
+  const past = Hiro.former(world, world.playerId);
+  if (past) {
+    past.hiroNpc = true; past.isPlayer = false;
+    world.hiroId = past.id;
+    if (!past.alive) Hiro.resurrect(world, past, null, 'quest');
+    else Hiro.foundParty(world, rng, past);
+    ADV.World.met(world, past.id);
+    feed(`${past.name} is back on his feet and hiring again. Whatever put him in the ground did not keep him.`, [past.id]);
+    return past;
   }
   if (p.questsCompleted < Hiro.RULES.arriveAfterQuests) return null;
   const h = ADV.Character.makeRegistry(rng, 'hiro', null, true);

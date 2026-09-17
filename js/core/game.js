@@ -957,6 +957,14 @@ Game.queueQuestFailureAdvice = function (game, q) {
 // Complete the quest: payouts, reputation, world tick, ambush queue (§6).
 // Decomposed into the success (payout) and failure paths; this function owns
 // only the sequencing that runs on EVERY resolution.
+// Finisher's +10-all is contract-length, not permanent: walking back through the gate
+// sheds it. Death unwinds the same counter in death.js, so the two never double-strip.
+function shedFinisherGains(game) {
+  for (const ch of (ADV.Game.partyRoster ? ADV.Game.partyRoster(game) : [game.player]).concat([game.player])) {
+    if (ch && ch.finisherGains) ADV.Death.stripFinisherGains(ch);
+  }
+}
+
 Game.completeQuest = function (game) {
   const q = game.quest;
   if(!q)return game.lastOutcome; // a repeated completion callback cannot pay twice
@@ -966,6 +974,7 @@ Game.completeQuest = function (game) {
 
   Game.queueQuestFailureAdvice(game, q);
   Game.releaseQuestThralls(game);
+  shedFinisherGains(game);
   // home again: the quest's survival growth is spent
   for (const ch of Game.partyRoster(game)) if (ch.questHp) { ch.questHp = 0; if (ch.combatHp != null) ch.combatHp = Math.min(ch.combatHp, ADV.Character.maxHp(ch)); }
 

@@ -22,6 +22,9 @@ function normaliseDot(status) {
   if (!isPctDot(status.kind)) return status;
   status.tier = DOT_PCT[status.tier] != null ? status.tier : 'basic';
   status.pct = DOT_PCT[status.tier] * (status.pctMult || 1);      // pctMult: a lighter rider (class flare)
+  // pctTotal: the skill names the whole share itself, ignoring its tier. Rend bleeds a flat
+  // 15% a turn for three turns whoever casts it, which a tier table cannot express.
+  if (status.pctTotal != null) status.pct = status.pctTotal;
   if (status.ticks == null) status.ticks = dotWindow(status.rounds);
   if (status.ticksTotal == null) status.ticksTotal = status.ticks;
   if (status.dealt == null) status.dealt = 0;

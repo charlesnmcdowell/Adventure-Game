@@ -283,6 +283,9 @@ SkillSys.learn = function (ch, skillId, opts) {
   if (!sk) return { ok: false, error: 'unknown skill' };
   if (sk.campaignReward) return { ok: false, error: 'Earn this perk in Varenholm’s Iron War.' };
   if (sk.unique && !opts.allowUnique) return { ok: false, error: 'unique tier — cannot be learned' };
+  // A secret character arrives finished. He carries his own kit and nothing else — no
+  // trainer, no witnessing, no free starting picks — so the ledger cannot be widened.
+  if (ch && ch.fixedKit && !opts.fixedKit) return { ok: false, error: 'He fights with what he brought.' };
   if (SkillSys.knows(ch, skillId)) return { ok: false, error: 'already known' };
   const kind = sk.kind === 'perk' ? 'perk' : 'active';
   if (!sk.noSlot && !SkillSys.slotExempt(ch, sk) && SkillSys.atCapacity(ch, kind) && !opts.forgetting) {
@@ -333,6 +336,7 @@ SkillSys.knownEntry = function (ch, skillId) {
   return (ch.actives || []).find(a => a.skillId === skillId) || (ch.perks || []).find(p => p.skillId === skillId) || null;
 };
 SkillSys.tutorOffers = function (ch, skillId) {
+  if (ch && ch.fixedKit) return [];
   const entry = SkillSys.knownEntry(ch, skillId);
   const sk = SK()[skillId];
   if (!entry || !sk || sk.noTierGrowth) return [];

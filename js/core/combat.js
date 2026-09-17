@@ -627,7 +627,12 @@ function startRound(st) {
   for (const u of st.units) {
     u.delayed = 0; u.attackedThisRoundBy = [];
     u.rangerUsesLeft = Sys().knownVal(u.ch, 'rangerExtraUse') || 0;
+    // A counter stance expires on its own clock; leftover charges do not carry.
+    if (u.counterUntil != null && st.round > u.counterUntil) {
+      u.counter = 0; u.counterUntil = null; u.counterRiposte = null;
+    }
   }
+  reviveTheFallen(st);
   // scripted reinforcements (The Quiet raises the Risen mid-fight, §6a)
   if (st.spawnQueue) {
     for (const spec of st.spawnQueue.filter(x => x.round === st.round)) Combat.spawnReinforcement(st, spec.ch, spec.side || 'b');
@@ -1062,8 +1067,25 @@ function bulwarkOnEnemyDown(st, dead) {
   }
 }
 
+// Demigod does not stay down. Two rounds after he falls he stands again, provided someone on
+// his side is still fighting — a defeat that has already ended does not get undone.
+function reviveTheFallen(st) {
+  for (const u of st.units) {
+    if (!u.downed || u.fled || u.reserved || u.__revivedOnce) continue;
+    const n = Sys().knownVal(u.ch, 'autoReviveRounds');
+    if (!n || u.downedAtRound == null || st.round - u.downedAtRound < n) continue;
+    if (!livingUnits(st, u.side).length) continue;
+    u.__revivedOnce = true;
+    u.downed = false; u.chp = Math.max(1, Math.round(u.maxHp * 0.5)); u.tempHp = 0;
+    u.statuses = u.statuses.filter(x => !NEG_STATUSES.includes(x.kind));
+    ev(st, { t: 'selfRevive', uid: u.uid, why: 'demigod' });
+    if (st.leaderId && u.ch && u.ch.id === st.leaderId) st.leaderDowned = false;
+  }
+}
+
 function onUnitDown(st, u) {
   if (trySelfRevive(st, u)) return;
+  u.downedAtRound = st.round;
   hopDots(st, u);
   bulwarkOnEnemyDown(st, u);
   noteLeaderOut(st, u, true);
@@ -1525,6 +1547,10 @@ Combat.act = function (st, u, action) {
   }
   if (d.counterNext) {
     u.counter += d.counterNext;
+    // A stance holds for a set number of rounds rather than until it is spent, and it names
+    // the blow it answers with. Both are cleared by the clock in startRound.
+    if (d.counterRounds) u.counterUntil = st.round + d.counterRounds - 1;
+    u.counterRiposte = d.counterRiposte || null;
     if (d.thornPct) addStatus(st, u, { kind: 'thorns', pct: d.thornPct, rounds: d.rounds || 1 });
     return finishAction(st, u, skillId);
   }
@@ -1694,13 +1720,29 @@ Combat.act = function (st, u, action) {
       onUnitDown(st, t); checkEnd(st);
       continue;
     }
+    // autoKillPct: a clean cut. Rolled for each body the swing reaches, and never against a
+    // boss — a 25% chance to end an ordinary opponent is a katana's whole reputation, but it
+    // must not be allowed to delete an authored encounter.
+    if (d.autoKillPct && !t.ch.boss && st.rng.chance(d.autoKillPct)) {
+      t.chp = 0; t.tempHp = 0; t.downed = true;
+      ev(st, { t: 'execute', uid: t.uid, by: u.uid, skillId, clean: true });
+      onUnitDown(st, t); checkEnd(st);
+      felled.add(t.uid);
+      continue;
+    }
     // Executes
     if (d.executeBelow && (t.chp + t.tempHp) / t.maxHp < d.executeBelow && !t.ch.boss) {
       t.chp = 0; t.tempHp = 0; t.downed = true;
       ev(st, { t: 'execute', uid: t.uid, by: u.uid, skillId });
       onUnitDown(st, t); checkEnd(st);
       if (!t.downed) continue;
-      if (d.healOnKillPct) healUnit(st, null, u, Math.round(u.maxHp * d.healOnKillPct));
+      if (d.healOnKillPct) {
+        healUnit(st, null, u, Math.round(u.maxHp * d.healOnKillPct));
+        // The skill names where you end up. Healing multipliers decide how easily you get
+        // there, not how far past it you go.
+        const ceiling = Math.round(u.maxHp * d.healOnKillPct);
+        if (u.chp + (u.tempHp || 0) > ceiling) u.tempHp = Math.max(0, ceiling - u.chp);
+      }
       if (d.permStatGain) {
         for (const k of ['hp', 'atk', 'def', 'spd']) u.ch.bonusStats[k] = (u.ch.bonusStats[k] || 0) + d.permStatGain;
         u.ch.finisherGains = (u.ch.finisherGains || 0) + d.permStatGain;
@@ -1816,6 +1858,34 @@ function sayBeat(st, u, say, slot) {
     fid: say.fid || 'gate', who: say.who || u.ch.campaignId, key,
   } });
 }
+
+// A parried attacker is cut on the way out. This is the katana's own strike, auto-kill roll
+// and all, but it is deliberately not a full action: it cannot be countered back, it does not
+// build momentum, and it never chains into a second riposte.
+Combat.riposte = function (st, defender, attacker) {
+  const skillId = defender.counterRiposte;
+  if (!skillId || st.__riposting || !attacker || attacker.downed || attacker.fled) return;
+  const m = manifestFor(defender, skillId);
+  if (!m) return;
+  st.__riposting = true;
+  try {
+    const d = m.data;
+    if (d.autoKillPct && !attacker.ch.boss && st.rng.chance(d.autoKillPct)) {
+      attacker.chp = 0; attacker.tempHp = 0; attacker.downed = true;
+      ev(st, { t: 'execute', uid: attacker.uid, by: defender.uid, skillId, clean: true, riposte: true });
+      onUnitDown(st, attacker); checkEnd(st);
+      return;
+    }
+    ev(st, { t: 'riposte', uid: defender.uid, target: attacker.uid, skillId, name: d.name });
+    const dmg = computeDamage(st, defender, attacker, m);
+    dealDamage(st, defender, attacker, dmg, 'attack', { melee: true, noReflect: true });
+    if (d.status && !attacker.downed) {
+      for (const [kind, sdef] of Object.entries(d.status)) {
+        addStatus(st, attacker, Object.assign({ kind, tier: m.tier, srcAtk: Ch().effStat(defender.ch, 'atk'), srcLevel: m.level, srcUid: defender.uid }, sdef));
+      }
+    }
+  } finally { st.__riposting = false; }
+};
 
 function applyFlareOnHit(st, u, t, m) {
   const f = m && m.flare;

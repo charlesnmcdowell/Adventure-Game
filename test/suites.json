@@ -280,6 +280,10 @@
       "args": []
     },
     {
+      "file": "test/hiro_kit.js",
+      "args": []
+    },
+    {
       "file": "test/party_roles.js",
       "args": []
     },
