@@ -118,7 +118,7 @@ A.HousingArt.paint=function(scene,id){
    root.ready.then(ok=>{
     if(!ok||!root.active||!root.background)return;
     const source=root.background.frame.source.image,c=document.createElement('canvas');c.width=source.width;c.height=source.height;
-    const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(source,0,0);const data=ctx.getImageData(0,0,c.width,c.height).data;
+    const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(source,0,0);const data=A.ArtAssets.readPixels(ctx,0,0,c.width,c.height)?.data;if(!data)return;
     for(let y=73;y<320;y++)for(const [left,right]of [[43,102],[123,186]]){
      let start=-1;
      for(let x=left;x<=right;x++){

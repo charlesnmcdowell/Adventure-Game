@@ -4,18 +4,18 @@ A browser RPG built with Phaser. This folder contains the editable game, art and
 
 ## Play the game locally
 
-**[Open Adventurer](http://127.0.0.1:8734/index.html)** while the local server is running.
+Double-click **Play Adventurer.bat**. It starts a local server and opens the game in your browser. Leave that window open while you play; close it to stop.
 
-If the page does not open, run these commands in PowerShell:
+**[Open Adventurer](http://127.0.0.1:8734/index.html)** if the server is already running.
+
+Opening `index.html` directly from Explorer (`file://`) will not load artwork correctly in Chrome or Edge. The batch file is the local play path. No build step is required.
+
+If the batch file cannot find Node.js, it falls back to Python:
 
 ```powershell
 Set-Location -LiteralPath 'C:\Users\charl\The Sorcerer Sword ARPG\adventurer'
 py -m http.server 8734 --bind 127.0.0.1
 ```
-
-Keep that terminal open while playing. Press Ctrl+C to stop the server. If port 8734 is already in use, try the game link first; the server may already be running.
-
-The entry file is [index.html](index.html). Use the local web address so the browser can load the game's assets correctly. No build step is required. The public website is hosted separately and does not depend on this local server.
 
 [Varenholm's Gate art viewer](http://127.0.0.1:8734/index.html?gateArtPreview=1) · [Character art preview](http://127.0.0.1:8734/index.html?artPreview=1)
 

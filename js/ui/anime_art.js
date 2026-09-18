@@ -57,7 +57,8 @@ function recolor(ctx, id, tone) {
     : id==='mage' ? [[420,115,285,295],[423,478,285,172],[120,1120,125,240],[888,1110,115,245],[295,1190,320,212]]
     : [[420,115,285,295],[118,1140,130,220],[885,1120,125,245],[290,1170,325,232]];
   for(const box of regions)m.fillRect(...box);
-  const d=ctx.getImageData(0,0,1122,1402), a=m.getImageData(0,0,1122,1402).data;
+  const d=A.ArtAssets?.readPixels(ctx,0,0,1122,1402); if(!d)return;
+  const a=m.getImageData(0,0,1122,1402).data;
   for(let i=0;i<d.data.length;i+=4) {
     const r=d.data[i],g=d.data[i+1],b=d.data[i+2];
     if(a[i+3]<250 || d.data[i+3]<100 || r<g*1.24 || g<=b || r<50 || (r-b)/r<.35) continue;

@@ -455,8 +455,8 @@ def({ id: 'rich', name: 'Rich', kind: 'perk', unique: true, noTierGrowth: true,
   tiers: { basic: { name: 'Rich' }, intermediate: { name: 'Rich' }, advanced: { name: 'Rich' } } });
 
 def({ id: 'katana_slash', name: 'Katana Slash', kind: 'active', unique: true, katana: true, noTierGrowth: true,
-  power: 2.6, reach: 'any', target: 'allEnemies', autoKillPct: 0.25,
-  desc: 'One motion across the whole line: every enemy is cut once, whatever lane they stand in. Each cut has a 25% chance to kill outright anything below boss rank, and opens a stacking Bleed on whoever survives it.',
+  power: 2.6, reach: 'any', target: 'allEnemies', autoKillPct: 0.25, noReflect: true,
+  desc: 'One motion across the whole line: every enemy is cut once, whatever lane they stand in. Each cut has a 25% chance to kill outright anything below boss rank, and opens a stacking Bleed on whoever survives it. Too fast to be answered — no ward or thorn reflects it.',
   tiers: {
     basic:        { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },
     intermediate: { name: 'Katana Slash', status: { bleed: { power: 0.6, rounds: 3, stacks: true } } },

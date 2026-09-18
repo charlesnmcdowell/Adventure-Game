@@ -188,7 +188,8 @@ WeatherFX.STATS = { lastMs: 0, avgMs: 0, n: 0 };
 WeatherFX.skyMask = function(scene,source,scale,x=0,y=0,repeat=false){
   const canvas=document.createElement('canvas');canvas.width=source.width;canvas.height=source.height;
   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(source,0,0);
-  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data,profile=[],step=6;
+  const pixels=ADV.ArtAssets.readPixels(ctx,0,0,canvas.width,canvas.height)?.data,profile=[],step=6;
+  if(!pixels){const shape=scene.make.graphics({add:false}),mask=shape.createGeometryMask();return{mask,anchor:null,update(){},destroy(){mask.destroy();shape.destroy();}};}
   for(let px=0;px<canvas.width;px+=step){let py=0;
     for(;py<canvas.height*.4;py++){
       const at=(py*canvas.width+px)*4,r=pixels[at],g=pixels[at+1],b=pixels[at+2];

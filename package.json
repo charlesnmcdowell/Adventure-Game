@@ -16,6 +16,7 @@
     "test:skill-art": "node test/skill_art.js && node tools/skill_art/browser_check.js && node tools/skill_art/flow_check.js",
     "test:mobile-launch": "node tools/test_runner.js mobile",
     "check": "python tools/safe_publish.py --check-only",
+    "play": "node play_local.js",
     "test:smoke": "node tools/test_runner.js smoke"
   },
   "dependencies": {

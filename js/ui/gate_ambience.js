@@ -99,7 +99,7 @@ function attach(scene,root,bg,profile,opts={}){
  for(const [index,[x,y,w,h]]of (profile.fires||[]).entries()){
   const cw=Math.max(4,Math.ceil(w*sw*1.4)),ch=Math.max(5,Math.ceil(h*sh*1.4)),c=document.createElement('canvas');c.width=cw;c.height=ch;
   const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(frame.source.image,x*sw-cw/2,y*sh-ch,cw,ch,0,0,cw,ch);
-  const pixels=ctx.getImageData(0,0,cw,ch),data=pixels.data;
+  const pixels=A.ArtAssets.readPixels(ctx,0,0,cw,ch);if(!pixels)continue;const data=pixels.data;
   for(let py=0;py<ch;py++)for(let px=0;px<cw;px++){
    const at=(py*cw+px)*4,r=data[at],g=data[at+1],b=data[at+2];
    const warmth=profile.flameTone==='blue'

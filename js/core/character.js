@@ -372,6 +372,15 @@ Character.makeRegistry = function (rng, regId, playerName, asNpc) {
   const maxUses = (maxLevel - 1) * C().USES_PER_LEVEL;
   for (const p of def.perks) ch.perks.push({ skillId: p, level: maxLevel, uses: maxUses });
   for (const a of def.actives) ch.actives.push({ skillId: a, level: maxLevel, uses: maxUses });
+  // A registry character never levels, never grows and never re-gears, so the body he
+  // arrives with is the body he dies with. statMult is how that body is set: it is applied
+  // once, at creation, to the base stats every other character spends a career raising.
+  if (def.statMult) {
+    for (const k of ['hp', 'atk', 'def', 'spd']) {
+      const m = def.statMult[k] != null ? def.statMult[k] : (def.statMult.all || 1);
+      if (m !== 1) ch.stats[k] = Math.round((ch.stats[k] || 0) * m);
+    }
+  }
   ch.equipped = (def.startingGear || []).slice();
   ch.equippedSet = def.equippedSet || null;
   // He cannot learn, buy, forget or re-equip: the kit and the gear are the character.

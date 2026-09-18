@@ -1244,7 +1244,15 @@ function resolveSkillTarget(st, u, skillId, action, d, off) {
     if (living && named.side === u.side) return named;
     return u;
   }
-  const foes = livingUnits(st, foeSideOf(u)).filter(x => !x.downed && (ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, x) : !x.untargetable));
+  let foes = livingUnits(st, foeSideOf(u)).filter(x => !x.downed && (ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, x) : !x.untargetable));
+  // An execution cannot be talked into a target it is incapable of killing. A taunt can force
+  // whom you fight, not whether a finishing blow finishes: without this a marked character
+  // spends the skill on a healthy boss and the turn is simply gone.
+  if (d.requireBelowPct) {
+    const dying = foes.filter(x => x.maxHp && (x.chp + (x.tempHp || 0)) / x.maxHp < d.requireBelowPct);
+    if (!dying.length) return null;
+    foes = dying;
+  }
   // Skills that choose their own victim do it here, ahead of everything else, so the name in
   // the "uses" line is the one who actually gets hit. A taunt can't pull a sweep off the front
   // rank, and it can't talk the boss out of challenging the biggest body on the field.
@@ -1263,7 +1271,7 @@ function resolveSkillTarget(st, u, skillId, action, d, off) {
       return forced[0];
     }
   }
-  if (living && named.side !== u.side && (ADV.GatePerkCombat ? ADV.GatePerkCombat.canTarget(u, named) : !named.untargetable)) return named;
+  if (living && foes.includes(named)) return named;
   const legal = Combat.validTargets(st, u, skillId, !!off).filter(x => x.side !== u.side && !x.downed);
   return legal[0] || null;
 }

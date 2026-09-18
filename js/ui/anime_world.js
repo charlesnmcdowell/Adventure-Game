@@ -136,7 +136,7 @@ function headwear(ctx,scene,set,r,named){
 function skinBody(body,target,set,sex){
  // Authored center-neck/chest areas. The selector excludes neutral steel and dark cloth.
  const c=document.createElement('canvas');c.width=c.height=body.width;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(body,0,0);
- const d=x.getImageData(0,0,c.width,c.height),p=d.data;
+ const d=A.ArtAssets.readPixels(x,0,0,c.width,c.height);if(!d)return body;const p=d.data;
  let regions=[[190,0,125,48],[18,195,112,280],[370,195,112,280]];
  if(!['plate','oath','green_eyed_armour','ronin','warrior'].includes(set))regions.push([188,38,125,set==='mage'?165:125]);
  // Cream fabric shares the old hue selector's skin range. These authored
@@ -169,7 +169,7 @@ function skinBody(body,target,set,sex){
 }
 function clothColor(canvas,color){
  if(!color)return;
- const target=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)),ctx=canvas.getContext('2d',{willReadFrequently:true}),d=ctx.getImageData(0,0,canvas.width,canvas.height);
+ const target=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)),ctx=canvas.getContext('2d',{willReadFrequently:true}),d=A.ArtAssets.readPixels(ctx,0,0,canvas.width,canvas.height);if(!d)return;
  for(let i=0;i<d.data.length;i+=4){const p=d.data,r=p[i],g=p[i+1],b=p[i+2];if(p[i+3]<200||b<g*1.05||b<r*1.12||b-r<12)continue;const l=(r*.3+g*.59+b*.11)/95;for(let j=0;j<3;j++)p[i+j]=Math.min(255,target[j]*l);}
  ctx.putImageData(d,0,0);
 }
@@ -182,7 +182,8 @@ function composeHuman(scene,ch,id,set){
  const body=cell(scene,special||warden?.sheet|| (set==='wardens_gear'?'wardrobe_gate':'wardrobe_'+id.sex+(Math.floor(index/4)+1)),special?named.bodyFrame:warden?warden.frame:set==='wardens_gear'?(id.sex==='f'?0:1):index%4);
  if(!head||!body)return null;
  const master=document.createElement('canvas');master.width=1122;master.height=1402;const ctx=master.getContext('2d');
- const hp=head.getContext('2d').getImageData(Math.round((h.nx+34*(registration?.scale||1))*500/627),Math.round((h.ny+15*(registration?.scale||1))*500/627),1,1).data;
+ const sampled=A.ArtAssets.readPixels(head.getContext('2d'),Math.round((h.nx+34*(registration?.scale||1))*500/627),Math.round((h.ny+15*(registration?.scale||1))*500/627),1,1);
+ const hp=sampled?sampled.data:[210,170,140,255];
  let flesh=special&&named.authoredSkin?body:skinBody(body,hp,set,id.sex);
  const bodyW=named?.bodyWidth||[1020,1060,980][id.build];
  // Register the neck opening, not the bounding box of an asymmetric coat.
@@ -195,8 +196,8 @@ function composeHuman(scene,ch,id,set){
   // Headless outfit sheets include the BACK rim of an empty collar. The neck must pass in
   // front of that rim, while the lower/front collar still covers the neck. Find the rim in
   // the actual outfit, so an open hunting coat and a high robe collar need no shared offset.
-  const top=body.getContext('2d').getImageData(neckX-5,0,10,100).data;
-  for(let yy=0;yy<100;yy++){
+  const top=A.ArtAssets.readPixels(body.getContext('2d'),neckX-5,0,10,100)?.data;
+  for(let yy=0;top&&yy<100;yy++){
    let solid=0;for(let xx=0;xx<10;xx++)if(top[(yy*10+xx)*4+3]>180)solid++;
    if(solid>5){
     // Each atlas has different empty space above its collar. Leaving that
@@ -209,9 +210,9 @@ function composeHuman(scene,ch,id,set){
  if(named?.authoredSkin||warden){
   // The generated modular collar opening is hollow. Expose the neck beneath it.
   const c=document.createElement('canvas');c.width=c.height=body.width;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(flesh,0,0);
-  const top=x.getImageData(245,0,10,110).data;let collar=0;for(let yy=0;yy<110;yy++){if(Array.from({length:10},(_,xx)=>top[(yy*10+xx)*4+3]).filter(a=>a>180).length>5){collar=yy;break;}}
+  const top=A.ArtAssets.readPixels(x,245,0,10,110)?.data;let collar=0;for(let yy=0;top&&yy<110;yy++){if(Array.from({length:10},(_,xx)=>top[(yy*10+xx)*4+3]).filter(a=>a>180).length>5){collar=yy;break;}}
   bodyY=500-collar*bodyW/500;
-  const d=x.getImageData(210,0,80,90);for(let i=0;i<d.data.length;i+=4){const p=d.data;if(p[i]+p[i+1]+p[i+2]<145&&Math.max(p[i],p[i+1],p[i+2])-Math.min(p[i],p[i+1],p[i+2])<50)p[i+3]=0;}x.putImageData(d,210,0);flesh=c;
+  const d=A.ArtAssets.readPixels(x,210,0,80,90);if(d){for(let i=0;i<d.data.length;i+=4){const p=d.data;if(p[i]+p[i+1]+p[i+2]<145&&Math.max(p[i],p[i+1],p[i+2])-Math.min(p[i],p[i+1],p[i+2])<50)p[i+3]=0;}x.putImageData(d,210,0);}flesh=c;
   ctx.fillStyle=`rgb(${hp[0]},${hp[1]},${hp[2]})`;ctx.beginPath();ctx.moveTo(500,465);ctx.lineTo(622,465);ctx.lineTo(655,700);ctx.lineTo(468,700);ctx.closePath();ctx.fill();
  }
  if(named&&!ch.equippedSet)clothColor(flesh,named.clothColor);

@@ -284,6 +284,12 @@
       "args": []
     },
     {
+      "file": "test/hiro_gauntlet.js",
+      "args": [
+        "--quiet"
+      ]
+    },
+    {
       "file": "test/party_roles.js",
       "args": []
     },

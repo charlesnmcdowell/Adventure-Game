@@ -16,7 +16,8 @@ function pump(){
  }
 }
 ADV.ArtAssets={
- load(url){if(pending.has(url))return pending.get(url);const p=new Promise((resolve,reject)=>queue.push({url,resolve,reject,attempt:0}));pending.set(url,p);pump();return p;},
+  load(url){if(pending.has(url))return pending.get(url);const p=new Promise((resolve,reject)=>queue.push({url,resolve,reject,attempt:0}));pending.set(url,p);pump();return p;},
+  readPixels(ctx,x,y,w,h){try{return ctx.getImageData(x,y,w,h);}catch(e){return null;}},
  failed(id,run){
   failed.set(id,run);if(banner)return;
   banner=document.createElement('aside');banner.className='art-warning';banner.setAttribute('role','alert');

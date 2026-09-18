@@ -13,6 +13,10 @@ ADV.DATA.REGISTRY = {
     sex: 'm',
     portrait: 'hiro',   // authored player portrait: purple dreads, hazel eyes, dark skin, lamellar, katana
     personalityId: 'HIRO', // his own lines (js/data/dialogue_hiro.js)
+    // He has no career to grow through: no levels, no gear, no witnessed skills, and his
+    // Finisher swelling is shed at the gate. Whatever he is worth, he is worth on arrival,
+    // so his body is set where a titled veteran's ends up rather than where a novice starts.
+    statMult: { hp: 7, atk: 2.5, def: 2.5, spd: 1.5 },
     startingGear: ['abyssal_katana', 'ronin_gear'],
     equippedSet: 'ronin',
     perks: ['demigod', 'master_swordsman', 'lone_wolf', 'rich'],

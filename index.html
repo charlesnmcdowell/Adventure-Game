@@ -110,7 +110,7 @@
 <!-- data (generated + authored) -->
 <script src="js/data/constants.js?v=20260914-pop80b"></script>
 <script src="js/data/version.js?v=20260915-ver122"></script>
-<script src="js/data/skills.js?v=20260917-hirokit1"></script>
+<script src="js/data/skills.js?v=20260917-hirokit2"></script>
 <script src="js/data/campaign_skills.js?v=20260914-balance3"></script>
 <script src="js/data/campaign_data.js?v=20260911-art3"></script>
 <script src="js/data/campaign_dialogue.js?v=20260911-art3"></script>
@@ -128,7 +128,7 @@
 <script src="js/data/enemy_tactics.js?v=20260911-art3"></script>
 <script src="js/data/names.js?v=20260911-art3"></script>
 <script src="js/data/tutorial.js?v=20260911-art3"></script>
-<script src="js/data/registry.js?v=20260911-art3"></script>
+<script src="js/data/registry.js?v=20260917-hirokit2"></script>
 <script src="js/data/dialogue.js?v=20260911-art3"></script>
 <script src="js/data/dialogue_hiro.js?v=20260911-art3"></script>
 <script src="js/data/dialogue2.js?v=20260911-art3"></script>
@@ -148,7 +148,7 @@
 <script src="js/core/rng.js?v=20260914-audit1"></script>
 <script src="js/core/util.js?v=20260911-art3"></script>
 <script src="js/core/skillsys.js?v=20260917-hirokit1"></script>
-<script src="js/core/character.js?v=20260917-hirokit1"></script>
+<script src="js/core/character.js?v=20260917-hirokit2"></script>
 <script src="js/core/housing.js?v=20260911-art3"></script>
 <script src="js/core/survival.js?v=20260911-art3"></script>
 <script src="js/core/combat_events.js?v=20260914-audit1"></script>
@@ -157,7 +157,7 @@
 <script src="js/core/combat_damage.js?v=20260917-hirokit1"></script>
 <script src="js/core/combat_healing.js?v=20260914-audit1"></script>
 <script src="js/core/combat_statuses.js?v=20260917-hirokit1"></script>
-<script src="js/core/combat.js?v=20260917-hirokit1"></script>
+<script src="js/core/combat.js?v=20260917-hirokit2"></script>
 <script src="js/core/combat_ai.js?v=20260916-koladeboss1"></script>
 <script src="js/core/combat_effects.js?v=20260914-balance3"></script>
 <script src="js/core/relationships.js?v=20260911-art3"></script>
@@ -232,8 +232,8 @@
 <script src="js/ui/scene_anime_preview.js?v=20260914-audit1"></script>
 <script src="js/ui/anime_manifest.js?v=20260916-hiro-cyber"></script>
 <script src="js/ui/anime_identities.js?v=20260916-hiro-cyber"></script>
-<script src="js/ui/asset_queue.js?v=20260914-audit1"></script>
-<script src="js/ui/anime_world.js?v=20260916-hiro-cyber"></script>
+<script src="js/ui/asset_queue.js?v=20260917-fileart1"></script>
+<script src="js/ui/anime_world.js?v=20260917-fileart1"></script>
 <script src="js/ui/anime_environments.js?v=20260913-q5-flow1"></script>
 <script src="js/ui/travel_panorama.js?v=20260913-normal-travel-motion"></script>
 <script src="js/ui/gate_manifest.js?v=20260915-ironwar1"></script>
@@ -252,7 +252,9 @@
 if (ADV.MobileTitle.enabled()) document.body.classList.add('mobile-loading');
 await ADV.Portal.prepare();
 window.__game = new Phaser.Game({
-  type: Phaser.AUTO,
+  // file:// images are opaque-origin in Chromium, so WebGL texImage2D rejects
+  // them and the title painting never appears. Canvas can still blit them.
+  type: location.protocol === 'file:' ? Phaser.CANVAS : Phaser.AUTO,
   parent: 'game',
   width: ADV.T.W,
   height: ADV.T.H,
